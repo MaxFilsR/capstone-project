@@ -1,4 +1,4 @@
-use actix_web::{App, HttpResponse, HttpServer, Responder, get, post, web};
+use actix_web::{App, HttpServer};
 use capstone_project::nav;
 
 #[actix_web::main]

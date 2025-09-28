@@ -1,4 +1,4 @@
-use actix_web::{App, HttpResponse, HttpServer, Responder, get, post, web};
+use actix_web::{HttpResponse, Responder, get, post};
 
 #[post("/onboarding/personal-info")]
 async fn personal_info() -> impl Responder {
