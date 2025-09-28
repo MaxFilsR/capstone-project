@@ -5,4 +5,4 @@ edition = "2024"
 
 [dependencies]
 actix-web = "4"
-sqlx = { version = "0.8", features = [ "runtime-actix", "tls-native-tls" ]}
+sqlx = { version = "0.8.6", features = ["tls-native-tls"] }
