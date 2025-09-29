@@ -1,6 +1,9 @@
 use actix_web::{App, HttpServer};
 use capstone_project::nav;
 
+const ADDRESS: &str = "127.0.0.1";
+const PORT: u16 = 8080;
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
@@ -13,7 +16,7 @@ async fn main() -> std::io::Result<()> {
             .service(nav::onboarding::character)
         // ...
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind((ADDRESS, PORT))?
     .run()
     .await
 }
