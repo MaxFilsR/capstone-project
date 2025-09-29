@@ -7,6 +7,8 @@ pub mod nav {
     pub mod workouts;
 }
 
+pub mod db;
+
 // Example
 
 // #[get("...")]
