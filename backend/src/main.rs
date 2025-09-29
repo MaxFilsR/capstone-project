@@ -2,12 +2,12 @@ use actix_web::{App, HttpServer};
 use capstone_project::db;
 use capstone_project::nav;
 
+const ADDRESS: &str = "127.0.0.1";
+const PORT: u16 = 8080;
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    
-    //Database INIT
-    let database = db::init().await;
-    //HTTP Server INIT
+    println!("Starting web sever at http://{ADDRESS}:{PORT}");
     HttpServer::new(|| {
         App::new()
             // Onboarding
@@ -18,7 +18,7 @@ async fn main() -> std::io::Result<()> {
             .service(nav::onboarding::character)
         // ...
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind((ADDRESS, PORT))?
     .run()
     .await
 }
