@@ -1,8 +1,13 @@
 use actix_web::{App, HttpServer};
+use capstone_project::db;
 use capstone_project::nav;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    
+    //Database INIT
+    let database = db::init().await;
+    //HTTP Server INIT
     HttpServer::new(|| {
         App::new()
             // Onboarding
