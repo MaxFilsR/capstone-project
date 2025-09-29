@@ -1,19 +1,18 @@
 /*
-  This file is responsible to serve as an interface for the backend to the database. 
+  This file is responsible to serve as an interface for the backend to the database.
 */
 
 //libs
-use sqlx::{Connection, ConnectOptions};
-use sqlx::postgres::{PgConnection, PgConnectOptions};
+use dotenvy;
+use sqlx::ConnectOptions;
+use sqlx::postgres::{PgConnectOptions, PgConnection};
+
 //const DATABASE_URL: &str= "http://localhost:5432";
 
-pub async fn get_connection(){
-  let con = PgConnectionOptions::new()
-  .host("localhost")
-  .port(5432)
-  .username()
-  .await?;
+pub async fn connect() -> PgConnection {
+    dotenvy::from_filename_override("./db/.env").unwrap();
+    // Connection parameters loaded in from `./db/.env` file.
+    // https://docs.rs/sqlx/latest/sqlx/postgres/struct.PgConnectOptions.html#parameters
+    let connection = PgConnectOptions::new().connect().await.unwrap();
+    return connection;
 }
-
-
-
