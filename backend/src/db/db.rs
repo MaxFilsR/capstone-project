@@ -1,0 +1,3 @@
+/*
+  This file is responsible to serve as an interface for the backend to the database. 
+*/

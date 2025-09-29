@@ -1,5 +1,5 @@
 use actix_web::{App, HttpServer};
-use capstone_project::db;
+// use capstone_project::db;
 use capstone_project::nav;
 
 const ADDRESS: &str = "127.0.0.1";
