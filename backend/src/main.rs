@@ -6,6 +6,7 @@ const PORT: u16 = 8080;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    println!("Starting web sever at http://{ADDRESS}:{PORT}");
     HttpServer::new(|| {
         App::new()
             // Onboarding
