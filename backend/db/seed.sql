@@ -18,14 +18,14 @@ CREATE TABLE IF NOT EXISTS items (
 );
 
 CREATE TABLE IF NOT EXISTS user_items (
-  user_id UUID REFERENCES users(id),
+  user_id INT REFERENCES users(id),
   item_id INT REFERENCES items(id),
   acquired_at TIMESTAMP DEFAULT NOW(),
   PRIMARY KEY (user_id, item_id)
 );
 
 CREATE TABLE IF NOT EXISTS user_equipment (
-  user_id UUID PRIMARY KEY REFERENCES users(id),
+  user_id INT PRIMARY KEY REFERENCES users(id),
   head INT REFERENCES items(id),
   head_accessory INT REFERENCES items(id),
   body INT REFERENCES items(id),
