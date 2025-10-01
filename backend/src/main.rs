@@ -1,5 +1,5 @@
 use actix_web::{App, HttpServer};
-// use capstone_project::db;
+use capstone_project::db;
 use capstone_project::nav;
 
 const ADDRESS: &str = "127.0.0.1";
@@ -15,7 +15,7 @@ async fn main() -> std::io::Result<()> {
             .service(nav::onboarding::class)
             .service(nav::onboarding::check_username)
             .service(nav::onboarding::authentication)
-            .service(nav::onboarding::character)
+            .service(nav::onboarding::workout_schedule)
         // ...
     })
     .bind((ADDRESS, PORT))?

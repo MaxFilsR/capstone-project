@@ -2,6 +2,8 @@ use actix_web::{HttpResponse, Responder, get, post, web};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
+// POST /onboarding/personal-info
+
 #[derive(Deserialize)]
 struct PersonalInfoRequest {
     first_name: String,
@@ -23,14 +25,11 @@ async fn personal_info(request: web::Form<PersonalInfoRequest>) -> impl Responde
         user_id: Uuid::new_v4(),
     });
 }
+
+// POST /onboarding/class
+
 #[derive(Deserialize)]
 struct ClassRequest {
-    class: String,
-}
-
-#[derive(Serialize)]
-struct ClassResponse {
-    user_id: Uuid,
     class: String,
 }
 
@@ -40,9 +39,10 @@ async fn class(request: web::Form<ClassRequest>) -> impl Responder {
     return HttpResponse::NotImplemented();
 }
 
+// GET /onboarding/check-username
+
 #[derive(Serialize)]
 struct CheckUsernameResponse {
-    username: String,
     available: bool,
 }
 
@@ -52,16 +52,12 @@ async fn check_username() -> impl Responder {
     return HttpResponse::NotImplemented();
 }
 
+// POST /onboarding/authentication
+
 #[derive(Deserialize)]
 struct AuthenticationRequest {
     username: String,
     password: String,
-}
-
-#[derive(Serialize)]
-struct AuthenticationResponse {
-    user_id: Uuid,
-    username: String,
 }
 
 #[post("/onboarding/authentication")]
@@ -70,36 +66,15 @@ async fn authentication(request: web::Form<AuthenticationRequest>) -> impl Respo
     return HttpResponse::NotImplemented();
 }
 
+// POST /onboarding/workout-schedule
+
 #[derive(Deserialize)]
-struct CharacterRequest {
-    workout_schedule: [bool; 7],
-    class: String,
-}
-
-#[derive(Serialize)]
-enum Status {
-    Active,
-    Inactive,
-}
-
-#[derive(Serialize)]
-struct Profile {
-    first_name: String,
-    last_name: String,
-    username: String,
-    class: String,
+struct WorkoutScheduleRequest {
     workout_schedule: [bool; 7],
 }
 
-#[derive(Serialize)]
-struct CharacterResponse {
-    user_id: Uuid,
-    status: Status,
-    profile: Profile,
-}
-
-#[post("/onboarding/character")]
-async fn character(request: web::Form<CharacterRequest>) -> impl Responder {
+#[post("/onboarding/workout-schedule")]
+async fn workout_schedule(request: web::Form<WorkoutScheduleRequest>) -> impl Responder {
     todo!();
     return HttpResponse::NotImplemented();
 }
