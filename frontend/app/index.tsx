@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   },
   stretch: {
     width: 400,
-    height: 200,
+    height: 100,
     resizeMode: "stretch",
   },
 });
