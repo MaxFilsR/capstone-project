@@ -46,15 +46,16 @@ services:
     #     condition: service_healthy
   #* postgres container
   db:
+    image: postgres:latest
     container_name: postgres_container
-    image: amd64/postgres:15
     restart: always
     env_file:
-      ./db/db.env
+      - ./db/.env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/seed.sql
 
   #* pgadmin container
   pgadmin:
@@ -65,7 +66,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
-      - "8080:80"
+      - "80:80"
     depends_on:
       - db
 #     healthcheck:
