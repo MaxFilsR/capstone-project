@@ -54,8 +54,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./db/seed.sql:/docker-entrypoint-initdb.d/seed.sql
+      - postgres_data:/var/lib/postgresql/data #persistent data
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/seed.sql #preseedin
 
   #* pgadmin container
   pgadmin:

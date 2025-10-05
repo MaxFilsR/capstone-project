@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS users (
   pass VARCHAR(255) -- TODO: Change later to a more secure way of storing this info please
 );
 
+
+
 CREATE TABLE IF NOT EXISTS items (
   id SERIAL PRIMARY KEY,
   name VARCHAR(100),
