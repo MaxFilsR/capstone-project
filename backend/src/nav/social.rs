@@ -3,6 +3,6 @@ use actix_web::{
     web::{Form, Json},
 };
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+use sqlx::Row;
 
 use crate::db;
