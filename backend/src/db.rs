@@ -3,16 +3,12 @@
 */
 
 //libs
-use dotenvy;
-use sqlx::ConnectOptions;
-use sqlx::postgres::{PgConnectOptions, PgConnection};
+use sqlx::Connection;
+use sqlx::postgres::PgConnection;
 
-//const DATABASE_URL: &str= "http://localhost:5432";
+const DATABASE_URL: &str = "postgres://localhost:5432";
 
 pub async fn connect() -> PgConnection {
-    dotenvy::from_filename_override("./db/.env").unwrap();
-    // Connection parameters loaded in from `./db/.env` file.
-    // https://docs.rs/sqlx/latest/sqlx/postgres/struct.PgConnectOptions.html#parameters
-    let connection = PgConnectOptions::new().connect().await.unwrap();
+    let connection = PgConnection::connect(DATABASE_URL).await.unwrap();
     return connection;
 }

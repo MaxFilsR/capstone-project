@@ -1,6 +1,11 @@
-use actix_web::{HttpResponse, Responder, get, post, web};
+use actix_web::{
+    HttpResponse, post,
+    web::{Form, Json},
+};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+
+use crate::db;
 
 // POST /onboarding/personal-info
 
@@ -19,8 +24,8 @@ struct PersonalInfoResponse {
 }
 
 #[post("/onboarding/personal-info")]
-async fn personal_info(request: web::Form<PersonalInfoRequest>) -> impl Responder {
-    return HttpResponse::Ok().json(PersonalInfoResponse {
+async fn personal_info(request: Form<PersonalInfoRequest>) -> Json<PersonalInfoResponse> {
+    return Json(PersonalInfoResponse {
         temp_token: "test".to_string(),
         user_id: Uuid::new_v4(),
     });
@@ -34,22 +39,26 @@ struct ClassRequest {
 }
 
 #[post("/onboarding/class")]
-async fn class(request: web::Form<ClassRequest>) -> impl Responder {
+async fn class(request: Form<ClassRequest>) -> HttpResponse {
     todo!();
-    return HttpResponse::NotImplemented();
+    return HttpResponse::Ok().into();
 }
 
-// GET /onboarding/check-username
+// POST /onboarding/check-username
+
+#[derive(Deserialize)]
+struct CheckUsernameRequest {
+    username: String,
+}
 
 #[derive(Serialize)]
 struct CheckUsernameResponse {
     available: bool,
 }
 
-#[get("/onboarding/check-username")]
-async fn check_username() -> impl Responder {
-    todo!();
-    return HttpResponse::NotImplemented();
+#[post("/onboarding/check-username")]
+async fn check_username(request: Form<CheckUsernameRequest>) -> Json<CheckUsernameResponse> {
+    return Json(CheckUsernameResponse { available: true });
 }
 
 // POST /onboarding/authentication
@@ -61,9 +70,21 @@ struct AuthenticationRequest {
 }
 
 #[post("/onboarding/authentication")]
-async fn authentication(request: web::Form<AuthenticationRequest>) -> impl Responder {
-    todo!();
-    return HttpResponse::NotImplemented();
+async fn authentication(request: Form<AuthenticationRequest>) -> HttpResponse {
+    let mut connection = db::connect().await;
+    let row = sqlx::query("FROM users SELECT password WHERE username = '$1' ")
+        .bind(&request.username)
+        .fetch_one(&mut connection)
+        .await
+        .unwrap();
+
+    let result = "...";
+
+    if request.password == result {
+        return HttpResponse::Ok().into();
+    } else {
+        return HttpResponse::NotFound().into();
+    }
 }
 
 // POST /onboarding/workout-schedule
@@ -74,7 +95,7 @@ struct WorkoutScheduleRequest {
 }
 
 #[post("/onboarding/workout-schedule")]
-async fn workout_schedule(request: web::Form<WorkoutScheduleRequest>) -> impl Responder {
+async fn workout_schedule(request: Form<WorkoutScheduleRequest>) -> HttpResponse {
     todo!();
-    return HttpResponse::NotImplemented();
+    return HttpResponse::NotImplemented().into();
 }
