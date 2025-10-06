@@ -2,6 +2,7 @@ use actix_web::{
     HttpResponse, post,
     web::{Form, Json},
 };
+use email_address::EmailAddress;
 use serde::{Deserialize, Serialize};
 use sqlx::Row;
 
@@ -31,20 +32,27 @@ async fn personal_info(request: Form<PersonalInfoRequest>) -> Json<PersonalInfoR
         todo!();
     }
 
-    let query =
-        sqlx::query("INSERT INTO users (first_name,last_name,email,password) VALUES($1,$2,$3,$4)")
-            .bind(&request.first_name)
-            .bind(&request.last_name)
-            .bind(&request.email)
-            .bind(hash(&request.password))
-            .execute(&mut connection)
-            .await
-            .unwrap();
-
-    let (succesful, error) = if query.rows_affected() == 0 {
-        (false, "email already exists")
+    let (succesful, error) = if !EmailAddress::is_valid(&request.email) {
+        (false, "email is invalid")
     } else {
-        (true, "")
+        let query = sqlx::query(
+            "INSERT INTO users (first_name,last_name,email,password) VALUES
+             ($1,$2,$3,$4)
+             ON CONFLICT (email) DO NOTHING",
+        )
+        .bind(&request.first_name)
+        .bind(&request.last_name)
+        .bind(&request.email)
+        .bind(hash(&request.password))
+        .execute(&mut connection)
+        .await
+        .unwrap();
+
+        if query.rows_affected() == 0 {
+            (false, "email already exists")
+        } else {
+            (true, "")
+        }
     };
 
     return Json(PersonalInfoResponse {
@@ -82,14 +90,17 @@ struct CheckUsernameResponse {
 async fn check_username(request: Form<CheckUsernameRequest>) -> Json<CheckUsernameResponse> {
     let mut connection = db::connect().await;
 
-    let row = sqlx::query("FROM users SELECT id WHERE username = '$1' ")
-        .bind(&request.username)
-        .fetch_optional(&mut connection)
-        .await
-        .unwrap();
+    let query = sqlx::query(
+        "FROM users SELECT id 
+         WHERE username = '$1'",
+    )
+    .bind(&request.username)
+    .fetch_optional(&mut connection)
+    .await
+    .unwrap();
 
     return Json(CheckUsernameResponse {
-        available: row.is_some(),
+        available: query.is_some(),
     });
 }
 
@@ -110,13 +121,16 @@ struct AuthenticationResponse {
 async fn authentication(request: Form<AuthenticationRequest>) -> Json<AuthenticationResponse> {
     let mut connection = db::connect().await;
 
-    let row = sqlx::query("FROM users SELECT password WHERE username = '$1' ")
-        .bind(&request.username)
-        .fetch_one(&mut connection)
-        .await
-        .unwrap();
+    let query = sqlx::query(
+        "FROM users SELECT password 
+         WHERE username = '$1'",
+    )
+    .bind(&request.username)
+    .fetch_one(&mut connection)
+    .await
+    .unwrap();
 
-    let password: String = row.try_get("password").unwrap();
+    let password: String = query.try_get("password").unwrap();
 
     return Json(AuthenticationResponse {
         authenticated: request.password == password,
