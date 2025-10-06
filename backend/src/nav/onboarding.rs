@@ -5,7 +5,7 @@ use actix_web::{
     web::{self, Json},
 };
 use email_address::EmailAddress;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use sqlx::{PgPool, Row};
 use strum::Display;
 
@@ -26,22 +26,18 @@ async fn personal_info(
     pool: web::Data<PgPool>,
     request: Json<PersonalInfoRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    fn hash(unhashed: &str) -> &str {
-        todo!();
-    }
-
     if !EmailAddress::is_valid(&request.email) {
         return Err(ErrorBadRequest("This email is invalid."));
     } else {
         let query = sqlx::query(
-            "INSERT INTO users (first_name,last_name,email,password) 
-             VALUES ($1,$2,$3,$4)
+            "INSERT INTO users (first_name, last_name, email, password) 
+             VALUES ($1, $2, $3, crypt($4, gen_salt('md5'))
              ON CONFLICT (email) DO NOTHING",
         )
         .bind(&request.first_name)
         .bind(&request.last_name)
         .bind(&request.email)
-        .bind(hash(&request.password))
+        .bind(&request.password)
         .execute(pool.get_ref())
         .await
         .unwrap();
@@ -51,7 +47,7 @@ async fn personal_info(
                 "This email has already been used to register an account.",
             ));
         } else {
-            return Ok(HttpResponse::Ok().finish());
+            return Ok(HttpResponse::Ok().into());
         }
     };
 }
@@ -229,7 +225,7 @@ async fn workout_schedule(
 
 #[derive(Deserialize)]
 struct AuthenticationRequest {
-    username: String,
+    email: String,
     password: String,
 }
 
@@ -239,22 +235,24 @@ async fn authentication(
     request: Json<AuthenticationRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let query = sqlx::query(
-        "FROM users SELECT password 
-         WHERE username = '$1'",
+        "SELECT password = crypt($1, password) AS is_valid
+         FROM users
+         WHERE email = $2",
     )
-    .bind(&request.username)
-    .fetch_one(pool.get_ref())
-    .await;
+    .bind(&request.password)
+    .bind(&request.email)
+    .fetch_optional(pool.get_ref())
+    .await
+    .unwrap();
 
     match query {
-        Ok(query) => {
-            let password: String = query.try_get("password").unwrap();
-            if request.password == password {
-                return Ok(HttpResponse::Ok().into());
-            } else {
-                return Err(ErrorBadRequest("Incorrect Password"));
+        None => return Err(ErrorBadRequest("No user with this email exists")),
+        Some(row) => {
+            let is_valid: bool = row.try_get("is_valid").unwrap();
+            match is_valid {
+                true => return Ok(HttpResponse::Ok().into()),
+                false => return Err(ErrorBadRequest("Incorrect password")),
             }
         }
-        Err(_) => Err(ErrorBadRequest("No such user")),
     }
 }

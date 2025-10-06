@@ -1,3 +1,5 @@
+CREATE EXTENSION pgcrypto;
+
 CREATE DATABASE gainzdb;
 
 /*
@@ -24,10 +26,11 @@ CREATE TYPE CLASS AS (class_type CLASSTYPE, stats STATS);
 CREATE TABLE IF NOT EXISTS
   users (
     id SERIAL PRIMARY KEY,
-    first_name VARCHAR(255),
-    last_name VARCHAR(255),
-    email VARCHAR(255) UNIQUE,
-    password VARCHAR(255), -- TODO: Change later to a more secure way of storing this info please
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    password TEXT NOT NULL, -- TODO: Change later to a more secure way of storing this info please
     class CLASS,
     workout_schedule[7]
   );
