@@ -1,14 +1,17 @@
 use actix_web::{
-    HttpResponse, post,
-    web::{Form, Json},
+    HttpResponse, Result,
+    error::ErrorBadRequest,
+    post,
+    web::{self, Json},
 };
 use email_address::EmailAddress;
 use serde::{Deserialize, Serialize};
-use sqlx::Row;
+use sqlx::{PgPool, Row};
+use strum::Display;
 
-use crate::db;
-
-// POST /onboarding/personal-info
+/*
+ *  POST /onboarding/personal-info
+ */
 
 #[derive(Deserialize)]
 struct PersonalInfoRequest {
@@ -18,126 +21,184 @@ struct PersonalInfoRequest {
     password: String,
 }
 
-#[derive(Serialize)]
-struct PersonalInfoResponse {
-    successful: bool,
-    error: String,
-}
-
 #[post("/onboarding/personal-info")]
-async fn personal_info(request: Form<PersonalInfoRequest>) -> Json<PersonalInfoResponse> {
-    let mut connection = db::connect().await;
-
+async fn personal_info(
+    pool: web::Data<PgPool>,
+    request: Json<PersonalInfoRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
     fn hash(unhashed: &str) -> &str {
         todo!();
     }
 
-    let (succesful, error) = if !EmailAddress::is_valid(&request.email) {
-        (false, "email is invalid")
+    if !EmailAddress::is_valid(&request.email) {
+        return Err(ErrorBadRequest("This email is invalid."));
     } else {
         let query = sqlx::query(
-            "INSERT INTO users (first_name,last_name,email,password) VALUES
-             ($1,$2,$3,$4)
+            "INSERT INTO users (first_name,last_name,email,password) 
+             VALUES ($1,$2,$3,$4)
              ON CONFLICT (email) DO NOTHING",
         )
         .bind(&request.first_name)
         .bind(&request.last_name)
         .bind(&request.email)
         .bind(hash(&request.password))
-        .execute(&mut connection)
+        .execute(pool.get_ref())
         .await
         .unwrap();
 
         if query.rows_affected() == 0 {
-            (false, "email already exists")
+            return Err(ErrorBadRequest(
+                "This email has already been used to register an account.",
+            ));
         } else {
-            (true, "")
+            return Ok(HttpResponse::Ok().finish());
         }
     };
-
-    return Json(PersonalInfoResponse {
-        successful: succesful,
-        error: error.to_string(),
-    });
 }
 
-// POST /onboarding/class
+/*
+ *  POST /onboarding/class
+ */
+
+#[derive(Deserialize)]
+pub struct Stats {
+    vitality: i16,
+    strength: i16,
+    endurance: i16,
+    agility: i16,
+}
+
+impl Stats {
+    pub const ASSASIN: Stats = Stats {
+        vitality: 2,
+        strength: 0,
+        endurance: 0,
+        agility: 2,
+    };
+    pub const GLADIATOR: Stats = Stats {
+        vitality: 2,
+        strength: 0,
+        endurance: 2,
+        agility: 0,
+    };
+    pub const MONK: Stats = Stats {
+        vitality: 1,
+        strength: 0,
+        endurance: 1,
+        agility: 2,
+    };
+    pub const WARRIOR: Stats = Stats {
+        vitality: 2,
+        strength: 2,
+        endurance: 0,
+        agility: 0,
+    };
+    pub const WIZARD: Stats = Stats {
+        vitality: 1,
+        strength: 1,
+        endurance: 1,
+        agility: 1,
+    };
+}
+
+#[derive(Deserialize, Display, Clone, Copy)]
+pub enum ClassType {
+    // Class::ClassType
+    Assasin,
+    Gladiator,
+    Monk,
+    Warrior,
+    Wizard,
+}
+
+#[derive(Deserialize)]
+struct Class {
+    class_type: ClassType,
+    stats: Stats,
+}
+
+impl Class {
+    fn new(class_type: ClassType) -> Self {
+        Self {
+            class_type: class_type,
+            stats: match class_type {
+                ClassType::Assasin => Stats::ASSASIN,
+                ClassType::Gladiator => Stats::GLADIATOR,
+                ClassType::Monk => Stats::MONK,
+                ClassType::Warrior => Stats::WARRIOR,
+                ClassType::Wizard => Stats::WIZARD,
+            },
+        }
+    }
+
+    fn with_stats(class_type: ClassType, stats: Stats) -> Self {
+        Self {
+            class_type: class_type,
+            stats: stats,
+        }
+    }
+}
 
 #[derive(Deserialize)]
 struct ClassRequest {
-    class: String,
+    class_type: ClassType,
 }
 
 #[post("/onboarding/class")]
-async fn class(request: Form<ClassRequest>) -> HttpResponse {
-    todo!();
-    return HttpResponse::Ok().into();
+async fn class(
+    pool: web::Data<PgPool>,
+    request: Json<ClassRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let class = Class::new(request.class_type);
+    let _query = sqlx::query(
+        "INSERT INTO users (class) 
+         VALUES (ROW($1, ROW($2,$3,$4,$5)))
+         WHERE id = $6", //TODO: based on JWT
+    )
+    .bind(class.class_type.to_string())
+    .bind(class.stats.vitality)
+    .bind(class.stats.strength)
+    .bind(class.stats.endurance)
+    .bind(class.stats.agility)
+    .execute(pool.get_ref())
+    .await
+    .unwrap();
+
+    return Ok(HttpResponse::Ok().into());
 }
 
-// POST /onboarding/check-username
+/*
+ * POST /onboarding/check-username
+ */
 
 #[derive(Deserialize)]
 struct CheckUsernameRequest {
     username: String,
 }
 
-#[derive(Serialize)]
-struct CheckUsernameResponse {
-    available: bool,
-}
-
 #[post("/onboarding/check-username")]
-async fn check_username(request: Form<CheckUsernameRequest>) -> Json<CheckUsernameResponse> {
-    let mut connection = db::connect().await;
-
+async fn check_username(
+    pool: web::Data<PgPool>,
+    request: Json<CheckUsernameRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
     let query = sqlx::query(
         "FROM users SELECT id 
          WHERE username = '$1'",
     )
     .bind(&request.username)
-    .fetch_optional(&mut connection)
+    .fetch_optional(pool.get_ref())
     .await
     .unwrap();
 
-    return Json(CheckUsernameResponse {
-        available: query.is_some(),
-    });
+    match query {
+        Some(_) => return Ok(HttpResponse::Ok().into()),
+        None => return Err(ErrorBadRequest("This username is already taken")),
+    }
 }
 
-// POST /onboarding/authentication
-
-#[derive(Deserialize)]
-struct AuthenticationRequest {
-    username: String,
-    password: String,
-}
-
-#[derive(Serialize)]
-struct AuthenticationResponse {
-    authenticated: bool,
-}
-
-#[post("/onboarding/authentication")]
-async fn authentication(request: Form<AuthenticationRequest>) -> Json<AuthenticationResponse> {
-    let mut connection = db::connect().await;
-
-    let query = sqlx::query(
-        "FROM users SELECT password 
-         WHERE username = '$1'",
-    )
-    .bind(&request.username)
-    .fetch_one(&mut connection)
-    .await
-    .unwrap();
-
-    let password: String = query.try_get("password").unwrap();
-
-    return Json(AuthenticationResponse {
-        authenticated: request.password == password,
-    });
-}
-
-// POST /onboarding/workout-schedule
+/*
+ * POST /onboarding/workout-schedule
+ */
 
 #[derive(Deserialize)]
 struct WorkoutScheduleRequest {
@@ -145,7 +206,55 @@ struct WorkoutScheduleRequest {
 }
 
 #[post("/onboarding/workout-schedule")]
-async fn workout_schedule(request: Form<WorkoutScheduleRequest>) -> HttpResponse {
-    todo!();
-    return HttpResponse::NotImplemented().into();
+async fn workout_schedule(
+    pool: web::Data<PgPool>,
+    request: Json<WorkoutScheduleRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let _query = sqlx::query(
+        "INSERT INTO users (workout_schedule) 
+         VALUES ($1)
+         WHERE id = $2",
+    )
+    .bind(&request.workout_schedule)
+    .execute(pool.get_ref())
+    .await
+    .unwrap();
+
+    return Ok(HttpResponse::Ok().into());
+}
+
+/*
+ *  POST /onboarding/authentication
+ */
+
+#[derive(Deserialize)]
+struct AuthenticationRequest {
+    username: String,
+    password: String,
+}
+
+#[post("/onboarding/authentication")]
+async fn authentication(
+    pool: web::Data<PgPool>,
+    request: Json<AuthenticationRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let query = sqlx::query(
+        "FROM users SELECT password 
+         WHERE username = '$1'",
+    )
+    .bind(&request.username)
+    .fetch_one(pool.get_ref())
+    .await;
+
+    match query {
+        Ok(query) => {
+            let password: String = query.try_get("password").unwrap();
+            if request.password == password {
+                return Ok(HttpResponse::Ok().into());
+            } else {
+                return Err(ErrorBadRequest("Incorrect Password"));
+            }
+        }
+        Err(_) => Err(ErrorBadRequest("No such user")),
+    }
 }

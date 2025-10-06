@@ -6,17 +6,3 @@ pub mod nav {
     pub mod summary;
     pub mod workouts;
 }
-
-pub mod db;
-
-// Example
-
-// #[get("...")]
-// async fn check_username() -> impl Responder {
-//     HttpResponse::Ok().body("Hello world!")
-// }
-
-// #[post("...")]
-// async fn authentication(req_body: String) -> impl Responder {
-//     HttpResponse::Ok().body(req_body)
-// }
