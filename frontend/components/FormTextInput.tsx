@@ -1,6 +1,12 @@
-import React from "react";
-import { StyleSheet } from "react-native";
-import { TextInput } from "react-native-paper";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  TextStyle,
+  ViewStyle,
+} from "react-native";
 import { COLORS } from "../styles/variables";
 
 type FormInputProps = {
@@ -11,8 +17,7 @@ type FormInputProps = {
   secureTextEntry?: boolean;
   keyboardType?: "default" | "email-address" | "numeric";
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
-  mode?: "flat" | "outlined";
-  style?: object;
+  style?: ViewStyle;
 };
 
 export const FormTextInput = ({
@@ -23,25 +28,45 @@ export const FormTextInput = ({
   secureTextEntry = false,
   keyboardType = "default",
   autoCapitalize = "none",
-  mode = "flat",
-  style,
 }: FormInputProps) => {
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
-    <TextInput
-      label={label}
-      placeholder={placeholder}
-      value={value}
-      onChangeText={onChangeText}
-      secureTextEntry={secureTextEntry}
-      keyboardType={keyboardType}
-      autoCapitalize={autoCapitalize}
-      mode={mode}
-      backgroundColor={COLORS.neutral_lightest}
-      selectionColor={COLORS.primary}
-      outlineColor={COLORS.primary}
-      activeOutlineColor={COLORS.primary}
-      textColor={COLORS.neutral_darkest}
-      placeholderTextColor={COLORS.neutral_lightest}
-    />
+    <View>
+      <Text style={styles.label}>{label}</Text>
+      <TextInput
+        style={[
+          styles.input,
+          { borderColor: isFocused ? COLORS.primary : COLORS.neutral_lightest },
+        ]}
+        placeholder={placeholder}
+        placeholderTextColor={COLORS.neutral_3}
+        value={value}
+        onChangeText={onChangeText}
+        secureTextEntry={secureTextEntry}
+        keyboardType={keyboardType}
+        autoCapitalize={autoCapitalize}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
+      />
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  label: {
+    fontSize: 12,
+    color: COLORS.primary,
+    marginBottom: 4,
+    fontFamily: "Anton_400Regular",
+  },
+  input: {
+    height: 48,
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    backgroundColor: COLORS.neutral_darkest,
+    color: COLORS.neutral_darkest,
+    fontSize: 16,
+  },
+});

@@ -6,11 +6,12 @@ export const AUTH = StyleSheet.create({
     display: "flex",
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontFamily: "Anton",
     color: COLORS.neutral_lightest,
     marginBottom: 10,
     textAlign: "center",
+    padding: 1,
   },
   splashContainer: {
     flex: 1,

@@ -23,6 +23,7 @@ export const globalStyles = StyleSheet.create({
     height: undefined, // let aspect ratio define height
     aspectRatio: 4, // width / height ratio (400 / 100 = 4)
     resizeMode: "contain", // scales logo proportionally
+    marginBottom: 16,
   },
 
   centerContainer: {
@@ -40,6 +41,7 @@ export const globalStyles = StyleSheet.create({
   },
   formContainer: {
     gap: 24,
-    paddingVertical: 24,
+    marginVertical: 8,
+    paddingVertical: 0,
   },
 });
