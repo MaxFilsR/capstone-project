@@ -23,7 +23,7 @@ struct RegisterResponse {
 }
 
 #[post("/auth/register")]
-async fn personal_info(
+async fn register(
     pool: web::Data<PgPool>,
     request: web::Json<RegisterRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {

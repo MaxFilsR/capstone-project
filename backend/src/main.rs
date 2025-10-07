@@ -15,12 +15,14 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(pool.clone()))
+            // Auth
+            .service(endpoints::auth::register)
+            .service(endpoints::auth::login)
+            .service(endpoints::auth::refresh)
             // Onboarding
             .service(endpoints::onboarding::class)
             .service(endpoints::onboarding::check_username)
             .service(endpoints::onboarding::workout_schedule)
-            // Login
-            .service(endpoints::auth::login)
     })
     .bind((ADDRESS, PORT))?
     .run()
