@@ -1,5 +1,5 @@
 use actix_web::{App, HttpServer, web};
-use capstone_project::nav;
+use capstone_project::endpoints;
 use sqlx::PgPool;
 
 const ADDRESS: &str = "127.0.0.1";
@@ -16,12 +16,12 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(pool.clone()))
             // Onboarding
-            .service(nav::onboarding::personal_info)
-            .service(nav::onboarding::class)
-            .service(nav::onboarding::check_username)
-            .service(nav::onboarding::authentication)
-            .service(nav::onboarding::workout_schedule)
-        // ...
+            .service(endpoints::onboarding::personal_info)
+            .service(endpoints::onboarding::class)
+            .service(endpoints::onboarding::check_username)
+            .service(endpoints::onboarding::workout_schedule)
+            // Login
+            .service(endpoints::auth::login)
     })
     .bind((ADDRESS, PORT))?
     .run()

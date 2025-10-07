@@ -1,12 +1,7 @@
-use actix_web::{
-    HttpResponse, Result,
-    error::ErrorBadRequest,
-    post,
-    web::{self, Json},
-};
+use actix_web::{HttpResponse, Result, error::ErrorBadRequest, post, web};
 use email_address::EmailAddress;
 use serde::Deserialize;
-use sqlx::{PgPool, Row};
+use sqlx::PgPool;
 use strum::Display;
 
 /*
@@ -24,7 +19,7 @@ struct PersonalInfoRequest {
 #[post("/onboarding/personal-info")]
 async fn personal_info(
     pool: web::Data<PgPool>,
-    request: Json<PersonalInfoRequest>,
+    request: web::Json<PersonalInfoRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
     if !EmailAddress::is_valid(&request.email) {
         return Err(ErrorBadRequest("This email is invalid."));
@@ -143,7 +138,7 @@ struct ClassRequest {
 #[post("/onboarding/class")]
 async fn class(
     pool: web::Data<PgPool>,
-    request: Json<ClassRequest>,
+    request: web::Json<ClassRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let class = Class::new(request.class_type);
     let _query = sqlx::query(
@@ -175,7 +170,7 @@ struct CheckUsernameRequest {
 #[post("/onboarding/check-username")]
 async fn check_username(
     pool: web::Data<PgPool>,
-    request: Json<CheckUsernameRequest>,
+    request: web::Json<CheckUsernameRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let query = sqlx::query(
         "FROM users SELECT id 
@@ -204,7 +199,7 @@ struct WorkoutScheduleRequest {
 #[post("/onboarding/workout-schedule")]
 async fn workout_schedule(
     pool: web::Data<PgPool>,
-    request: Json<WorkoutScheduleRequest>,
+    request: web::Json<WorkoutScheduleRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let _query = sqlx::query(
         "INSERT INTO users (workout_schedule) 
@@ -217,42 +212,4 @@ async fn workout_schedule(
     .unwrap();
 
     return Ok(HttpResponse::Ok().into());
-}
-
-/*
- *  POST /onboarding/authentication
- */
-
-#[derive(Deserialize)]
-struct AuthenticationRequest {
-    email: String,
-    password: String,
-}
-
-#[post("/onboarding/authentication")]
-async fn authentication(
-    pool: web::Data<PgPool>,
-    request: Json<AuthenticationRequest>,
-) -> Result<HttpResponse, actix_web::Error> {
-    let query = sqlx::query(
-        "SELECT password = crypt($1, password) AS is_valid
-         FROM users
-         WHERE email = $2",
-    )
-    .bind(&request.password)
-    .bind(&request.email)
-    .fetch_optional(pool.get_ref())
-    .await
-    .unwrap();
-
-    match query {
-        None => return Err(ErrorBadRequest("No user with this email exists")),
-        Some(row) => {
-            let is_valid: bool = row.try_get("is_valid").unwrap();
-            match is_valid {
-                true => return Ok(HttpResponse::Ok().into()),
-                false => return Err(ErrorBadRequest("Incorrect password")),
-            }
-        }
-    }
 }
