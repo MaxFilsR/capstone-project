@@ -6,7 +6,9 @@ import {
   StyleSheet,
   TextStyle,
   ViewStyle,
+  TouchableOpacity,
 } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { COLORS } from "../styles/variables";
 
 type FormInputProps = {
@@ -30,25 +32,44 @@ export const FormTextInput = ({
   autoCapitalize = "none",
 }: FormInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <View>
+    <View style={{ marginBottom: 16 }}>
       <Text style={styles.label}>{label}</Text>
-      <TextInput
-        style={[
-          styles.input,
-          { borderColor: isFocused ? COLORS.primary : COLORS.neutral_lightest },
-        ]}
-        placeholder={placeholder}
-        placeholderTextColor={COLORS.neutral_3}
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
-        keyboardType={keyboardType}
-        autoCapitalize={autoCapitalize}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-      />
+
+      <View>
+        <TextInput
+          style={[
+            styles.input,
+            {
+              borderColor: isFocused ? COLORS.primary : COLORS.neutral_lightest,
+            },
+          ]}
+          placeholder={placeholder}
+          placeholderTextColor={COLORS.neutral_3}
+          value={value}
+          onChangeText={onChangeText}
+          secureTextEntry={secureTextEntry && !showPassword}
+          keyboardType={keyboardType}
+          autoCapitalize={autoCapitalize}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+        />
+
+        {secureTextEntry && (
+          <TouchableOpacity
+            onPress={() => setShowPassword(!showPassword)}
+            style={styles.iconContainer}
+          >
+            <Ionicons
+              name={showPassword ? "eye-off" : "eye"}
+              size={22}
+              color={COLORS.secondary}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 };
@@ -66,7 +87,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingHorizontal: 12,
     backgroundColor: COLORS.neutral_darkest,
-    color: COLORS.neutral_darkest,
+    color: COLORS.neutral_lightest,
     fontSize: 16,
+    paddingRight: 40, // leave space for eye icon
+  },
+  iconContainer: {
+    position: "absolute",
+    right: 10,
+    top: 12,
   },
 });

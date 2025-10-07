@@ -8,13 +8,12 @@ import {
   Image,
   Text,
 } from "react-native";
-import { FormTextInput, FormButton } from "../components";
-import { globalStyles } from "../styles/globalStyles";
-import logo from "../assets/images/gainz_logo_full.png";
-import { AUTH } from "../styles/authStyles";
-import { COLORS } from "@/styles/variables";
+import { FormTextInput, FormButton } from "../../components";
+import { globalStyles } from "../../styles/globalStyles";
+import logo from "@/assets/images/gainz_logo_full.png";
+import { AUTH } from "@/styles/authStyles";
 
-export default function AuthScreen() {
+export default function SignIn() {
   const [isNewUser, setNewUser] = useState<boolean>(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,7 +29,7 @@ export default function AuthScreen() {
   async function handleSubmit() {
     if (isNewUser) {
       setError(null);
-      router.push("./auth/onboarding/personalInfo");
+      router.push("./onboarding/personalInfo");
     } else {
       if (!email || !password) {
         setError("Please fill in all fields.");

@@ -19,12 +19,12 @@ export const screenOptions = {
 };
 
 export default function PersonalInfoScreen() {
-  const [fName, setFName] = useState("");
-  const [lName, setLName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = () => {
-    if (!fName || !lName) {
+    if (!email || !password) {
       setError("Please fill in all fields.");
       return;
     }
@@ -38,20 +38,22 @@ export default function PersonalInfoScreen() {
       style={globalStyles.centerContainer}
     >
       <BackButton />
-      <Text style={AUTH.title}>What should we call you?</Text>
+      <Text style={AUTH.title}>Account Details</Text>
       <View style={globalStyles.formContainer}>
         <FormTextInput
-          label="First Name"
-          placeholder="John"
-          value={fName}
-          onChangeText={setFName}
+          label="Email"
+          placeholder="you@example.com"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
         />
 
         <FormTextInput
-          label="Last Name"
-          placeholder="Doe"
-          value={lName}
-          onChangeText={setLName}
+          label="Password"
+          placeholder="••••••••"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
         />
 
         {error && (

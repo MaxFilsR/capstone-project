@@ -50,7 +50,7 @@ function InnerStack() {
 
       {/* Protected stack for guests */}
       <Stack.Protected guard={!user}>
-        <Stack.Screen name="welcome" options={{ headerShown: false }} />
+        <Stack.Screen name="auth" options={{ headerShown: false }} />
       </Stack.Protected>
     </Stack>
   );
