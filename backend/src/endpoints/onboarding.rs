@@ -1,5 +1,4 @@
 use actix_web::{HttpResponse, Result, error::ErrorBadRequest, post, web};
-use email_address::EmailAddress;
 use serde::Deserialize;
 use sqlx::PgPool;
 use strum::Display;
@@ -12,8 +11,6 @@ use strum::Display;
 struct PersonalInfoRequest {
     first_name: String,
     last_name: String,
-    email: String,
-    password: String,
 }
 
 #[post("/onboarding/personal-info")]
@@ -21,30 +18,17 @@ async fn personal_info(
     pool: web::Data<PgPool>,
     request: web::Json<PersonalInfoRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    if !EmailAddress::is_valid(&request.email) {
-        return Err(ErrorBadRequest("This email is invalid."));
-    } else {
-        let query = sqlx::query(
-            "INSERT INTO users (first_name, last_name, email, password) 
-             VALUES ($1, $2, $3, crypt($4, gen_salt('md5'))
-             ON CONFLICT (email) DO NOTHING",
-        )
-        .bind(&request.first_name)
-        .bind(&request.last_name)
-        .bind(&request.email)
-        .bind(&request.password)
-        .execute(pool.get_ref())
-        .await
-        .unwrap();
+    let _query = sqlx::query(
+        "INSERT INTO users (first_name, last_name) 
+         VALUES ($1, $2)",
+    )
+    .bind(&request.first_name)
+    .bind(&request.last_name)
+    .execute(pool.get_ref())
+    .await
+    .unwrap();
 
-        if query.rows_affected() == 0 {
-            return Err(ErrorBadRequest(
-                "This email has already been used to register an account.",
-            ));
-        } else {
-            return Ok(HttpResponse::Ok().into());
-        }
-    };
+    return Ok(HttpResponse::Ok().into());
 }
 
 /*

@@ -16,7 +16,6 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(web::Data::new(pool.clone()))
             // Onboarding
-            .service(endpoints::onboarding::personal_info)
             .service(endpoints::onboarding::class)
             .service(endpoints::onboarding::check_username)
             .service(endpoints::onboarding::workout_schedule)

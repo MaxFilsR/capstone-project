@@ -6,6 +6,62 @@ use sqlx::{PgPool, Row};
 
 use crate::jwt;
 
+/*
+ *  POST /onboarding/personal-info
+ */
+
+#[derive(Deserialize)]
+struct RegisterRequest {
+    email: String,
+    password: String,
+}
+
+#[derive(Serialize)]
+struct RegisterResponse {
+    access_token: String,
+    refresh_token: String,
+}
+
+#[post("/auth/register")]
+async fn personal_info(
+    pool: web::Data<PgPool>,
+    request: web::Json<RegisterRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
+    if !EmailAddress::is_valid(&request.email) {
+        return Err(ErrorBadRequest("This email is invalid."));
+    }
+
+    let query = sqlx::query(
+        "INSERT INTO users (email, password) 
+         VALUES ($1, crypt($2, gen_salt('md5'))
+         ON CONFLICT (email) DO NOTHING
+         RETURNING id",
+    )
+    .bind(&request.email)
+    .bind(&request.password)
+    .fetch_optional(pool.get_ref())
+    .await
+    .unwrap();
+
+    match query {
+        Some(query) => {
+            let user_id: i32 = query.try_get("id").unwrap();
+            let access_token = jwt::generate_jwt(user_id, jwt::TokenType::Access);
+            let refresh_token = jwt::generate_jwt(user_id, jwt::TokenType::Refresh);
+
+            return Ok(HttpResponse::Ok().json(RegisterResponse {
+                access_token: access_token,
+                refresh_token: refresh_token,
+            }));
+        }
+        None => {
+            return Err(ErrorBadRequest(
+                "This email has already been used to register an account.",
+            ));
+        }
+    };
+}
+
 #[derive(Deserialize)]
 struct LoginRequest {
     email: String,
@@ -27,10 +83,10 @@ pub async fn login(
         return Err(ErrorBadRequest("Invalid email"));
     }
 
-    let row = sqlx::query(
+    let query = sqlx::query(
         "SELECT id, password = crypt($2, password) AS is_valid 
-        FROM users 
-        WHERE email = $1",
+         FROM users 
+         WHERE email = $1",
     )
     .bind(&request.email)
     .bind(&request.password)
@@ -38,15 +94,15 @@ pub async fn login(
     .await
     .unwrap();
 
-    match row {
+    match query {
         None => return Err(ErrorBadRequest("No user with this email")),
-        Some(row) => {
-            let is_valid: bool = row.try_get("is_valid").unwrap_or(false);
+        Some(query) => {
+            let is_valid: bool = query.try_get("is_valid").unwrap_or(false);
             if !is_valid {
                 return Err(ErrorBadRequest("Incorrect password"));
             }
 
-            let user_id: i32 = row.try_get("id").unwrap();
+            let user_id: i32 = query.try_get("id").unwrap();
             let access_token = jwt::generate_jwt(user_id, jwt::TokenType::Access);
             let refresh_token = jwt::generate_jwt(user_id, jwt::TokenType::Refresh);
 
