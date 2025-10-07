@@ -9,6 +9,9 @@ export default function OnboardingLayout() {
         headerTitle: "",
         headerShadowVisible: false,
       }}
-    />
+    >
+      <Stack.Screen name="accountDetails" options={{ headerShown: false }} />
+      <Stack.Screen name="personalInfo" options={{ headerShown: false }} />
+    </Stack>
   );
 }

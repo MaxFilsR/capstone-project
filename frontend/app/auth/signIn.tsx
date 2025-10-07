@@ -29,7 +29,7 @@ export default function SignIn() {
   async function handleSubmit() {
     if (isNewUser) {
       setError(null);
-      router.push("./onboarding/personalInfo");
+      router.push("/auth/onboarding/personalInfo");
     } else {
       if (!email || !password) {
         setError("Please fill in all fields.");
