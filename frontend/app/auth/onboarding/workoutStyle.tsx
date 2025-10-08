@@ -69,7 +69,7 @@ export default function WorkoutStyleScreen() {
             </Text>
         ) : null}
 
-        <FormButton label="Next" onPress={handleSubmit} />
+        <FormButton title="Next" onPress={handleSubmit} />
         </View>
     </KeyboardAvoidingView>
     );
