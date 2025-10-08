@@ -29,7 +29,7 @@ export default function PersonalInfoScreen() {
       return;
     }
     setError(null);
-    router.push("./accountDetails"); //next step
+    router.push("/auth/onboarding/workoutStyle"); //next step
   };
 
   return (
