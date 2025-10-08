@@ -2,7 +2,7 @@ import React from "react";
 import { TouchableOpacity, StyleSheet, ViewStyle, Text } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
-import { COLORS } from "@/styles/variables";
+import { colorPallet } from "@/styles/variables";
 
 type BackButtonProps = {
   onPress?: () => void;
@@ -22,7 +22,11 @@ export const BackButton = ({
       onPress={onPress ? onPress : () => router.back()}
       style={[styles.button, { position }, style]}
     >
-      <MaterialIcons name="arrow-back-ios" size={28} color={COLORS.primary} />
+      <MaterialIcons
+        name="arrow-back-ios"
+        size={28}
+        color={colorPallet.primary}
+      />
       <Text style={styles.text}>Back</Text>
     </TouchableOpacity>
   );
@@ -41,7 +45,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   text: {
-    color: COLORS.neutral_lightest,
+    color: colorPallet.neutral_lightest,
     fontSize: 16,
     fontWeight: "500",
     margin: 0,
