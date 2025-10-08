@@ -27,8 +27,7 @@ export default function AccountDetailsScreen() {
       return;
     }
     setError(null);
-    // fetch("http://localhost:8080/auth/sign-up").then()
-    router.push("./accountDetails"); //next step
+    router.push("/auth/onboarding/workoutStyle"); //next step
   };
 
   return (
