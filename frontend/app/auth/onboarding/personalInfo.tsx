@@ -13,7 +13,7 @@ export default function PersonalInfoScreen() {
 
   const handleSubmit = () => {
     setError(null);
-    router.push("./characterQuizTemp"); //next step
+    router.push("./workoutStyle"); //next step
   };
 
   return (

@@ -27,7 +27,7 @@ export default function AccountDetailsScreen() {
       return;
     }
     setError(null);
-    router.push("/auth/onboarding/workoutStyle"); //next step
+    router.push("/auth/onboarding/personalInfo"); //next step
   };
 
   return (
