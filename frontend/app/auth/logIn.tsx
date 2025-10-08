@@ -1,4 +1,3 @@
-import { useAuth } from "@/lib/auth-context";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
@@ -8,18 +7,16 @@ import {
   Image,
   Text,
 } from "react-native";
-import { FormTextInput, FormButton } from "../../components";
-import { globalStyles } from "../../styles/globalStyles";
+import { FormTextInput, FormButton } from "@/components";
+import { typography, containers, images } from "@/styles/index";
+import { colorPallet } from "@/styles/variables";
 import logo from "@/assets/images/gainz_logo_full.png";
-import { AUTH } from "@/styles/authStyles";
 
-export default function SignIn() {
+export default function LogInScreen() {
   const [isNewUser, setNewUser] = useState<boolean>(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-
-  const { login, register, logout, user } = useAuth();
 
   const switchAuthMode = () => {
     setNewUser((prev) => !prev);
@@ -39,7 +36,6 @@ export default function SignIn() {
         setError("Password must be at least 8 characters.");
         return;
       }
-      //implement real login method
     }
     setError(null);
     return;
@@ -48,11 +44,19 @@ export default function SignIn() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={globalStyles.centerContainer}
+      style={containers.centerContainer}
     >
-      <Image style={globalStyles.logo} source={logo} />
-      <Text style={AUTH.title}>{isNewUser ? "Create Account" : "Sign In"}</Text>
-      <View style={globalStyles.formContainer}>
+      <Image style={images.logo} source={logo} />
+
+      <View style={containers.formContainer}>
+        <Text
+          style={[
+            typography.h1,
+            { color: colorPallet.neutral_lightest, textAlign: "center" },
+          ]}
+        >
+          {isNewUser ? "Sign Up" : "Sign In"}
+        </Text>
         <FormTextInput
           label="Email"
           placeholder="you@example.com"
@@ -69,33 +73,27 @@ export default function SignIn() {
           onChangeText={setPassword}
         />
 
-        {error && <Text style={AUTH.error}>{error}</Text>}
+        {error && <Text style={typography.errorText}>{error}</Text>}
+
+        <View style={containers.formActionContainer}>
+          <FormButton
+            mode="contained"
+            title={isNewUser ? "Sign Up" : "Sign In"}
+            onPress={handleSubmit}
+          />
+
+          <FormButton
+            mode="text"
+            title={
+              isNewUser
+                ? "Already have an account? Sign In"
+                : "Don't have an account? Sign Up"
+            }
+            color="secondary"
+            onPress={switchAuthMode}
+          />
+        </View>
       </View>
-      <FormButton
-        mode="contained"
-        title={isNewUser ? "Sign Up" : "Sign In"}
-        onPress={handleSubmit}
-      />
-
-      <FormButton
-        mode="text"
-        title={
-          isNewUser
-            ? "Already have an account? Sign In"
-            : "Don't have an account? Sign Up"
-        }
-        color="secondary"
-        onPress={switchAuthMode}
-      />
-
-      {user && (
-        <FormButton
-          mode="contained"
-          title="Log Out"
-          color="secondary"
-          onPress={async () => await logout()}
-        />
-      )}
     </KeyboardAvoidingView>
   );
 }

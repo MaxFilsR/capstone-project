@@ -1,4 +1,3 @@
-// app/onboarding/_layout.tsx
 import { Stack } from "expo-router";
 
 export default function OnboardingLayout() {
@@ -6,12 +5,19 @@ export default function OnboardingLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-        headerTitle: "",
         headerShadowVisible: false,
       }}
     >
       <Stack.Screen name="accountDetails" options={{ headerShown: false }} />
       <Stack.Screen name="personalInfo" options={{ headerShown: false }} />
+      <Stack.Screen name="characterQuizTemp" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="preSelectedClassTemp"
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen name="selectClass" options={{ headerShown: false }} />
+      <Stack.Screen name="workoutSchedule" options={{ headerShown: false }} />
+      <Stack.Screen name="username" options={{ headerShown: false }} />
     </Stack>
   );
 }

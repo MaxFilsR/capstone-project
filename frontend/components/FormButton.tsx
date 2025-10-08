@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "react-native-paper";
 import { StyleSheet } from "react-native";
-import { COLORS } from "../styles/variables";
+import { colorPallet } from "@/styles/variables";
 
 type FormButtonProps = {
   title: string;
@@ -16,17 +16,32 @@ export const FormButton = ({
   onPress,
   mode = "contained",
   style,
-  color = "primary", // default to primary
+  color = "primary",
 }: FormButtonProps) => {
-  const buttonColor = color === "primary" ? COLORS.primary : COLORS.secondary;
-  const textColor = mode === "contained" ? COLORS.neutral_darkest : buttonColor;
+  const [isPressed, setIsPressed] = useState(false);
+
+  const buttonColor =
+    color === "primary" ? colorPallet.primary : colorPallet.primary;
+
+  // For "text" mode, make text shift color on press
+  const textColor =
+    mode === "text"
+      ? isPressed
+        ? buttonColor
+        : colorPallet.secondary
+      : colorPallet.neutral_darkest;
+
+  const backgroundColor = mode === "contained" ? buttonColor : "transparent";
 
   return (
     <Button
       mode={mode}
       onPress={onPress}
-      buttonColor={mode === "contained" ? buttonColor : undefined}
+      onPressIn={() => setIsPressed(true)}
+      onPressOut={() => setIsPressed(false)}
+      buttonColor={backgroundColor}
       textColor={textColor}
+      rippleColor={mode === "text" ? "transparent" : undefined}
       style={[styles.button, style]}
       contentStyle={{ paddingVertical: 6 }}
     >
@@ -38,7 +53,7 @@ export const FormButton = ({
 const styles = StyleSheet.create({
   button: {
     width: "100%",
-    marginVertical: 10,
+    marginVertical: 0,
     borderRadius: 12,
     fontSize: 40,
   },

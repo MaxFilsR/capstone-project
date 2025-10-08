@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { COLORS } from "./variables";
+import { colorPallet } from "./variables";
 
 export const AUTH = StyleSheet.create({
   centerContainer: {
@@ -8,7 +8,7 @@ export const AUTH = StyleSheet.create({
   title: {
     fontSize: 24,
     fontFamily: "Anton",
-    color: COLORS.neutral_lightest,
+    color: colorPallet.neutral_lightest,
     marginBottom: 10,
     textAlign: "center",
     padding: 1,
@@ -17,7 +17,7 @@ export const AUTH = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: COLORS.neutral_darkest,
+    backgroundColor: colorPallet.neutral_darkest,
   },
   error: {
     color: "red",
