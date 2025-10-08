@@ -7,7 +7,9 @@ pub mod endpoints {
         pub mod workouts;
     }
     pub mod auth;
+    pub mod constants;
     pub mod onboarding;
 }
 
 pub mod jwt;
+pub mod schemas;

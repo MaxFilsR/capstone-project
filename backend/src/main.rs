@@ -1,30 +1,37 @@
+use const_env::from_env;
+
 use actix_web::{App, HttpServer, web};
 use capstone_project::endpoints;
 use sqlx::PgPool;
 
-const ADDRESS: &str = "127.0.0.1";
-const PORT: u16 = 8080;
-const DATABASE_URL: &str = "postgres://localhost:5432";
-
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    println!("Starting web sever at http://{ADDRESS}:{PORT}");
+    dotenvy::dotenv().ok();
+
+    #[from_env]
+    const ACTIX_WEB_ADDRESS: &'static str = "localhost";
+    #[from_env]
+    const ACTIX_WEB_PORT: u16 = 8080;
+    #[from_env]
+    const DATABASE_URL: &'static str = "postgres://postgres:pass@localhost:5432/gainzdb";
+
+    println!("Starting web sever at http://{ACTIX_WEB_ADDRESS}:{ACTIX_WEB_PORT}");
 
     let pool = PgPool::connect(DATABASE_URL).await.unwrap();
 
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(pool.clone()))
+            // Constants
+            .service(endpoints::constants::classes)
             // Auth
-            .service(endpoints::auth::register)
+            .service(endpoints::auth::sign_up)
             .service(endpoints::auth::login)
             .service(endpoints::auth::refresh)
             // Onboarding
-            .service(endpoints::onboarding::class)
-            .service(endpoints::onboarding::check_username)
-            .service(endpoints::onboarding::workout_schedule)
+            .service(endpoints::onboarding::user_info)
     })
-    .bind((ADDRESS, PORT))?
+    .bind((ACTIX_WEB_ADDRESS, ACTIX_WEB_PORT))?
     .run()
     .await
 }

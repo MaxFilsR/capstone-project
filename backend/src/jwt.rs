@@ -43,7 +43,9 @@ use actix_web::{Error, FromRequest, HttpRequest, dev::Payload};
 use futures_util::future::{Ready, ready};
 use jsonwebtoken::{DecodingKey, Validation, decode};
 
-pub struct AuthenticatedUser(pub i32); // just the user ID
+pub struct AuthenticatedUser {
+    pub id: i32,
+}
 
 impl FromRequest for AuthenticatedUser {
     type Error = Error;
@@ -65,7 +67,9 @@ impl FromRequest for AuthenticatedUser {
                     &DecodingKey::from_secret(secret.as_bytes()),
                     &Validation::default(),
                 ) {
-                    Ok(data) => ready(Ok(AuthenticatedUser(data.claims.sub))),
+                    Ok(data) => ready(Ok(AuthenticatedUser {
+                        id: data.claims.sub,
+                    })),
                     Err(_) => ready(Err(actix_web::error::ErrorUnauthorized("Invalid token"))),
                 }
             }
