@@ -1,3 +1,4 @@
+import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
 import SplashScreen from "../components/SplashScreen";
@@ -24,12 +25,15 @@ export default function RootLayout() {
 
   if (showSplash || !fontsLoaded) return <SplashScreen />;
 
-  return <InnerStack />;
+  return (
+    <AuthProvider>
+      <InnerStack />
+    </AuthProvider>
+  );
 }
 
 function InnerStack() {
-  // Hardcoded logged-in variable
-  const loggedIn = false; // change to true to simulate logged-in user
+  const { user } = useAuth();
 
   return (
     <Stack
@@ -39,13 +43,15 @@ function InnerStack() {
         headerShadowVisible: false,
       }}
     >
-      {loggedIn ? (
-        // Stack for logged-in users
+      {/* Protected stack for logged-in users */}
+      <Stack.Protected guard={!!user}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      ) : (
-        // Stack for guests
+      </Stack.Protected>
+
+      {/* Protected stack for guests */}
+      <Stack.Protected guard={!user}>
         <Stack.Screen name="auth" options={{ headerShown: false }} />
-      )}
+      </Stack.Protected>
     </Stack>
   );
 }
