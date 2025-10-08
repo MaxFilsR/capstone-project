@@ -5,6 +5,7 @@ use std::env;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[serde(rename_all = "lowercase")]
 pub struct Claims {
     pub sub: i32,   // user ID
     pub exp: usize, // expiration timestamp
@@ -57,10 +58,12 @@ impl FromRequest for AuthenticatedUser {
             .get("Authorization")
             .and_then(|h| h.to_str().ok())
             .and_then(|h| h.strip_prefix("Bearer "))
-            .map(|s| s.to_owned());
+            .to_owned();
 
         match token {
             Some(token) => {
+                println!("{token}");
+
                 let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
                 match decode::<super::jwt::Claims>(
                     &token,

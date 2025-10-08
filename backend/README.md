@@ -14,3 +14,8 @@
 - https://codevoweb.com/rust-actix-web-build-crud-api-with-sqlx-and-mysql/
 - https://www.youtube.com/watch?v=9oAGDqNlIKw and https://github.com/trasherr/Blogging-API-Actix-Web/
 - https://medium.com/@maison.moa/using-jwt-json-web-tokens-to-authorize-users-and-protect-api-routes-3e04a1453c3e
+
+
+#### Tools:
+- Online JWT Decoder: https://www.jwt.io/
+- GUI API Client: https://github.com/Kong/insomnia

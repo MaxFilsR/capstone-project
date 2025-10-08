@@ -1,6 +1,6 @@
 use const_env::from_env;
 
-use actix_web::{App, HttpServer, web};
+use actix_web::{App, HttpServer, middleware, web};
 use capstone_project::endpoints;
 use sqlx::PgPool;
 
@@ -21,6 +21,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
+            .wrap(middleware::Logger::default())
             .app_data(web::Data::new(pool.clone()))
             // Constants
             .service(endpoints::constants::classes)
