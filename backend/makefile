@@ -8,7 +8,7 @@ start:
 	make --directory=./db start
 	sleep 1
 # start webserver last
-	cargo run
+	cargo run &
 
 stop:
 # stop web server first
