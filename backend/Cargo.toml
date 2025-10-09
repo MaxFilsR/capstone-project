@@ -9,6 +9,7 @@ chrono = "0.4.42"
 const_env = "0.1.2"
 dotenvy = "0.15.7"
 email_address = "0.2.9"
+env_logger = "0.11.8"
 futures-util = "0.3.31"
 jsonwebtoken = { version = "10.0.0", features = ["rust_crypto"] }
 serde = "1.0.228"

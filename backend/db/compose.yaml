@@ -50,12 +50,12 @@ services:
     container_name: postgres_container
     restart: always
     env_file:
-      - ./db/.env
+      - ./.env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data #persistent data
-      - ./db/seed.pgsql:/docker-entrypoint-initdb.d/seed.sql #preseedin
+      - ./seed.pgsql:/docker-entrypoint-initdb.d/seed.sql #preseedin
 
   #* pgadmin container
   pgadmin:
