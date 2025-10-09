@@ -41,7 +41,26 @@ export default function WorkoutStyleScreen() {
     }
     setError(null);
 
-    router.push("./accountDetails"); //next step
+    if (selected.value === "strength") {
+        router.push("/auth/onboarding/selectedClassWarrior");
+        return;
+    }
+    if (selected.value === "yoga") {
+        router.push("/auth/onboarding/selectedClassMonk");
+        return;
+    }
+    if (selected.value === "cardio") {
+        router.push("/auth/onboarding/selectedClassAssassin");
+        return;
+    }
+    if (selected.value === "mixed") {
+        router.push("/auth/onboarding/selectedClassWizard");
+        return;
+    }
+    if (selected.value === "competitive") {
+        router.push("/auth/onboarding/selectedClassGladiator");
+        return;
+    }
   };
 
   return (
@@ -69,7 +88,11 @@ export default function WorkoutStyleScreen() {
             </Text>
         ) : null}
 
-        <FormButton title="Next" onPress={handleSubmit} />
+        <FormButton
+            title="Next"
+            onPress={handleSubmit}
+            style={{ marginTop: 16 }}
+        />
         </View>
     </KeyboardAvoidingView>
     );
@@ -102,7 +125,7 @@ export default function WorkoutStyleScreen() {
                         width: 24,
                         borderRadius: 12,
                         borderWidth: 2,
-                        borderColor: selected ? "#A8F200" : "#DDD",
+                        borderColor: selected ? "#8CE61A" : "#DDD",
                         alignItems: "center",
                         justifyContent: "center",
                         marginRight: 12,
@@ -114,7 +137,7 @@ export default function WorkoutStyleScreen() {
                             height: 12,
                             width: 12,
                             borderRadius: 6,
-                            backgroundColor: "#A8F200"
+                            backgroundColor: "#8CE61A"
                         }}
                     />
                 ) : null}
