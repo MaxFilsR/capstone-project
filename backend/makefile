@@ -1,12 +1,17 @@
-db_start:
-	sudo docker compose -f 'compose.yaml' up -d --build 'db' --wait
+compile:
+	make --directory=./db restart
+	sleep 1
+	cargo build
 
-db_connect:
-	sudo docker exec -it postgres_container psql -U postgres -d gainzdb
+start:
+# start database first
+	make --directory=./db start
+	sleep 1
+# start webserver last
+	cargo run
 
-db_stop:
-	sudo docker stop postgres_container 
-	sudo docker rm postgres_container
-	sudo docker volume rm backend_postgres_data
-
-db_restart: db_stop db_start
+stop:
+# stop web server first
+	-kill $(lsof -n -i :8080 -t -sTCP:LISTEN)
+# stop database last
+	-make --directory=./db stop
