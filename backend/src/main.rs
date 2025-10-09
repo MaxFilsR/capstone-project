@@ -1,7 +1,7 @@
-use const_env::from_env;
-
+use actix_cors::Cors;
 use actix_web::{App, HttpServer, middleware::Logger, web};
 use capstone_project::endpoints;
+use const_env::from_env;
 use env_logger::Env;
 use sqlx::PgPool;
 
@@ -21,8 +21,14 @@ async fn main() -> std::io::Result<()> {
     let pool = PgPool::connect(DATABASE_URL).await.unwrap();
 
     HttpServer::new(move || {
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allowed_methods(vec!["POST"])
+            .allow_any_header();
+
         App::new()
             .wrap(Logger::default())
+            .wrap(cors)
             .app_data(web::Data::new(pool.clone()))
             // Constants
             .service(endpoints::constants::classes)
