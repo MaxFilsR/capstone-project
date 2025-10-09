@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { View, Text, Image, ScrollView } from "react-native";
 import { BackButton, FormButton } from "@/components";
 import { globalStyles } from "@/styles/globalStyles";
-import wizard from "@/assets/images/wizard-male-full.png";
+import wizard from "@/assets/images/wizard-male-full-blue.png";
 import { AUTH } from "../../../styles/authStyles";
 
 export const screenOptions = {

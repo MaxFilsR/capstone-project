@@ -3,7 +3,7 @@ import { router } from "expo-router";
 import { View, Text, Image, ScrollView } from "react-native";
 import { BackButton, FormButton } from "@/components";
 import { globalStyles } from "@/styles/globalStyles";
-import monk from "@/assets/images/monk-male-full.png";
+import monk from "@/assets/images/monk-male-full-brown.png";
 import { AUTH } from "../../../styles/authStyles";
 
 export const screenOptions = {
