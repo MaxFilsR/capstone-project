@@ -4,7 +4,7 @@ use sqlx::PgPool;
 
 use crate::{jwt::AuthenticatedUser, schemas::*};
 #[derive(Deserialize)]
-struct UserInfoRequest {
+struct OnboardingRequest {
     first_name: String,
     last_name: String,
     class_id: i32,
@@ -12,11 +12,11 @@ struct UserInfoRequest {
     username: String,
 }
 
-#[post("/onboarding/user-info")]
-async fn user_info(
+#[post("/onboarding")]
+async fn onboarding(
     user: AuthenticatedUser,
     pool: web::Data<PgPool>,
-    request: web::Json<UserInfoRequest>,
+    request: web::Json<OnboardingRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let class: Class = sqlx::query_as!(
         Class,

@@ -31,7 +31,7 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::auth::login)
             .service(endpoints::auth::refresh)
             // Onboarding
-            .service(endpoints::onboarding::user_info)
+            .service(endpoints::onboarding::onboarding)
     })
     .bind((ACTIX_WEB_ADDRESS, ACTIX_WEB_PORT))?
     .run()
