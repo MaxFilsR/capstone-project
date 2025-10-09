@@ -41,10 +41,10 @@ export default function LogInScreen() {
         try {
           const response = await signUp(request);
 		  const access_token: string = response.access_token;
-      } catch (err: unknown) {String(err)}
-      }
-      setError(null);
       router.push("/auth/onboarding/personalInfo");
+      } catch (err: unknown) {console.log(err)}
+      }
+      
     } else {
       if (!email || !password) {
         setError("Please fill in all fields.");
