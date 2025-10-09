@@ -1,14 +1,14 @@
 import { StyleSheet } from "react-native";
-import { COLORS } from "./variables";
+import { colorPallet } from "./variables";
 
 export const globalStyles = StyleSheet.create({
   h1: {
-    color: COLORS.secondary,
+    color: colorPallet.secondary,
     fontSize: 24,
     fontFamily: "Anton",
   },
   p: {
-    color: COLORS.neutral_lightest,
+    color: colorPallet.neutral_lightest,
     fontSize: 16,
     fontFamily: "Anton",
   },
@@ -16,7 +16,7 @@ export const globalStyles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: COLORS.neutral_darkest,
+    backgroundColor: colorPallet.neutral_darkest,
   },
   logo: {
     width: "100%", // take full width of the container
@@ -30,13 +30,13 @@ export const globalStyles = StyleSheet.create({
     display: "flex",
     flex: 1,
     justifyContent: "center",
-    backgroundColor: COLORS.neutral_darkest,
+    backgroundColor: colorPallet.neutral_darkest,
     padding: 16,
   },
   body: {
     fontFamily: "Inter_400Regular",
     fontSize: 16,
-    color: COLORS.neutral_lightest,
+    color: colorPallet.neutral_lightest,
     textAlign: "left",
   },
   formContainer: {

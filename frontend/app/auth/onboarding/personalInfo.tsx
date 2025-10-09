@@ -1,22 +1,10 @@
-// app/onboarding/personalInfo.tsx
 import { useState } from "react";
 import { router } from "expo-router";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  View,
-  Text,
-  Image,
-} from "react-native";
+import { KeyboardAvoidingView, Platform, View, Text } from "react-native";
 import { FormTextInput, FormButton } from "../../../components";
-import { globalStyles } from "../../../styles/globalStyles";
-import logo from "../../../assets/images/gainz_logo_full.png";
-import { AUTH } from "../../../styles/authStyles";
+import { typography, containers } from "@/styles/index";
+import { colorPallet } from "@/styles/variables";
 import { BackButton } from "../../../components";
-
-export const screenOptions = {
-  headerShown: false,
-};
 
 export default function PersonalInfoScreen() {
   const [fName, setFName] = useState("");
@@ -24,22 +12,25 @@ export default function PersonalInfoScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = () => {
-    if (!fName || !lName) {
-      setError("Please fill in all fields.");
-      return;
-    }
     setError(null);
-    router.push("./accountDetails"); //next step
+    router.push("./workoutStyle"); //next step
   };
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={globalStyles.centerContainer}
+      style={containers.centerContainer}
     >
       <BackButton />
-      <Text style={AUTH.title}>What should we call you?</Text>
-      <View style={globalStyles.formContainer}>
+      <Text
+        style={[
+          typography.h1,
+          { color: colorPallet.neutral_lightest, textAlign: "center" },
+        ]}
+      >
+        What should we call you?
+      </Text>
+      <View style={containers.formContainer}>
         <FormTextInput
           label="First Name"
           placeholder="John"

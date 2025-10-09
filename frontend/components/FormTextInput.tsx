@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { COLORS } from "../styles/variables";
+import { colorPallet } from "@/styles/variables";
 
 type FormInputProps = {
   label: string;
@@ -35,7 +35,7 @@ export const FormTextInput = ({
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <View style={{ marginBottom: 16 }}>
+    <View>
       <Text style={styles.label}>{label}</Text>
 
       <View>
@@ -43,11 +43,13 @@ export const FormTextInput = ({
           style={[
             styles.input,
             {
-              borderColor: isFocused ? COLORS.primary : COLORS.neutral_lightest,
+              borderColor: isFocused
+                ? colorPallet.primary
+                : colorPallet.neutral_lightest,
             },
           ]}
           placeholder={placeholder}
-          placeholderTextColor={COLORS.neutral_3}
+          placeholderTextColor={colorPallet.neutral_3}
           value={value}
           onChangeText={onChangeText}
           secureTextEntry={secureTextEntry && !showPassword}
@@ -65,7 +67,7 @@ export const FormTextInput = ({
             <Ionicons
               name={showPassword ? "eye-off" : "eye"}
               size={22}
-              color={COLORS.secondary}
+              color={colorPallet.secondary}
             />
           </TouchableOpacity>
         )}
@@ -77,7 +79,7 @@ export const FormTextInput = ({
 const styles = StyleSheet.create({
   label: {
     fontSize: 12,
-    color: COLORS.primary,
+    color: colorPallet.primary,
     marginBottom: 4,
     fontFamily: "Anton_400Regular",
   },
@@ -86,10 +88,11 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderRadius: 12,
     paddingHorizontal: 12,
-    backgroundColor: COLORS.neutral_darkest,
-    color: COLORS.neutral_lightest,
+    backgroundColor: colorPallet.neutral_darkest,
+    color: colorPallet.neutral_lightest,
     fontSize: 16,
-    paddingRight: 40, // leave space for eye icon
+    paddingRight: 40,
+    margin: 0,
   },
   iconContainer: {
     position: "absolute",

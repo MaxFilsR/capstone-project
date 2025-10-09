@@ -1,8 +1,7 @@
 import React from "react";
-import { View, Image } from "react-native";
+import { View } from "react-native";
 import * as Animatable from "react-native-animatable";
-import { globalStyles } from "../styles/globalStyles";
-import { AUTH } from "../styles/authStyles";
+import { containers, images } from "../styles/index";
 import logo from "../assets/images/gainz_logo_full.png";
 
 interface SplashScreenProps {
@@ -17,13 +16,13 @@ export default function SplashScreen({
   delay = 500,
 }: SplashScreenProps) {
   return (
-    <View style={AUTH.splashContainer}>
+    <View style={containers.splashContainer}>
       <Animatable.Image
         animation={animation}
         duration={duration}
         delay={delay}
         source={logo}
-        style={globalStyles.logo}
+        style={images.logo}
         resizeMode="contain"
       />
     </View>

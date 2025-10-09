@@ -1,4 +1,4 @@
-export const COLORS = {
+export const colorPallet = {
   primary: "#8CE61A",
   secondary: "#F4F12D",
   neutral_lightest: "#F3F3F3",
