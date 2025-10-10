@@ -1,2 +1,2 @@
 start:
-	npx expo start
+	npx expo start --tunnel
