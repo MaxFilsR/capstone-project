@@ -11,6 +11,8 @@ import { FormTextInput, FormButton } from "@/components";
 import { typography, containers, images } from "@/styles/index";
 import { colorPallet } from "@/styles/variables";
 import logo from "@/assets/images/gainz_logo_full.png";
+import { signUp, SignUpRequest } from "../../api/endpoints";
+import axios from "axios";
 
 export default function LogInScreen() {
   const [isNewUser, setNewUser] = useState<boolean>(false);
@@ -24,21 +26,61 @@ export default function LogInScreen() {
   };
 
   async function handleSubmit() {
-    if (isNewUser) {
-      setError(null);
-      router.push("/auth/onboarding/personalInfo");
-    } else {
+    try {
       if (!email || !password) {
         setError("Please fill in all fields.");
         return;
       }
-      if (password.length < 8) {
-        setError("Password must be at least 8 characters.");
+
+      if (isNewUser && (password.length < 8 || password.length > 255)) {
+        setError("Password must be between 8 and 255 characters.");
         return;
       }
+
+      setError(null);
+
+      const request: SignUpRequest = { email, password };
+
+      if (isNewUser) {
+        const response = await signUp(request);
+
+        if (
+          response &&
+          typeof response === "object" &&
+          "access_token" in response
+        ) {
+          const access_token = (response as { access_token: string })
+            .access_token;
+          console.log("Signup successful, token:", access_token);
+          router.push("/auth/onboarding/personalInfo");
+        } else {
+          console.error("Unexpected response structure:", response);
+          setError("Unexpected server response. Please try again.");
+        }
+      } else {
+        console.log("Existing user login flow not yet implemented.");
+      }
+    } catch (err: unknown) {
+      console.error("Signup error:", err);
+
+      if (axios.isAxiosError(err)) {
+        if (err.response) {
+          const serverMessage =
+            typeof err.response.data === "string"
+              ? err.response.data
+              : JSON.stringify(err.response.data);
+          setError(`Error ${err.response.status}: ${serverMessage}`);
+        } else if (err.request) {
+          setError("No response from server. Please try again.");
+        } else {
+          setError(`Request setup error: ${err.message}`);
+        }
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     }
-    setError(null);
-    return;
   }
 
   return (
