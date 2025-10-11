@@ -8,6 +8,7 @@ import {
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
 import { Anton_400Regular } from "@expo-google-fonts/anton";
+import * as SecureStore from "expo-secure-store";
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
@@ -34,6 +35,14 @@ export default function RootLayout() {
 
 function InnerStack() {
   const { user } = useAuth();
+  const [loadingUser, setLoadingUser] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setLoadingUser(false), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loadingUser) return <SplashScreen />;
 
   return (
     <Stack
@@ -43,13 +52,13 @@ function InnerStack() {
         headerShadowVisible: false,
       }}
     >
-      {/* Protected stack for logged-in users */}
-      <Stack.Protected guard={!!user}>
+      {/* Main app - for authenticated AND onboarded users */}
+      <Stack.Protected guard={!!user && user.onboarded === true}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack.Protected>
 
-      {/* Protected stack for guests */}
-      <Stack.Protected guard={!user}>
+      {/* Auth folder - handles both login AND onboarding */}
+      <Stack.Protected guard={!user || user.onboarded !== true}>
         <Stack.Screen name="auth" options={{ headerShown: false }} />
       </Stack.Protected>
     </Stack>

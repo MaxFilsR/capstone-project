@@ -1,88 +1,87 @@
-import { router } from "expo-router";
-import React, { createContext, useContext, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import * as SecureStore from "expo-secure-store";
 
-type FakeUser = {
-  $id: string;
-  email: string;
-  name?: string;
+type User = {
+  email?: string;
+  onboarded?: boolean;
 };
 
 type AuthContextType = {
-  user: FakeUser | null;
-  register: (
-    email: string,
-    password: string,
-    name?: string
-  ) => Promise<string | null>;
-  login: (email: string, password: string) => Promise<string | null>;
+  user: User | null;
+  setUser: (user: User | null) => void;
+  login: (token: string, email?: string, onboarded?: boolean) => Promise<void>;
   logout: () => Promise<void>;
+  completeOnboarding: () => Promise<void>;
 };
 
-// Create context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// --- Temporary Fake Auth Storage ---
-let fakeDatabase: Record<string, { password: string; name?: string }> = {};
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<FakeUser | null>(null);
+  // Auto-login on app start
+  useEffect(() => {
+    async function loadUser() {
+      const token = await SecureStore.getItemAsync("accessToken");
+      const email = await SecureStore.getItemAsync("userEmail");
+      const onboardedStr = await SecureStore.getItemAsync("onboarded");
 
-  // Simulate latency
-  const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
-
-  async function register(email: string, password: string, name?: string) {
-    await delay(500);
-
-    // If user already exists
-    if (fakeDatabase[email]) {
-      return "User already exists.";
+      if (token) {
+        setUser({
+          email: email || undefined,
+          onboarded: onboardedStr === "true",
+        });
+      }
     }
+    loadUser();
+  }, []);
 
-    // Store in fake DB
-    fakeDatabase[email] = { password, name };
-
-    // Auto-login
-    return await login(email, password);
-  }
-
-  async function login(email: string, password: string) {
-    await delay(500);
-
-    const record = fakeDatabase[email];
-    if (!record || record.password !== password) {
-      setUser(null);
-      return "Invalid email or password.";
+  const login = async (
+    token: string,
+    email?: string,
+    onboarded: boolean = false
+  ) => {
+    await SecureStore.setItemAsync("accessToken", token);
+    if (email) {
+      await SecureStore.setItemAsync("userEmail", email);
     }
+    await SecureStore.setItemAsync("onboarded", String(onboarded));
 
-    const fakeUser: FakeUser = {
-      $id: Math.random().toString(36).substring(2, 9),
+    setUser({
       email,
-      name: record.name,
-    };
+      onboarded,
+    });
+  };
 
-    setUser(fakeUser);
-    router.replace("../(tabs)");
-    return null; // success
-  }
+  const completeOnboarding = async () => {
+    await SecureStore.setItemAsync("onboarded", "true");
+    setUser((prev) => (prev ? { ...prev, onboarded: true } : null));
+  };
 
-  async function logout() {
-    await delay(200);
+  const logout = async () => {
+    await SecureStore.deleteItemAsync("accessToken");
+    await SecureStore.deleteItemAsync("userEmail");
+    await SecureStore.deleteItemAsync("onboarded");
     setUser(null);
-    router.replace("../auth");
-  }
+  };
 
   return (
-    <AuthContext.Provider value={{ user, register, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, setUser, login, logout, completeOnboarding }}
+    >
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-// Hook
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used inside an AuthProvider");
-  }
+  if (!context) throw new Error("useAuth must be used within an AuthProvider");
   return context;
-}
+};
