@@ -15,6 +15,14 @@ CREATE TYPE stats AS (
 	agility INT
 );
 
+CREATE TYPE rarity_type AS ENUM (
+    'common',
+    'uncommon',
+    'rare',
+    'ultra rare',
+    'mythical'
+);
+
 CREATE TYPE class AS (name TEXT, stats STATS);
 
 -- Tables
@@ -38,18 +46,18 @@ CREATE TABLE IF NOT EXISTS
 CREATE TABLE IF NOT EXISTS
 	items (
 		id SERIAL PRIMARY KEY,
-		name VARCHAR(100),
-		category VARCHAR(50),
-		rarity VARCHAR(50),
-		price INT,
+		name VARCHAR(100) NOT NULL,
+		category VARCHAR(50) NOT NULL,
+		rarity rarity_type NOT NULL,
+		price INT NOT NULL,
 		asset_url TEXT
 	);
 
 CREATE TABLE IF NOT EXISTS
 	user_items (
-		user_id INT REFERENCES users (id),
-		item_id INT REFERENCES items (id),
-		acquired_at TIMESTAMP DEFAULT NOW(),
+		user_id INT NOT NULL REFERENCES users (id),
+		item_id INT NOT NULL REFERENCES items (id),
+		acquired_at TIMESTAMP DEFAULT NOW() NOT NULL,
 		PRIMARY KEY (user_id, item_id)
 	);
 
@@ -67,7 +75,7 @@ CREATE TABLE IF NOT EXISTS
 CREATE TABLE IF NOT EXISTS
 	shop_rotations (
 		id SERIAL PRIMARY KEY,
-		item_id INT REFERENCES items (id),
+		item_id INT NOT NULL REFERENCES items (id),
 		start_date TIMESTAMP,
 		end_date TIMESTAMP
 	);
@@ -82,8 +90,8 @@ CREATE TABLE IF NOT EXISTS
 INSERT INTO
 	classes (id, name, stats)
 VALUES
-	(1, 'Assasin', ROW (0, 0, 0, 0)),
-	(2, 'Gladiator', ROW (0, 0, 0, 0)),
-	(3, 'Monk', ROW (0, 0, 0, 0)),
-	(4, 'Warrior', ROW (0, 0, 0, 0)),
-	(5, 'Wizard', ROW (0, 0, 0, 0))
+	(1, 'Warrior', ROW (7, 9, 8, 5)),
+	(2, 'Monk', ROW (7, 5, 6, 11)),
+	(3, 'Assassin', ROW (7, 6, 7, 9)),
+	(4, 'Wizard', ROW (7, 7, 8, 7)),
+	(5, 'Gladiator', ROW (7, 8, 7, 7))
