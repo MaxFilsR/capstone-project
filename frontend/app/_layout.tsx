@@ -8,7 +8,6 @@ import {
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
 import { Anton_400Regular } from "@expo-google-fonts/anton";
-import * as SecureStore from "expo-secure-store";
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);

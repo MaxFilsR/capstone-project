@@ -15,6 +15,10 @@ export default function OnboardingLayout() {
         <Stack.Screen name="workoutSchedule" options={{ headerShown: false }} />
         <Stack.Screen name="workoutStyle" options={{ headerShown: false }} />
         <Stack.Screen name="username" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="swipeableClassSelector"
+          options={{ headerShown: false }}
+        />
       </Stack>
     </OnboardingProvider>
   );

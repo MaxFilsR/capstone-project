@@ -11,12 +11,7 @@ import { FormTextInput, FormButton } from "@/components";
 import { typography, containers, images } from "@/styles/index";
 import { colorPallet } from "@/styles/variables";
 import logo from "@/assets/images/gainz_logo_full.png";
-import {
-  signUp,
-  SignUpRequest,
-  logIn,
-  LoginRequest,
-} from "@/api/endpoints";
+import { signUp, SignUpRequest, logIn, LoginRequest } from "@/api/endpoints";
 import axios from "axios";
 import { useAuth } from "@/lib/auth-context";
 
@@ -91,7 +86,7 @@ export default function LogInScreen() {
             typeof err.response.data === "string"
               ? err.response.data
               : JSON.stringify(err.response.data);
-          setError(`Error ${err.response.status}: ${serverMessage}`);
+          setError(`${serverMessage}`);
         } else if (err.request) {
           setError("No response from server. Please try again.");
         } else {

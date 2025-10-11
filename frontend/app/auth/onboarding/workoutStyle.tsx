@@ -8,12 +8,11 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { globalStyles } from "@/styles/globalStyles";
 import { BackButton, FormButton } from "@/components";
-import { typography } from "@/styles";
+import { containers, typography } from "@/styles";
 import { getClasses, CharacterClass } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
-import { useOnboarding } from "@/lib/onboarding-context"; // ADD THIS
+import { useOnboarding } from "@/lib/onboarding-context";
 
 type Option = {
   id: "warrior" | "monk" | "assassin" | "wizard" | "gladiator";
@@ -112,9 +111,7 @@ export default function WorkoutStyleScreen() {
 
   if (loading) {
     return (
-      <View
-        style={[globalStyles.centerContainer, { justifyContent: "center" }]}
-      >
+      <View style={[containers.centerContainer, { justifyContent: "center" }]}>
         <ActivityIndicator size="large" color={colorPallet.primary} />
         <Text style={{ color: colorPallet.neutral_lightest, marginTop: 16 }}>
           Loading...
@@ -126,11 +123,20 @@ export default function WorkoutStyleScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={globalStyles.centerContainer}
+      style={containers.centerContainer}
     >
       <BackButton />
-      <Text style={globalStyles.h1}>What is your preferred workout style?</Text>
-      <View style={{ marginTop: 24, width: "100%" }}>
+
+      <Text
+        style={[
+          typography.h1,
+          { color: colorPallet.neutral_lightest, textAlign: "center" },
+        ]}
+      >
+        What is your preferred workout style?
+      </Text>
+
+      <View style={[containers.formContainer, { gap: 0 }]}>
         {OPTIONS.map((opt) => (
           <RadioRow
             key={opt.id}
@@ -199,7 +205,7 @@ function RadioRow({
 
       <Text
         style={[
-          globalStyles.body,
+          typography.body,
           {
             flex: 1,
             color: "#EDEDED",

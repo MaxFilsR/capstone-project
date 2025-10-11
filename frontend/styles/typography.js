@@ -17,4 +17,9 @@ export const typography = StyleSheet.create({
     color: "red",
     fontSize: 14,
   },
+  header: {
+    fontSize: 24,
+    fontFamily: "Anton",
+    color: colorPallet.primary,
+  },
 });

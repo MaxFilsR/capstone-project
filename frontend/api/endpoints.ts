@@ -1,4 +1,5 @@
 import { apiClient } from "./client";
+import * as SecureStore from "expo-secure-store";
 
 // Example type
 export type User = {
@@ -66,4 +67,82 @@ export async function submitOnboarding(
 ): Promise<void> {
   const response = await apiClient.post("/onboarding", payload);
   return response.data;
+}
+
+// User Profile Types and Endpoints
+export type UserProfile = {
+  first_name: string;
+  last_name: string;
+  email: string;
+  username: string;
+  class: string;
+  stats: {
+    vitality: number;
+    strength: number;
+    endurance: number;
+    agility: number;
+  };
+  workout_schedule: boolean[]; // 7 days
+};
+
+// MOCK /me endpoint - will be replaced with real API call later
+const MOCK_USER_PROFILE_KEY = "mock_user_profile";
+const USE_MOCK_ME_ENDPOINT = true; // Set to false when backend is ready
+
+/**
+ * Fetch the logged-in user's profile
+ * Currently uses mock data stored locally
+ * TODO: Replace with real API call when backend /me endpoint is ready
+ */
+export async function getMe(): Promise<UserProfile> {
+  if (USE_MOCK_ME_ENDPOINT) {
+    // Mock implementation
+    await new Promise((resolve) => setTimeout(resolve, 300)); // Simulate network delay
+
+    const storedProfile = await SecureStore.getItemAsync(MOCK_USER_PROFILE_KEY);
+
+    if (!storedProfile) {
+      throw new Error(
+        "User profile not found. Please complete onboarding first."
+      );
+    }
+
+    return JSON.parse(storedProfile);
+  } else {
+    // Real API call (uncomment when backend is ready)
+    const response = await apiClient.post("/me");
+    return response.data;
+  }
+}
+
+/**
+ * Save user profile locally after onboarding (MOCK ONLY)
+ * This is called internally after submitOnboarding succeeds
+ */
+export async function saveMockUserProfile(
+  onboardingData: OnboardingRequest,
+  email: string,
+  selectedClass: CharacterClass
+): Promise<void> {
+  const profile: UserProfile = {
+    first_name: onboardingData.first_name,
+    last_name: onboardingData.last_name,
+    email: email,
+    username: onboardingData.username,
+    class: selectedClass.name,
+    stats: selectedClass.stats,
+    workout_schedule: onboardingData.workout_schedule,
+  };
+
+  await SecureStore.setItemAsync(
+    MOCK_USER_PROFILE_KEY,
+    JSON.stringify(profile)
+  );
+}
+
+/**
+ * Clear mock user profile (called on logout)
+ */
+export async function clearMockUserProfile(): Promise<void> {
+  await SecureStore.deleteItemAsync(MOCK_USER_PROFILE_KEY);
 }

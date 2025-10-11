@@ -7,10 +7,12 @@ import React, {
 } from "react";
 import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
+import { clearMockUserProfile, getMe, UserProfile } from "@/api/endpoints";
 
 type User = {
   email?: string;
   onboarded?: boolean;
+  profile?: UserProfile;
 };
 
 type AuthContextType = {
@@ -19,6 +21,7 @@ type AuthContextType = {
   login: (token: string, email?: string, onboarded?: boolean) => Promise<void>;
   logout: () => Promise<void>;
   completeOnboarding: () => Promise<void>;
+  fetchUserProfile: () => Promise<UserProfile>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -69,13 +72,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await SecureStore.deleteItemAsync("accessToken");
     await SecureStore.deleteItemAsync("userEmail");
     await SecureStore.deleteItemAsync("onboarded");
+    await clearMockUserProfile();
     setUser(null);
     router.replace("../auth");
   };
 
+  const fetchUserProfile = async (): Promise<UserProfile> => {
+    const profile = await getMe();
+    setUser((prev) => (prev ? { ...prev, profile } : null));
+    return profile;
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, setUser, login, logout, completeOnboarding }}
+      value={{
+        user,
+        setUser,
+        login,
+        logout,
+        completeOnboarding,
+        fetchUserProfile,
+      }}
     >
       {children}
     </AuthContext.Provider>
