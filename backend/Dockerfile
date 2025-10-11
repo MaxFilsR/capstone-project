@@ -34,7 +34,7 @@ RUN --mount=type=bind,source=src,target=src \
     --mount=type=cache,target=/usr/local/cargo/git/db \
     --mount=type=cache,target=/usr/local/cargo/registry/ \
     #! BUG STARTS HERE
-    DATABASE_URL=“postgres://postgres:pass@localhost:5432/gainzdb” cargo build --locked --release && \ 
+    DATABASE_URL='postgresql://postgres:pass@localhost:5432/gainzdb' cargo build --locked --release && \ 
     cp ./target/release/$APP_NAME /bin/server
 
 ################################################################################

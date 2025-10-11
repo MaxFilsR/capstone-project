@@ -37,7 +37,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data #persistent data
-      - ./backend/db/seed.pgsql:/docker-entrypoint-initdb.d/seed.sql #preseedin
+      - ./backend/seed.pgsql:/docker-entrypoint-initdb.d/seed.sql #preseedin
     healthcheck:
       test: ["CMD", "pg_isready"]
       interval: 1m30s
