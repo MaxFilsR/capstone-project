@@ -1,7 +1,7 @@
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { Stack } from "expo-router";
 import React, { useEffect, useState } from "react";
-import SplashScreen from "../components/SplashScreen";
+import SplashScreen from "@/components/SplashScreen";
 import {
   useFonts,
   Inter_400Regular,

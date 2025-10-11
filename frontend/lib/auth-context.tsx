@@ -69,7 +69,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await SecureStore.deleteItemAsync("userEmail");
     await SecureStore.deleteItemAsync("onboarded");
     setUser(null);
-  };
+    router.replace("../auth");
+  }
 
   return (
     <AuthContext.Provider

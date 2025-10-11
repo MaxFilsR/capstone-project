@@ -4,7 +4,7 @@ import { View, Text, Image, ScrollView } from "react-native";
 import { BackButton, FormButton } from "@/components";
 import { globalStyles } from "@/styles/globalStyles";
 import monk from "@/assets/images/monk-male-full-brown.png";
-import { AUTH } from "../../../styles/authStyles";
+import { AUTH } from "@/styles/authStyles";
 
 export const screenOptions = {
   headerShown: false,
