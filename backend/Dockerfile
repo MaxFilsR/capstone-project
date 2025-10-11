@@ -1,10 +1,4 @@
 # syntax=docker/dockerfile:1
-#! DO NOT MOVE THIS LINE DOWN
-
-# Maximilian Jaramazovic
-#* Dockerfile for the backend, creates environment for src to run
-#! NOT TESTED YET, CAN'T GUARANTEE FOR FUNCTION OR CORRECTNESS
-# Maximilian Jaramazovic
 
 # Comments are provided throughout this file to help you get started.
 # If you need more help, visit the Dockerfile reference guide at
@@ -13,7 +7,7 @@
 # Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
 ARG RUST_VERSION=1.90.0
-ARG APP_NAME=capstone-project
+ARG APP_NAME=capstone-project-be
 
 ################################################################################
 # Create a stage for building the application.
@@ -23,7 +17,7 @@ ARG APP_NAME
 WORKDIR /app
 
 # Install host build dependencies.
-RUN apk add --no-cache clang lld musl-dev git
+RUN apk add --no-cache clang lld musl-dev git pkgconfig openssl-dev build-base
 
 # Build the application.
 # Leverage a cache mount to /usr/local/cargo/registry/
@@ -39,7 +33,8 @@ RUN --mount=type=bind,source=src,target=src \
     --mount=type=cache,target=/app/target/ \
     --mount=type=cache,target=/usr/local/cargo/git/db \
     --mount=type=cache,target=/usr/local/cargo/registry/ \
-    cargo build --locked --release && \
+    #! BUG STARTS HERE
+    DATABASE_URL=“postgres://postgres:pass@localhost:5432/gainzdb” cargo build --locked --release && \ 
     cp ./target/release/$APP_NAME /bin/server
 
 ################################################################################
@@ -70,8 +65,10 @@ USER appuser
 # Copy the executable from the "build" stage.
 COPY --from=build /bin/server /bin/
 
+# RUN apk add --no-cache openssl
+
 # Expose the port that the application listens on.
-EXPOSE 8080
+EXPOSE 5432
 
 # What the container should run when it is started.
 CMD ["/bin/server"]
