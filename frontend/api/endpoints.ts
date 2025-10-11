@@ -58,7 +58,7 @@ export type OnboardingRequest = {
 
 export async function getClasses(): Promise<CharacterClass[]> {
   const response = await apiClient.post("/constants/classes");
-  return response.data;
+  return response.data.classes; // Extract the classes array from the response
 }
 
 export async function submitOnboarding(

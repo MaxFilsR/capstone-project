@@ -22,10 +22,15 @@ export default function UsernameScreen() {
       return;
     }
 
-    // Validate required data
-    if (!data.firstName || !data.lastName) {
+    // Validate all required data is present
+    if (!data.firstName || !data.lastName || !data.classId) {
       setError(
-        "Missing onboarding information. Please go back and complete all steps."
+        "Missing onboarding information. Please go back and complete all steps. " +
+          data.firstName +
+          " " +
+          data.lastName +
+          " " +
+          data.classId
       );
       return;
     }
@@ -34,20 +39,28 @@ export default function UsernameScreen() {
     setLoading(true);
 
     try {
+      // Update username in context
       updateUsername(username);
 
-      // Prepare onboarding payload - use placeholder class_id for now
+      // Prepare onboarding payload
       const payload: OnboardingRequest = {
         first_name: data.firstName,
         last_name: data.lastName,
-        class_id: 1, // Temporary placeholder - skip class selection
+        class_id: data.classId,
         workout_schedule: data.workoutSchedule,
         username: username,
       };
 
+      // Submit to backend
       await submitOnboarding(payload);
+
+      // Mark user as onboarded
       await completeOnboarding();
+
+      // Reset onboarding data
       resetData();
+
+      // Navigate to main app
       router.replace("/(tabs)/character");
     } catch (err) {
       console.error("Onboarding completion error:", err);

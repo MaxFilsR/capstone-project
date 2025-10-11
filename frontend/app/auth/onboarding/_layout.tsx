@@ -11,16 +11,9 @@ export default function OnboardingLayout() {
         }}
       >
         <Stack.Screen name="personalInfo" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="characterQuizTemp"
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="preSelectedClassTemp"
-          options={{ headerShown: false }}
-        />
         <Stack.Screen name="selectClass" options={{ headerShown: false }} />
         <Stack.Screen name="workoutSchedule" options={{ headerShown: false }} />
+        <Stack.Screen name="workoutStyle" options={{ headerShown: false }} />
         <Stack.Screen name="username" options={{ headerShown: false }} />
       </Stack>
     </OnboardingProvider>

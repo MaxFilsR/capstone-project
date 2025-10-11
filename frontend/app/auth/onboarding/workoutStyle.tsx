@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import {
   KeyboardAvoidingView,
@@ -6,9 +6,14 @@ import {
   View,
   Text,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { globalStyles } from "../../../styles/globalStyles";
 import { BackButton, FormButton } from "../../../components";
+import { typography } from "@/styles";
+import { getClasses, CharacterClass } from "@/api/endpoints";
+import { colorPallet } from "@/styles/variables";
+import { useOnboarding } from "@/lib/onboarding-context"; // ADD THIS
 
 type Option = {
   id: "warrior" | "monk" | "assassin" | "wizard" | "gladiator";
@@ -32,13 +37,29 @@ const OPTIONS: Option[] = [
   { id: "gladiator", label: "Competitive / Sports", value: "competitive" },
 ];
 
-export const screenOptions = {
-  headerShown: false,
-};
-
 export default function WorkoutStyleScreen() {
   const [selected, setSelected] = useState<Option | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [classes, setClasses] = useState<CharacterClass[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { updateClassId } = useOnboarding(); // ADD THIS
+
+  // Fetch classes on mount
+  useEffect(() => {
+    async function loadClasses() {
+      try {
+        const data = await getClasses();
+        setClasses(data);
+        console.log("Classes loaded:", data);
+      } catch (err) {
+        console.error("Failed to load classes:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadClasses();
+  }, []);
 
   const handleSubmit = () => {
     if (!selected) {
@@ -47,6 +68,26 @@ export default function WorkoutStyleScreen() {
     }
     setError(null);
 
+    // Map workout style to class ID
+    const classIdMap: Record<Option["value"], number> = {
+      strength: 4, // Warrior
+      yoga: 3, // Monk
+      cardio: 1, // Assassin
+      mixed: 5, // Wizard
+      competitive: 2, // Gladiator
+    };
+
+    const selectedClassId = classIdMap[selected.value];
+
+    console.log("=== WORKOUT STYLE SELECTION ===");
+    console.log("Selected workout:", selected.value);
+    console.log("Mapped to class ID:", selectedClassId);
+    console.log("===============================");
+
+    // Save class ID to context
+    updateClassId(selectedClassId);
+
+    // Navigate to appropriate confirmation screen
     if (selected.value === "strength") {
       router.push("/auth/onboarding/selectedClassWarrior");
       return;
@@ -69,6 +110,19 @@ export default function WorkoutStyleScreen() {
     }
   };
 
+  if (loading) {
+    return (
+      <View
+        style={[globalStyles.centerContainer, { justifyContent: "center" }]}
+      >
+        <ActivityIndicator size="large" color={colorPallet.primary} />
+        <Text style={{ color: colorPallet.neutral_lightest, marginTop: 16 }}>
+          Loading...
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -87,9 +141,7 @@ export default function WorkoutStyleScreen() {
         ))}
 
         {error ? (
-          <Text style={[globalStyles.errorText, { marginTop: 16 }]}>
-            {error}
-          </Text>
+          <Text style={[typography.errorText, { marginTop: 16 }]}>{error}</Text>
         ) : null}
 
         <FormButton
