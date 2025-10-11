@@ -6,6 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import * as SecureStore from "expo-secure-store";
+import { router } from "expo-router";
 
 type User = {
   email?: string;
@@ -70,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await SecureStore.deleteItemAsync("onboarded");
     setUser(null);
     router.replace("../auth");
-  }
+  };
 
   return (
     <AuthContext.Provider
