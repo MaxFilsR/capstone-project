@@ -7,10 +7,10 @@ import {
   Text,
   Image,
 } from "react-native";
-import { FormButton } from "../../../components";
-import { globalStyles } from "../../../styles/globalStyles";
-import { AUTH } from "../../../styles/authStyles";
-import { BackButton } from "../../../components";
+import { FormButton } from "@/components";
+import { globalStyles } from "@/styles/globalStyles";
+import { AUTH } from "@/styles/authStyles";
+import { BackButton } from "@/components";
 
 export const screenOptions = {
   headerShown: false,

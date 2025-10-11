@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { router } from "expo-router";
 import { KeyboardAvoidingView, Platform, View, Text } from "react-native";
-import { FormTextInput, FormButton } from "../../../components";
+import { FormTextInput, FormButton } from "@/components";
 import { typography, containers } from "@/styles/index";
 import { colorPallet } from "@/styles/variables";
-import { BackButton } from "../../../components";
+import { BackButton } from "@/components";
 
 export default function PersonalInfoScreen() {
   const [fName, setFName] = useState("");

@@ -7,9 +7,9 @@ import {
   Text,
   TouchableOpacity
 } from "react-native";
-import { globalStyles } from "../../../styles/globalStyles";
-import { AUTH } from "../../../styles/authStyles";
-import { BackButton, FormButton } from "../../../components";
+import { globalStyles } from "@/styles/globalStyles";
+import { AUTH } from "@/styles/authStyles";
+import { BackButton, FormButton } from "@/components";
 
 
 type Option = {

@@ -1,8 +1,8 @@
 import React from "react";
 import { View } from "react-native";
 import * as Animatable from "react-native-animatable";
-import { containers, images } from "../styles/index";
-import logo from "../assets/images/gainz_logo_full.png";
+import { containers, images } from "@/styles/index";
+import logo from "@/assets/images/gainz_logo_full.png";
 
 interface SplashScreenProps {
   animation?: string;

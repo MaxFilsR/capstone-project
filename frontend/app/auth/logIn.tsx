@@ -11,7 +11,7 @@ import { FormTextInput, FormButton } from "@/components";
 import { typography, containers, images } from "@/styles/index";
 import { colorPallet } from "@/styles/variables";
 import logo from "@/assets/images/gainz_logo_full.png";
-import { signUp, SignUpRequest } from "../../api/endpoints";
+import { signUp, SignUpRequest } from "@/api/endpoints";
 import axios from "axios";
 
 export default function LogInScreen() {

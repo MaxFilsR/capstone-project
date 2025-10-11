@@ -61,14 +61,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     setUser(fakeUser);
-    router.replace("../(tabs)");
+    router.replace("@/(tabs)");
     return null; // success
   }
 
   async function logout() {
     await delay(200);
     setUser(null);
-    router.replace("../auth");
+    router.replace("@/auth");
   }
 
   return (

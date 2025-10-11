@@ -28,7 +28,7 @@ export default function WorkoutScheduleScreen() {
   const [error, setError] = useState<string | null>(null);
 
   const toggleDay = (index: number) => {
-    const newSchedule = [...schedule];
+    const newSchedule = [@.schedule];
     newSchedule[index] = !newSchedule[index];
     setSchedule(newSchedule);
   };

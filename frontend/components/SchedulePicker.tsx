@@ -8,7 +8,7 @@ export const SchedulePicker = () => {
   const [schedule, setSchedule] = useState<number[]>([0, 0, 0, 0, 0, 0, 0]);
 
   const toggleDay = (index: number) => {
-    const newSchedule = [...schedule];
+    const newSchedule = [@.schedule];
     newSchedule[index] = newSchedule[index] === 1 ? 0 : 1;
     setSchedule(newSchedule);
   };
