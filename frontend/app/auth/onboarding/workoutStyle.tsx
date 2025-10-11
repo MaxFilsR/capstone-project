@@ -8,8 +8,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { globalStyles } from "../../../styles/globalStyles";
-import { BackButton, FormButton } from "../../../components";
+import { globalStyles } from "@/styles/globalStyles";
+import { BackButton, FormButton } from "@/components";
 import { typography } from "@/styles";
 import { getClasses, CharacterClass } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";

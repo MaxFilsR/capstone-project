@@ -1,6 +1,6 @@
 import { Text, View, Image, Button } from "react-native";
-import { globalStyles } from "../../styles/globalStyles";
-import logo from "../../assets/images/gainz_logo_full.png";
+import { globalStyles } from "@/styles/globalStyles";
+import logo from "@/assets/images/gainz_logo_full.png";
 import { useAuth } from "@/lib/auth-context";
 
 export default function Index() {

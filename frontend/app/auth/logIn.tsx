@@ -16,7 +16,7 @@ import {
   SignUpRequest,
   logIn,
   LoginRequest,
-} from "../../api/endpoints";
+} from "@/api/endpoints";
 import axios from "axios";
 import { useAuth } from "@/lib/auth-context";
 

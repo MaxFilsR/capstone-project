@@ -12,6 +12,6 @@ start:
 
 stop:
 # stop web server first
-	-kill $(lsof -n -i :8080 -t -sTCP:LISTEN)
+	-pkill capstone-projec
 # stop database last
 	-make --directory=./db stop
