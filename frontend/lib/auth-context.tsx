@@ -5,9 +5,9 @@ import React, {
   useState,
   ReactNode,
 } from "react";
-import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
 import { clearMockUserProfile, getMe, UserProfile } from "@/api/endpoints";
+import { storage } from "@/utils/storageHelper";
 
 type User = {
   email?: string;
@@ -32,9 +32,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Auto-login on app start
   useEffect(() => {
     async function loadUser() {
-      const token = await SecureStore.getItemAsync("accessToken");
-      const email = await SecureStore.getItemAsync("userEmail");
-      const onboardedStr = await SecureStore.getItemAsync("onboarded");
+      const token = await storage.getItem("accessToken");
+      const email = await storage.getItem("userEmail");
+      const onboardedStr = await storage.getItem("onboarded");
 
       if (token) {
         setUser({
@@ -51,11 +51,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     email?: string,
     onboarded: boolean = false
   ) => {
-    await SecureStore.setItemAsync("accessToken", token);
+    await storage.setItem("accessToken", token);
     if (email) {
-      await SecureStore.setItemAsync("userEmail", email);
+      await storage.setItem("userEmail", email);
     }
-    await SecureStore.setItemAsync("onboarded", String(onboarded));
+    await storage.setItem("onboarded", String(onboarded));
 
     setUser({
       email,
@@ -64,14 +64,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const completeOnboarding = async () => {
-    await SecureStore.setItemAsync("onboarded", "true");
+    await storage.setItem("onboarded", "true");
     setUser((prev) => (prev ? { ...prev, onboarded: true } : null));
   };
 
   const logout = async () => {
-    await SecureStore.deleteItemAsync("accessToken");
-    await SecureStore.deleteItemAsync("userEmail");
-    await SecureStore.deleteItemAsync("onboarded");
+    await storage.deleteItem("accessToken");
+    await storage.deleteItem("userEmail");
+    await storage.deleteItem("onboarded");
     await clearMockUserProfile();
     setUser(null);
     router.replace("../auth");

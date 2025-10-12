@@ -1,5 +1,5 @@
 import { apiClient } from "./client";
-import * as SecureStore from "expo-secure-store";
+import { storage } from "@/utils/storageHelper"; // Update this path to match your project structure
 
 // Example type
 export type User = {
@@ -99,7 +99,7 @@ export async function getMe(): Promise<UserProfile> {
     // Mock implementation
     await new Promise((resolve) => setTimeout(resolve, 300)); // Simulate network delay
 
-    const storedProfile = await SecureStore.getItemAsync(MOCK_USER_PROFILE_KEY);
+    const storedProfile = await storage.getItem(MOCK_USER_PROFILE_KEY);
 
     if (!storedProfile) {
       throw new Error(
@@ -134,15 +134,12 @@ export async function saveMockUserProfile(
     workout_schedule: onboardingData.workout_schedule,
   };
 
-  await SecureStore.setItemAsync(
-    MOCK_USER_PROFILE_KEY,
-    JSON.stringify(profile)
-  );
+  await storage.setItem(MOCK_USER_PROFILE_KEY, JSON.stringify(profile));
 }
 
 /**
  * Clear mock user profile (called on logout)
  */
 export async function clearMockUserProfile(): Promise<void> {
-  await SecureStore.deleteItemAsync(MOCK_USER_PROFILE_KEY);
+  await storage.deleteItem(MOCK_USER_PROFILE_KEY);
 }
