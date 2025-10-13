@@ -1,7 +1,7 @@
 --CREATE DATABASE gainzdb;
 \c gainzdb;
 
-CREATE ROLE dyredhead WITH LOGIN;
+CREATE ROLE root WITH LOGIN;
 
 CREATE EXTENSION pgcrypto;
 

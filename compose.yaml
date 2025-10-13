@@ -39,7 +39,7 @@ services:
       - postgres_data:/var/lib/postgresql/data #persistent data
       - ./backend/seed.pgsql:/docker-entrypoint-initdb.d/seed.sql #preseedin
     healthcheck:
-      test: ["CMD", "pg_isready"]
+      test: ["CMD", "pg_isready", "-U", "postgres","-d", "gainzdb"]
       interval: 1m30s
       timeout: 30s
       retries: 5
