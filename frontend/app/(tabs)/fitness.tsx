@@ -1,7 +1,5 @@
 import React from "react";
-import { StyleSheet } from "react-native";
 import TabBar, { Tab } from "@/components/TabBar";
-import { colorPallet } from "@/styles/variables";
 import HistoryScreen from "../screens/FitnessTabs/historyScreen";
 import StatsScreen from "../screens/FitnessTabs/statsScreen";
 import LibraryScreen from "../screens/FitnessTabs/libraryScreen";
@@ -15,9 +13,7 @@ const FitnessScreen = () => {
     { name: "Library", component: LibraryScreen },
   ];
 
-  const handleTabChange = (index: number) => {
-    console.log("Tab changed to:", index);
-  };
+  const handleTabChange = (index: number) => {};
 
   return <TabBar tabs={tabs} initialTab={0} onTabChange={handleTabChange} />;
 };
