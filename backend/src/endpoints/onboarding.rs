@@ -1,8 +1,8 @@
+use crate::{jwt::AuthenticatedUser, schemas::*};
 use actix_web::{HttpResponse, Result, error::ErrorBadRequest, post, web};
 use serde::Deserialize;
 use sqlx::PgPool;
 
-use crate::{jwt::AuthenticatedUser, schemas::*};
 #[derive(Deserialize)]
 struct OnboardingRequest {
     first_name: String,
@@ -62,6 +62,14 @@ async fn onboarding(
     .execute(pool.get_ref())
     .await
     .unwrap();
+
+    let _query = sqlx::query!(
+        r#"
+            UPDATE users
+            SET onboarding_complete = true
+            WHERE onboarding_complete = false
+        "#,
+    );
 
     return Ok(HttpResponse::Ok().into());
 }

@@ -3,7 +3,7 @@ use actix_web::HttpResponse;
 use actix_web::{App, HttpServer, middleware::Logger, post, web};
 use capstone_project::endpoints;
 use capstone_project::jwt::AuthenticatedUser;
-use capstone_project::schemas::{Class, UserInfo, UserInfoRow};
+use capstone_project::schemas::{Class, UserInfo};
 use const_env::from_env;
 use env_logger::Env;
 use sqlx::PgPool;
@@ -26,7 +26,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_origin()
-            .allowed_methods(vec!["POST"])
+            .allowed_methods(vec!["POST", "GET"])
             .allow_any_header();
 
         App::new()
@@ -41,6 +41,8 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::auth::refresh)
             // Onboarding
             .service(endpoints::onboarding::onboarding)
+            // Workouts
+            .service(endpoints::nav::workouts::library::library)
     })
     .bind((ACTIX_WEB_ADDRESS, ACTIX_WEB_PORT))?
     .run()
