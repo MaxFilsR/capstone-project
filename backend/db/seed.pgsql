@@ -39,8 +39,8 @@ CREATE TABLE IF NOT EXISTS
 		first_name VARCHAR(255) NOT NULL,
 		last_name VARCHAR(255) NOT NULL,
 		username VARCHAR(255) NOT NULL,
-		class CLASS,
-		workout_schedule BOOL[7] NOT NULL
+		class CLASS NOT NULL,
+		workout_schedule BOOLEAN[7] NOT NULL
 	);
 
 CREATE TABLE IF NOT EXISTS

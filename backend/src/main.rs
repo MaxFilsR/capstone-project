@@ -1,6 +1,9 @@
 use actix_cors::Cors;
-use actix_web::{App, HttpServer, middleware::Logger, web};
+use actix_web::HttpResponse;
+use actix_web::{App, HttpServer, middleware::Logger, post, web};
 use capstone_project::endpoints;
+use capstone_project::jwt::AuthenticatedUser;
+use capstone_project::schemas::{Class, UserInfo, UserInfoRow};
 use const_env::from_env;
 use env_logger::Env;
 use sqlx::PgPool;
@@ -42,4 +45,33 @@ async fn main() -> std::io::Result<()> {
     .bind((ACTIX_WEB_ADDRESS, ACTIX_WEB_PORT))?
     .run()
     .await
+}
+
+pub struct MeResponse {
+    first_name: String,
+    last_name: String,
+    username: String,
+    class: Class,
+    workout_schedule: Vec<bool>,
+}
+
+#[post("/me")]
+pub async fn me(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let user_info: UserInfo = sqlx::query_as!(
+        UserInfo,
+        r#"
+            SELECT first_name, last_name, username, class as "class: Class", workout_schedule
+            FROM user_info
+            where user_id = $1
+        "#,
+        user.id
+    )
+    .fetch_one(pool.get_ref())
+    .await
+    .unwrap();
+
+    return Ok(HttpResponse::Ok().json(user_info));
 }
