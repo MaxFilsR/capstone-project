@@ -12,7 +12,7 @@ pub struct Stats {
 // Fetchimg class info from the database
 // Each class (ex: Warrior, Monk, Assassin) has its own ID, name, and base `Stats`.
 // This struct is used for queries like: `SELECT id, name, stats from classes.
-#[derive(Debug, sqlx::FromRow, Serialize)]
+#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
 pub struct ClassRow {
     pub id: i32,
     pub name: String,
@@ -39,11 +39,8 @@ pub struct UserInfoRow {
     pub workout_schedule: Vec<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct UserInfo {
-    pub first_name: String,
-    pub last_name: String,
-    pub username: String,
-    pub class: Class,
-    pub workout_schedule: Vec<bool>,
+#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
+pub struct RoutinesRow {
+    pub user_id: i32,
+    // TODO: add more fields
 }

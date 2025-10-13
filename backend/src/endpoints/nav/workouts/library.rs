@@ -1,8 +1,8 @@
 use actix_web::{HttpResponse, Result, error::ErrorBadRequest, get, web};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
-#[derive(Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct LibraryResponse {}
 
 #[get("/workouts/library")]
