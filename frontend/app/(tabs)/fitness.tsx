@@ -1,13 +1,21 @@
-import { Text, View, Image } from "react-native";
-import { globalStyles } from "../../styles/globalStyles";
-import logo from "../../assets/images/gainz_logo_full.png";
+import React from "react";
+import TabBar, { Tab } from "@/components/TabBar";
+import HistoryScreen from "../screens/FitnessTabs/historyScreen";
+import StatsScreen from "../screens/FitnessTabs/statsScreen";
+import LibraryScreen from "../screens/FitnessTabs/libraryScreen";
+import RoutinesScreen from "../screens/FitnessTabs/routinesScreen";
 
-export default function Index() {
-  return (
-    <View style={globalStyles.container}>
-      <Image style={globalStyles.logo} source={logo} />
+const FitnessScreen = () => {
+  const tabs: Tab[] = [
+    { name: "History", component: HistoryScreen },
+    { name: "Stats", component: StatsScreen },
+    { name: "Routines", component: RoutinesScreen },
+    { name: "Library", component: LibraryScreen },
+  ];
 
-      <Text style={globalStyles.h1}> Fitness Screen</Text>
-    </View>
-  );
-}
+  const handleTabChange = (index: number) => {};
+
+  return <TabBar tabs={tabs} initialTab={0} onTabChange={handleTabChange} />;
+};
+
+export default FitnessScreen;

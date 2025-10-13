@@ -1,38 +1,64 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import {
   KeyboardAvoidingView,
   Platform,
   View,
   Text,
-  TouchableOpacity
+  TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
-import { globalStyles } from "../../../styles/globalStyles";
-import { AUTH } from "../../../styles/authStyles";
-import { BackButton, FormButton } from "../../../components";
-
+import { BackButton, FormButton } from "@/components";
+import { containers, typography } from "@/styles";
+import { getClasses, CharacterClass } from "@/api/endpoints";
+import { colorPallet } from "@/styles/variables";
+import { useOnboarding } from "@/lib/onboarding-context";
 
 type Option = {
-    id: "warrior" | "monk" | "assassin" | "wizard" | "gladiator";
-    label: string;
-    value: "strength" | "yoga" | "cardio" | "mixed" | "competitive"
+  id: "warrior" | "monk" | "assassin" | "wizard" | "gladiator";
+  label: string;
+  value: "strength" | "yoga" | "cardio" | "mixed" | "competitive";
 };
 
 const OPTIONS: Option[] = [
-    { id: "warrior", label: "Weightlifting / Strength Training", value: "strength" },
-    { id: "monk", label: "Yoga / Flexibility / Mobility", value: "yoga" },
-    { id: "assassin", label: "Running / Cardio / Outdoor Activities", value: "cardio" },
-    { id: "wizard", label: "Mixed / Cross-Training", value: "mixed" },
-    { id: "gladiator", label: "Competitive / Sports", value: "competitive" },
+  {
+    id: "warrior",
+    label: "Weightlifting / Strength Training",
+    value: "strength",
+  },
+  { id: "monk", label: "Yoga / Flexibility / Mobility", value: "yoga" },
+  {
+    id: "assassin",
+    label: "Running / Cardio / Outdoor Activities",
+    value: "cardio",
+  },
+  { id: "wizard", label: "Mixed / Cross-Training", value: "mixed" },
+  { id: "gladiator", label: "Competitive / Sports", value: "competitive" },
 ];
-
-export const screenOptions = {
-  headerShown: false,
-};
 
 export default function WorkoutStyleScreen() {
   const [selected, setSelected] = useState<Option | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [classes, setClasses] = useState<CharacterClass[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { updateClassId } = useOnboarding(); // ADD THIS
+
+  // Fetch classes on mount
+  useEffect(() => {
+    async function loadClasses() {
+      try {
+        const data = await getClasses();
+        setClasses(data);
+        console.log("Classes loaded:", data);
+      } catch (err) {
+        console.error("Failed to load classes:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadClasses();
+  }, []);
 
   const handleSubmit = () => {
     if (!selected) {
@@ -41,119 +67,153 @@ export default function WorkoutStyleScreen() {
     }
     setError(null);
 
+    // Map workout style to class ID
+    const classIdMap: Record<Option["value"], number> = {
+      strength: 4, // Warrior
+      yoga: 3, // Monk
+      cardio: 1, // Assassin
+      mixed: 5, // Wizard
+      competitive: 2, // Gladiator
+    };
+
+    const selectedClassId = classIdMap[selected.value];
+
+    console.log("=== WORKOUT STYLE SELECTION ===");
+    console.log("Selected workout:", selected.value);
+    console.log("Mapped to class ID:", selectedClassId);
+    console.log("===============================");
+
+    // Save class ID to context
+    updateClassId(selectedClassId);
+
+    // Navigate to appropriate confirmation screen
     if (selected.value === "strength") {
-        router.push("/auth/onboarding/selectedClassWarrior");
-        return;
+      router.push("/auth/onboarding/selectedClassWarrior");
+      return;
     }
     if (selected.value === "yoga") {
-        router.push("/auth/onboarding/selectedClassMonk");
-        return;
+      router.push("/auth/onboarding/selectedClassMonk");
+      return;
     }
     if (selected.value === "cardio") {
-        router.push("/auth/onboarding/selectedClassAssassin");
-        return;
+      router.push("/auth/onboarding/selectedClassAssassin");
+      return;
     }
     if (selected.value === "mixed") {
-        router.push("/auth/onboarding/selectedClassWizard");
-        return;
+      router.push("/auth/onboarding/selectedClassWizard");
+      return;
     }
     if (selected.value === "competitive") {
-        router.push("/auth/onboarding/selectedClassGladiator");
-        return;
+      router.push("/auth/onboarding/selectedClassGladiator");
+      return;
     }
   };
+
+  if (loading) {
+    return (
+      <View style={[containers.centerContainer, { justifyContent: "center" }]}>
+        <ActivityIndicator size="large" color={colorPallet.primary} />
+        <Text style={{ color: colorPallet.neutral_lightest, marginTop: 16 }}>
+          Loading...
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={globalStyles.centerContainer}
+      style={containers.centerContainer}
     >
       <BackButton />
-      <Text style={globalStyles.h1}>
+
+      <Text
+        style={[
+          typography.h1,
+          { color: colorPallet.neutral_lightest, textAlign: "center" },
+        ]}
+      >
         What is your preferred workout style?
       </Text>
-      <View style={{marginTop: 24, width: "100%"}}>
+
+      <View style={[containers.formContainer, { gap: 0 }]}>
         {OPTIONS.map((opt) => (
-            <RadioRow
-                key={opt.id}
-                label={opt.label}
-                selected={selected?.id === opt.id}
-                onPress={() => setSelected(opt)}
-            />
+          <RadioRow
+            key={opt.id}
+            label={opt.label}
+            selected={selected?.id === opt.id}
+            onPress={() => setSelected(opt)}
+          />
         ))}
 
         {error ? (
-            <Text style={[globalStyles.errorText, { marginTop: 16}]}>
-                {error}
-            </Text>
+          <Text style={[typography.errorText, { marginTop: 16 }]}>{error}</Text>
         ) : null}
 
         <FormButton
-            title="Next"
-            onPress={handleSubmit}
-            style={{ marginTop: 16 }}
+          title="Next"
+          onPress={handleSubmit}
+          style={{ marginTop: 16 }}
         />
-        </View>
+      </View>
     </KeyboardAvoidingView>
-    );
+  );
 }
 
-    /* Styling */
+function RadioRow({
+  label,
+  selected,
+  onPress,
+}: {
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.8}
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        paddingVertical: 14,
+      }}
+    >
+      <View
+        style={{
+          height: 24,
+          width: 24,
+          borderRadius: 12,
+          borderWidth: 2,
+          borderColor: selected ? "#8CE61A" : "#DDD",
+          alignItems: "center",
+          justifyContent: "center",
+          marginRight: 12,
+        }}
+      >
+        {selected ? (
+          <View
+            style={{
+              height: 12,
+              width: 12,
+              borderRadius: 6,
+              backgroundColor: "#8CE61A",
+            }}
+          />
+        ) : null}
+      </View>
 
-    function RadioRow({
-        label,
-        selected,
-        onPress,
-    }: {
-        label:string;
-        selected: boolean;
-        onPress: () => void;
-    }) {
-        return (
-            <TouchableOpacity
-                onPress={onPress}
-                activeOpacity={0.8}
-                style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    paddingVertical: 14,
-                }}
-            >
-                <View
-                    style={{
-                        height: 24,
-                        width: 24,
-                        borderRadius: 12,
-                        borderWidth: 2,
-                        borderColor: selected ? "#8CE61A" : "#DDD",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginRight: 12,
-                    }}
-                >
-                {selected ? (
-                    <View
-                        style={{
-                            height: 12,
-                            width: 12,
-                            borderRadius: 6,
-                            backgroundColor: "#8CE61A"
-                        }}
-                    />
-                ) : null}
-                </View>
-
-                <Text
-                    style={[
-                        globalStyles.body,
-                        {
-                            flex: 1,
-                            color: "#EDEDED",
-                        },
-                    ]}
-                >
-                    {label}
-                </Text>
-            </TouchableOpacity>
-        );
-    }
+      <Text
+        style={[
+          typography.body,
+          {
+            flex: 1,
+            color: "#EDEDED",
+          },
+        ]}
+      >
+        {label}
+      </Text>
+    </TouchableOpacity>
+  );
+}

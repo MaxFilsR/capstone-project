@@ -1,19 +1,30 @@
 import { useState } from "react";
 import { router } from "expo-router";
 import { KeyboardAvoidingView, Platform, View, Text } from "react-native";
-import { FormTextInput, FormButton } from "../../../components";
+import { FormTextInput, FormButton, BackButton } from "@/components";
 import { typography, containers } from "@/styles/index";
 import { colorPallet } from "@/styles/variables";
-import { BackButton } from "../../../components";
+import { useOnboarding } from "@/lib/onboarding-context";
 
 export default function PersonalInfoScreen() {
-  const [fName, setFName] = useState("");
-  const [lName, setLName] = useState("");
+  const { data, updateFirstName, updateLastName } = useOnboarding();
+  const [fName, setFName] = useState(data.firstName);
+  const [lName, setLName] = useState(data.lastName);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = () => {
+    if (!fName || !lName) {
+      setError("Please fill in both fields");
+      return;
+    }
+
     setError(null);
-    router.push("./workoutStyle"); //next step
+
+    // Save to onboarding context
+    updateFirstName(fName);
+    updateLastName(lName);
+
+    router.push("/auth/onboarding/workoutStyle"); // Next step
   };
 
   return (

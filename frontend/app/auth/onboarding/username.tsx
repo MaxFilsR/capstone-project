@@ -4,28 +4,81 @@ import { KeyboardAvoidingView, Platform, View, Text } from "react-native";
 import { FormTextInput, FormButton, BackButton } from "@/components";
 import { globalStyles } from "@/styles/globalStyles";
 import { AUTH } from "@/styles/authStyles";
+import { useAuth } from "@/lib/auth-context";
+import { useOnboarding } from "@/lib/onboarding-context";
+import {
+  submitOnboarding,
+  OnboardingRequest,
+  saveMockUserProfile,
+  getClasses,
+} from "@/api/endpoints";
 
-export default function UsernameScreen({
-  setLoggedIn,
-}: {
-  setLoggedIn?: (value: boolean) => void;
-}) {
+export default function UsernameScreen() {
   const [username, setUsername] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = () => {
+  const { completeOnboarding, user } = useAuth();
+  const { data, updateUsername, resetData } = useOnboarding();
+
+  const handleSubmit = async () => {
     if (!username) {
       setError("Please enter a username");
       return;
     }
 
+    // Validate all required data is present
+    if (!data.firstName || !data.lastName || !data.classId) {
+      setError(
+        "Missing onboarding information. Please go back and complete all steps."
+      );
+      return;
+    }
+
     setError(null);
+    setLoading(true);
 
-    // Mark user as logged in
-    setLoggedIn?.(true);
+    try {
+      // Update username in context
+      updateUsername(username);
 
-    // Navigate to main app stack
-    router.replace("/(tabs)/character");
+      // Prepare onboarding payload
+      const payload: OnboardingRequest = {
+        first_name: data.firstName,
+        last_name: data.lastName,
+        class_id: data.classId,
+        workout_schedule: data.workoutSchedule,
+        username: username,
+      };
+
+      // Submit to backend
+      await submitOnboarding(payload);
+
+      // Get the selected class details for mock profile
+      const classes = await getClasses();
+      const selectedClass = classes.find((c) => c.id === data.classId);
+
+      if (!selectedClass) {
+        throw new Error("Invalid class selected");
+      }
+
+      // Save mock user profile for /me endpoint
+      await saveMockUserProfile(payload, user?.email || "", selectedClass);
+
+      // Mark user as onboarded
+      await completeOnboarding();
+
+      // Reset onboarding data
+      resetData();
+
+      // Navigate to main app
+      router.replace("/(tabs)/character");
+    } catch (err) {
+      console.error("Onboarding completion error:", err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -48,7 +101,11 @@ export default function UsernameScreen({
           <Text style={{ color: "red", marginVertical: 8 }}>{error}</Text>
         )}
 
-        <FormButton mode="contained" title="Start" onPress={handleSubmit} />
+        <FormButton
+          mode="contained"
+          title={loading ? "Creating..." : "Start"}
+          onPress={handleSubmit}
+        />
       </View>
     </KeyboardAvoidingView>
   );
