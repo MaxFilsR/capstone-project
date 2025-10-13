@@ -70,7 +70,7 @@ export default function selectedClassMonk() {
               Monk
             </Text>
             <Text style={[typography.body, { color: "#DADADA" }]}>
-              Finds strength in mobility, yoga, and mindful movement
+              Calm and precise. Master of form, flexibility, and body control through mindful movement.
             </Text>
           </View>
 
@@ -86,10 +86,9 @@ export default function selectedClassMonk() {
             }}
           >
             {[
-              { label: "Vitality", value: 8, color: "#D35AD6" },
-              { label: "Strength", value: 3, color: "#D64545" },
-              { label: "Endurance", value: 6, color: "#E9E34A" },
-              { label: "Agility", value: 9, color: "#6DE66D" },
+              { label: "Strength", value: 4, color: "#D64545" },
+              { label: "Endurance", value: 7, color: "#E9E34A" },
+              { label: "Flexability", value: 10, color: "#6DE66D" },
             ].map((s) => (
               <View
                 key={s.label}

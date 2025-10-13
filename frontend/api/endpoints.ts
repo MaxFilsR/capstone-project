@@ -42,10 +42,9 @@ export type CharacterClass = {
   id: number;
   name: string;
   stats: {
-    vitality: number;
     strength: number;
     endurance: number;
-    agility: number;
+    flexability: number;
   };
 };
 
@@ -77,10 +76,9 @@ export type UserProfile = {
   username: string;
   class: string;
   stats: {
-    vitality: number;
     strength: number;
     endurance: number;
-    agility: number;
+    flexability: number;
   };
   workout_schedule: boolean[]; // 7 days
 };

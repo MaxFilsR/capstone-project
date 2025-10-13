@@ -95,10 +95,6 @@ export default function Index() {
         <Text style={styles.sectionTitle}>Stats</Text>
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Vitality</Text>
-            <Text style={styles.statValue}>{profile.stats.vitality}</Text>
-          </View>
-          <View style={styles.statCard}>
             <Text style={styles.statLabel}>Strength</Text>
             <Text style={styles.statValue}>{profile.stats.strength}</Text>
           </View>
@@ -108,7 +104,7 @@ export default function Index() {
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>Agility</Text>
-            <Text style={styles.statValue}>{profile.stats.agility}</Text>
+            <Text style={styles.statValue}>{profile.stats.flexability}</Text>
           </View>
         </View>
       </View>

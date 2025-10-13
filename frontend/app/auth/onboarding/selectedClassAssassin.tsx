@@ -70,7 +70,7 @@ export default function selectedClassAssassin() {
               Assassin
             </Text>
             <Text style={[typography.body, { color: "#DADADA" }]}>
-              Thrives on cardio, speed and endurance
+              Swift and relentless. Specializes in endurance training, running, and outdoor cardio.
             </Text>
           </View>
 
@@ -86,10 +86,9 @@ export default function selectedClassAssassin() {
             }}
           >
             {[
-              { label: "Vitality", value: 8, color: "#D35AD6" },
-              { label: "Strength", value: 4, color: "#D64545" },
-              { label: "Endurance", value: 9, color: "#E9E34A" },
-              { label: "Agility", value: 5, color: "#6DE66D" },
+              { label: "Strength", value: 5, color: "#D64545" },
+              { label: "Endurance", value: 10, color: "#E9E34A" },
+              { label: "Flexability", value: 6, color: "#6DE66D" },
             ].map((s) => (
               <View
                 key={s.label}

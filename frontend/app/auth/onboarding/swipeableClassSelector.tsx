@@ -37,10 +37,9 @@ const classImages: Record<string, any> = {
 };
 
 const statColors = {
-  Vitality: "#D35AD6",
   Strength: "#D64545",
   Endurance: "#E9E34A",
-  Agility: "#6DE66D",
+  Flexability: "#6DE66D",
 };
 
 export const screenOptions = {
@@ -266,11 +265,6 @@ function ClassCard({ classItem }: { classItem: CharacterClass }) {
       >
         {[
           {
-            label: "Vitality",
-            value: classItem.stats.vitality,
-            color: statColors.Vitality,
-          },
-          {
             label: "Strength",
             value: classItem.stats.strength,
             color: statColors.Strength,
@@ -281,9 +275,9 @@ function ClassCard({ classItem }: { classItem: CharacterClass }) {
             color: statColors.Endurance,
           },
           {
-            label: "Agility",
-            value: classItem.stats.agility,
-            color: statColors.Agility,
+            label: "Flexability",
+            value: classItem.stats.flexability,
+            color: statColors.Flexability,
           },
         ].map((s) => (
           <View key={s.label} style={{ alignItems: "center", width: "25%" }}>
@@ -302,11 +296,11 @@ function ClassCard({ classItem }: { classItem: CharacterClass }) {
 
 function getClassDescription(className: string): string {
   const descriptions: Record<string, string> = {
-    Assassin: "Thrives on cardio, speed and endurance",
-    Warrior: "Enjoys lifting weights and building strength",
-    Monk: "Finds strength in mobility, yoga, and mindful movement",
-    Wizard: "Draws power from balance, blending strength training and cardio",
-    Gladiator: "Fueled by competition and fast-paced physical activity",
+    Assassin: "Swift and relentless. Specializes in endurance training, running, and outdoor cardio.",
+    Warrior: "Powerful and disciplined. Focused on lifting, strength, and short, intense workouts.",
+    Monk: "Calm and precise. Master of form, flexibility, and body control through mindful movement.",
+    Wizard: "Swift and relentless. Specializes in endurance training, running, and outdoor cardio.",
+    Gladiator: "Fierce and competitive. Thrives in fast-paced, high-endurance, and agile challenges.",
   };
   return descriptions[className] || "A powerful character class";
 }
