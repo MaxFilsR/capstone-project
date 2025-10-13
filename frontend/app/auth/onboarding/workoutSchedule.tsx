@@ -12,19 +12,13 @@ import { BackButton, FormButton } from "@/components";
 import { globalStyles } from "@/styles/globalStyles";
 import { typography, containers } from "@/styles";
 import { colorPallet } from "@/styles/variables";
+import { useOnboarding } from "@/lib/onboarding-context";
 
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
 export default function WorkoutScheduleScreen() {
-  const [schedule, setSchedule] = useState<boolean[]>([
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-  ]);
+  const { data, updateWorkoutSchedule } = useOnboarding();
+  const [schedule, setSchedule] = useState<boolean[]>(data.workoutSchedule);
   const [error, setError] = useState<string | null>(null);
 
   const toggleDay = (index: number) => {
@@ -36,7 +30,10 @@ export default function WorkoutScheduleScreen() {
   const handleSubmit = () => {
     setError(null);
 
-    router.push("./username"); // next step
+    // Save to onboarding context
+    updateWorkoutSchedule(schedule);
+
+    router.push("/auth/onboarding/username"); // Next step
   };
 
   return (
@@ -62,14 +59,14 @@ export default function WorkoutScheduleScreen() {
               key={index}
               style={[
                 styles.dayButton,
-                schedule[index] && styles.dayButtonActive, // use boolean
+                schedule[index] && styles.dayButtonActive,
               ]}
               onPress={() => toggleDay(index)}
             >
               <Text
                 style={[
                   styles.dayButtonText,
-                  schedule[index] && styles.dayButtonTextActive, // use boolean
+                  schedule[index] && styles.dayButtonTextActive,
                 ]}
               >
                 {day}
@@ -106,13 +103,13 @@ const styles = StyleSheet.create({
     borderColor: colorPallet.primary,
   },
   dayButtonText: {
-    fontSize: 14, // fixed size
-    fontFamily: "Inter-SemiBold", // fixed font
+    fontSize: 14,
+    fontFamily: "Inter-SemiBold",
     color: colorPallet.neutral_lightest,
   },
   dayButtonTextActive: {
-    fontSize: 14, // same size
-    fontFamily: "Inter-SemiBold", // same font
+    fontSize: 14,
+    fontFamily: "Inter-SemiBold",
     color: colorPallet.neutral_darkest,
   },
 });
