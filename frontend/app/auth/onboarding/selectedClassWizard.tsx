@@ -70,7 +70,7 @@ export default function selectedClassWizard() {
               Wizard
             </Text>
             <Text style={[typography.body, { color: "#DADADA" }]}>
-              Draws power from balance, blending strength training and cardio
+              Swift and relentless. Specializes in endurance training, running, and outdoor cardio.
             </Text>
           </View>
 
@@ -86,10 +86,9 @@ export default function selectedClassWizard() {
             }}
           >
             {[
-              { label: "Vitality", value: 6, color: "#D35AD6" },
               { label: "Strength", value: 7, color: "#D64545" },
               { label: "Endurance", value: 7, color: "#E9E34A" },
-              { label: "Agility", value: 6, color: "#6DE66D" },
+              { label: "Flexability", value: 7, color: "#6DE66D" },
             ].map((s) => (
               <View
                 key={s.label}

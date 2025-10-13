@@ -9,10 +9,9 @@ WITH
 CREATE EXTENSION pgcrypto;
 
 CREATE TYPE stats AS (
-	vitality INT,
 	strength INT,
 	endurance INT,
-	agility INT
+	flexability INT
 );
 
 CREATE TYPE rarity_type AS ENUM (
@@ -90,8 +89,8 @@ CREATE TABLE IF NOT EXISTS
 INSERT INTO
 	classes (id, name, stats)
 VALUES
-	(1, 'Warrior', ROW (7, 9, 8, 5)),
-	(2, 'Monk', ROW (7, 5, 6, 11)),
-	(3, 'Assassin', ROW (7, 6, 7, 9)),
-	(4, 'Wizard', ROW (7, 7, 8, 7)),
-	(5, 'Gladiator', ROW (7, 8, 7, 7))
+	(1, 'Warrior', ROW (10, 7, 5)),
+	(2, 'Monk', ROW (4, 7, 10)),
+	(3, 'Assassin', ROW (5, 10, 6)),
+	(4, 'Wizard', ROW (7, 7, 7)),
+	(5, 'Gladiator', ROW (6, 5, 5))

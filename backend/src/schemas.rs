@@ -4,10 +4,9 @@ use serde::{Deserialize, Serialize};
 #[derive(sqlx::Type, Debug, Serialize, Deserialize)]
 #[sqlx(type_name = "stats")]
 pub struct Stats {
-    pub vitality: i32,
     pub strength: i32,
     pub endurance: i32,
-    pub agility: i32,
+    pub flexability: i32,
 }
 
 // Fetchimg class info from the database
