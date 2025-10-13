@@ -30,6 +30,7 @@ services:
   db:
     image: postgres
     container_name: postgres_container
+    hostname: db
     restart: always
     env_file:
       - ./backend/.env
@@ -44,18 +45,22 @@ services:
       timeout: 30s
       retries: 5
       start_period: 30s
+    networks:
+      - rust-local-network
 
   #* backend container
   server:
     build:
       context: ./backend
       target: final
+      network: host
     ports:
       - 8080:8080
     depends_on:
       db:
         condition: service_healthy
-    
+    networks:
+      - rust-local-network
 
   #* pgadmin container
   # pgadmin:
@@ -77,6 +82,11 @@ services:
 volumes:
   postgres_data:
     driver: local
+
+networks:
+  rust-local-network:
+    driver: bridge
+
 # secrets:
 #   db-password:
 #     file: ./db/password.txt
