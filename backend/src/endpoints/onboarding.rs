@@ -67,8 +67,9 @@ async fn onboarding(
         r#"
             UPDATE users
             SET onboarding_complete = true
-            WHERE onboarding_complete = false
+            WHERE id = $1
         "#,
+        user.id
     );
 
     return Ok(HttpResponse::Ok().into());
