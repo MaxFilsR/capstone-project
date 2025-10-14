@@ -200,11 +200,10 @@ const styles = StyleSheet.create({
   },
   statsGrid: {
     flexDirection: "row",
-    flexWrap: "wrap", 
+    flexWrap: "wrap",
     justifyContent: "space-between",
   },
   statCard: {
-    width: "32%", // Orignally 48% but changed to fit 3 in a row
     backgroundColor: colorPallet.neutral_darkest,
     borderRadius: 8,
     padding: 16,
