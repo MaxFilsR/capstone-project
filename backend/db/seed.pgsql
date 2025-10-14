@@ -11,7 +11,7 @@ CREATE EXTENSION pgcrypto;
 CREATE TYPE stats AS (
 	strength INT,
 	endurance INT,
-	flexability INT
+	flexibility INT
 );
 
 CREATE TYPE rarity_type AS ENUM (
