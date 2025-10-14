@@ -7,6 +7,7 @@ import { AUTH } from "@/styles/authStyles";
 import { useAuth } from "@/lib/auth-context";
 import { useOnboarding } from "@/lib/onboarding-context";
 import { submitOnboarding, OnboardingRequest } from "@/api/endpoints";
+import axios from "axios";
 
 export default function UsernameScreen() {
   const [username, setUsername] = useState("");
@@ -57,9 +58,26 @@ export default function UsernameScreen() {
 
       // Navigate to main app
       router.replace("/(tabs)/character");
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Onboarding completion error:", err);
-      setError("Something went wrong. Please try again.");
+
+      if (axios.isAxiosError(err)) {
+        if (err.response) {
+          const serverMessage =
+            typeof err.response.data === "string"
+              ? err.response.data
+              : JSON.stringify(err.response.data);
+          setError(`${serverMessage}`);
+        } else if (err.request) {
+          setError("No response from server. Please try again.");
+        } else {
+          setError(`Request setup error: ${err.message}`);
+        }
+      } else if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
