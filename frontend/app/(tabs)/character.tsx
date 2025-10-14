@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from "react-native";
-import { containers, typography, images } from "@/styles/index";
+import { containers, typography } from "@/styles/index";
 import { useAuth } from "@/lib/auth-context";
 import { getMe, UserProfile } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
@@ -81,12 +81,8 @@ export default function Index() {
           <Text style={styles.value}>@{profile.username}</Text>
         </View>
         <View style={styles.infoRow}>
-          <Text style={styles.label}>Email:</Text>
-          <Text style={styles.value}>{profile.email}</Text>
-        </View>
-        <View style={styles.infoRow}>
           <Text style={styles.label}>Class:</Text>
-          <Text style={styles.classValue}>{profile.class}</Text>
+          <Text style={styles.classValue}>{profile.class.name}</Text>
         </View>
       </View>
 
@@ -95,20 +91,20 @@ export default function Index() {
         <Text style={styles.sectionTitle}>Stats</Text>
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Vitality</Text>
-            <Text style={styles.statValue}>{profile.stats.vitality}</Text>
-          </View>
-          <View style={styles.statCard}>
             <Text style={styles.statLabel}>Strength</Text>
-            <Text style={styles.statValue}>{profile.stats.strength}</Text>
+            <Text style={styles.statValue}>{profile.class.stats.strength}</Text>
           </View>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>Endurance</Text>
-            <Text style={styles.statValue}>{profile.stats.endurance}</Text>
+            <Text style={styles.statValue}>
+              {profile.class.stats.endurance}
+            </Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Agility</Text>
-            <Text style={styles.statValue}>{profile.stats.agility}</Text>
+            <Text style={styles.statLabel}>Flexibility</Text>
+            <Text style={styles.statValue}>
+              {profile.class.stats.flexibility}
+            </Text>
           </View>
         </View>
       </View>
