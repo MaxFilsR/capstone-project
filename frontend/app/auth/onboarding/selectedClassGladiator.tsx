@@ -70,7 +70,7 @@ export default function selectedClassGladiator() {
               Gladiator
             </Text>
             <Text style={[typography.body, { color: "#DADADA" }]}>
-              Fueled by competition and fast-paced physical activity
+              Fierce and competitive. Thrives in fast-paced, high-endurance, and agile challenges.
             </Text>
           </View>
 
@@ -86,10 +86,9 @@ export default function selectedClassGladiator() {
             }}
           >
             {[
-              { label: "Vitality", value: 7, color: "#D35AD6" },
-              { label: "Strength", value: 8, color: "#D64545" },
-              { label: "Endurance", value: 6, color: "#E9E34A" },
-              { label: "Agility", value: 5, color: "#6DE66D" },
+              { label: "Strength", value: 6, color: "#D64545" },
+              { label: "Endurance", value: 5, color: "#E9E34A" },
+              { label: "Flexability", value: 5, color: "#6DE66D" },
             ].map((s) => (
               <View
                 key={s.label}

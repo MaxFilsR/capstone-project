@@ -71,7 +71,7 @@ export default function selectedClassWarrior() {
               Warrior
             </Text>
             <Text style={[typography.body, { color: "#DADADA" }]}>
-              Enjoys lifting weights and building strength
+              Powerful and disciplined. Focused on lifting, strength, and short, intense workouts.
             </Text>
           </View>
 
@@ -87,10 +87,9 @@ export default function selectedClassWarrior() {
             }}
           >
             {[
-              { label: "Vitality", value: 7, color: "#D35AD6" },
               { label: "Strength", value: 10, color: "#D64545" },
-              { label: "Endurance", value: 5, color: "#E9E34A" },
-              { label: "Agility", value: 4, color: "#6DE66D" },
+              { label: "Endurance", value: 7, color: "#E9E34A" },
+              { label: "Flexability", value: 4, color: "#6DE66D" },
             ].map((s) => (
               <View
                 key={s.label}

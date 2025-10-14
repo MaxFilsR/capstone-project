@@ -36,10 +36,9 @@ export type CharacterClass = {
   id: number;
   name: string;
   stats: {
-    vitality: number;
     strength: number;
     endurance: number;
-    agility: number;
+    flexability: number;
   };
 };
 
