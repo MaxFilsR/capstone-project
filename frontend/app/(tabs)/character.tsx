@@ -53,7 +53,7 @@ export default function Index() {
 
   if (error || !profile) {
     return (
-      <View style={[containers.container]}>
+      <View style={[containers.centerContainer]}>
         <Text style={typography.errorText}>{error || "No profile found"}</Text>
         <Button title="Retry" onPress={loadProfile} />
         <Button title="Logout" onPress={handleLogout} />
