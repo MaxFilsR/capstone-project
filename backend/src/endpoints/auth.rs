@@ -34,7 +34,7 @@ async fn sign_up(
     let query = sqlx::query!(
         r#"
             INSERT INTO users (email, password, onboarding_complete) 
-            VALUES ($1, crypt($2, gen_salt('md5')), false)
+            VALUES ($1, crypt($2, gen_salt('md5')), FALSE)
             ON CONFLICT (email) DO NOTHING
             RETURNING id
         "#,

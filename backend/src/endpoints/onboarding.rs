@@ -66,11 +66,14 @@ async fn onboarding(
     let _query = sqlx::query!(
         r#"
             UPDATE users
-            SET onboarding_complete = true
+            SET onboarding_complete = TRUE
             WHERE id = $1
         "#,
         user.id
-    );
+    )
+    .execute(pool.get_ref())
+    .await
+    .unwrap();
 
     return Ok(HttpResponse::Ok().into());
 }
