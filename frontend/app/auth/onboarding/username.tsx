@@ -6,19 +6,14 @@ import { globalStyles } from "@/styles/globalStyles";
 import { AUTH } from "@/styles/authStyles";
 import { useAuth } from "@/lib/auth-context";
 import { useOnboarding } from "@/lib/onboarding-context";
-import {
-  submitOnboarding,
-  OnboardingRequest,
-  saveMockUserProfile,
-  getClasses,
-} from "@/api/endpoints";
+import { submitOnboarding, OnboardingRequest } from "@/api/endpoints";
 
 export default function UsernameScreen() {
   const [username, setUsername] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const { completeOnboarding, user } = useAuth();
+  const { completeOnboarding } = useAuth();
   const { data, updateUsername, resetData } = useOnboarding();
 
   const handleSubmit = async () => {
@@ -53,17 +48,6 @@ export default function UsernameScreen() {
 
       // Submit to backend
       await submitOnboarding(payload);
-
-      // Get the selected class details for mock profile
-      const classes = await getClasses();
-      const selectedClass = classes.find((c) => c.id === data.classId);
-
-      if (!selectedClass) {
-        throw new Error("Invalid class selected");
-      }
-
-      // Save mock user profile for /me endpoint
-      await saveMockUserProfile(payload, user?.email || "", selectedClass);
 
       // Mark user as onboarded
       await completeOnboarding();

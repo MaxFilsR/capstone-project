@@ -69,11 +69,11 @@ export default function WorkoutStyleScreen() {
 
     // Map workout style to class ID
     const classIdMap: Record<Option["value"], number> = {
-      strength: 4, // Warrior
-      yoga: 3, // Monk
-      cardio: 1, // Assassin
-      mixed: 5, // Wizard
-      competitive: 2, // Gladiator
+      strength: 1, // Warrior
+      yoga: 2, // Monk
+      cardio: 3, // Assassin
+      mixed: 4, // Wizard
+      competitive: 5, // Gladiator
     };
 
     const selectedClassId = classIdMap[selected.value];

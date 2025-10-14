@@ -57,7 +57,7 @@ export default function LogInScreen() {
           const access_token = response.access_token;
 
           // New users need to complete onboarding
-          await login(access_token, email, false);
+          await login(access_token, false);
 
           // Navigate to onboarding flow
           router.push("/auth/onboarding/personalInfo");
@@ -69,10 +69,16 @@ export default function LogInScreen() {
 
         if (response && "access_token" in response) {
           const token = response.access_token;
+          const onboardingComplete = response.onboarding_complete;
 
-          // Existing users are already onboarded
-          await login(token, email, true);
-          // RootLayout will automatically redirect to main app
+          // Use the onboarding_complete flag from the API response
+          await login(token, onboardingComplete);
+
+          // Redirect based on onboarding status
+          if (!onboardingComplete) {
+            router.push("/auth/onboarding/personalInfo");
+          }
+          // If onboarding is complete, RootLayout will automatically redirect to main app
         } else {
           setError("Invalid response from server");
         }
