@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct Stats {
     pub strength: i32,
     pub endurance: i32,
-    pub flexability: i32,
+    pub flexibility: i32,
 }
 
 // Fetchimg class info from the database

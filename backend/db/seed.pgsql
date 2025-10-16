@@ -11,10 +11,15 @@ CREATE EXTENSION pgcrypto;
 CREATE TYPE stats AS (
 	strength INT,
 	endurance INT,
-	flexability INT
+	flexibility INT
 );
 
-CREATE TYPE rarity_type AS ENUM (
+CREATE TYPE class AS (
+	name TEXT, 
+	stats STATS
+);
+
+CREATE TYPE item_rarity AS ENUM (
     'common',
     'uncommon',
     'rare',
@@ -22,7 +27,67 @@ CREATE TYPE rarity_type AS ENUM (
     'mythical'
 );
 
-CREATE TYPE class AS (name TEXT, stats STATS);
+CREATE TYPE exercise_force AS ENUM (
+    'static',
+    'pull',
+    'push'
+);
+
+CREATE TYPE exercise_level AS ENUM (
+    'beginner',
+    'intermediate',
+    'expert'
+);
+
+CREATE TYPE exercise_mechanic AS ENUM (
+    'isolation',
+    'compound'
+);
+
+CREATE TYPE exercise_equipment AS ENUM (
+    'medicine ball',
+    'dumbbell',
+    'body only',
+    'bands',
+    'kettlebells',
+    'foam roll',
+    'cable',
+    'machine',
+    'barbell',
+    'exercise ball',
+    'e-z curl bar',
+    'other'
+);
+
+CREATE TYPE exercise_muscle AS ENUM (
+    'abdominals',
+    'abductors',
+    'adductors',
+    'biceps',
+    'calves',
+    'chest',
+    'forearms',
+    'glutes',
+    'hamstrings',
+    'lats',
+    'lower back',
+    'middle back',
+    'neck',
+    'quadriceps',
+    'shoulders',
+    'traps',
+    'triceps'
+);
+
+CREATE TYPE exercise_category AS ENUM (
+	'powerlifting',
+    'strength',
+    'stretching',
+    'cardio',
+    'olympic weightlifting',
+    'strongman',
+    'plyometrics'
+);
 
 -- Tables
 CREATE TABLE IF NOT EXISTS
@@ -48,7 +113,7 @@ CREATE TABLE IF NOT EXISTS
 		id SERIAL PRIMARY KEY,
 		name VARCHAR(100) NOT NULL,
 		category VARCHAR(50) NOT NULL,
-		rarity rarity_type NOT NULL,
+		rarity item_rarity NOT NULL,
 		price INT NOT NULL,
 		asset_url TEXT
 	);
@@ -87,6 +152,23 @@ CREATE TABLE IF NOT EXISTS
 		stats STATS NOT NULL
 	);
 
+CREATE TABLE IF NOT EXISTS
+	exercises (
+		id TEXT PRIMARY KEY,
+		name TEXT NOT NULL,
+		force exercise_force,
+		level exercise_level NOT NULL,
+		mechanic exercise_mechanic,
+		equipment exercise_equipment,
+		primary_muscles exercise_muscle[] NOT NULL,
+		secondary_muscles exercise_muscle[] NOT NULL,
+		instructions TEXT[] NOT NULL,
+		category exercise_category NOT NULL,
+		images TEXT[] NOT NULL
+	);
+
+-- Preseed actual data
+
 INSERT INTO
 	classes (id, name, stats)
 VALUES
@@ -94,4 +176,34 @@ VALUES
 	(2, 'Monk', ROW (4, 7, 10)),
 	(3, 'Assassin', ROW (5, 10, 6)),
 	(4, 'Wizard', ROW (7, 7, 7)),
-	(5, 'Gladiator', ROW (6, 5, 5))
+	(5, 'Gladiator', ROW (6, 5, 5));
+
+
+\set json_data `cat /docker-entrypoint-initdb.d/exercises.json`
+
+INSERT INTO exercises 
+SELECT 
+	data->>'id', 
+	data->>'name', 
+	(data->>'force')::exercise_force,
+	(data->>'level')::exercise_level,
+	(data->>'mechanic')::exercise_mechanic,
+	(data->>'equipment')::exercise_equipment,
+	ARRAY (
+		SELECT value::exercise_muscle
+		FROM jsonb_array_elements_text(data->'primaryMuscles') AS value
+	),
+	ARRAY (
+		SELECT value::exercise_muscle
+		FROM jsonb_array_elements_text(data->'secondaryMuscles') AS value
+	),
+	ARRAY (
+		SELECT value
+		FROM jsonb_array_elements_text(data->'instructions') AS value
+	),
+	(data->>'category')::exercise_category,
+	ARRAY (
+		SELECT value
+		FROM jsonb_array_elements_text(data->'images') AS value
+	)
+FROM jsonb_array_elements(:'json_data'::jsonb) AS data;

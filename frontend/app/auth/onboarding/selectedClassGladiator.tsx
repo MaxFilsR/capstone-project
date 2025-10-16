@@ -6,125 +6,145 @@ import { containers, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 
 export default function selectedClassGladiator() {
-  return (
-    <ScrollView
-      contentContainerStyle={[containers.centerContainer]}
-      style={{ backgroundColor: "#0C0C0C" }}
-    >
-      <BackButton />
-
-      {/* Container with consistent spacing */}
-      <View style={{ width: "100%", gap: 24 }}>
-        {/* title */}
-        <Text
-          style={[
-            typography.h1,
-            { color: colorPallet.neutral_lightest, textAlign: "center" },
-          ]}
+    return (
+        <ScrollView
+            contentContainerStyle={[containers.centerContainer]}
+            style={{ backgroundColor: "#0C0C0C" }}
         >
-          Your Class is:
-        </Text>
+            <BackButton />
 
-        {/* Workout category class */}
-        <View
-          style={{
-            width: "100%",
-            alignSelf: "center",
-            borderRadius: 12,
-            borderWidth: 1,
-            borderColor: "#96F200",
-            overflow: "hidden",
-            backgroundColor: "#121212",
-          }}
-        >
-          <View
-            style={{
-              padding: 10,
-              alignItems: "center",
-              backgroundColor: "#0F0F0F",
-            }}
-          >
-            <Image
-              source={gladiator}
-              style={{
-                height: 350,
-                width: "100%",
-                resizeMode: "contain",
-              }}
-            />
-          </View>
-
-          {/* Character name + description */}
-          <View style={{ padding: 16, paddingVertical: 12 }}>
-            <Text
-              style={[
-                typography.h1,
-                {
-                  color: "#8CE61A",
-                  fontWeight: "800",
-                  fontSize: 18,
-                  marginBottom: 6,
-                },
-              ]}
-            >
-              Gladiator
-            </Text>
-            <Text style={[typography.body, { color: "#DADADA" }]}>
-              Fierce and competitive. Thrives in fast-paced, high-endurance, and agile challenges.
-            </Text>
-          </View>
-
-          {/* Stats */}
-          <View
-            style={{
-              flexDirection: "row",
-              borderTopWidth: 1,
-              borderColor: "#8CE61A",
-              paddingVertical: 14,
-              paddingHorizontal: 12,
-              justifyContent: "space-between",
-            }}
-          >
-            {[
-              { label: "Strength", value: 6, color: "#D64545" },
-              { label: "Endurance", value: 5, color: "#E9E34A" },
-              { label: "Flexability", value: 5, color: "#6DE66D" },
-            ].map((s) => (
-              <View
-                key={s.label}
-                style={{ alignItems: "center", width: "25%" }}
-              >
+            {/* Container with consistent spacing */}
+            <View style={{ width: "100%", gap: 24 }}>
+                {/* title */}
                 <Text
-                  style={{ color: "#FFF", fontWeight: "800", fontSize: 18 }}
+                    style={[
+                        typography.h1,
+                        {
+                            color: colorPallet.neutral_lightest,
+                            textAlign: "center",
+                        },
+                    ]}
                 >
-                  {s.value}
+                    Your Class is:
                 </Text>
-                <Text style={{ color: s.color, marginTop: 2, fontSize: 12 }}>
-                  {s.label}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
 
-        <View style={containers.formActionContainer}>
-          <FormButton
-            title="Next"
-            onPress={() => {
-              router.push("/auth/onboarding/workoutSchedule");
-            }}
-          />
+                {/* Workout category class */}
+                <View
+                    style={{
+                        width: "100%",
+                        alignSelf: "center",
+                        borderRadius: 12,
+                        borderWidth: 1,
+                        borderColor: "#96F200",
+                        overflow: "hidden",
+                        backgroundColor: "#121212",
+                    }}
+                >
+                    <View
+                        style={{
+                            padding: 10,
+                            alignItems: "center",
+                            backgroundColor: "#0F0F0F",
+                        }}
+                    >
+                        <Image
+                            source={gladiator}
+                            style={{
+                                height: 350,
+                                width: "100%",
+                                resizeMode: "contain",
+                            }}
+                        />
+                    </View>
 
-          <FormButton
-            title="Select My Own Class"
-            mode="text"
-            color="secondary"
-            onPress={() => {
-              router.push("/auth/onboarding/swipeableClassSelector");
-            }}
-          />
-        </View>
-      </View>
-    </ScrollView>
-  );
+                    {/* Character name + description */}
+                    <View style={{ padding: 16, paddingVertical: 12 }}>
+                        <Text
+                            style={[
+                                typography.h1,
+                                {
+                                    color: "#8CE61A",
+                                    fontWeight: "800",
+                                    fontSize: 18,
+                                    marginBottom: 6,
+                                },
+                            ]}
+                        >
+                            Gladiator
+                        </Text>
+                        <Text style={[typography.body, { color: "#DADADA" }]}>
+                            Fierce and competitive. Thrives in fast-paced,
+                            high-endurance, and agile challenges.
+                        </Text>
+                    </View>
+
+                    {/* Stats */}
+                    <View
+                        style={{
+                            flexDirection: "row",
+                            borderTopWidth: 1,
+                            borderColor: "#8CE61A",
+                            paddingVertical: 14,
+                            paddingHorizontal: 12,
+                            justifyContent: "space-between",
+                        }}
+                    >
+                        {[
+                            { label: "Strength", value: 6, color: "#D64545" },
+                            { label: "Endurance", value: 5, color: "#E9E34A" },
+                            {
+                                label: "Flexibility",
+                                value: 5,
+                                color: "#6DE66D",
+                            },
+                        ].map((s) => (
+                            <View
+                                key={s.label}
+                                style={{ alignItems: "center", width: "25%" }}
+                            >
+                                <Text
+                                    style={{
+                                        color: "#FFF",
+                                        fontWeight: "800",
+                                        fontSize: 18,
+                                    }}
+                                >
+                                    {s.value}
+                                </Text>
+                                <Text
+                                    style={{
+                                        color: s.color,
+                                        marginTop: 2,
+                                        fontSize: 12,
+                                    }}
+                                >
+                                    {s.label}
+                                </Text>
+                            </View>
+                        ))}
+                    </View>
+                </View>
+
+                <View style={containers.formActionContainer}>
+                    <FormButton
+                        title="Next"
+                        onPress={() => {
+                            router.push("/auth/onboarding/workoutSchedule");
+                        }}
+                    />
+
+                    <FormButton
+                        title="Select My Own Class"
+                        mode="text"
+                        color="secondary"
+                        onPress={() => {
+                            router.push(
+                                "/auth/onboarding/swipeableClassSelector"
+                            );
+                        }}
+                    />
+                </View>
+            </View>
+        </ScrollView>
+    );
 }
