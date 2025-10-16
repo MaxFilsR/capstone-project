@@ -56,7 +56,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data #persistent data
       - ./seed.pgsql:/docker-entrypoint-initdb.d/seed.sql #preseedin
-      - ./exercises.json:/docker-entrypoint-initdb.d/exercises.json #preseedin
+      - ./exercises.json:/docker-entrypoint-initdb.d/exercises.json #exercises
 
   #* pgadmin container
   pgadmin:

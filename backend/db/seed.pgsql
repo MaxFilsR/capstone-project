@@ -8,6 +8,14 @@ WITH
 
 CREATE EXTENSION pgcrypto;
 
+CREATE TYPE exercise AS (
+	id INT,
+	sets INT,
+	reps INT,
+	weight REAL,
+	distance REAL
+);
+
 CREATE TYPE stats AS (
 	strength INT,
 	endurance INT,
@@ -165,6 +173,15 @@ CREATE TABLE IF NOT EXISTS
 		instructions TEXT[] NOT NULL,
 		category exercise_category NOT NULL,
 		images TEXT[] NOT NULL
+	);
+
+CREATE TABLE IF NOT EXISTS
+	routines (
+		id SERIAL PRIMARY KEY,
+		user_id INT NOT NULL REFERENCES users (id),
+		exercises exercise[] NOT NULL,
+		time INTERVAL MINUTE NOT NULL,
+		gainz INT NOT NULL
 	);
 
 -- Preseed actual data
