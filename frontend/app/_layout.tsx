@@ -1,6 +1,6 @@
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { Stack } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import SplashScreen from "@/components/SplashScreen";
 import {
   useFonts,
@@ -33,13 +33,29 @@ export default function RootLayout() {
 }
 
 function InnerStack() {
-  const { user } = useAuth();
+  const { user, fetchUserProfile, logout } = useAuth();
   const [loadingUser, setLoadingUser] = useState(true);
+  const hasFetchedProfile = useRef(false); // <-- prevents multiple calls
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoadingUser(false), 100);
-    return () => clearTimeout(timer);
-  }, []);
+    async function verifyUser() {
+      if (hasFetchedProfile.current) return; // prevent reruns
+      hasFetchedProfile.current = true;
+
+      try {
+        if (user) {
+          await fetchUserProfile();
+        }
+      } catch (err) {
+        console.warn("Failed to load user profile:", err);
+        await logout();
+      } finally {
+        setLoadingUser(false);
+      }
+    }
+
+    verifyUser();
+  }, []); // <-- empty dependency array = only runs once on mount
 
   if (loadingUser) return <SplashScreen />;
 
