@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useCallback } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,110 +6,17 @@ import {
   SectionList,
   TouchableOpacity,
   StyleSheet,
-  Image,
+  ActivityIndicator,
   ViewToken,
+  ScrollView,
 } from "react-native";
 import { tabStyles, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { Ionicons } from "@expo/vector-icons";
-
-// --- Mock Exercise Data ---
-const exercises = [
-  {
-    id: "Alternate_Incline_Dumbbell_Curl",
-    name: "Alternate Incline Dumbbell Curl",
-    primaryMuscles: ["biceps"],
-  },
-  {
-    id: "Barbell_Bicep_Curl",
-    name: "Barbell Bicep Curl",
-    primaryMuscles: ["biceps"],
-  },
-  { id: "Hammer_Curl", name: "Hammer Curl", primaryMuscles: ["biceps"] },
-  {
-    id: "Concentration_Curl",
-    name: "Concentration Curl",
-    primaryMuscles: ["biceps"],
-  },
-  { id: "Bench_Press", name: "Bench Press", primaryMuscles: ["chest"] },
-  {
-    id: "Incline_Bench_Press",
-    name: "Incline Bench Press",
-    primaryMuscles: ["chest"],
-  },
-  { id: "Chest_Fly", name: "Chest Fly", primaryMuscles: ["chest"] },
-  { id: "Push_Up", name: "Push Up", primaryMuscles: ["chest"] },
-  { id: "Squat", name: "Squat", primaryMuscles: ["quadriceps"] },
-  { id: "Lunge", name: "Lunge", primaryMuscles: ["quadriceps"] },
-  { id: "Leg_Press", name: "Leg Press", primaryMuscles: ["quadriceps"] },
-  {
-    id: "Leg_Extension",
-    name: "Leg Extension",
-    primaryMuscles: ["quadriceps"],
-  },
-  { id: "Deadlift", name: "Deadlift", primaryMuscles: ["hamstrings"] },
-  {
-    id: "Romanian_Deadlift",
-    name: "Romanian Deadlift",
-    primaryMuscles: ["hamstrings"],
-  },
-  {
-    id: "Hamstring_Curl",
-    name: "Hamstring Curl",
-    primaryMuscles: ["hamstrings"],
-  },
-  { id: "Glute_Bridge", name: "Glute Bridge", primaryMuscles: ["glutes"] },
-  { id: "Hip_Thrust", name: "Hip Thrust", primaryMuscles: ["glutes"] },
-  { id: "Pull_Up", name: "Pull Up", primaryMuscles: ["back"] },
-  { id: "Lat_Pulldown", name: "Lat Pulldown", primaryMuscles: ["back"] },
-  { id: "Barbell_Row", name: "Barbell Row", primaryMuscles: ["back"] },
-  { id: "Dumbbell_Row", name: "Dumbbell Row", primaryMuscles: ["back"] },
-  {
-    id: "Overhead_Press",
-    name: "Overhead Press",
-    primaryMuscles: ["shoulders"],
-  },
-  { id: "Lateral_Raise", name: "Lateral Raise", primaryMuscles: ["shoulders"] },
-  { id: "Front_Raise", name: "Front Raise", primaryMuscles: ["shoulders"] },
-  { id: "Rear_Delt_Fly", name: "Rear Delt Fly", primaryMuscles: ["shoulders"] },
-  {
-    id: "Tricep_Pushdown",
-    name: "Tricep Pushdown",
-    primaryMuscles: ["triceps"],
-  },
-  {
-    id: "Overhead_Tricep_Extension",
-    name: "Overhead Tricep Extension",
-    primaryMuscles: ["triceps"],
-  },
-  { id: "Skullcrusher", name: "Skullcrusher", primaryMuscles: ["triceps"] },
-  {
-    id: "Cable_Tricep_Kickback",
-    name: "Cable Tricep Kickback",
-    primaryMuscles: ["triceps"],
-  },
-  { id: "Calf_Raise", name: "Calf Raise", primaryMuscles: ["calves"] },
-  {
-    id: "Seated_Calf_Raise",
-    name: "Seated Calf Raise",
-    primaryMuscles: ["calves"],
-  },
-  {
-    id: "Standing_Calf_Raise",
-    name: "Standing Calf Raise",
-    primaryMuscles: ["calves"],
-  },
-  { id: "Farmer_Carry", name: "Farmer Carry", primaryMuscles: ["forearms"] },
-  { id: "Wrist_Curl", name: "Wrist Curl", primaryMuscles: ["forearms"] },
-  {
-    id: "Reverse_Wrist_Curl",
-    name: "Reverse Wrist Curl",
-    primaryMuscles: ["forearms"],
-  },
-];
+import { getWorkoutLibrary, Exercise } from "@/api/endpoints";
 
 // --- Group exercises alphabetically by primary muscle ---
-const groupByPrimaryMuscle = (list: typeof exercises) => {
+const groupByPrimaryMuscle = (list: Exercise[]) => {
   const grouped = list.reduce((acc: any, ex) => {
     ex.primaryMuscles.forEach((muscle) => {
       const key = muscle[0].toUpperCase() + muscle.slice(1);
@@ -131,32 +38,126 @@ const LibraryScreen = () => {
     [key: string]: boolean;
   }>({});
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
+  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedMuscle, setSelectedMuscle] = useState("All");
+  const [searchVisible, setSearchVisible] = useState(false);
   const sectionListRef = useRef<SectionList>(null);
+
+  // Fetch exercises on mount
+  useEffect(() => {
+    const fetchExercises = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await getWorkoutLibrary();
+
+        if (Array.isArray(data) && data.length > 0) {
+          setExercises(data);
+        } else {
+          console.warn("No exercises returned or invalid format");
+          setExercises([]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch workout library:", err);
+        setError("Failed to load exercises. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExercises();
+  }, []);
+
+  // Extract unique muscle groups dynamically
+  const muscleGroups = useMemo(() => {
+    if (!exercises || !Array.isArray(exercises)) {
+      return ["All"];
+    }
+
+    const muscleSet = new Set<string>();
+    exercises.forEach((ex) => {
+      ex.primaryMuscles.forEach((muscle) => {
+        const formatted = muscle.charAt(0).toUpperCase() + muscle.slice(1);
+        muscleSet.add(formatted);
+      });
+    });
+
+    return ["All", ...Array.from(muscleSet).sort()];
+  }, [exercises]);
 
   // Filter & group
   const sections = useMemo(() => {
-    const filtered = exercises.filter(
-      (ex) =>
+    if (!exercises || !Array.isArray(exercises)) {
+      return [];
+    }
+
+    const filtered = exercises.filter((ex) => {
+      // Apply search filter
+      const matchesSearch =
         ex.name.toLowerCase().includes(query.toLowerCase()) ||
         ex.primaryMuscles.some((m) =>
           m.toLowerCase().includes(query.toLowerCase())
-        )
-    );
+        );
+
+      // Apply muscle group filter
+      const matchesMuscle =
+        selectedMuscle === "All" ||
+        ex.primaryMuscles.some(
+          (m) => m.toLowerCase() === selectedMuscle.toLowerCase()
+        );
+
+      return matchesSearch && matchesMuscle;
+    });
+
     return groupByPrimaryMuscle(filtered);
-  }, [query]);
+  }, [query, exercises, selectedMuscle]);
 
   const toggleSection = (title: string) => {
     setCollapsedSections((prev) => ({ ...prev, [title]: !prev[title] }));
   };
 
+  const toggleAllSections = () => {
+    const allCollapsed = sections.every((s) => collapsedSections[s.title]);
+    const newState: { [key: string]: boolean } = {};
+    sections.forEach((s) => {
+      newState[s.title] = !allCollapsed;
+    });
+    setCollapsedSections(newState);
+  };
+
   const scrollToSection = (letter: string) => {
-    const index = sections.findIndex((s) => s.title[0] === letter);
-    if (index !== -1 && sectionListRef.current) {
-      sectionListRef.current.scrollToLocation({
-        sectionIndex: index,
-        itemIndex: 1,
-        animated: true,
-      });
+    const sectionIndex = sections.findIndex((s) => s.title[0] === letter);
+    if (sectionIndex === -1) return;
+
+    if (sectionListRef.current) {
+      try {
+        sectionListRef.current.scrollToLocation({
+          sectionIndex: sectionIndex,
+          itemIndex: 0,
+          viewOffset: 0,
+          animated: true,
+        });
+      } catch (error) {
+        console.warn("scrollToLocation failed:", error);
+
+        const SECTION_HEADER_HEIGHT = 52;
+        const ITEM_HEIGHT = 76;
+
+        let yOffset = 0;
+        for (let i = 0; i < sectionIndex; i++) {
+          yOffset += SECTION_HEADER_HEIGHT;
+          if (!collapsedSections[sections[i].title]) {
+            yOffset += sections[i].data.length * ITEM_HEIGHT;
+          }
+        }
+
+        const scrollResponder = sectionListRef.current.getScrollResponder();
+        if (scrollResponder && scrollResponder.scrollTo) {
+          scrollResponder.scrollTo({ y: yOffset, animated: true });
+        }
+      }
     }
   };
 
@@ -175,23 +176,133 @@ const LibraryScreen = () => {
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 30 });
 
+  // Loading state
+  if (loading) {
+    return (
+      <View style={[tabStyles.tabContent, styles.centerContainer]}>
+        <ActivityIndicator size="large" color={colorPallet.primary} />
+        <Text style={styles.loadingText}>Loading exercises...</Text>
+      </View>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <View style={[tabStyles.tabContent, styles.centerContainer]}>
+        <Ionicons name="alert-circle" size={48} color={colorPallet.secondary} />
+        <Text style={styles.errorText}>{error}</Text>
+        <TouchableOpacity
+          style={styles.retryButton}
+          onPress={() => {
+            setLoading(true);
+            setError(null);
+            getWorkoutLibrary()
+              .then(setExercises)
+              .catch(() =>
+                setError("Failed to load exercises. Please try again.")
+              )
+              .finally(() => setLoading(false));
+          }}
+        >
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const allCollapsed = sections.every((s) => collapsedSections[s.title]);
+
   return (
     <View style={[tabStyles.tabContent, { flex: 1, paddingBottom: 100 }]}>
-      <View style={styles.searchContainer}>
-        <Ionicons
-          name="search"
-          size={20}
-          color={colorPallet.secondary}
-          style={{ marginRight: 8 }}
-        />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search exercises or muscles..."
-          placeholderTextColor={colorPallet.neutral_3}
-          value={query}
-          onChangeText={setQuery}
-        />
+      {/* Search Icon (Absolute Positioned) */}
+      {!searchVisible && (
+        <TouchableOpacity
+          style={styles.searchIcon}
+          onPress={() => setSearchVisible(true)}
+        >
+          <Ionicons name="search" size={24} color={colorPallet.secondary} />
+        </TouchableOpacity>
+      )}
+
+      {/* Search Bar (Collapsible) */}
+      {searchVisible && (
+        <View style={styles.searchContainer}>
+          <Ionicons
+            name="search"
+            size={20}
+            color={colorPallet.secondary}
+            style={{ marginRight: 8 }}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search exercises or muscles..."
+            placeholderTextColor={colorPallet.neutral_3}
+            value={query}
+            onChangeText={setQuery}
+            autoFocus
+          />
+          <TouchableOpacity
+            onPress={() => {
+              setSearchVisible(false);
+              setQuery("");
+            }}
+            style={{ paddingLeft: 8 }}
+          >
+            <Ionicons name="close" size={24} color={colorPallet.neutral_3} />
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Muscle Group Filter */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.filterContainer}
+        contentContainerStyle={styles.filterContent}
+      >
+        {muscleGroups.map((muscle) => (
+          <TouchableOpacity
+            key={muscle}
+            style={[
+              styles.filterButton,
+              selectedMuscle === muscle && styles.filterButtonActive,
+            ]}
+            onPress={() => setSelectedMuscle(muscle)}
+          >
+            <Text
+              style={[
+                styles.filterButtonText,
+                selectedMuscle === muscle && styles.filterButtonTextActive,
+              ]}
+            >
+              {muscle}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      {/* Expand/Collapse All Button */}
+      <View style={styles.controlsContainer}>
+        <TouchableOpacity
+          style={styles.expandCollapseButton}
+          onPress={toggleAllSections}
+        >
+          <Ionicons
+            name={allCollapsed ? "expand" : "contract"}
+            size={18}
+            color={colorPallet.secondary}
+            style={{ marginRight: 6 }}
+          />
+          <Text style={styles.expandCollapseText}>
+            {allCollapsed ? "Expand All" : "Collapse All"}
+          </Text>
+        </TouchableOpacity>
+        <Text style={styles.resultsCount}>
+          {sections.reduce((sum, s) => sum + s.data.length, 0)} exercises
+        </Text>
       </View>
+
       {/* Horizontal layout: SectionList + Alphabet */}
       <View style={{ flex: 1, flexDirection: "row" }}>
         {/* SectionList takes most of the width */}
@@ -200,7 +311,28 @@ const LibraryScreen = () => {
           sections={sections}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
-          style={{ flex: 1 }} // make it take remaining space
+          style={{ flex: 1 }}
+          stickySectionHeadersEnabled={false}
+          onScrollToIndexFailed={(info) => {
+            setTimeout(() => {
+              const SECTION_HEADER_HEIGHT = 52;
+              const ITEM_HEIGHT = 76;
+
+              let yOffset = 0;
+              for (let i = 0; i < info.index && i < sections.length; i++) {
+                yOffset += SECTION_HEADER_HEIGHT;
+                if (!collapsedSections[sections[i].title]) {
+                  yOffset += sections[i].data.length * ITEM_HEIGHT;
+                }
+              }
+
+              const scrollResponder =
+                sectionListRef.current?.getScrollResponder();
+              if (scrollResponder && scrollResponder.scrollTo) {
+                scrollResponder.scrollTo({ y: yOffset, animated: true });
+              }
+            }, 50);
+          }}
           renderSectionHeader={({ section: { title } }) => (
             <TouchableOpacity
               onPress={() => toggleSection(title)}
@@ -218,7 +350,6 @@ const LibraryScreen = () => {
           )}
           renderItem={({ item, section }) => {
             if (collapsedSections[section.title]) return null;
-            const imageUrl = `https://picsum.photos/seed/${item.id}/100/100`;
             return (
               <TouchableOpacity style={styles.card}>
                 <View style={styles.info}>
@@ -226,12 +357,22 @@ const LibraryScreen = () => {
                   <Text style={styles.muscle}>
                     {item.primaryMuscles.join(", ")}
                   </Text>
+                  {item.equipment && (
+                    <Text style={styles.equipment}>
+                      Equipment: {item.equipment}
+                    </Text>
+                  )}
                 </View>
               </TouchableOpacity>
             );
           }}
           onViewableItemsChanged={onViewableItemsChanged.current}
           viewabilityConfig={viewConfigRef.current}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyText}>No exercises found</Text>
+            </View>
+          }
         />
 
         {/* Right-side alphabet scrollbar */}
@@ -258,6 +399,13 @@ const LibraryScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  searchIcon: {
+    position: "absolute",
+    top: -125,
+    right: 12,
+    zIndex: 22,
+    padding: 8,
+  },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -268,11 +416,65 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colorPallet.neutral_lightest,
   },
-
   searchInput: {
     flex: 1,
     color: colorPallet.neutral_lightest,
     paddingVertical: 12,
+  },
+  filterContainer: {
+    marginBottom: 12,
+    maxHeight: 42,
+  },
+  filterContent: {
+    paddingRight: 8,
+  },
+  filterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 4,
+    justifyContent: "center",
+    marginRight: 8,
+    borderRadius: 8,
+    backgroundColor: colorPallet.neutral_6,
+    borderWidth: 1,
+    borderColor: colorPallet.neutral_lightest,
+  },
+  filterButtonActive: {
+    backgroundColor: colorPallet.primary,
+    borderColor: colorPallet.primary,
+  },
+  filterButtonText: {
+    color: colorPallet.neutral_lightest,
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  filterButtonTextActive: {
+    color: colorPallet.neutral_darkest,
+    fontWeight: "600",
+  },
+  controlsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  expandCollapseButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: colorPallet.neutral_6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colorPallet.neutral_lightest,
+  },
+  expandCollapseText: {
+    color: colorPallet.secondary,
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  resultsCount: {
+    color: colorPallet.neutral_3,
+    fontSize: 14,
   },
   sectionHeaderContainer: {
     flexDirection: "row",
@@ -284,11 +486,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 12,
     marginBottom: 16,
-  },
-  sectionHeader: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
   },
   collapseIcon: {
     color: colorPallet.secondary,
@@ -306,7 +503,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     paddingVertical: 16,
   },
-
   info: {
     flex: 1,
     paddingHorizontal: 10,
@@ -321,14 +517,18 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 4,
   },
+  equipment: {
+    color: "#888",
+    fontSize: 12,
+    marginTop: 2,
+  },
   sidebar: {
     width: 25,
     justifyContent: "flex-start",
     alignItems: "center",
     paddingVertical: 5,
-    marginLeft: 5, // small gap from SectionList
+    marginLeft: 5,
   },
-
   letter: {
     color: "#888",
     fontSize: 12,
@@ -337,6 +537,43 @@ const styles = StyleSheet.create({
   activeLetter: {
     color: colorPallet.primary,
     fontWeight: "bold",
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  loadingText: {
+    color: colorPallet.neutral_lightest,
+    marginTop: 12,
+    fontSize: 16,
+  },
+  errorText: {
+    color: colorPallet.neutral_lightest,
+    marginTop: 12,
+    fontSize: 16,
+    textAlign: "center",
+  },
+  retryButton: {
+    marginTop: 16,
+    backgroundColor: colorPallet.primary,
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    color: colorPallet.neutral_darkest,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  emptyContainer: {
+    padding: 20,
+    alignItems: "center",
+  },
+  emptyText: {
+    color: colorPallet.neutral_3,
+    fontSize: 16,
   },
 });
 
