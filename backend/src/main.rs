@@ -13,7 +13,7 @@ async fn main() -> std::io::Result<()> {
     const ACTIX_WEB_ADDRESS: &'static str = "localhost";
     #[from_env]
     const ACTIX_WEB_PORT: u16 = 8080;
-    
+    // #[from_env]
     const DATABASE_URL: &'static str = "postgresql://postgres:pass@postgres_container:5432/gainzdb";
 
     env_logger::init_from_env(Env::default().default_filter_or("info"));
