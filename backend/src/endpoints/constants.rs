@@ -27,3 +27,4 @@ async fn classes(pool: web::Data<PgPool>) -> Result<HttpResponse, actix_web::Err
 
     return Ok(HttpResponse::Ok().json(ClassesResponse { classes: classes }));
 }
+

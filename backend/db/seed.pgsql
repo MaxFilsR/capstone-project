@@ -179,31 +179,31 @@ VALUES
 	(5, 'Gladiator', ROW (6, 5, 5));
 
 
-\set json_data `cat /docker-entrypoint-initdb.d/exercises.json`
+-- \set exercises_json `cat /docker-entrypoint-initdb.d/exercises.json`
 
-INSERT INTO exercises 
-SELECT 
-	data->>'id', 
-	data->>'name', 
-	(data->>'force')::exercise_force,
-	(data->>'level')::exercise_level,
-	(data->>'mechanic')::exercise_mechanic,
-	(data->>'equipment')::exercise_equipment,
-	ARRAY (
-		SELECT value::exercise_muscle
-		FROM jsonb_array_elements_text(data->'primaryMuscles') AS value
-	),
-	ARRAY (
-		SELECT value::exercise_muscle
-		FROM jsonb_array_elements_text(data->'secondaryMuscles') AS value
-	),
-	ARRAY (
-		SELECT value
-		FROM jsonb_array_elements_text(data->'instructions') AS value
-	),
-	(data->>'category')::exercise_category,
-	ARRAY (
-		SELECT value
-		FROM jsonb_array_elements_text(data->'images') AS value
-	)
-FROM jsonb_array_elements(:'json_data'::jsonb) AS data;
+-- INSERT INTO exercises 
+-- SELECT 
+-- 	data->>'id', 
+-- 	data->>'name', 
+-- 	(data->>'force')::exercise_force,
+-- 	(data->>'level')::exercise_level,
+-- 	(data->>'mechanic')::exercise_mechanic,
+-- 	(data->>'equipment')::exercise_equipment,
+-- 	ARRAY (
+-- 		SELECT value::exercise_muscle
+-- 		FROM jsonb_array_elements_text(data->'primaryMuscles') AS value
+-- 	),
+-- 	ARRAY (
+-- 		SELECT value::exercise_muscle
+-- 		FROM jsonb_array_elements_text(data->'secondaryMuscles') AS value
+-- 	),
+-- 	ARRAY (
+-- 		SELECT value
+-- 		FROM jsonb_array_elements_text(data->'instructions') AS value
+-- 	),
+-- 	(data->>'category')::exercise_category,
+-- 	ARRAY (
+-- 		SELECT value
+-- 		FROM jsonb_array_elements_text(data->'images') AS value
+-- 	)
+-- FROM jsonb_array_elements(:'exercises_json'::jsonb) AS data;
