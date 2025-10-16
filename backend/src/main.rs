@@ -23,7 +23,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_origin()
-            .allowed_methods(vec!["POST"])
+            .allowed_methods(vec!["DELETE", "GET", "POST"])
             .allow_any_header();
 
         App::new()
@@ -38,6 +38,10 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::auth::refresh)
             // Onboarding
             .service(endpoints::onboarding::onboarding)
+            // Summary
+            .service(endpoints::nav::summary::me)
+            // Workouts
+            .service(endpoints::nav::workouts::library::library)
     })
     .bind((ACTIX_WEB_ADDRESS, ACTIX_WEB_PORT))?
     .run()

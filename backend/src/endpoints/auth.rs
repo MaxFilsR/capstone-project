@@ -4,7 +4,7 @@ use jsonwebtoken::{DecodingKey, Validation, decode};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
-use crate::jwt;
+use crate::{endpoints::onboarding::onboarding, jwt};
 
 /*
  *  POST /onboarding/personal-info
@@ -33,8 +33,8 @@ async fn sign_up(
 
     let query = sqlx::query!(
         r#"
-            INSERT INTO users (email, password) 
-            VALUES ($1, crypt($2, gen_salt('md5')))
+            INSERT INTO users (email, password, onboarding_complete) 
+            VALUES ($1, crypt($2, gen_salt('md5')), FALSE)
             ON CONFLICT (email) DO NOTHING
             RETURNING id
         "#,
@@ -74,6 +74,7 @@ struct LoginRequest {
 struct LoginResponse {
     access_token: String,
     refresh_token: String,
+    onboarding_complete: bool,
 }
 
 #[post("/auth/login")]
@@ -87,7 +88,7 @@ pub async fn login(
 
     let query = sqlx::query!(
         r#"
-            SELECT id, password = crypt($2, password) AS is_valid 
+            SELECT id, password = crypt($2, password) AS is_valid, onboarding_complete
             FROM users 
             WHERE email = $1
         "#,
@@ -113,6 +114,7 @@ pub async fn login(
             return Ok(HttpResponse::Ok().json(LoginResponse {
                 access_token: access_token,
                 refresh_token: refresh_token,
+                onboarding_complete: query.onboarding_complete,
             }));
         }
     }

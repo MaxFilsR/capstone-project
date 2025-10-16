@@ -5,20 +5,22 @@ import React, {
   useState,
   ReactNode,
 } from "react";
-import * as SecureStore from "expo-secure-store";
 import { router } from "expo-router";
+import { getMe, UserProfile } from "@/api/endpoints";
+import { storage } from "@/utils/storageHelper";
 
 type User = {
-  email?: string;
   onboarded?: boolean;
+  profile?: UserProfile;
 };
 
 type AuthContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
-  login: (token: string, email?: string, onboarded?: boolean) => Promise<void>;
+  login: (token: string, onboarded: boolean) => Promise<void>;
   logout: () => Promise<void>;
   completeOnboarding: () => Promise<void>;
+  fetchUserProfile: () => Promise<UserProfile>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,13 +31,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Auto-login on app start
   useEffect(() => {
     async function loadUser() {
-      const token = await SecureStore.getItemAsync("accessToken");
-      const email = await SecureStore.getItemAsync("userEmail");
-      const onboardedStr = await SecureStore.getItemAsync("onboarded");
+      const token = await storage.getItem("accessToken");
+      const onboardedStr = await storage.getItem("onboarded");
 
       if (token) {
         setUser({
-          email: email || undefined,
           onboarded: onboardedStr === "true",
         });
       }
@@ -43,39 +43,43 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loadUser();
   }, []);
 
-  const login = async (
-    token: string,
-    email?: string,
-    onboarded: boolean = false
-  ) => {
-    await SecureStore.setItemAsync("accessToken", token);
-    if (email) {
-      await SecureStore.setItemAsync("userEmail", email);
-    }
-    await SecureStore.setItemAsync("onboarded", String(onboarded));
+  const login = async (token: string, onboarded: boolean) => {
+    await storage.setItem("accessToken", token);
+    await storage.setItem("onboarded", String(onboarded));
 
     setUser({
-      email,
       onboarded,
     });
   };
 
   const completeOnboarding = async () => {
-    await SecureStore.setItemAsync("onboarded", "true");
+    await storage.setItem("onboarded", "true");
     setUser((prev) => (prev ? { ...prev, onboarded: true } : null));
   };
 
   const logout = async () => {
-    await SecureStore.deleteItemAsync("accessToken");
-    await SecureStore.deleteItemAsync("userEmail");
-    await SecureStore.deleteItemAsync("onboarded");
+    await storage.deleteItem("accessToken");
+    await storage.deleteItem("onboarded");
     setUser(null);
     router.replace("../auth");
   };
 
+  const fetchUserProfile = async (): Promise<UserProfile> => {
+    const profile = await getMe();
+    setUser((prev) => (prev ? { ...prev, profile } : null));
+    return profile;
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, setUser, login, logout, completeOnboarding }}
+      value={{
+        user,
+        setUser,
+        login,
+        logout,
+        completeOnboarding,
+        fetchUserProfile,
+      }}
     >
       {children}
     </AuthContext.Provider>

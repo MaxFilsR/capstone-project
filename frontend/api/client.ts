@@ -1,5 +1,5 @@
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
+import { storage } from "@/utils/storageHelper";
 
 const API_BASE_URL = "http://localhost:8080";
 // const API_BASE_URL = "https://capstone.danielyentin.com";
@@ -14,7 +14,7 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.request.use(
   async (config) => {
-    const token = await SecureStore.getItemAsync("accessToken");
+    const token = await storage.getItem("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

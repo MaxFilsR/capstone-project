@@ -11,12 +11,7 @@ import { FormTextInput, FormButton } from "@/components";
 import { typography, containers, images } from "@/styles/index";
 import { colorPallet } from "@/styles/variables";
 import logo from "@/assets/images/gainz_logo_full.png";
-import {
-  signUp,
-  SignUpRequest,
-  logIn,
-  LoginRequest,
-} from "@/api/endpoints";
+import { signUp, SignUpRequest, logIn, LoginRequest } from "@/api/endpoints";
 import axios from "axios";
 import { useAuth } from "@/lib/auth-context";
 
@@ -62,7 +57,7 @@ export default function LogInScreen() {
           const access_token = response.access_token;
 
           // New users need to complete onboarding
-          await login(access_token, email, false);
+          await login(access_token, false);
 
           // Navigate to onboarding flow
           router.push("/auth/onboarding/personalInfo");
@@ -74,10 +69,16 @@ export default function LogInScreen() {
 
         if (response && "access_token" in response) {
           const token = response.access_token;
+          const onboardingComplete = response.onboarding_complete;
 
-          // Existing users are already onboarded
-          await login(token, email, true);
-          // RootLayout will automatically redirect to main app
+          // Use the onboarding_complete flag from the API response
+          await login(token, onboardingComplete);
+
+          // Redirect based on onboarding status
+          if (!onboardingComplete) {
+            router.push("/auth/onboarding/personalInfo");
+          }
+          // If onboarding is complete, RootLayout will automatically redirect to main app
         } else {
           setError("Invalid response from server");
         }
@@ -91,7 +92,7 @@ export default function LogInScreen() {
             typeof err.response.data === "string"
               ? err.response.data
               : JSON.stringify(err.response.data);
-          setError(`Error ${err.response.status}: ${serverMessage}`);
+          setError(`${serverMessage}`);
         } else if (err.request) {
           setError("No response from server. Please try again.");
         } else {

@@ -118,10 +118,9 @@ export default function SelectClassScreen() {
 
               {/* Stats */}
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
-                <StatPill label="VIT" value={classItem.stats.vitality} />
                 <StatPill label="STR" value={classItem.stats.strength} />
                 <StatPill label="END" value={classItem.stats.endurance} />
-                <StatPill label="AGI" value={classItem.stats.agility} />
+                <StatPill label="FLX" value={classItem.stats.flexibility} />
               </View>
             </TouchableOpacity>
           ))}
