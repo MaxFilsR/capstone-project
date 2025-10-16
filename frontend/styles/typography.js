@@ -5,7 +5,27 @@ export const typography = StyleSheet.create({
   h1: {
     fontSize: 24,
     fontFamily: "Anton",
-    color: colorPallet.secondary,
+    color: colorPallet.primary,
+  },
+  h2: {
+    fontSize: 18,
+    fontFamily: "Anton",
+    color: colorPallet.primary,
+  },
+  h3: {
+    fontSize: 16,
+    fontFamily: "Anton",
+    color: colorPallet.primary,
+  },
+  h4: {
+    fontSize: 14,
+    fontFamily: "Anton",
+    color: colorPallet.primary,
+  },
+  h5: {
+    fontSize: 12,
+    fontFamily: "Anton",
+    color: colorPallet.primary,
   },
   body: {
     fontFamily: "Inter_400Regular",

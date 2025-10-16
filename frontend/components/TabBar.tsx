@@ -7,7 +7,7 @@ import {
   TextStyle,
 } from "react-native";
 import { colorPallet } from "@/styles/variables";
-import { tabStyles } from "@/styles";
+import { tabStyles, typography } from "@/styles";
 
 export interface Tab {
   name: string;
@@ -15,6 +15,7 @@ export interface Tab {
 }
 
 interface TabBarProps {
+  pageTitle?: string;
   tabs: Tab[];
   initialTab?: number;
   onTabChange?: (index: number) => void;
@@ -26,6 +27,7 @@ interface TabBarProps {
 }
 
 const TabBar: React.FC<TabBarProps> = ({
+  pageTitle,
   tabs,
   initialTab = 0,
   onTabChange,
@@ -46,6 +48,20 @@ const TabBar: React.FC<TabBarProps> = ({
 
   return (
     <View style={tabStyles.container}>
+      {pageTitle && (
+        <Text
+          style={[
+            typography.h1,
+            {
+              paddingLeft: 22,
+              color: colorPallet.primary,
+            },
+          ]}
+        >
+          {pageTitle}
+        </Text>
+      )}
+
       {/* Floating Tab Bar */}
       <View style={tabStyles.tabBarContainer}>
         <View style={[tabStyles.tabBar, tabBarStyle]}>

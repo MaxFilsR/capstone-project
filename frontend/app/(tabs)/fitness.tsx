@@ -1,4 +1,5 @@
 import React from "react";
+import { View, Text } from "react-native";
 import TabBar, { Tab } from "@/components/TabBar";
 import HistoryScreen from "../screens/FitnessTabs/historyScreen";
 import StatsScreen from "../screens/FitnessTabs/statsScreen";
@@ -15,7 +16,14 @@ const FitnessScreen = () => {
 
   const handleTabChange = (index: number) => {};
 
-  return <TabBar tabs={tabs} initialTab={0} onTabChange={handleTabChange} />;
+  return (
+    <TabBar
+      pageTitle="Fitness"
+      tabs={tabs}
+      initialTab={0}
+      onTabChange={handleTabChange}
+    />
+  );
 };
 
 export default FitnessScreen;
