@@ -11,8 +11,8 @@ import {
 import { Exercise } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
 import TabBar, { Tab } from "@/components/TabBar";
-import AboutExerciseScreen from "@/app/screens/exerciseInfoTabs/aboutExcerciseScreen";
-import InstructionsExerciseScreen from "@/app/screens/exerciseInfoTabs/instructionsExcerciseScreen";
+import AboutExerciseScreen from "@/app/screens/FitnessTabs/exerciseInfoTabs/aboutExcerciseScreen";
+import InstructionsExerciseScreen from "@/app/screens/FitnessTabs/exerciseInfoTabs/instructionsExcerciseScreen";
 import { images } from "@/styles";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
