@@ -41,7 +41,11 @@ async fn main() -> std::io::Result<()> {
             // Summary
             .service(endpoints::nav::summary::me)
             // Workouts
+            // Library
             .service(endpoints::nav::workouts::library::library)
+            // History
+            .service(endpoints::nav::workouts::history::get_workout_history)
+            .service(endpoints::nav::workouts::history::get_workout_detail)
     })
     .bind((ACTIX_WEB_ADDRESS, ACTIX_WEB_PORT))?
     .run()
