@@ -1,9 +1,10 @@
 import React, { useMemo } from "react";
-import { Text, ScrollView, Image, View, StyleSheet } from "react-native";
+import { Text, ScrollView, Image, View, StyleSheet, Pressable } from "react-native";
 import { tabStyles } from "@/styles";
 import { WorkoutCard } from "@/components/workoutCard";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
+import { router } from "expo-router";
 
 interface WorkoutSession {
   id: string;
@@ -123,14 +124,32 @@ const HistoryScreen = () => {
 
             {/* Workout Cards */}
             {group.workouts.map((session) => (
-              <WorkoutCard key={session.id} session={session} />
-            ))}
+              <View key={session.id} style={{ position: "relative" }}>
+                <WorkoutCard session={session} />
+                <Pressable
+                  onPress={() => {
+                    console.log("Tapped:", session.id, session.name);
+                    router.push({
+                      pathname: "/screens/FitnessTabs/workoutComplete",
+                      params: {
+                        name: session.name,
+                        workoutTime: String(session.workoutTime),
+                        points: String(session.pointsEarned),
+                      },
+                    });
+                  }}
+                style={{ position: "absolute", top: 0, right: 0, bottom: 0, left: 0 }}
+                hitSlop={10}
+              />
           </View>
         ))}
       </View>
-    </ScrollView>
-  );
+    ))}
+   </View>
+ </ScrollView>
+);
 };
+
 
 const styles = StyleSheet.create({
   container: {
