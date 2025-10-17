@@ -1,7 +1,7 @@
 import React from "react";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { View, Text, Image, ScrollView, StyleSheet, Pressable } from "react-native";
-import { BackButton, FormButton } from "@/components";
+//import { BackButton, FormButton } from "@/components";
 import trophy from "@/assets/images/trophy_temp.png";
 import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
@@ -19,26 +19,44 @@ type Props = {
 
 
 export default function WorkoutComplete({
-    fitness = "Strength Workout",
+    routineName = "Strength Workout",
     playerName = "Player 1",
     summary,
     onDone,
-    trophySource,
 }: Props) {
-    // Replace with actual data later
+    const params = useLocalSearchParams<{
+        name?: string;
+        workoutTime?: string;
+        points?: string;
+    }>();
+
+    const workoutName = params.name ?? routineName;
+
     const rows: StatPair[] =
-        summary ?? [
-            { label: "Workout Time", value: "1:05:30" },
+        summary ??
+        (params.workoutTime || params.points
+            ? [
+                { label: "Workout Time", value: params.workoutTime? `${params.workoutTime} min` : "-" },
+                { label: "Gainz", value: params.points ?? "-" },
+            ]
+           : [
+            { label : "Workout Time", value: "1:05:30" },
             { label: "Gainz", value: "55" },
-        ];
+           ]);
 
     const handleDone = () => {
         if (onDone) {
             onDone();
             return;
-        } try {
-            router.back();
-        } catch (e) {
+        }
+        try {
+            if (router.canGoBack && router.canGoBack()) {
+                router.back();
+        } else {
+            router.replace("/screens/FitnessTabs/historyScreen");
+        }
+        } catch {
+            router.replace("/screens/FitnessTabs/historyScreen")
         }
     };
 
@@ -56,7 +74,7 @@ export default function WorkoutComplete({
 
             {/* Title */}
             <Text style={[typography.h1, styles.title]}>
-                {`${fitness} Complete`}
+                {`${workoutName} Complete`}
             </Text>
 
             <Image source={trophy} style={styles.trophy} resizeMode="contain"/>
