@@ -29,7 +29,6 @@ export const tabStyles = StyleSheet.create({
   tabBarContainer: {
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: colorPallet.neutral_darkest,
   },
   tabBar: {
     flexDirection: "row",

@@ -1,5 +1,4 @@
 import React from "react";
-import { View, Text } from "react-native";
 import TabBar, { Tab } from "@/components/TabBar";
 import HistoryScreen from "../screens/FitnessTabs/historyScreen";
 import StatsScreen from "../screens/FitnessTabs/statsScreen";

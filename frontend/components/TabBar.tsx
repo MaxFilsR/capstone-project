@@ -19,7 +19,14 @@ interface TabBarProps {
   tabs: Tab[];
   initialTab?: number;
   onTabChange?: (index: number) => void;
+  outerContainerStyle?: ViewStyle;
+  pageTitleStyle?: TextStyle;
+  tabBarContainerStyle?: ViewStyle;
   tabBarStyle?: ViewStyle;
+  tabButtonStyle?: ViewStyle;
+  tabTextStyle?: TextStyle;
+  contentContainerStyle?: ViewStyle;
+  backgroundColor?: string;
   activeTabColor?: string;
   inactiveTabColor?: string;
   activeTextColor?: string;
@@ -31,70 +38,86 @@ const TabBar: React.FC<TabBarProps> = ({
   tabs,
   initialTab = 0,
   onTabChange,
+  outerContainerStyle,
+  pageTitleStyle,
+  tabBarContainerStyle,
   tabBarStyle,
+  tabButtonStyle,
+  tabTextStyle,
+  contentContainerStyle,
+  backgroundColor,
   activeTabColor = colorPallet.primary,
   inactiveTabColor = "transparent",
-  activeTextColor = "#000000",
-  inactiveTextColor = "#FFFFFF",
+  activeTextColor = colorPallet.neutral_darkest,
+  inactiveTextColor = colorPallet.neutral_lightest,
 }) => {
   const [activeTab, setActiveTab] = useState(initialTab);
-
-  const handleTabPress = (index: number) => {
-    setActiveTab(index);
-    onTabChange?.(index);
-  };
-
   const ActiveComponent = tabs[activeTab].component;
 
+  const handleTabPress = (index: number) => {
+    if (index !== activeTab) {
+      setActiveTab(index);
+      onTabChange?.(index);
+    }
+  };
+
   return (
-    <View style={tabStyles.container}>
+    <View
+      style={[
+        tabStyles.container,
+        backgroundColor && { backgroundColor },
+        outerContainerStyle,
+      ]}
+    >
       {pageTitle && (
         <Text
           style={[
             typography.h1,
-            {
-              paddingLeft: 22,
-              color: colorPallet.primary,
-            },
+            { paddingLeft: 22, color: colorPallet.primary },
+            pageTitleStyle,
           ]}
         >
           {pageTitle}
         </Text>
       )}
 
-      {/* Floating Tab Bar */}
-      <View style={tabStyles.tabBarContainer}>
+      <View style={[tabStyles.tabBarContainer, tabBarContainerStyle]}>
         <View style={[tabStyles.tabBar, tabBarStyle]}>
-          {tabs.map((tab, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                tabStyles.tab,
-                {
-                  backgroundColor:
-                    activeTab === index ? activeTabColor : inactiveTabColor,
-                },
-              ]}
-              onPress={() => handleTabPress(index)}
-              activeOpacity={0.7}
-            >
-              <Text
+          {tabs.map((tab, index) => {
+            const isActive = activeTab === index;
+            return (
+              <TouchableOpacity
+                key={tab.name}
                 style={[
-                  tabStyles.tabText,
+                  tabStyles.tab,
+                  tabButtonStyle,
                   {
-                    color:
-                      activeTab === index ? activeTextColor : inactiveTextColor,
+                    backgroundColor: isActive
+                      ? activeTabColor
+                      : inactiveTabColor,
                   },
                 ]}
+                onPress={() => handleTabPress(index)}
+                activeOpacity={0.7}
               >
-                {tab.name}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <Text
+                  style={[
+                    tabStyles.tabText,
+                    tabTextStyle,
+                    { color: isActive ? activeTextColor : inactiveTextColor },
+                  ]}
+                >
+                  {tab.name}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       </View>
 
-      <ActiveComponent />
+      <View style={[{ flex: 1 }, contentContainerStyle]}>
+        <ActiveComponent />
+      </View>
     </View>
   );
 };

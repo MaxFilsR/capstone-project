@@ -9,13 +9,15 @@ import {
   ActivityIndicator,
   ViewToken,
   ScrollView,
+  Image,
 } from "react-native";
 import { tabStyles, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { Ionicons } from "@expo/vector-icons";
 import { getWorkoutLibrary, Exercise } from "@/api/endpoints";
+import Popup from "@/components/PopupModal";
 
-// --- Group exercises alphabetically by primary muscle ---
+// Group exercises alphabetically by primary muscle
 const groupByPrimaryMuscle = (list: Exercise[]) => {
   const grouped = list.reduce((acc: any, ex) => {
     ex.primaryMuscles.forEach((muscle) => {
@@ -30,8 +32,6 @@ const groupByPrimaryMuscle = (list: Exercise[]) => {
     .map((muscle) => ({ title: muscle, data: grouped[muscle] }));
 };
 
-const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-
 const LibraryScreen = () => {
   const [query, setQuery] = useState("");
   const [collapsedSections, setCollapsedSections] = useState<{
@@ -44,6 +44,11 @@ const LibraryScreen = () => {
   const [selectedMuscle, setSelectedMuscle] = useState("All");
   const [searchVisible, setSearchVisible] = useState(false);
   const sectionListRef = useRef<SectionList>(null);
+  const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
+    null
+  );
+  const IMAGE_BASE_URL =
+    "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
   // Fetch exercises on mount
   useEffect(() => {
@@ -113,6 +118,12 @@ const LibraryScreen = () => {
 
     return groupByPrimaryMuscle(filtered);
   }, [query, exercises, selectedMuscle]);
+
+  // Filter alphabet to only show letters that exist in sections
+  const availableLetters = useMemo(() => {
+    const letters = new Set(sections.map((s) => s.title[0].toUpperCase()));
+    return Array.from(letters).sort();
+  }, [sections]);
 
   const toggleSection = (title: string) => {
     setCollapsedSections((prev) => ({ ...prev, [title]: !prev[title] }));
@@ -350,17 +361,38 @@ const LibraryScreen = () => {
           )}
           renderItem={({ item, section }) => {
             if (collapsedSections[section.title]) return null;
+            const imageUrl =
+              item.images && item.images.length > 0
+                ? `${IMAGE_BASE_URL}${item.images[0]}`
+                : null;
+
             return (
-              <TouchableOpacity style={styles.card}>
+              <TouchableOpacity
+                style={styles.card}
+                onPress={() => setSelectedExercise(item)}
+              >
+                {imageUrl ? (
+                  <Image
+                    source={{ uri: imageUrl }}
+                    style={styles.thumbnail}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View style={[styles.thumbnail, styles.thumbnailPlaceholder]}>
+                    <Ionicons
+                      name="barbell"
+                      size={32}
+                      color={colorPallet.neutral_3}
+                    />
+                  </View>
+                )}
                 <View style={styles.info}>
                   <Text style={styles.name}>{item.name}</Text>
                   <Text style={styles.muscle}>
                     {item.primaryMuscles.join(", ")}
                   </Text>
                   {item.equipment && (
-                    <Text style={styles.equipment}>
-                      Equipment: {item.equipment}
-                    </Text>
+                    <Text style={styles.equipment}>Level: {item.level}</Text>
                   )}
                 </View>
               </TouchableOpacity>
@@ -375,9 +407,9 @@ const LibraryScreen = () => {
           }
         />
 
-        {/* Right-side alphabet scrollbar */}
+        {/* Right-side alphabet scrollbar - only shows letters that exist */}
         <View style={styles.sidebar}>
-          {alphabet.map((letter) => (
+          {availableLetters.map((letter) => (
             <TouchableOpacity
               key={letter}
               onPress={() => scrollToSection(letter)}
@@ -394,6 +426,13 @@ const LibraryScreen = () => {
           ))}
         </View>
       </View>
+
+      <Popup
+        visible={!!selectedExercise}
+        mode="viewExercises"
+        exercise={selectedExercise}
+        onClose={() => setSelectedExercise(null)}
+      />
     </View>
   );
 };
@@ -495,17 +534,26 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colorPallet.neutral_6,
-    marginVertical: 5,
-    marginHorizontal: 8,
+    marginVertical: 8,
+    marginHorizontal: 0,
     borderRadius: 8,
     overflow: "hidden",
     borderColor: colorPallet.primary,
     borderWidth: 1,
-    paddingVertical: 16,
+  },
+  thumbnail: {
+    width: 80,
+    height: 80,
+    borderRadius: 6,
+    backgroundColor: colorPallet.neutral_darkest,
+    marginRight: 12,
+  },
+  thumbnailPlaceholder: {
+    justifyContent: "center",
+    alignItems: "center",
   },
   info: {
     flex: 1,
-    paddingHorizontal: 10,
   },
   name: {
     color: "#fff",
