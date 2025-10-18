@@ -1,8 +1,7 @@
 import React from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import { View, Text, Image, ScrollView, StyleSheet, Pressable } from "react-native";
-//import { BackButton, FormButton } from "@/components";
-import trophy from "@/assets/images/trophy_temp.png";
+import trophy from "@/assets/images/trophy_summary.png";
 import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { globalStyles } from "@/styles/globalStyles";
@@ -12,7 +11,7 @@ type StatPair = { label: string; value: string | number };
 
 type Props = {
     routineName?: string;
-    playerName?: string;  // Kato oikee nimi
+    playerName?: string;
     summary?: StatPair[];
     onDone?: () => void;
 };
@@ -56,9 +55,11 @@ export default function WorkoutComplete({
             router.replace("/screens/FitnessTabs/historyScreen");
         }
         } catch {
-            router.replace("/screens/FitnessTabs/historyScreen")
+            router.replace("/screens/FitnessTabs/historyScreen");
         }
     };
+
+    const HEADER_OFFSET = 80;
 
     const pairs: StatPair[][] = [];
     for (let i = 0; i < rows.length; i +=2) {
@@ -66,9 +67,9 @@ export default function WorkoutComplete({
     }
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            {/* Done (top-right) */}
-            <Pressable onPress={handleDone} hitSlop={12} style={styles.doneWrap}>
+        <ScrollView style={styles.container} contentContainerStyle={[styles.content, { paddingTop: HEADER_OFFSET}]} >
+            {/* Done Button */}
+            <Pressable onPress={handleDone} hitSlop={24} style={[styles.doneWrap, {top: HEADER_OFFSET}]}>
                 <Text style={styles.doneText}>Done</Text>
             </Pressable>
 
@@ -138,7 +139,6 @@ const styles = StyleSheet.create({
     doneWrap: {
         position: "absolute",
         right: 16,
-        top: 40,
         zIndex: 1,
     },
     doneText: {
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     title: {
         color: colorPallet.primary,
         textAlign: "center",
-        marginTop: 8,
+        marginTop: 80,
     },
 
     trophy: {
@@ -158,6 +158,7 @@ const styles = StyleSheet.create({
         height: 180,
         alignSelf: "center",
         marginVertical: 12,
+        marginTop: 20,
     },
 
     postMessage: {
