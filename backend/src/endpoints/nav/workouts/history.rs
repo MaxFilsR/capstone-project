@@ -34,120 +34,122 @@ pub struct MonthGroup {
     pub workouts: Vec<WorkoutSession>,
 }
 
-// Grouped workout history
-// #[get("/history")]
-// pub async fn get_workout_history(
-//     user: AuthenticatedUser,
-//     pool: web::Data<PgPool>,
-// ) -> Result<HttpResponse> {
-//     // Fetch all workouts for this user
-//     let records = sqlx::query_as!(
-//         WorkoutRecord,
-//         r#"
-//         SELECT id, user_id, name, date, duration_minutes, points_earned
-//         FROM workout_history
-//         WHERE user_id = $1
-//         ORDER BY date DESC
-//         "#,
-//         user.id
-//     )
-//     .fetch_all(pool.get_ref())
-//     .await
-//     .map_err(|e| ErrorBadRequest(format!("Database error: {}", e)))?;
+//Grouped workout history
 
-//     // Group by month-year (e.g., "2025-10")
-//     let mut grouped: BTreeMap<String, Vec<WorkoutSession>> = BTreeMap::new();
+#[get("/history")]
+pub async fn get_workout_history(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+) -> Result<HttpResponse> {
+    // Fetch all workouts for this user
+    let records = sqlx::query_as!(
+        WorkoutRecord,
+        r#"
+        SELECT id, user_id, name, date, duration_minutes, points_earned
+        FROM workout_history
+        WHERE user_id = $1
+        ORDER BY date DESC
+        "#,
+        user.id
+    )
+    .fetch_all(pool.get_ref())
+    .await
+    .map_err(|e| ErrorBadRequest(format!("Database error: {}", e)))?;
 
-//     for rec in records {
-//         let month_key = format!("{}-{:02}", rec.date.year(), rec.date.month());
+    // Group by month-year (e.g., "2025-10")
+    let mut grouped: BTreeMap<String, Vec<WorkoutSession>> = BTreeMap::new();
 
-//         let workout = WorkoutSession {
-//             id: rec.id,
-//             name: rec.name,
-//             date: rec.date.format("%Y-%m-%dT%H:%M:%SZ").to_string(),
-//             workoutTime: rec.duration_minutes,
-//             pointsEarned: rec.points_earned.unwrap_or(0),
-//         };
+    for rec in records {
+        let month_key = format!("{}-{:02}", rec.date.year(), rec.date.month());
 
-//         grouped.entry(month_key).or_default().push(workout);
-//     }
+        let workout = WorkoutSession {
+            id: rec.id,
+            name: rec.name,
+            date: rec.date.format("%Y-%m-%dT%H:%M:%SZ").to_string(),
+            workoutTime: rec.duration_minutes,
+            pointsEarned: rec.points_earned.unwrap_or(0),
+        };
 
-//     // Build final list of month groups
-//     let mut result = Vec::new();
+        grouped.entry(month_key).or_default().push(workout);
+    }
 
-//     for (month_year, workouts) in grouped {
-//         let total_sessions = workouts.len() as i64;
-//         let total_gainz: i64 = workouts.iter().map(|w| w.pointsEarned as i64).sum();
+    // Build final list of month groups
+    let mut result = Vec::new();
 
-//         // Parse month name for display
-//         let (year, month_num) = match month_year.split_once('-') {
-//             Some((y, m)) => (
-//                 y.parse::<i32>().unwrap_or(0),
-//                 m.parse::<u32>().unwrap_or(1),
-//             ),
-//             None => (0, 1),
-//         };
+    for (month_year, workouts) in grouped {
+        let total_sessions = workouts.len() as i64;
+        let total_gainz: i64 = workouts.iter().map(|w| w.pointsEarned as i64).sum();
 
-//          let month_name = chrono::Month::try_from(month_num)
-//              .map(|m| format!("{:?}", m))
-//              .unwrap_or_else(|_| "Unknown".to_string());
+        // Parse month name for display
+        let (year, month_num) = match month_year.split_once('-') {
+            Some((y, m)) => (
+                y.parse::<i32>().unwrap_or(0),
+                m.parse::<u32>().unwrap_or(1),
+            ),
+            None => (0, 1),
+        };
 
-//          let display_month = format!("{} {}", month_name, year);
+        let month_name = chrono::Month::try_from(month_num as u8)
+            .map(|m| format!("{:?}", m))
+            .unwrap_or_else(|_| "Unknown".to_string());
 
-//         result.push(MonthGroup {
-//             monthYear: month_year.clone(),
-//             displayMonth: display_month,
-//             totalSessions: total_sessions,
-//             totalGainz: total_gainz,
-//             workouts,
-//         });
-//     }
+         let display_month = format!("{} {}", month_name, year);
 
-//     // Sort newest months first
-//     result.sort_by(|a, b| b.monthYear.cmp(&a.monthYear));
+        result.push(MonthGroup {
+            monthYear: month_year.clone(),
+            displayMonth: display_month,
+            totalSessions: total_sessions,
+            totalGainz: total_gainz,
+            workouts,
+        });
+    }
 
-//     Ok(HttpResponse::Ok().json(result))
-// }
+    // Sort newest months first
+    result.sort_by(|a, b| b.monthYear.cmp(&a.monthYear));
+
+    Ok(HttpResponse::Ok().json(result))
+}
 
 
-// Get workout detail by ID
-// #[get("/workout/{id}")]
-// pub async fn get_workout_by_id(
-//     user: AuthenticatedUser,
-//     pool: web::Data<PgPool>,
-//     path: web::Path<String>,
-// ) -> Result<HttpResponse> {
-//     let workout_id = path.into_inner();
+//Get workout detail by ID
 
-//     let rec = sqlx::query_as!(
-//         WorkoutRecord,
-//         r#"
-//         SELECT id, user_id, name, date, duration_minutes, points_earned
-//         FROM workout_history
-//         WHERE id = $1 AND user_id = $2
-//         "#,
-//         workout_id,
-//         user.id
-//     )
-//     .fetch_optional(pool.get_ref())
-//     .await
-//     .map_err(|e| ErrorNotFound(format!("Database error: {}", e)))?;
+#[get("/workout/{id}")]
+pub async fn get_workout_by_id(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+    path: web::Path<String>,
+) -> Result<HttpResponse> {
+    let workout_id = path.into_inner();
 
-//     // Handle not found
-//     let rec = match rec {
-//         Some(r) => r,
-//         None => return Err(ErrorNotFound("Workout not found")),
-//     };
+    let rec = sqlx::query_as!(
+        WorkoutRecord,
+        r#"
+        SELECT id, user_id, name, date, duration_minutes, points_earned
+        FROM workout_history
+        WHERE id = $1 AND user_id = $2
+        "#,
+        workout_id,
+        user.id
+    )
+    .fetch_optional(pool.get_ref())
+    .await
+    .map_err(|e| ErrorNotFound(format!("Database error: {}", e)))?;
 
-//     // Formater
-//     let workout = WorkoutSession {
-//         id: rec.id,
-//         name: rec.name,
-//         date: chrono::DateTime::<Utc>::from_naive_utc_and_offset(rec.date, Utc)
-//             .to_rfc3339(),
-//         workoutTime: rec.duration_minutes,
-//         pointsEarned: rec.points_earned.unwrap_or(0),
-//     };
+    // Handle not found
+    let rec = match rec {
+        Some(r) => r,
+        None => return Err(ErrorNotFound("Workout not found")),
+    };
 
-//     Ok(HttpResponse::Ok().json(workout))
-// }
+    // Formater
+    let workout = WorkoutSession {
+        id: rec.id,
+        name: rec.name,
+        date: chrono::DateTime::<Utc>::from_naive_utc_and_offset(rec.date, Utc)
+            .to_rfc3339(),
+        workoutTime: rec.duration_minutes,
+        pointsEarned: rec.points_earned.unwrap_or(0),
+    };
+
+    Ok(HttpResponse::Ok().json(workout))
+}
