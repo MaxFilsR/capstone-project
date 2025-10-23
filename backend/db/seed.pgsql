@@ -8,6 +8,14 @@ WITH
 
 CREATE EXTENSION pgcrypto;
 
+CREATE TYPE exercise AS (
+	id INT,
+	sets INT,
+	reps INT,
+	weight REAL,
+	distance REAL
+);
+
 CREATE TYPE stats AS (
 	strength INT,
 	endurance INT,
@@ -167,6 +175,17 @@ CREATE TABLE IF NOT EXISTS
 		images TEXT[] NOT NULL
 	);
 
+CREATE TABLE IF NOT EXISTS
+	routines (
+		id SERIAL PRIMARY KEY,
+		user_id INT NOT NULL REFERENCES users (id),
+		name TEXT NOT NULL,
+		exercises JSONB NOT NULL,
+		time INT NOT NULL,
+		gainz INT NOT NULL
+	);
+
+
 -- Preseed actual data
 
 INSERT INTO
@@ -207,3 +226,15 @@ VALUES
 -- 		FROM jsonb_array_elements_text(data->'images') AS value
 -- 	)
 -- FROM jsonb_array_elements(:'exercises_json'::jsonb) AS data;
+
+
+-- History
+CREATE TABLE IF NOT EXISTS workout_history (
+    id TEXT PRIMARY KEY,                			
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    name TEXT NOT NULL,                 			
+    date TIMESTAMP NOT NULL,            			
+    duration_minutes INTEGER NOT NULL,  			
+    points_earned INTEGER DEFAULT 0,    			
+    created_at TIMESTAMP DEFAULT NOW()
+);
