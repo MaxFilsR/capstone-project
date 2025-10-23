@@ -93,8 +93,23 @@ export const popupModalStyles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: colorPallet.neutral_6,
     borderRadius: 12,
-    marginBottom: 12,
+    marginBottom: 14,
     borderWidth: 1,
+
+    borderColor: colorPallet.neutral_lightest,
+    overflow: "hidden",
+
+    alignItems: "center",
+  },
+  selectedExerciseCard: {
+    flexDirection: "row",
+    backgroundColor: colorPallet.neutral_6,
+
+    borderBottomRightRadius: 0,
+    borderBottomLeftRadius: 0,
+    borderRadius: 8,
+    borderWidth: 1,
+
     borderColor: colorPallet.neutral_lightest,
     overflow: "hidden",
 
@@ -117,11 +132,15 @@ export const popupModalStyles = StyleSheet.create({
     fontSize: 14,
   },
   metricsContainer: {
-    marginTop: 8,
+    marginTop: 0,
     padding: 8,
     borderWidth: 1,
-    borderColor: colorPallet.primary,
+    borderTopWidth: 0,
+    borderColor: colorPallet.neutral_lightest,
     borderRadius: 8,
+    borderTopEndRadius: 0,
+    borderTopStartRadius: 0,
     backgroundColor: colorPallet.neutral_5,
+    marginBottom: 12,
   },
 });
