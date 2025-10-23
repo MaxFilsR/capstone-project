@@ -35,17 +35,26 @@ export default function RootLayout() {
 function InnerStack() {
   const { user, fetchUserProfile, logout } = useAuth();
   const [loadingUser, setLoadingUser] = useState(true);
-  const hasFetchedProfile = useRef(false); // <-- prevents multiple calls
+  const hasFetchedProfile = useRef(false);
 
   useEffect(() => {
     async function verifyUser() {
-      if (hasFetchedProfile.current) return; // prevent reruns
+      if (!user) {
+        hasFetchedProfile.current = false;
+        setLoadingUser(false);
+        return;
+      }
+
+      if (user.onboarded !== true) {
+        setLoadingUser(false);
+        return;
+      }
+
+      if (hasFetchedProfile.current) return;
       hasFetchedProfile.current = true;
 
       try {
-        if (user) {
-          await fetchUserProfile();
-        }
+        await fetchUserProfile();
       } catch (err) {
         console.warn("Failed to load user profile:", err);
         await logout();
@@ -55,7 +64,7 @@ function InnerStack() {
     }
 
     verifyUser();
-  }, []); // <-- empty dependency array = only runs once on mount
+  }, [user]);
 
   if (loadingUser) return <SplashScreen />;
 
@@ -67,12 +76,10 @@ function InnerStack() {
         headerShadowVisible: false,
       }}
     >
-      {/* Main app - for authenticated AND onboarded users */}
       <Stack.Protected guard={!!user && user.onboarded === true}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack.Protected>
 
-      {/* Auth folder - handles both login AND onboarding */}
       <Stack.Protected guard={!user || user.onboarded !== true}>
         <Stack.Screen name="auth" options={{ headerShown: false }} />
       </Stack.Protected>
