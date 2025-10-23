@@ -49,6 +49,7 @@ services:
 
   #* backend container
   server:
+    container_name: "gainzserver"
     build:
       context: ./backend
       target: final
@@ -56,7 +57,7 @@ services:
     ports:
       - 8080:8080
     depends_on:
-      db:
+      gainzdb:
         condition: service_healthy
         restart: true
     networks:

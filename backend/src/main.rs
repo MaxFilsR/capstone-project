@@ -18,9 +18,11 @@ async fn main() -> std::io::Result<()> {
 
     env_logger::init_from_env(Env::default().default_filter_or("info"));
 
-    let pool = PgPool::connect("postgresql://postgres:pass@localhost:5432/gainzdb")
-    .await
-    .unwrap_or_else("postgresql://postgres:pass@postgres_container:5432/gainzdb");
+    let pool = PgPool::connect("postgresql://postgres:pass@gainzdb:5432/gainzdb")
+        .await
+        .unwrap();
+
+    dbg!("Pool succesfully created");
 
     HttpServer::new(move || {
         let cors = Cors::default()
