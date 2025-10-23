@@ -14,11 +14,13 @@ async fn main() -> std::io::Result<()> {
     #[from_env]
     const ACTIX_WEB_PORT: u16 = 8080;
     // #[from_env]
-    const DATABASE_URL: &'static str = "postgresql://postgres:pass@postgres_container:5432/gainzdb";
+    // const DATABASE_URL: &'static str = "postgresql://postgres:pass@localhost:5432/gainzdb";
 
     env_logger::init_from_env(Env::default().default_filter_or("info"));
 
-    let pool = PgPool::connect(DATABASE_URL).await.unwrap();
+    let pool = PgPool::connect("postgresql://postgres:pass@localhost:5432/gainzdb")
+    .await
+    .unwrap_or_else("postgresql://postgres:pass@postgres_container:5432/gainzdb");
 
     HttpServer::new(move || {
         let cors = Cors::default()

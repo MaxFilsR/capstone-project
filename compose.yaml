@@ -27,19 +27,17 @@ version: '3'
 # https://github.com/docker/awesome-compose
 services:
   #* postgres container
-  db:
-    image: postgres
-    container_name: postgres_container
-    hostname: db
-    restart: always
+  gainzdb:
+    image: postgres:latest
+    container_name: gainzdb
     env_file:
       - ./backend/.env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data #persistent data
-      - ./backend/seed.pgsql:/docker-entrypoint-initdb.d/seed.sql #preseedin
-      - ./exercises.json:/docker-entrypoint-initdb.d/exercises.json #preseedin
+      - ./backend/seed.pgsql:/docker-entrypoint-initdb.d/seed.sql #preseeding database
+      #- ./backend/exercises.json:/docker-entrypoint-initdb.d/exercises.json #library of exercises for database to read from
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres","-d", "gainzdb"]
       interval: 1m30s
@@ -60,6 +58,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+        restart: true
     networks:
       - rust-local-network
 

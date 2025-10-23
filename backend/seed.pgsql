@@ -1,78 +1,248 @@
---CREATE DATABASE gainzdb;
+-- This file is responsible to properly initiate the database and all types required for the app to function
+-- Stores users, exercises, items, class types
+
+-- !Database gainzdb is initially created during postgres initialization, no need to create a new one
+
+-- Enter database to initialize it
 \c gainzdb;
 
-CREATE ROLE root WITH LOGIN;
+-- Fix for Daniel
+CREATE ROLE dyredhead
+WITH
+	LOGIN;
 
+-- ?
 CREATE EXTENSION pgcrypto;
 
+--
+-- PLAYER SPECIFIC TYPE DEFINITIONS
+--
+
+-- Will store players stats
 CREATE TYPE stats AS (
-	vitality INT,
 	strength INT,
 	endurance INT,
-	agility INT
+	flexibility INT
 );
 
-CREATE TYPE class AS (name TEXT, stats STATS);
-
--- Tables
-
-CREATE TABLE users (
-	id SERIAL PRIMARY KEY,
-	email VARCHAR(255) UNIQUE NOT NULL,
-	password VARCHAR(255) NOT NULL
+-- Will store players class
+CREATE TYPE class AS (
+	name TEXT, 
+	stats STATS
 );
 
-CREATE TABLE user_info (
-	user_id INT REFERENCES users (id) PRIMARY KEY,
-	first_name VARCHAR(255) NOT NULL,
-	last_name VARCHAR(255) NOT NULL,
-	username VARCHAR(255) NOT NULL,
-	class CLASS,
-	workout_schedule BOOL [7] NOT NULL
+-- Defines item rarity
+CREATE TYPE item_rarity AS ENUM (
+    'common',
+    'uncommon',
+    'rare',
+    'ultra rare',
+    'mythical'
 );
 
-CREATE TABLE items (
-	id SERIAL PRIMARY KEY,
-	name VARCHAR(100),
-	category VARCHAR(50),
-	rarity VARCHAR(50),
-	price INT,
-	asset_url TEXT
+--
+-- WORKOUT SPECIFIC TYPE DEFINITIONS
+--
+
+-- ? What?
+CREATE TYPE exercise_force AS ENUM (
+    'static',
+    'pull',
+    'push'
 );
 
-CREATE TABLE user_items (
-	user_id INT REFERENCES users (id),
-	item_id INT REFERENCES items (id),
-	acquired_at TIMESTAMP DEFAULT NOW(),
-	PRIMARY KEY (user_id, item_id)
+-- Defines exercise difficulty types
+CREATE TYPE exercise_level AS ENUM (
+    'beginner',
+    'intermediate',
+    'expert'
 );
 
-CREATE TABLE user_equipment (
-	user_id INT PRIMARY KEY REFERENCES users (id),
-	head INT REFERENCES items (id),
-	head_accessory INT REFERENCES items (id),
-	body INT REFERENCES items (id),
-	arms INT REFERENCES items (id),
-	weapon INT REFERENCES items (id),
-	background INT REFERENCES items (id)
+-- ?
+CREATE TYPE exercise_mechanic AS ENUM (
+    'isolation',
+    'compound'
 );
 
-CREATE TABLE shop_rotations (
-	id SERIAL PRIMARY KEY,
-	item_id INT REFERENCES items (id),
-	start_date TIMESTAMP,
-	end_date TIMESTAMP
+-- Defines exercise equipement for exercise filtering
+CREATE TYPE exercise_equipment AS ENUM (
+    'medicine ball',
+    'dumbbell',
+    'body only',
+    'bands',
+    'kettlebells',
+    'foam roll',
+    'cable',
+    'machine',
+    'barbell',
+    'exercise ball',
+    'e-z curl bar',
+    'other'
 );
 
-CREATE TABLE classes (
-	id SERIAL PRIMARY KEY,
-	name TEXT NOT NULL,
-	stats STATS NOT NULL
+-- Defines muscles for exercies filtering
+CREATE TYPE exercise_muscle AS ENUM (
+    'abdominals',
+    'abductors',
+    'adductors',
+    'biceps',
+    'calves',
+    'chest',
+    'forearms',
+    'glutes',
+    'hamstrings',
+    'lats',
+    'lower back',
+    'middle back',
+    'neck',
+    'quadriceps',
+    'shoulders',
+    'traps',
+    'triceps'
 );
 
-INSERT INTO classes (id, name, stats)
-VALUES (1, 'Assasin', ROW (0, 0, 0, 0)),
-	(2, 'Gladiator', ROW (0, 0, 0, 0)),
-	(3, 'Monk', ROW (0, 0, 0, 0)),
-	(4, 'Warrior', ROW (0, 0, 0, 0)),
-	(5, 'Wizard', ROW (0, 0, 0, 0));
+-- Defines exercise categories for filtering
+CREATE TYPE exercise_category AS ENUM (
+	'powerlifting',
+    'strength',
+    'stretching',
+    'cardio',
+    'olympic weightlifting',
+    'strongman',
+    'plyometrics'
+);
+
+--
+-- TABLES
+--
+
+-- Table to store users(players)
+CREATE TABLE IF NOT EXISTS
+	users (
+		id SERIAL PRIMARY KEY,
+		email VARCHAR(255) UNIQUE NOT NULL,
+		password VARCHAR(255) NOT NULL,
+		onboarding_complete BOOLEAN NOT NULL
+	);
+
+-- Table to store more detailed information about users
+CREATE TABLE IF NOT EXISTS
+	user_info (
+		user_id INT REFERENCES users (id) PRIMARY KEY,
+		first_name VARCHAR(255) NOT NULL,
+		last_name VARCHAR(255) NOT NULL,
+		username VARCHAR(255) NOT NULL,
+		class CLASS NOT NULL,
+		workout_schedule BOOLEAN[7] NOT NULL
+	);
+
+-- Table to store items
+CREATE TABLE IF NOT EXISTS
+	items (
+		id SERIAL PRIMARY KEY,
+		name VARCHAR(100) NOT NULL,
+		category VARCHAR(50) NOT NULL,
+		rarity item_rarity NOT NULL,
+		price INT NOT NULL,
+		asset_url TEXT
+	);
+
+-- Table to store item related info of users
+CREATE TABLE IF NOT EXISTS
+	user_items (
+		user_id INT NOT NULL REFERENCES users (id),
+		item_id INT NOT NULL REFERENCES items (id),
+		acquired_at TIMESTAMP DEFAULT NOW() NOT NULL,
+		PRIMARY KEY (user_id, item_id)
+	);
+
+-- Table to store user equipped items
+CREATE TABLE IF NOT EXISTS
+	user_equipment (
+		user_id INT PRIMARY KEY REFERENCES users (id),
+		head INT REFERENCES items (id),
+		head_accessory INT REFERENCES items (id),
+		body INT REFERENCES items (id),
+		arms INT REFERENCES items (id),
+		weapon INT REFERENCES items (id),
+		background INT REFERENCES items (id)
+	);
+
+-- ?
+CREATE TABLE IF NOT EXISTS
+	shop_rotations (
+		id SERIAL PRIMARY KEY,
+		item_id INT NOT NULL REFERENCES items (id),
+		start_date TIMESTAMP,
+		end_date TIMESTAMP
+	);
+
+-- Table storing classes, predefined later in this file
+CREATE TABLE IF NOT EXISTS
+	classes (
+		id SERIAL PRIMARY KEY,
+		name TEXT NOT NULL,
+		stats STATS NOT NULL
+	);
+
+-- Table to store exercises, predefined later in this file
+-- CREATE TABLE IF NOT EXISTS
+-- 	exercises (
+-- 		id TEXT PRIMARY KEY,
+-- 		name TEXT NOT NULL,
+-- 		force exercise_force,
+-- 		level exercise_level NOT NULL,
+-- 		mechanic exercise_mechanic,
+-- 		equipment exercise_equipment,
+-- 		primary_muscles exercise_muscle[] NOT NULL,
+-- 		secondary_muscles exercise_muscle[] NOT NULL,
+-- 		instructions TEXT[] NOT NULL,
+-- 		category exercise_category NOT NULL,
+-- 		images TEXT[] NOT NULL
+-- 	);
+
+--
+-- PRESEED ACTUAL DATA
+--
+
+-- Define classes
+INSERT INTO
+	classes (id, name, stats)
+VALUES
+	(1, 'Warrior', ROW (10, 7, 5)),
+	(2, 'Monk', ROW (4, 7, 10)),
+	(3, 'Assassin', ROW (5, 10, 6)),
+	(4, 'Wizard', ROW (7, 7, 7)),
+	(5, 'Gladiator', ROW (6, 5, 5));
+
+
+-- Defining exercises
+-- ToDo: Make sure it stores everything right
+-- \set exercises_json `cat /docker-entrypoint-initdb.d/exercises.json`
+
+-- INSERT INTO exercises 
+-- SELECT 
+-- 	data->>'id', 
+-- 	data->>'name', 
+-- 	(data->>'force')::exercise_force,
+-- 	(data->>'level')::exercise_level,
+-- 	(data->>'mechanic')::exercise_mechanic,
+-- 	(data->>'equipment')::exercise_equipment,
+-- 	ARRAY (
+-- 		SELECT value::exercise_muscle
+-- 		FROM jsonb_array_elements_text(data->'primaryMuscles') AS value
+-- 	),
+-- 	ARRAY (
+-- 		SELECT value::exercise_muscle
+-- 		FROM jsonb_array_elements_text(data->'secondaryMuscles') AS value
+-- 	),
+-- 	ARRAY (
+-- 		SELECT value
+-- 		FROM jsonb_array_elements_text(data->'instructions') AS value
+-- 	),
+-- 	(data->>'category')::exercise_category,
+-- 	ARRAY (
+-- 		SELECT value
+-- 		FROM jsonb_array_elements_text(data->'images') AS value
+-- 	)
+-- FROM jsonb_array_elements(:'exercises_json'::json) AS data;
