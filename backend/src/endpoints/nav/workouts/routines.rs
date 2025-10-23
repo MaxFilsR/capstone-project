@@ -1,39 +1,56 @@
 use crate::jwt::AuthenticatedUser;
+use crate::schemas::{Exercise, Routine};
+use actix_web::put;
 use actix_web::{HttpResponse, Result, delete, error::ErrorBadRequest, get, post, web};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-
-#[derive(Deserialize, Serialize, sqlx::Type)]
-pub struct Exercise {
-    id: i32,
-    sets: i32,
-    reps: i32,
-    weight: f32,
-    distance: f32,
-}
+use sqlx::types::Json;
 
 #[derive(Deserialize, Serialize)]
-pub struct Routine {
-    id: i32,
-    user_id: i32,
-    exercises: Vec<Exercise>,
+pub struct CreateRoutinesRequest {
+    exercises: Json<Vec<Exercise>>,
     time: i32,
     gainz: i32,
 }
 
+#[post("/workout/routines")]
+async fn create_rotuines(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+    request: web::Json<CreateRoutinesRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let _query = sqlx::query_as!(
+        Routine,
+        r#"
+            INSERT INTO routines (user_id, exercises, time, gainz)
+            VALUES ($1, $2, $3, $4)
+        "#,
+        user.id,
+        serde_json::to_value(&request.exercises.0).unwrap(),
+        request.time,
+        request.gainz,
+    )
+    .fetch_all(pool.get_ref())
+    .await
+    .unwrap();
+
+    return Ok(HttpResponse::Ok().finish());
+}
+
 #[derive(Deserialize, Serialize)]
-pub struct GetRoutinesResponse {
+pub struct ReadRoutinesResponse {
     routines: Vec<Routine>,
 }
 
 #[get("/workout/routines")]
-async fn get_routines(
+async fn read_routines(
     user: AuthenticatedUser,
     pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    let query = sqlx::query!(
+    let routines: Vec<Routine> = sqlx::query_as!(
+        Routine,
         r#"
-            SELECT id, user_id, exercises, time, gainz
+            SELECT id, exercises as "exercises: Json<Vec<Exercise>>", time, gainz
             FROM routines
             where user_id = $1
         "#,
@@ -43,26 +60,40 @@ async fn get_routines(
     .await
     .unwrap();
 
-    todo!();
+    return Ok(HttpResponse::Ok().json(ReadRoutinesResponse { routines: routines }));
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct PostRoutinesRequest {
-    // TODO: add fields
+pub struct UpdateRoutinesRequest {
+    id: i32,
+    exercises: Json<Vec<Exercise>>,
+    time: i32,
+    gainz: i32,
 }
 
-#[derive(Deserialize, Serialize)]
-pub struct PostRoutinesResponse {
-    routines: Vec<Routine>,
-}
-
-#[post("/workout/routines")]
-async fn post_rotuines(
+#[put("/workout/routines")]
+async fn update_rotuines(
     user: AuthenticatedUser,
     pool: web::Data<PgPool>,
-    request: web::Json<PostRoutinesRequest>,
+    request: web::Json<UpdateRoutinesRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    todo!();
+    let _query = sqlx::query!(
+        r#"
+            UPDATE routines
+            SET exercises = $3, time = $4, gainz = $5
+            WHERE user_id = $1 AND id = $2
+        "#,
+        user.id,
+        request.id,
+        serde_json::to_value(&request.exercises.0).unwrap(),
+        request.time,
+        request.gainz,
+    )
+    .execute(pool.get_ref())
+    .await
+    .unwrap();
+
+    return Ok(HttpResponse::Ok().finish());
 }
 
 #[derive(Deserialize, Serialize)]
@@ -76,5 +107,17 @@ async fn delete_rotuines(
     pool: web::Data<PgPool>,
     request: web::Json<DeleteRoutinesRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    todo!();
+    let _query = sqlx::query!(
+        r#"
+            DELETE FROM routines
+            WHERE user_id = $1 AND id = $2
+        "#,
+        user.id,
+        request.id,
+    )
+    .execute(pool.get_ref())
+    .await
+    .unwrap();
+
+    return Ok(HttpResponse::Ok().finish());
 }

@@ -179,10 +179,11 @@ CREATE TABLE IF NOT EXISTS
 	routines (
 		id SERIAL PRIMARY KEY,
 		user_id INT NOT NULL REFERENCES users (id),
-		exercises exercise[] NOT NULL,
-		time INTERVAL MINUTE NOT NULL,
+		exercises JSONB NOT NULL,
+		time INT NOT NULL,
 		gainz INT NOT NULL
 	);
+
 
 -- Preseed actual data
 

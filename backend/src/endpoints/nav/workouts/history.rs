@@ -1,17 +1,17 @@
 use crate::jwt::AuthenticatedUser;
-use actix_web::{get, web, HttpResponse, Result, error::ErrorNotFound , error::ErrorBadRequest};
+use actix_web::{HttpResponse, Result, error::ErrorBadRequest, error::ErrorNotFound, get, web};
+use chrono::{Datelike, NaiveDateTime, Utc};
 use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
-use chrono::{Datelike, NaiveDateTime, Utc,};
 use std::collections::BTreeMap;
 
-// Database model 
+// Database model
 #[derive(Serialize, Deserialize, FromRow)]
 struct WorkoutRecord {
     id: String,
-    user_id: i32,              
+    user_id: i32,
     name: String,
-    date: NaiveDateTime,           
+    date: NaiveDateTime,
     duration_minutes: i32,
     points_earned: Option<i32>,
 }
@@ -20,15 +20,15 @@ struct WorkoutRecord {
 pub struct WorkoutSession {
     pub id: String,
     pub name: String,
-    pub date: String,          
+    pub date: String,
     pub workoutTime: i32,
     pub pointsEarned: i32,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct MonthGroup {
-    pub monthYear: String,     // "2025-10"
-    pub displayMonth: String,  // "October 2025"
+    pub monthYear: String,    // "2025-10"
+    pub displayMonth: String, // "October 2025"
     pub totalSessions: i64,
     pub totalGainz: i64,
     pub workouts: Vec<WorkoutSession>,
@@ -36,11 +36,8 @@ pub struct MonthGroup {
 
 //Grouped workout history
 
-#[get("/history")]
-pub async fn get_workout_history(
-    user: AuthenticatedUser,
-    pool: web::Data<PgPool>,
-) -> Result<HttpResponse> {
+#[get("/workouts/history")]
+pub async fn history(user: AuthenticatedUser, pool: web::Data<PgPool>) -> Result<HttpResponse> {
     // Fetch all workouts for this user
     let records = sqlx::query_as!(
         WorkoutRecord,
@@ -82,10 +79,7 @@ pub async fn get_workout_history(
 
         // Parse month name for display
         let (year, month_num) = match month_year.split_once('-') {
-            Some((y, m)) => (
-                y.parse::<i32>().unwrap_or(0),
-                m.parse::<u32>().unwrap_or(1),
-            ),
+            Some((y, m)) => (y.parse::<i32>().unwrap_or(0), m.parse::<u32>().unwrap_or(1)),
             None => (0, 1),
         };
 
@@ -93,7 +87,7 @@ pub async fn get_workout_history(
             .map(|m| format!("{:?}", m))
             .unwrap_or_else(|_| "Unknown".to_string());
 
-         let display_month = format!("{} {}", month_name, year);
+        let display_month = format!("{} {}", month_name, year);
 
         result.push(MonthGroup {
             monthYear: month_year.clone(),
@@ -110,11 +104,10 @@ pub async fn get_workout_history(
     Ok(HttpResponse::Ok().json(result))
 }
 
-
 //Get workout detail by ID
 
-#[get("/workout/{id}")]
-pub async fn get_workout_by_id(
+#[get("/workouts/history/{id}")]
+pub async fn by_id(
     user: AuthenticatedUser,
     pool: web::Data<PgPool>,
     path: web::Path<String>,
@@ -145,8 +138,7 @@ pub async fn get_workout_by_id(
     let workout = WorkoutSession {
         id: rec.id,
         name: rec.name,
-        date: chrono::DateTime::<Utc>::from_naive_utc_and_offset(rec.date, Utc)
-            .to_rfc3339(),
+        date: chrono::DateTime::<Utc>::from_naive_utc_and_offset(rec.date, Utc).to_rfc3339(),
         workoutTime: rec.duration_minutes,
         pointsEarned: rec.points_earned.unwrap_or(0),
     };
