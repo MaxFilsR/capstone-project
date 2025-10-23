@@ -1,0 +1,91 @@
+import { Dimensions, StyleSheet } from "react-native";
+import { colorPallet } from "./variables";
+
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
+
+export const popupModalStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  modalContainer: {
+    width: "90%",
+    maxWidth: 500,
+    height: SCREEN_HEIGHT * 0.85,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  contentWrapper: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: colorPallet.neutral_6,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colorPallet.neutral_6,
+    overflow: "hidden",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    zIndex: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colorPallet.neutral_6,
+  },
+  closeText: {
+    color: colorPallet.secondary,
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  text: {
+    color: colorPallet.neutral_3,
+    fontSize: 16,
+    textAlign: "center",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  // TabBar style overrides
+  tabOuterContainer: {
+    paddingTop: 0,
+    margin: 0,
+    paddingBottom: 0,
+    justifyContent: "center",
+  },
+  tabBarContainer: {
+    paddingBottom: 0,
+    paddingHorizontal: 0,
+  },
+  tabBar: {
+    backgroundColor: colorPallet.neutral_darkest,
+    margin: 0,
+    borderRadius: 0,
+    padding: 0,
+    borderBottomColor: colorPallet.primary,
+    borderBottomWidth: 1,
+  },
+  tabButton: {
+    borderBottomEndRadius: 0,
+    borderBottomStartRadius: 0,
+  },
+  pageTitle: {
+    alignSelf: "center",
+    paddingTop: 16,
+  },
+});
