@@ -16,6 +16,12 @@ import { colorPallet } from "@/styles/variables";
 import { Ionicons } from "@expo/vector-icons";
 import { getWorkoutLibrary, Exercise } from "@/api/endpoints";
 import Popup from "@/components/PopupModal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const CACHE_KEY = "workout_library_cache";
+const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
+const IMAGE_BASE_URL =
+  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
 // Group exercises alphabetically by primary muscle
 const groupByPrimaryMuscle = (list: Exercise[]) => {
@@ -32,6 +38,58 @@ const groupByPrimaryMuscle = (list: Exercise[]) => {
     .map((muscle) => ({ title: muscle, data: grouped[muscle] }));
 };
 
+// Memoized image component with better caching
+const CachedExerciseImage = React.memo(
+  ({ imageUrl }: { imageUrl: string | null }) => {
+    if (!imageUrl) {
+      return (
+        <View style={[styles.thumbnail, styles.thumbnailPlaceholder]}>
+          <Ionicons name="barbell" size={32} color={colorPallet.neutral_3} />
+        </View>
+      );
+    }
+
+    return (
+      <Image
+        source={{ uri: imageUrl }}
+        style={styles.thumbnail}
+        resizeMode="cover"
+        // Add cache control for better performance
+        defaultSource={require("@/assets/images/icon.png")} // optional placeholder
+      />
+    );
+  }
+);
+
+// Memoized card component to prevent unnecessary re-renders
+const ExerciseCard = React.memo(
+  ({
+    item,
+    onPress,
+  }: {
+    item: Exercise;
+    onPress: (item: Exercise) => void;
+  }) => {
+    const imageUrl =
+      item.images && item.images.length > 0
+        ? `${IMAGE_BASE_URL}${item.images[0]}`
+        : null;
+
+    return (
+      <TouchableOpacity style={styles.card} onPress={() => onPress(item)}>
+        <CachedExerciseImage imageUrl={imageUrl} />
+        <View style={styles.info}>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.muscle}>{item.primaryMuscles.join(", ")}</Text>
+          {item.equipment && (
+            <Text style={styles.equipment}>Level: {item.level}</Text>
+          )}
+        </View>
+      </TouchableOpacity>
+    );
+  }
+);
+
 const LibraryScreen = () => {
   const [query, setQuery] = useState("");
   const [collapsedSections, setCollapsedSections] = useState<{
@@ -47,19 +105,43 @@ const LibraryScreen = () => {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
     null
   );
-  const IMAGE_BASE_URL =
-    "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
-  // Fetch exercises on mount
+  // Fetch exercises with caching
   useEffect(() => {
     const fetchExercises = async () => {
       try {
         setLoading(true);
         setError(null);
+
+        // Try to load from cache first
+        const cachedData = await AsyncStorage.getItem(CACHE_KEY);
+
+        if (cachedData) {
+          const { data, timestamp } = JSON.parse(cachedData);
+          const age = Date.now() - timestamp;
+
+          // If cache is still valid, use it immediately
+          if (age < CACHE_DURATION) {
+            setExercises(data);
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Fetch fresh data
         const data = await getWorkoutLibrary();
 
         if (Array.isArray(data) && data.length > 0) {
           setExercises(data);
+
+          // Cache the data
+          await AsyncStorage.setItem(
+            CACHE_KEY,
+            JSON.stringify({
+              data,
+              timestamp: Date.now(),
+            })
+          );
         } else {
           console.warn("No exercises returned or invalid format");
           setExercises([]);
@@ -75,7 +157,7 @@ const LibraryScreen = () => {
     fetchExercises();
   }, []);
 
-  // Extract unique muscle groups dynamically
+  // Extract unique muscle groups dynamically (memoized)
   const muscleGroups = useMemo(() => {
     if (!exercises || !Array.isArray(exercises)) {
       return ["All"];
@@ -92,21 +174,19 @@ const LibraryScreen = () => {
     return ["All", ...Array.from(muscleSet).sort()];
   }, [exercises]);
 
-  // Filter & group
+  // Filter & group (memoized)
   const sections = useMemo(() => {
     if (!exercises || !Array.isArray(exercises)) {
       return [];
     }
 
     const filtered = exercises.filter((ex) => {
-      // Apply search filter
       const matchesSearch =
         ex.name.toLowerCase().includes(query.toLowerCase()) ||
         ex.primaryMuscles.some((m) =>
           m.toLowerCase().includes(query.toLowerCase())
         );
 
-      // Apply muscle group filter
       const matchesMuscle =
         selectedMuscle === "All" ||
         ex.primaryMuscles.some(
@@ -187,6 +267,10 @@ const LibraryScreen = () => {
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 30 });
 
+  const handleExercisePress = (item: Exercise) => {
+    setSelectedExercise(item);
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -205,15 +289,24 @@ const LibraryScreen = () => {
         <Text style={styles.errorText}>{error}</Text>
         <TouchableOpacity
           style={styles.retryButton}
-          onPress={() => {
+          onPress={async () => {
             setLoading(true);
             setError(null);
-            getWorkoutLibrary()
-              .then(setExercises)
-              .catch(() =>
-                setError("Failed to load exercises. Please try again.")
-              )
-              .finally(() => setLoading(false));
+            try {
+              const data = await getWorkoutLibrary();
+              setExercises(data);
+              await AsyncStorage.setItem(
+                CACHE_KEY,
+                JSON.stringify({
+                  data,
+                  timestamp: Date.now(),
+                })
+              );
+            } catch {
+              setError("Failed to load exercises. Please try again.");
+            } finally {
+              setLoading(false);
+            }
           }}
         >
           <Text style={styles.retryButtonText}>Retry</Text>
@@ -316,7 +409,6 @@ const LibraryScreen = () => {
 
       {/* Horizontal layout: SectionList + Alphabet */}
       <View style={{ flex: 1, flexDirection: "row" }}>
-        {/* SectionList takes most of the width */}
         <SectionList
           ref={sectionListRef}
           sections={sections}
@@ -324,6 +416,12 @@ const LibraryScreen = () => {
           showsVerticalScrollIndicator={false}
           style={{ flex: 1 }}
           stickySectionHeadersEnabled={false}
+          // Performance optimizations
+          removeClippedSubviews={true}
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+          initialNumToRender={15}
+          windowSize={10}
           onScrollToIndexFailed={(info) => {
             setTimeout(() => {
               const SECTION_HEADER_HEIGHT = 52;
@@ -361,42 +459,7 @@ const LibraryScreen = () => {
           )}
           renderItem={({ item, section }) => {
             if (collapsedSections[section.title]) return null;
-            const imageUrl =
-              item.images && item.images.length > 0
-                ? `${IMAGE_BASE_URL}${item.images[0]}`
-                : null;
-
-            return (
-              <TouchableOpacity
-                style={styles.card}
-                onPress={() => setSelectedExercise(item)}
-              >
-                {imageUrl ? (
-                  <Image
-                    source={{ uri: imageUrl }}
-                    style={styles.thumbnail}
-                    resizeMode="cover"
-                  />
-                ) : (
-                  <View style={[styles.thumbnail, styles.thumbnailPlaceholder]}>
-                    <Ionicons
-                      name="barbell"
-                      size={32}
-                      color={colorPallet.neutral_3}
-                    />
-                  </View>
-                )}
-                <View style={styles.info}>
-                  <Text style={styles.name}>{item.name}</Text>
-                  <Text style={styles.muscle}>
-                    {item.primaryMuscles.join(", ")}
-                  </Text>
-                  {item.equipment && (
-                    <Text style={styles.equipment}>Level: {item.level}</Text>
-                  )}
-                </View>
-              </TouchableOpacity>
-            );
+            return <ExerciseCard item={item} onPress={handleExercisePress} />;
           }}
           onViewableItemsChanged={onViewableItemsChanged.current}
           viewabilityConfig={viewConfigRef.current}
@@ -407,7 +470,7 @@ const LibraryScreen = () => {
           }
         />
 
-        {/* Right-side alphabet scrollbar - only shows letters that exist */}
+        {/* Right-side alphabet scrollbar */}
         <View style={styles.sidebar}>
           {availableLetters.map((letter) => (
             <TouchableOpacity
