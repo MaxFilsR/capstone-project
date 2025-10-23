@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import {
   View,
   Text,
@@ -14,12 +14,10 @@ import {
 import { tabStyles, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { Ionicons } from "@expo/vector-icons";
-import { getWorkoutLibrary, Exercise } from "@/api/endpoints";
+import { Exercise } from "@/api/endpoints";
 import Popup from "@/components/PopupModal";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useWorkoutLibrary } from "@/lib/workout-library-context";
 
-const CACHE_KEY = "workout_library_cache";
-const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
 const IMAGE_BASE_URL =
   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
@@ -54,8 +52,7 @@ const CachedExerciseImage = React.memo(
         source={{ uri: imageUrl }}
         style={styles.thumbnail}
         resizeMode="cover"
-        // Add cache control for better performance
-        defaultSource={require("@/assets/images/icon.png")} // optional placeholder
+        defaultSource={require("@/assets/images/icon.png")}
       />
     );
   }
@@ -91,71 +88,18 @@ const ExerciseCard = React.memo(
 );
 
 const LibraryScreen = () => {
-  const [query, setQuery] = useState("");
   const [collapsedSections, setCollapsedSections] = useState<{
     [key: string]: boolean;
   }>({});
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
-  const [exercises, setExercises] = useState<Exercise[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { exercises, loading, error, refresh } = useWorkoutLibrary();
+  const [query, setQuery] = useState("");
   const [selectedMuscle, setSelectedMuscle] = useState("All");
   const [searchVisible, setSearchVisible] = useState(false);
   const sectionListRef = useRef<SectionList>(null);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
     null
   );
-
-  // Fetch exercises with caching
-  useEffect(() => {
-    const fetchExercises = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Try to load from cache first
-        const cachedData = await AsyncStorage.getItem(CACHE_KEY);
-
-        if (cachedData) {
-          const { data, timestamp } = JSON.parse(cachedData);
-          const age = Date.now() - timestamp;
-
-          // If cache is still valid, use it immediately
-          if (age < CACHE_DURATION) {
-            setExercises(data);
-            setLoading(false);
-            return;
-          }
-        }
-
-        // Fetch fresh data
-        const data = await getWorkoutLibrary();
-
-        if (Array.isArray(data) && data.length > 0) {
-          setExercises(data);
-
-          // Cache the data
-          await AsyncStorage.setItem(
-            CACHE_KEY,
-            JSON.stringify({
-              data,
-              timestamp: Date.now(),
-            })
-          );
-        } else {
-          console.warn("No exercises returned or invalid format");
-          setExercises([]);
-        }
-      } catch (err) {
-        console.error("Failed to fetch workout library:", err);
-        setError("Failed to load exercises. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchExercises();
-  }, []);
 
   // Extract unique muscle groups dynamically (memoized)
   const muscleGroups = useMemo(() => {
@@ -287,28 +231,7 @@ const LibraryScreen = () => {
       <View style={[tabStyles.tabContent, styles.centerContainer]}>
         <Ionicons name="alert-circle" size={48} color={colorPallet.secondary} />
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity
-          style={styles.retryButton}
-          onPress={async () => {
-            setLoading(true);
-            setError(null);
-            try {
-              const data = await getWorkoutLibrary();
-              setExercises(data);
-              await AsyncStorage.setItem(
-                CACHE_KEY,
-                JSON.stringify({
-                  data,
-                  timestamp: Date.now(),
-                })
-              );
-            } catch {
-              setError("Failed to load exercises. Please try again.");
-            } finally {
-              setLoading(false);
-            }
-          }}
-        >
+        <TouchableOpacity style={styles.retryButton} onPress={refresh}>
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </View>
@@ -416,7 +339,6 @@ const LibraryScreen = () => {
           showsVerticalScrollIndicator={false}
           style={{ flex: 1 }}
           stickySectionHeadersEnabled={false}
-          // Performance optimizations
           removeClippedSubviews={true}
           maxToRenderPerBatch={10}
           updateCellsBatchingPeriod={50}

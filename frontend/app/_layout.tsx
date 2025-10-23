@@ -8,6 +8,7 @@ import {
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
 import { Anton_400Regular } from "@expo-google-fonts/anton";
+import { WorkoutLibraryProvider } from "@/lib/workout-library-context";
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
@@ -27,7 +28,9 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <InnerStack />
+      <WorkoutLibraryProvider>
+        <InnerStack />
+      </WorkoutLibraryProvider>
     </AuthProvider>
   );
 }

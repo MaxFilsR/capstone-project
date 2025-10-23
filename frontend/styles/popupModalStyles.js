@@ -88,4 +88,40 @@ export const popupModalStyles = StyleSheet.create({
     alignSelf: "center",
     paddingTop: 16,
   },
+
+  exerciseCard: {
+    flexDirection: "row",
+    backgroundColor: colorPallet.neutral_6,
+    borderRadius: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: colorPallet.neutral_lightest,
+    overflow: "hidden",
+
+    alignItems: "center",
+  },
+  exerciseThumbnail: {
+    width: 70,
+    height: 70,
+    marginRight: 12,
+    backgroundColor: colorPallet.neutral_5,
+  },
+  metricInput: {
+    flex: 1,
+    backgroundColor: colorPallet.neutral_darkest,
+    color: colorPallet.neutral_1,
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colorPallet.neutral_5,
+    fontSize: 14,
+  },
+  metricsContainer: {
+    marginTop: 8,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: colorPallet.primary,
+    borderRadius: 8,
+    backgroundColor: colorPallet.neutral_5,
+  },
 });
