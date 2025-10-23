@@ -102,7 +102,6 @@ export type Exercise = {
   images: string[];
 };
 
-
 /**
  * Fetch all exercises from the workout library
  * GET /workouts/library
@@ -114,7 +113,6 @@ export async function getWorkoutLibrary(): Promise<Exercise[]> {
   return data;
 }
 
-
 // Workout History
 export type WorkoutSession = {
   id: string;
@@ -124,7 +122,6 @@ export type WorkoutSession = {
   pointsEarned: number;
 };
 
-
 export type MonthGroup = {
   monthYear: string;        // ex: "2025-10"
   displayMonth: string;     // ex: "October 2025"
@@ -132,7 +129,6 @@ export type MonthGroup = {
   totalGainz: number;
   workouts: WorkoutSession[];
 };
-
 
 /**
  * Fetch grouped workout history for the authenticated user
@@ -143,13 +139,11 @@ export async function getWorkoutHistory(): Promise<MonthGroup[]> {
   return response.data;
 }
 
-
 /**
  * Fetch details of a specific workout by ID
- * GET /workouts/history/{id}
+ * GET /workouts/history/${id}
  */
 export async function getWorkoutById(id: string): Promise<WorkoutSession> {
   const response = await apiClient.get(`/workouts/history/${id}`);
   return response.data;
 }
-
