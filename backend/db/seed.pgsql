@@ -179,6 +179,7 @@ CREATE TABLE IF NOT EXISTS
 	routines (
 		id SERIAL PRIMARY KEY,
 		user_id INT NOT NULL REFERENCES users (id),
+		name TEXT NOT NULL,
 		exercises JSONB NOT NULL,
 		time INT NOT NULL,
 		gainz INT NOT NULL

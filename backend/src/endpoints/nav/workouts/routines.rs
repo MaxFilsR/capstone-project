@@ -8,6 +8,7 @@ use sqlx::types::Json;
 
 #[derive(Deserialize, Serialize)]
 pub struct CreateRoutinesRequest {
+    name: String,
     exercises: Json<Vec<Exercise>>,
     time: i32,
     gainz: i32,
@@ -22,10 +23,11 @@ async fn create_rotuines(
     let _query = sqlx::query_as!(
         Routine,
         r#"
-            INSERT INTO routines (user_id, exercises, time, gainz)
-            VALUES ($1, $2, $3, $4)
+            INSERT INTO routines (user_id, name, exercises, time, gainz)
+            VALUES ($1, $2, $3, $4, $5)
         "#,
         user.id,
+        request.name,
         serde_json::to_value(&request.exercises.0).unwrap(),
         request.time,
         request.gainz,
@@ -50,7 +52,7 @@ async fn read_routines(
     let routines: Vec<Routine> = sqlx::query_as!(
         Routine,
         r#"
-            SELECT id, exercises as "exercises: Json<Vec<Exercise>>", time, gainz
+            SELECT id, name, exercises as "exercises: Json<Vec<Exercise>>", time, gainz
             FROM routines
             where user_id = $1
         "#,
@@ -66,6 +68,7 @@ async fn read_routines(
 #[derive(Deserialize, Serialize)]
 pub struct UpdateRoutinesRequest {
     id: i32,
+    name: String,
     exercises: Json<Vec<Exercise>>,
     time: i32,
     gainz: i32,
@@ -80,11 +83,12 @@ async fn update_rotuines(
     let _query = sqlx::query!(
         r#"
             UPDATE routines
-            SET exercises = $3, time = $4, gainz = $5
+            SET name = $3, exercises = $4, time = $5, gainz = $6
             WHERE user_id = $1 AND id = $2
         "#,
         user.id,
         request.id,
+        request.name,
         serde_json::to_value(&request.exercises.0).unwrap(),
         request.time,
         request.gainz,
