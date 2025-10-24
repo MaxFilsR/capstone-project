@@ -1,4 +1,4 @@
-use actix_web::{HttpResponse, error::ErrorBadRequest, post, web};
+use actix_web::{HttpResponse, error::ErrorBadRequest, get, post, web};
 use email_address::EmailAddress;
 use jsonwebtoken::{DecodingKey, Validation, decode};
 use serde::{Deserialize, Serialize};
@@ -153,4 +153,9 @@ pub async fn refresh(request: web::Json<RefreshRequest>) -> Result<HttpResponse,
         }
         Err(_) => return Err(ErrorBadRequest("Token is invalid or expired")),
     }
+}
+
+#[get("/auth/healthpoint")]
+pub async fn healthpoint() -> HttpResponse {
+    return HttpResponse::Ok().finish();
 }

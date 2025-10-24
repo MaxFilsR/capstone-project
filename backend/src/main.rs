@@ -22,8 +22,6 @@ async fn main() -> std::io::Result<()> {
         .await
         .unwrap();
 
-    dbg!("Pool succesfully created");
-
     HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_origin()
@@ -40,6 +38,7 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::auth::sign_up)
             .service(endpoints::auth::login)
             .service(endpoints::auth::refresh)
+            .service(endpoints::auth::healthpoint)
             // Onboarding
             .service(endpoints::onboarding::onboarding)
             // Summary
@@ -47,7 +46,7 @@ async fn main() -> std::io::Result<()> {
             // Workouts
             .service(endpoints::nav::workouts::library::library)
     })
-    .bind((ACTIX_WEB_ADDRESS, ACTIX_WEB_PORT))?
+    .bind(("0.0.0.0", ACTIX_WEB_PORT))?
     .run()
     .await
 }
