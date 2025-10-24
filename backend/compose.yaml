@@ -1,0 +1,88 @@
+# Maximilian Jaramazovic
+#* This Docker compose file is responsible to create the necessary infrastructure for the gains app.
+#* In order to develop and test use in cli: docker compose up
+#* When you are done: docker compose down
+#*
+#* Container Information
+#! when connecting pgadmin use the container name, not address
+#! in production best practice would be to change uname and pass and have them hidden too :D
+#*          NAME      |     ADDRESS     |     USERNAME    |   PASSWORD
+#*  postgres_container| localhost:5432  |       root      |     root
+#*  pgadmin4          | localhost:80    | admin@admin.com |     root  
+#
+# TODO: Create backend container and frontend container
+# Maximilian Jaramazovic
+
+
+
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker Compose reference guide at
+# https://docs.docker.com/go/compose-spec-reference/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+  #* postgres container
+  gainzdb:
+    image: postgres:latest
+    env_file: .env
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data #persistent data
+      - ./seed.pgsql:/docker-entrypoint-initdb.d/seed.sql #preseeding database
+      #- ./backend/exercises.json:/docker-entrypoint-initdb.d/exercises.json #library of exercises for database to read from
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres","-d", "gainzdb"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+  #* backend container
+  gainzserver:
+    env_file: .env
+    build:
+      target: final
+      network: host
+      args:
+        PGHOST: ${PGHOST}
+        PGPORT: ${PGPORT}
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - 8080:8080
+    depends_on:
+      gainzdb:
+        condition: service_healthy
+        restart: true
+    
+  #* pgadmin container
+  # pgadmin:
+  #   container_name: pgadmin4
+  #   image: dpage/pgadmin4
+  #   restart: always
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - db
+#     healthcheck:
+#       test: [ "CMD", "pg_isready" ]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+volumes:
+  postgres_data:
+    driver: local
+
+# secrets:
+#   db-password:
+#     file: ./db/password.txt
+
