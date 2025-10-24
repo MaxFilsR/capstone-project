@@ -86,3 +86,64 @@ export async function getMe(): Promise<UserProfile> {
     const response = await apiClient.get("/summary/me");
     return response.data;
 }
+
+// Workout Library Types and Endpoints
+export type Exercise = {
+  id: string;
+  name: string;
+  force: string | null;
+  level: string;
+  mechanic: string | null;
+  equipment: string | null;
+  primaryMuscles: string[];
+  secondaryMuscles: string[];
+  instructions: string[];
+  category: string;
+  images: string[];
+};
+
+/**
+ * Fetch all exercises from the workout library
+ * GET /workouts/library
+ * Returns a JSON file containing an array of exercises
+ */
+export async function getWorkoutLibrary(): Promise<Exercise[]> {
+  const response = await apiClient.get("/workouts/library");
+  let data = response.data;
+  return data;
+}
+
+// Workout History
+export type WorkoutSession = {
+  id: string;
+  name: string;
+  date: string;            
+  workoutTime: number;
+  pointsEarned: number;
+};
+
+export type MonthGroup = {
+  monthYear: string;        // ex: "2025-10"
+  displayMonth: string;     // ex: "October 2025"
+  totalSessions: number;
+  totalGainz: number;
+  workouts: WorkoutSession[];
+};
+
+/**
+ * Fetch grouped workout history for the authenticated user
+ * GET /workouts/history
+ */
+export async function getWorkoutHistory(): Promise<MonthGroup[]> {
+  const response = await apiClient.get("/workouts/history");
+  return response.data;
+}
+
+/**
+ * Fetch details of a specific workout by ID
+ * GET /workouts/history/${id}
+ */
+export async function getWorkoutById(id: string): Promise<WorkoutSession> {
+  const response = await apiClient.get(`/workouts/history/${id}`);
+  return response.data;
+}
