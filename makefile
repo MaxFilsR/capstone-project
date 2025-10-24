@@ -1,21 +1,10 @@
-all: compile 
-
-compile: compile_backend compile_frontend 
-
-compile_backend:
-	make --directory=./backend compile 
-
-compile_frontend:
-	make --directory=./frontend compile 
-
-
 start: start_backend start_frontend
 
 start_backend:
-	make --directory=./backend start
+	make --directory=./backend start &
 
 start_frontend:
-	make --directory=./frontend start
+	make --directory=./frontend start &
 
 
 stop: stop_backend stop_frontend

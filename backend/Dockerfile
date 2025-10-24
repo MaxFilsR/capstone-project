@@ -9,12 +9,20 @@
 ARG RUST_VERSION=1.90.0
 ARG APP_NAME=capstone-project
 
+
 ################################################################################
 # Create a stage for building the application.
 
 FROM rust:${RUST_VERSION}-alpine AS build
 ARG APP_NAME
 WORKDIR /app
+
+#TODO: not sure why i have to redeclare these here, if they have already been declared & defined in the compose
+ARG PGHOST
+ARG PGPORT
+ARG POSTGRES_USER
+ARG POSTGRES_PASSWORD
+ARG POSTGRES_DB
 
 # Install host build dependencies.
 RUN apk add --no-cache clang lld musl-dev git pkgconfig openssl-dev build-base perl openssl-libs-static
@@ -33,7 +41,7 @@ RUN --mount=type=bind,source=src,target=src \
     --mount=type=cache,target=/app/target/ \
     --mount=type=cache,target=/usr/local/cargo/git/db \
     --mount=type=cache,target=/usr/local/cargo/registry/ \
-    DATABASE_URL=postgresql://postgres:pass@localhost:5432/gainzdb cargo build --locked --release && \ 
+    DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${PGPORT}/${POSTGRES_DB} cargo build --locked --release && \ 
     cp ./target/release/$APP_NAME /bin/server
 
 ################################################################################

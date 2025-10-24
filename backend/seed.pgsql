@@ -6,26 +6,32 @@
 -- Enter database to initialize it
 \c gainzdb;
 
--- Fix for Daniel
-CREATE ROLE dyredhead
-WITH
-	LOGIN;
+-- -- Fix for Daniel
+-- CREATE ROLE dyredhead
+-- WITH
+-- 	LOGIN;
 
--- ?
+-- CREATE ROLE root
+-- WITH
+-- 	LOGIN;
+
+-- Gives functions for hashing and veryfying passwords within postgres
 CREATE EXTENSION pgcrypto;
 
---
--- PLAYER SPECIFIC TYPE DEFINITIONS
---
+CREATE TYPE exercise AS (
+	id INT,
+	sets INT,
+	reps INT,
+	weight REAL,
+	distance REAL
+);
 
--- Will store players stats
 CREATE TYPE stats AS (
 	strength INT,
 	endurance INT,
 	flexibility INT
 );
 
--- Will store players class
 CREATE TYPE class AS (
 	name TEXT, 
 	stats STATS
@@ -185,27 +191,34 @@ CREATE TABLE IF NOT EXISTS
 		stats STATS NOT NULL
 	);
 
--- Table to store exercises, predefined later in this file
--- CREATE TABLE IF NOT EXISTS
--- 	exercises (
--- 		id TEXT PRIMARY KEY,
--- 		name TEXT NOT NULL,
--- 		force exercise_force,
--- 		level exercise_level NOT NULL,
--- 		mechanic exercise_mechanic,
--- 		equipment exercise_equipment,
--- 		primary_muscles exercise_muscle[] NOT NULL,
--- 		secondary_muscles exercise_muscle[] NOT NULL,
--- 		instructions TEXT[] NOT NULL,
--- 		category exercise_category NOT NULL,
--- 		images TEXT[] NOT NULL
--- 	);
+CREATE TABLE IF NOT EXISTS
+	exercises (
+		id TEXT PRIMARY KEY,
+		name TEXT NOT NULL,
+		force exercise_force,
+		level exercise_level NOT NULL,
+		mechanic exercise_mechanic,
+		equipment exercise_equipment,
+		primary_muscles exercise_muscle[] NOT NULL,
+		secondary_muscles exercise_muscle[] NOT NULL,
+		instructions TEXT[] NOT NULL,
+		category exercise_category NOT NULL,
+		images TEXT[] NOT NULL
+	);
 
---
--- PRESEED ACTUAL DATA
---
+CREATE TABLE IF NOT EXISTS
+	routines (
+		id SERIAL PRIMARY KEY,
+		user_id INT NOT NULL REFERENCES users (id),
+		name TEXT NOT NULL,
+		exercises JSONB NOT NULL,
+		time INT NOT NULL,
+		gainz INT NOT NULL
+	);
 
--- Define classes
+
+-- Preseed actual data
+
 INSERT INTO
 	classes (id, name, stats)
 VALUES
@@ -245,4 +258,16 @@ VALUES
 -- 		SELECT value
 -- 		FROM jsonb_array_elements_text(data->'images') AS value
 -- 	)
--- FROM jsonb_array_elements(:'exercises_json'::json) AS data;
+-- FROM jsonb_array_elements(:'exercises_json'::jsonb) AS data;
+
+
+-- History
+CREATE TABLE IF NOT EXISTS workout_history (
+    id TEXT PRIMARY KEY,                			
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    name TEXT NOT NULL,                 			
+    date TIMESTAMP NOT NULL,            			
+    duration_minutes INTEGER NOT NULL,  			
+    points_earned INTEGER DEFAULT 0,    			
+    created_at TIMESTAMP DEFAULT NOW()
+);

@@ -4,7 +4,7 @@ use jsonwebtoken::{DecodingKey, Validation, decode};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 
-use crate::{endpoints::onboarding::onboarding, jwt};
+use crate::jwt;
 
 /*
  *  POST /onboarding/personal-info

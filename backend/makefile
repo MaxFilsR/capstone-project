@@ -1,6 +1,6 @@
 start:
-	docker compose build
-	docker compose up
+	docker compose up gainzdb &
+	docker compose up gainzserver --build &
 
 stop:
 	-docker compose down
