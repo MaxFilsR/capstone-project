@@ -46,8 +46,6 @@ pub struct RoutinesRow {
     pub user_id: i32,
     pub name: String,
     pub exercises: Json<Vec<Exercise>>,
-    pub time: i32,
-    pub gainz: i32,
 }
 
 #[derive(Deserialize, Serialize, sqlx::Type, Debug)]
@@ -64,6 +62,4 @@ pub struct Routine {
     pub id: i32,
     pub name: String,
     pub exercises: Json<Vec<Exercise>>,
-    pub time: i32,
-    pub gainz: i32,
 }

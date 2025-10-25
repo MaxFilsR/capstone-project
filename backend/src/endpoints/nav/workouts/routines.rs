@@ -10,8 +10,6 @@ use sqlx::types::Json;
 pub struct CreateRoutinesRequest {
     name: String,
     exercises: Json<Vec<Exercise>>,
-    time: i32,
-    gainz: i32,
 }
 
 #[post("/workout/routines")]
@@ -23,14 +21,12 @@ async fn create_rotuines(
     let _query = sqlx::query_as!(
         Routine,
         r#"
-            INSERT INTO routines (user_id, name, exercises, time, gainz)
-            VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO routines (user_id, name, exercises)
+            VALUES ($1, $2, $3)
         "#,
         user.id,
         request.name,
         serde_json::to_value(&request.exercises.0).unwrap(),
-        request.time,
-        request.gainz,
     )
     .fetch_all(pool.get_ref())
     .await
@@ -52,7 +48,7 @@ async fn read_routines(
     let routines: Vec<Routine> = sqlx::query_as!(
         Routine,
         r#"
-            SELECT id, name, exercises as "exercises: Json<Vec<Exercise>>", time, gainz
+            SELECT id, name, exercises as "exercises: Json<Vec<Exercise>>"
             FROM routines
             where user_id = $1
         "#,
@@ -83,15 +79,13 @@ async fn update_rotuines(
     let _query = sqlx::query!(
         r#"
             UPDATE routines
-            SET name = $3, exercises = $4, time = $5, gainz = $6
+            SET name = $3, exercises = $4
             WHERE user_id = $1 AND id = $2
         "#,
         user.id,
         request.id,
         request.name,
         serde_json::to_value(&request.exercises.0).unwrap(),
-        request.time,
-        request.gainz,
     )
     .execute(pool.get_ref())
     .await
