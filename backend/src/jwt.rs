@@ -1,8 +1,7 @@
 use chrono::{Duration, Utc};
 use jsonwebtoken::{EncodingKey, Header, encode};
-use std::env;
-
 use serde::{Deserialize, Serialize};
+use std::env;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
@@ -19,7 +18,7 @@ pub enum TokenType {
 }
 
 pub fn generate_jwt(user_id: i32, token_type: TokenType) -> String {
-    let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+    let JWT_SECRET = &*env::var("JWT_SECRET").expect("JWT_SECRET must be set");
 
     let expiration = match token_type {
         TokenType::Access => Utc::now() + Duration::minutes(15),
@@ -35,7 +34,7 @@ pub fn generate_jwt(user_id: i32, token_type: TokenType) -> String {
     encode(
         &Header::default(),
         &claims,
-        &EncodingKey::from_secret(secret.as_bytes()),
+        &EncodingKey::from_secret(JWT_SECRET.as_bytes()),
     )
     .expect("Failed to create token")
 }
@@ -53,6 +52,8 @@ impl FromRequest for AuthenticatedUser {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
+        let JWT_SECRET = &*env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+
         let token = req
             .headers()
             .get("Authorization")
@@ -62,12 +63,11 @@ impl FromRequest for AuthenticatedUser {
 
         match token {
             Some(token) => {
-                println!("{token}");
+                dbg!(token);
 
-                let secret = std::env::var("JWT_SECRET").expect("JWT_SECRET must be set");
                 match decode::<super::jwt::Claims>(
                     &token,
-                    &DecodingKey::from_secret(secret.as_bytes()),
+                    &DecodingKey::from_secret(JWT_SECRET.as_bytes()),
                     &Validation::default(),
                 ) {
                     Ok(data) => ready(Ok(AuthenticatedUser {

@@ -1,20 +1,22 @@
 use actix_cors::Cors;
 use actix_web::{App, HttpServer, middleware::Logger, web};
 use capstone_project::endpoints;
-use const_env::from_env;
 use env_logger::Env;
 use sqlx::PgPool;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenvy::dotenv().ok();
-
-    #[from_env]
-    const ACTIX_WEB_ADDRESS: &'static str = "localhost";
-    #[from_env]
-    const ACTIX_WEB_PORT: u16 = 8080;
-    #[from_env]
-    const DATABASE_URL: &'static str = "postgres://postgres:pass@localhost:5432/gainzdb";
+    // const ACTIX_WEB_ADDRESS: &'static str = "0.0.0.0";
+    let ACTIX_WEB_ADDRESS: &str =
+        &*std::env::var("ACTIX_WEB_ADDRESS").expect("ACTIX_WEB_ADDRESS must be set");
+    dbg!(ACTIX_WEB_ADDRESS);
+    let ACTIX_WEB_PORT: u16 = std::env::var("ACTIX_WEB_PORT")
+        .expect("ACTIX_WEB_PORT must be set")
+        .parse()
+        .unwrap();
+    dbg!(ACTIX_WEB_PORT);
+    let DATABASE_URL: &str = &*std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    dbg!(DATABASE_URL);
 
     env_logger::init_from_env(Env::default().default_filter_or("info"));
 
@@ -36,6 +38,7 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::auth::sign_up)
             .service(endpoints::auth::login)
             .service(endpoints::auth::refresh)
+            .service(endpoints::auth::healthpoint)
             // Onboarding
             .service(endpoints::onboarding::onboarding)
             // Summary

@@ -1,11 +1,21 @@
-CREATE DATABASE gainzdb;
+-- This file is responsible to properly initiate the database and all types required for the app to function
+-- Stores users, exercises, items, class types
 
+-- !Database gainzdb is initially created during postgres initialization, no need to create a new one
+
+-- Enter database to initialize it
 \c gainzdb;
 
-CREATE ROLE dyredhead
-WITH
-	LOGIN;
+-- -- Fix for Daniel
+-- CREATE ROLE dyredhead
+-- WITH
+-- 	LOGIN;
 
+-- CREATE ROLE root
+-- WITH
+-- 	LOGIN;
+
+-- Gives functions for hashing and veryfying passwords within postgres
 CREATE EXTENSION pgcrypto;
 
 CREATE TYPE exercise AS (
@@ -27,6 +37,7 @@ CREATE TYPE class AS (
 	stats STATS
 );
 
+-- Defines item rarity
 CREATE TYPE item_rarity AS ENUM (
     'common',
     'uncommon',
@@ -35,23 +46,31 @@ CREATE TYPE item_rarity AS ENUM (
     'mythical'
 );
 
+--
+-- WORKOUT SPECIFIC TYPE DEFINITIONS
+--
+
+-- ? What?
 CREATE TYPE exercise_force AS ENUM (
     'static',
     'pull',
     'push'
 );
 
+-- Defines exercise difficulty types
 CREATE TYPE exercise_level AS ENUM (
     'beginner',
     'intermediate',
     'expert'
 );
 
+-- ?
 CREATE TYPE exercise_mechanic AS ENUM (
     'isolation',
     'compound'
 );
 
+-- Defines exercise equipement for exercise filtering
 CREATE TYPE exercise_equipment AS ENUM (
     'medicine ball',
     'dumbbell',
@@ -67,6 +86,7 @@ CREATE TYPE exercise_equipment AS ENUM (
     'other'
 );
 
+-- Defines muscles for exercies filtering
 CREATE TYPE exercise_muscle AS ENUM (
     'abdominals',
     'abductors',
@@ -87,6 +107,7 @@ CREATE TYPE exercise_muscle AS ENUM (
     'triceps'
 );
 
+-- Defines exercise categories for filtering
 CREATE TYPE exercise_category AS ENUM (
 	'powerlifting',
     'strength',
@@ -97,7 +118,11 @@ CREATE TYPE exercise_category AS ENUM (
     'plyometrics'
 );
 
--- Tables
+--
+-- TABLES
+--
+
+-- Table to store users(players)
 CREATE TABLE IF NOT EXISTS
 	users (
 		id SERIAL PRIMARY KEY,
@@ -106,6 +131,7 @@ CREATE TABLE IF NOT EXISTS
 		onboarding_complete BOOLEAN NOT NULL
 	);
 
+-- Table to store more detailed information about users
 CREATE TABLE IF NOT EXISTS
 	user_info (
 		user_id INT REFERENCES users (id) PRIMARY KEY,
@@ -116,6 +142,7 @@ CREATE TABLE IF NOT EXISTS
 		workout_schedule BOOLEAN[7] NOT NULL
 	);
 
+-- Table to store items
 CREATE TABLE IF NOT EXISTS
 	items (
 		id SERIAL PRIMARY KEY,
@@ -126,6 +153,7 @@ CREATE TABLE IF NOT EXISTS
 		asset_url TEXT
 	);
 
+-- Table to store item related info of users
 CREATE TABLE IF NOT EXISTS
 	user_items (
 		user_id INT NOT NULL REFERENCES users (id),
@@ -134,6 +162,7 @@ CREATE TABLE IF NOT EXISTS
 		PRIMARY KEY (user_id, item_id)
 	);
 
+-- Table to store user equipped items
 CREATE TABLE IF NOT EXISTS
 	user_equipment (
 		user_id INT PRIMARY KEY REFERENCES users (id),
@@ -145,6 +174,7 @@ CREATE TABLE IF NOT EXISTS
 		background INT REFERENCES items (id)
 	);
 
+-- ?
 CREATE TABLE IF NOT EXISTS
 	shop_rotations (
 		id SERIAL PRIMARY KEY,
@@ -153,6 +183,7 @@ CREATE TABLE IF NOT EXISTS
 		end_date TIMESTAMP
 	);
 
+-- Table storing classes, predefined later in this file
 CREATE TABLE IF NOT EXISTS
 	classes (
 		id SERIAL PRIMARY KEY,
@@ -198,6 +229,8 @@ VALUES
 	(5, 'Gladiator', ROW (6, 5, 5));
 
 
+-- Defining exercises
+-- ToDo: Make sure it stores everything right
 -- \set exercises_json `cat /docker-entrypoint-initdb.d/exercises.json`
 
 -- INSERT INTO exercises 
