@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Exercise } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
+import { FormButton } from "@/components";
 
 type AboutExerciseScreenProps = {
   exercise: Exercise;
@@ -149,6 +150,10 @@ const AboutExerciseScreen: React.FC<AboutExerciseScreenProps> = ({
           </View>
         </View>
       )}
+
+      <View>
+        <FormButton title="Add to routine" onPress={() => null} />
+      </View>
     </ScrollView>
   );
 };

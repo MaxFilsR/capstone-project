@@ -44,9 +44,10 @@ const Popup: React.FC<PopupProps> = ({
 
   // Routine creation state
   const [routineName, setRoutineName] = useState("");
-  const [selectedExercises, setSelectedExercises] = useState<Exercise[]>([]);
+  const [selectedExercises, setSelectedExercises] = useState<
+    Array<Exercise & { uniqueId: string }>
+  >([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
 
   // Determine the exercise to display
   const exercise = useMemo(() => {
@@ -92,7 +93,6 @@ const Popup: React.FC<PopupProps> = ({
       setRoutineName("");
       setSelectedExercises([]);
       setSearchQuery("");
-      setShowSearch(false);
     }
   }, [visible]);
 
@@ -135,16 +135,14 @@ const Popup: React.FC<PopupProps> = ({
   };
 
   const addExercise = (exercise: Exercise) => {
-    if (!selectedExercises.find((ex) => ex.id === exercise.id)) {
-      setSelectedExercises([...selectedExercises, exercise]);
-      setSearchQuery("");
-      setShowSearch(false);
-    }
+    const uniqueId = `${exercise.id}-${Date.now()}`;
+    setSelectedExercises([...selectedExercises, { ...exercise, uniqueId }]);
+    setSearchQuery("");
   };
 
-  const removeExercise = (exerciseId: string) => {
+  const removeExercise = (uniqueId: string) => {
     setSelectedExercises(
-      selectedExercises.filter((ex) => ex.id !== exerciseId)
+      selectedExercises.filter((ex) => ex.uniqueId !== uniqueId)
     );
   };
 
@@ -261,80 +259,126 @@ const Popup: React.FC<PopupProps> = ({
                       value={routineName}
                       placeholder="Enter routine name..."
                       onChangeText={setRoutineName}
+                      labelStyle={typography.h2}
                     />
                   </View>
 
-                  {/* Add Exercise Button */}
-                  <FormButton
-                    title={showSearch ? "Close Search" : "+ Add Exercise"}
-                    onPress={() => setShowSearch(!showSearch)}
-                    mode="text"
-                  />
-
                   {/* Search Section */}
-                  {showSearch && (
-                    <View style={{ marginBottom: 16 }}>
-                      <TextInput
+                  <View style={{ marginBottom: 16 }}>
+                    <View style={{ position: "relative" }}>
+                      <FormTextInput
                         value={searchQuery}
                         onChangeText={setSearchQuery}
+                        onBlur={() => setSearchQuery("")}
+                        label="Add a excercise"
                         placeholder="Search exercises..."
-                        placeholderTextColor={colorPallet.neutral_3}
-                        style={{
-                          backgroundColor: colorPallet.neutral_6,
-                          color: colorPallet.neutral_1,
-                          padding: 12,
-                          borderRadius: 8,
-                          borderWidth: 1,
-                          borderColor: colorPallet.neutral_5,
-                          marginBottom: 8,
-                        }}
+                        labelStyle={typography.h2}
                       />
 
                       {searchQuery.trim() && (
-                        <View>
-                          {filteredExercises.map((item) => (
-                            <TouchableOpacity
-                              key={item.id}
-                              onPress={() => addExercise(item)}
-                              style={popupModalStyles.exerciseCard}
-                            >
-                              <Image
-                                source={
-                                  item.images?.[0]
-                                    ? {
-                                        uri: `${IMAGE_BASE_URL}${item.images[0]}`,
-                                      }
-                                    : require("@/assets/images/icon.png")
-                                }
-                                style={popupModalStyles.exerciseThumbnail}
-                                resizeMode="cover"
-                              />
-                              <View style={{ flex: 1 }}>
-                                <Text
-                                  style={{
-                                    color: colorPallet.neutral_1,
-                                    fontWeight: "600",
-                                    fontSize: 16,
-                                  }}
-                                >
-                                  {item.name}
-                                </Text>
-                                <Text
-                                  style={{
-                                    color: colorPallet.neutral_3,
-                                    fontSize: 12,
-                                    marginTop: 4,
-                                  }}
-                                >
-                                  {item.primaryMuscles.join(", ")}
-                                </Text>
-                              </View>
-                            </TouchableOpacity>
-                          ))}
-                        </View>
+                        <TouchableOpacity
+                          onPress={() => setSearchQuery("")}
+                          style={{
+                            position: "absolute",
+                            right: 12,
+                            top: 42,
+                            padding: 4,
+                          }}
+                        >
+                          <Text
+                            style={{
+                              color: colorPallet.secondary,
+                              fontSize: 18,
+                              fontWeight: "bold",
+                            }}
+                          >
+                            ✕
+                          </Text>
+                        </TouchableOpacity>
                       )}
                     </View>
-                  )}
+
+                    {searchQuery.trim() && (
+                      <>
+                        <Text
+                          style={[
+                            typography.h3,
+                            {
+                              textAlign: "center",
+                              marginTop: 8,
+                              color: colorPallet.neutral_lightest,
+                            },
+                          ]}
+                        >
+                          Search Results
+                        </Text>
+                        <ScrollView
+                          style={{
+                            maxHeight: 300,
+                            backgroundColor: colorPallet.neutral_darkest,
+                            borderRadius: 8,
+                            borderWidth: 1,
+                            borderColor: colorPallet.neutral_3,
+                            overflow: "hidden",
+                            marginTop: 12,
+                          }}
+                          nestedScrollEnabled
+                        >
+                          {filteredExercises.length === 0 ? (
+                            <Text
+                              style={{
+                                color: colorPallet.secondary,
+                                textAlign: "center",
+                                padding: 20,
+                              }}
+                            >
+                              No exercises match your criteria
+                            </Text>
+                          ) : (
+                            filteredExercises.map((item) => (
+                              <TouchableOpacity
+                                key={item.id}
+                                onPress={() => addExercise(item)}
+                                style={popupModalStyles.exerciseCard}
+                              >
+                                <Image
+                                  source={
+                                    item.images?.[0]
+                                      ? {
+                                          uri: `${IMAGE_BASE_URL}${item.images[0]}`,
+                                        }
+                                      : require("@/assets/images/icon.png")
+                                  }
+                                  style={popupModalStyles.exerciseThumbnail}
+                                  resizeMode="cover"
+                                />
+                                <View style={{ flex: 1 }}>
+                                  <Text
+                                    style={{
+                                      color: colorPallet.neutral_1,
+                                      fontWeight: "600",
+                                      fontSize: 16,
+                                    }}
+                                  >
+                                    {item.name}
+                                  </Text>
+                                  <Text
+                                    style={{
+                                      color: colorPallet.neutral_3,
+                                      fontSize: 12,
+                                      marginTop: 4,
+                                    }}
+                                  >
+                                    {item.primaryMuscles.join(", ")}
+                                  </Text>
+                                </View>
+                              </TouchableOpacity>
+                            ))
+                          )}
+                        </ScrollView>
+                      </>
+                    )}
+                  </View>
 
                   {/* Selected Exercises */}
                   <View>
@@ -359,45 +403,54 @@ const Popup: React.FC<PopupProps> = ({
                         No exercises added yet
                       </Text>
                     ) : (
-                      selectedExercises.map((ex, index) => (
-                        <View key={ex.id}>
-                          <View style={popupModalStyles.selectedExerciseCard}>
-                            <Image
-                              source={
-                                ex.images?.[0]
-                                  ? { uri: `${IMAGE_BASE_URL}${ex.images[0]}` }
-                                  : require("@/assets/images/icon.png")
+                      selectedExercises.map((ex, index) => {
+                        const hasMetrics =
+                          ex.category === "strength" ||
+                          ex.category === "running";
+
+                        return (
+                          <View key={ex.uniqueId}>
+                            <View
+                              style={
+                                hasMetrics
+                                  ? popupModalStyles.selectedExerciseCardWithMetrics
+                                  : popupModalStyles.selectedExerciseCard
                               }
-                              style={popupModalStyles.exerciseThumbnail}
-                              resizeMode="cover"
-                            />
-                            <View style={{ flex: 1 }}>
-                              <Text
-                                style={{
-                                  color: colorPallet.neutral_1,
-                                  fontWeight: "600",
-                                  fontSize: 16,
-                                }}
-                                numberOfLines={1}
-                                ellipsizeMode="tail"
-                              >
-                                {ex.name}
-                              </Text>
-                              <Text
-                                style={{
-                                  color: colorPallet.neutral_3,
-                                  fontSize: 12,
-                                  marginTop: 2,
-                                }}
-                              >
-                                {ex.primaryMuscles.join(", ")}
-                              </Text>
-                            </View>
+                            >
+                              <Image
+                                source={
+                                  ex.images?.[0]
+                                    ? {
+                                        uri: `${IMAGE_BASE_URL}${ex.images[0]}`,
+                                      }
+                                    : require("@/assets/images/icon.png")
+                                }
+                                style={popupModalStyles.exerciseThumbnail}
+                                resizeMode="cover"
+                              />
+                              <View style={{ flex: 1 }}>
+                                <Text
+                                  style={{
+                                    color: colorPallet.neutral_1,
+                                    fontWeight: "600",
+                                    fontSize: 16,
+                                  }}
+                                  numberOfLines={1}
+                                  ellipsizeMode="tail"
+                                >
+                                  {ex.name}
+                                </Text>
+                                <Text
+                                  style={{
+                                    color: colorPallet.neutral_3,
+                                    fontSize: 12,
+                                    marginTop: 2,
+                                  }}
+                                >
+                                  {ex.primaryMuscles.join(", ")}
+                                </Text>
+                              </View>
 
-                            <View style={{ flexDirection: "row", gap: 8 }}>
-                              {/* Move Up / Down / Remove buttons */}
-
-                              {/* Controls */}
                               <View style={{ flexDirection: "row", gap: 8 }}>
                                 {/* Move Up */}
                                 <TouchableOpacity
@@ -444,7 +497,7 @@ const Popup: React.FC<PopupProps> = ({
 
                                 {/* Remove */}
                                 <TouchableOpacity
-                                  onPress={() => removeExercise(ex.id)}
+                                  onPress={() => removeExercise(ex.uniqueId)}
                                   style={{ padding: 8 }}
                                 >
                                   <Text
@@ -458,69 +511,82 @@ const Popup: React.FC<PopupProps> = ({
                                 </TouchableOpacity>
                               </View>
                             </View>
-                          </View>
-                          {(ex.category === "strength" ||
-                            ex.category === "running") && (
-                            <View style={popupModalStyles.metricsContainer}>
-                              {ex.category === "strength" && (
-                                <View style={{ flexDirection: "row", gap: 8 }}>
-                                  <TextInput
-                                    style={popupModalStyles.metricInput}
-                                    placeholder="Sets"
-                                    placeholderTextColor={colorPallet.neutral_3}
-                                    keyboardType="numeric"
-                                    value={exerciseMetrics[ex.id]?.sets || ""}
-                                    onChangeText={(text) =>
-                                      setExerciseMetrics((prev) => ({
-                                        ...prev,
-                                        [ex.id]: {
-                                          ...prev[ex.id],
-                                          sets: text,
-                                        },
-                                      }))
-                                    }
-                                  />
-                                  <TextInput
-                                    style={popupModalStyles.metricInput}
-                                    placeholder="Reps"
-                                    placeholderTextColor={colorPallet.neutral_3}
-                                    keyboardType="numeric"
-                                    value={exerciseMetrics[ex.id]?.reps || ""}
-                                    onChangeText={(text) =>
-                                      setExerciseMetrics((prev) => ({
-                                        ...prev,
-                                        [ex.id]: {
-                                          ...prev[ex.id],
-                                          reps: text,
-                                        },
-                                      }))
-                                    }
-                                  />
-                                </View>
-                              )}
 
-                              {ex.category === "running" && (
-                                <TextInput
-                                  style={popupModalStyles.metricInput}
-                                  placeholder="Distance (km)"
-                                  placeholderTextColor={colorPallet.neutral_3}
-                                  keyboardType="numeric"
-                                  value={exerciseMetrics[ex.id]?.distance || ""}
-                                  onChangeText={(text) =>
-                                    setExerciseMetrics((prev) => ({
-                                      ...prev,
-                                      [ex.id]: {
-                                        ...prev[ex.id],
-                                        distance: text,
-                                      },
-                                    }))
-                                  }
-                                />
-                              )}
-                            </View>
-                          )}
-                        </View>
-                      ))
+                            {hasMetrics && (
+                              <View style={popupModalStyles.metricsContainer}>
+                                {ex.category === "strength" && (
+                                  <View
+                                    style={{ flexDirection: "row", gap: 8 }}
+                                  >
+                                    <TextInput
+                                      style={popupModalStyles.metricInput}
+                                      placeholder="Sets"
+                                      placeholderTextColor={
+                                        colorPallet.neutral_3
+                                      }
+                                      keyboardType="numeric"
+                                      value={
+                                        exerciseMetrics[ex.uniqueId]?.sets || ""
+                                      }
+                                      onChangeText={(text) =>
+                                        setExerciseMetrics((prev) => ({
+                                          ...prev,
+                                          [ex.uniqueId]: {
+                                            ...prev[ex.uniqueId],
+                                            sets: text,
+                                          },
+                                        }))
+                                      }
+                                    />
+                                    <TextInput
+                                      style={popupModalStyles.metricInput}
+                                      placeholder="Reps"
+                                      placeholderTextColor={
+                                        colorPallet.neutral_3
+                                      }
+                                      keyboardType="numeric"
+                                      value={
+                                        exerciseMetrics[ex.uniqueId]?.reps || ""
+                                      }
+                                      onChangeText={(text) =>
+                                        setExerciseMetrics((prev) => ({
+                                          ...prev,
+                                          [ex.uniqueId]: {
+                                            ...prev[ex.uniqueId],
+                                            reps: text,
+                                          },
+                                        }))
+                                      }
+                                    />
+                                  </View>
+                                )}
+
+                                {ex.category === "running" && (
+                                  <TextInput
+                                    style={popupModalStyles.metricInput}
+                                    placeholder="Distance (km)"
+                                    placeholderTextColor={colorPallet.neutral_3}
+                                    keyboardType="numeric"
+                                    value={
+                                      exerciseMetrics[ex.uniqueId]?.distance ||
+                                      ""
+                                    }
+                                    onChangeText={(text) =>
+                                      setExerciseMetrics((prev) => ({
+                                        ...prev,
+                                        [ex.uniqueId]: {
+                                          ...prev[ex.uniqueId],
+                                          distance: text,
+                                        },
+                                      }))
+                                    }
+                                  />
+                                )}
+                              </View>
+                            )}
+                          </View>
+                        );
+                      })
                     )}
                   </View>
                 </ScrollView>

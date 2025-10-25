@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { Exercise } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
+import { FormButton } from "@/components";
 
 type InstructionsExerciseScreenProps = {
   exercise: Exercise;
@@ -35,6 +36,9 @@ const InstructionsExerciseScreen: React.FC<InstructionsExerciseScreenProps> = ({
           </Text>
         </View>
       )}
+      <View>
+        <FormButton title="Add to routine" onPress={() => null} />
+      </View>
     </ScrollView>
   );
 };

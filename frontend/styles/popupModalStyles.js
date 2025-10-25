@@ -88,31 +88,36 @@ export const popupModalStyles = StyleSheet.create({
     alignSelf: "center",
     paddingTop: 16,
   },
-
+  // Exercise cards
   exerciseCard: {
     flexDirection: "row",
     backgroundColor: colorPallet.neutral_6,
-    borderRadius: 12,
-    marginBottom: 14,
-    borderWidth: 1,
-
+    borderBottomWidth: 1,
     borderColor: colorPallet.neutral_lightest,
     overflow: "hidden",
-
     alignItems: "center",
   },
   selectedExerciseCard: {
     flexDirection: "row",
     backgroundColor: colorPallet.neutral_6,
-
-    borderBottomRightRadius: 0,
-    borderBottomLeftRadius: 0,
     borderRadius: 8,
     borderWidth: 1,
-
     borderColor: colorPallet.neutral_lightest,
     overflow: "hidden",
-
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  selectedExerciseCardWithMetrics: {
+    flexDirection: "row",
+    backgroundColor: colorPallet.neutral_6,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    borderColor: colorPallet.neutral_lightest,
+    overflow: "hidden",
     alignItems: "center",
   },
   exerciseThumbnail: {
@@ -120,6 +125,17 @@ export const popupModalStyles = StyleSheet.create({
     height: 70,
     marginRight: 12,
     backgroundColor: colorPallet.neutral_5,
+    borderTopStartRadius: 8,
+  },
+  metricsContainer: {
+    padding: 8,
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderColor: colorPallet.neutral_lightest,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    backgroundColor: colorPallet.neutral_5,
+    marginBottom: 16,
   },
   metricInput: {
     flex: 1,
@@ -130,17 +146,5 @@ export const popupModalStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colorPallet.neutral_5,
     fontSize: 14,
-  },
-  metricsContainer: {
-    marginTop: 0,
-    padding: 8,
-    borderWidth: 1,
-    borderTopWidth: 0,
-    borderColor: colorPallet.neutral_lightest,
-    borderRadius: 8,
-    borderTopEndRadius: 0,
-    borderTopStartRadius: 0,
-    backgroundColor: colorPallet.neutral_5,
-    marginBottom: 12,
   },
 });

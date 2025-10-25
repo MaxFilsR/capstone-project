@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   ViewToken,
   ScrollView,
   Image,
+  SectionListData,
 } from "react-native";
 import { tabStyles, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
@@ -58,7 +59,7 @@ const CachedExerciseImage = React.memo(
   }
 );
 
-// Memoized card component to prevent unnecessary re-renders
+// Memoized card component
 const ExerciseCard = React.memo(
   ({
     item,
@@ -87,6 +88,9 @@ const ExerciseCard = React.memo(
   }
 );
 
+const SECTION_HEADER_HEIGHT = 10;
+const ITEM_HEIGHT = 85;
+
 const LibraryScreen = () => {
   const [collapsedSections, setCollapsedSections] = useState<{
     [key: string]: boolean;
@@ -101,12 +105,9 @@ const LibraryScreen = () => {
     null
   );
 
-  // Extract unique muscle groups dynamically (memoized)
+  // Extract unique muscle groups dynamically
   const muscleGroups = useMemo(() => {
-    if (!exercises || !Array.isArray(exercises)) {
-      return ["All"];
-    }
-
+    if (!exercises || !Array.isArray(exercises)) return ["All"];
     const muscleSet = new Set<string>();
     exercises.forEach((ex) => {
       ex.primaryMuscles.forEach((muscle) => {
@@ -114,15 +115,12 @@ const LibraryScreen = () => {
         muscleSet.add(formatted);
       });
     });
-
     return ["All", ...Array.from(muscleSet).sort()];
   }, [exercises]);
 
-  // Filter & group (memoized)
+  // Filter & group
   const sections = useMemo(() => {
-    if (!exercises || !Array.isArray(exercises)) {
-      return [];
-    }
+    if (!exercises || !Array.isArray(exercises)) return [];
 
     const filtered = exercises.filter((ex) => {
       const matchesSearch =
@@ -149,53 +147,50 @@ const LibraryScreen = () => {
     return Array.from(letters).sort();
   }, [sections]);
 
-  const toggleSection = (title: string) => {
+  const toggleSection = useCallback((title: string) => {
     setCollapsedSections((prev) => ({ ...prev, [title]: !prev[title] }));
-  };
+  }, []);
 
-  const toggleAllSections = () => {
+  const toggleAllSections = useCallback(() => {
     const allCollapsed = sections.every((s) => collapsedSections[s.title]);
     const newState: { [key: string]: boolean } = {};
     sections.forEach((s) => {
       newState[s.title] = !allCollapsed;
     });
     setCollapsedSections(newState);
-  };
+  }, [sections, collapsedSections]);
 
-  const scrollToSection = (letter: string) => {
-    const sectionIndex = sections.findIndex((s) => s.title[0] === letter);
-    if (sectionIndex === -1) return;
+  const handleExercisePress = useCallback((item: Exercise) => {
+    setSelectedExercise(item);
+  }, []);
 
-    if (sectionListRef.current) {
-      try {
-        sectionListRef.current.scrollToLocation({
-          sectionIndex: sectionIndex,
-          itemIndex: 0,
-          viewOffset: 0,
-          animated: true,
-        });
-      } catch (error) {
-        console.warn("scrollToLocation failed:", error);
+  // Collapsed-data sections
+  const sectionsWithCollapsedData = useMemo(() => {
+    return sections.map((s) => ({
+      ...s,
+      data: collapsedSections[s.title] ? [] : s.data,
+    }));
+  }, [sections, collapsedSections]);
 
-        const SECTION_HEADER_HEIGHT = 52;
-        const ITEM_HEIGHT = 76;
+  // scrollToSection using scrollToLocation
+  const scrollToSection = useCallback(
+    (letter: string) => {
+      const sectionIndex = sectionsWithCollapsedData.findIndex(
+        (s) => s.title[0] === letter
+      );
+      if (sectionIndex === -1) return;
 
-        let yOffset = 0;
-        for (let i = 0; i < sectionIndex; i++) {
-          yOffset += SECTION_HEADER_HEIGHT;
-          if (!collapsedSections[sections[i].title]) {
-            yOffset += sections[i].data.length * ITEM_HEIGHT;
-          }
-        }
+      sectionListRef.current?.scrollToLocation({
+        sectionIndex,
+        itemIndex: 0,
+        viewOffset: 0,
+        animated: true,
+      });
+    },
+    [sectionsWithCollapsedData]
+  );
 
-        const scrollResponder = sectionListRef.current.getScrollResponder();
-        if (scrollResponder && scrollResponder.scrollTo) {
-          scrollResponder.scrollTo({ y: yOffset, animated: true });
-        }
-      }
-    }
-  };
-
+  // Viewable items for active letter
   const onViewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: Array<ViewToken> }) => {
       if (viewableItems.length > 0) {
@@ -211,11 +206,65 @@ const LibraryScreen = () => {
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 30 });
 
-  const handleExercisePress = (item: Exercise) => {
-    setSelectedExercise(item);
-  };
+  // Memoized renderItem for SectionList
+  const renderExerciseItem = useCallback(
+    ({ item, section }: { item: Exercise; section: any }) => {
+      if (collapsedSections[section.title]) return null;
+      return <ExerciseCard item={item} onPress={handleExercisePress} />;
+    },
+    [collapsedSections, handleExercisePress]
+  );
 
-  // Loading state
+  const renderItem = ({ item }: { item: Exercise }) => (
+    <ExerciseCard item={item} onPress={handleExercisePress} />
+  );
+
+  // Memoized renderSectionHeader
+  const renderSectionHeader = useCallback(
+    (info: { section: SectionListData<Exercise> }) => {
+      const title = info.section.title;
+      return (
+        <TouchableOpacity
+          onPress={() => toggleSection(title)}
+          style={styles.sectionHeaderContainer}
+        >
+          <Text
+            style={[typography.h2, { color: colorPallet.neutral_lightest }]}
+          >
+            {title}
+          </Text>
+          <Text style={styles.collapseIcon}>
+            {collapsedSections[title] ? "+" : "-"}
+          </Text>
+        </TouchableOpacity>
+      );
+    },
+    [collapsedSections, toggleSection]
+  );
+
+  // getItemLayout for SectionList
+  const getItemLayout = useCallback(
+    (_: any, index: number) => {
+      let offset = 0;
+      let itemIndex = index;
+
+      for (let i = 0; i < sectionsWithCollapsedData.length; i++) {
+        const section = sectionsWithCollapsedData[i];
+        const sectionLength = section.data.length;
+        if (itemIndex < sectionLength) {
+          offset += SECTION_HEADER_HEIGHT + itemIndex * ITEM_HEIGHT;
+          break;
+        } else {
+          offset += SECTION_HEADER_HEIGHT + sectionLength * ITEM_HEIGHT;
+          itemIndex -= sectionLength;
+        }
+      }
+
+      return { length: ITEM_HEIGHT, offset, index };
+    },
+    [sectionsWithCollapsedData]
+  );
+
   if (loading) {
     return (
       <View style={[tabStyles.tabContent, styles.centerContainer]}>
@@ -225,7 +274,6 @@ const LibraryScreen = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <View style={[tabStyles.tabContent, styles.centerContainer]}>
@@ -242,7 +290,6 @@ const LibraryScreen = () => {
 
   return (
     <View style={[tabStyles.tabContent, { flex: 1, paddingBottom: 100 }]}>
-      {/* Search Icon (Absolute Positioned) */}
       {!searchVisible && (
         <TouchableOpacity
           style={styles.searchIcon}
@@ -252,7 +299,6 @@ const LibraryScreen = () => {
         </TouchableOpacity>
       )}
 
-      {/* Search Bar (Collapsible) */}
       {searchVisible && (
         <View style={styles.searchContainer}>
           <Ionicons
@@ -281,7 +327,6 @@ const LibraryScreen = () => {
         </View>
       )}
 
-      {/* Muscle Group Filter */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -309,7 +354,6 @@ const LibraryScreen = () => {
         ))}
       </ScrollView>
 
-      {/* Expand/Collapse All Button */}
       <View style={styles.controlsContainer}>
         <TouchableOpacity
           style={styles.expandCollapseButton}
@@ -330,59 +374,18 @@ const LibraryScreen = () => {
         </Text>
       </View>
 
-      {/* Horizontal layout: SectionList + Alphabet */}
       <View style={{ flex: 1, flexDirection: "row" }}>
         <SectionList
           ref={sectionListRef}
-          sections={sections}
-          keyExtractor={(item) => item.id}
+          sections={sectionsWithCollapsedData}
+          keyExtractor={(item, index) =>
+            item.id ? item.id.toString() : `item-${index}`
+          }
           showsVerticalScrollIndicator={false}
           style={{ flex: 1 }}
           stickySectionHeadersEnabled={false}
-          removeClippedSubviews={true}
-          maxToRenderPerBatch={10}
-          updateCellsBatchingPeriod={50}
-          initialNumToRender={15}
-          windowSize={10}
-          onScrollToIndexFailed={(info) => {
-            setTimeout(() => {
-              const SECTION_HEADER_HEIGHT = 52;
-              const ITEM_HEIGHT = 76;
-
-              let yOffset = 0;
-              for (let i = 0; i < info.index && i < sections.length; i++) {
-                yOffset += SECTION_HEADER_HEIGHT;
-                if (!collapsedSections[sections[i].title]) {
-                  yOffset += sections[i].data.length * ITEM_HEIGHT;
-                }
-              }
-
-              const scrollResponder =
-                sectionListRef.current?.getScrollResponder();
-              if (scrollResponder && scrollResponder.scrollTo) {
-                scrollResponder.scrollTo({ y: yOffset, animated: true });
-              }
-            }, 50);
-          }}
-          renderSectionHeader={({ section: { title } }) => (
-            <TouchableOpacity
-              onPress={() => toggleSection(title)}
-              style={styles.sectionHeaderContainer}
-            >
-              <Text
-                style={[typography.h2, { color: colorPallet.neutral_lightest }]}
-              >
-                {title}
-              </Text>
-              <Text style={styles.collapseIcon}>
-                {collapsedSections[title] ? "+" : "-"}
-              </Text>
-            </TouchableOpacity>
-          )}
-          renderItem={({ item, section }) => {
-            if (collapsedSections[section.title]) return null;
-            return <ExerciseCard item={item} onPress={handleExercisePress} />;
-          }}
+          renderItem={renderItem}
+          renderSectionHeader={renderSectionHeader}
           onViewableItemsChanged={onViewableItemsChanged.current}
           viewabilityConfig={viewConfigRef.current}
           ListEmptyComponent={
@@ -390,9 +393,13 @@ const LibraryScreen = () => {
               <Text style={styles.emptyText}>No exercises found</Text>
             </View>
           }
+          getItemLayout={getItemLayout} // fixed
+          initialNumToRender={15}
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+          windowSize={10}
         />
 
-        {/* Right-side alphabet scrollbar */}
         <View style={styles.sidebar}>
           {availableLetters.map((letter) => (
             <TouchableOpacity
@@ -445,13 +452,8 @@ const styles = StyleSheet.create({
     color: colorPallet.neutral_lightest,
     paddingVertical: 12,
   },
-  filterContainer: {
-    marginBottom: 12,
-    maxHeight: 42,
-  },
-  filterContent: {
-    paddingRight: 8,
-  },
+  filterContainer: { marginBottom: 12, maxHeight: 42 },
+  filterContent: { paddingRight: 8 },
   filterButton: {
     paddingHorizontal: 16,
     paddingVertical: 4,
@@ -496,10 +498,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
   },
-  resultsCount: {
-    color: colorPallet.neutral_3,
-    fontSize: 14,
-  },
+  resultsCount: { color: colorPallet.neutral_3, fontSize: 14 },
   sectionHeaderContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -511,10 +510,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginBottom: 16,
   },
-  collapseIcon: {
-    color: colorPallet.secondary,
-    fontSize: 16,
-  },
+  collapseIcon: { color: colorPallet.secondary, fontSize: 16 },
   card: {
     flexDirection: "row",
     alignItems: "center",
@@ -533,28 +529,11 @@ const styles = StyleSheet.create({
     backgroundColor: colorPallet.neutral_darkest,
     marginRight: 12,
   },
-  thumbnailPlaceholder: {
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  info: {
-    flex: 1,
-  },
-  name: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  muscle: {
-    color: "#aaa",
-    fontSize: 13,
-    marginTop: 4,
-  },
-  equipment: {
-    color: "#888",
-    fontSize: 12,
-    marginTop: 2,
-  },
+  thumbnailPlaceholder: { justifyContent: "center", alignItems: "center" },
+  info: { flex: 1 },
+  name: { color: "#fff", fontSize: 16, fontWeight: "600" },
+  muscle: { color: "#aaa", fontSize: 13, marginTop: 4 },
+  equipment: { color: "#888", fontSize: 12, marginTop: 2 },
   sidebar: {
     width: 25,
     justifyContent: "flex-start",
@@ -562,15 +541,8 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     marginLeft: 5,
   },
-  letter: {
-    color: "#888",
-    fontSize: 12,
-    paddingVertical: 2,
-  },
-  activeLetter: {
-    color: colorPallet.primary,
-    fontWeight: "bold",
-  },
+  letter: { color: "#888", fontSize: 12, paddingVertical: 2 },
+  activeLetter: { color: colorPallet.primary, fontWeight: "bold" },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
@@ -600,14 +572,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  emptyContainer: {
-    padding: 20,
-    alignItems: "center",
-  },
-  emptyText: {
-    color: colorPallet.neutral_3,
-    fontSize: 16,
-  },
+  emptyContainer: { padding: 20, alignItems: "center" },
+  emptyText: { color: colorPallet.neutral_3, fontSize: 16 },
 });
 
 export default LibraryScreen;
