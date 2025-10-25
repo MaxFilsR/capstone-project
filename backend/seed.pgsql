@@ -211,8 +211,19 @@ CREATE TABLE IF NOT EXISTS
 		id SERIAL PRIMARY KEY,
 		user_id INT NOT NULL REFERENCES users (id),
 		name TEXT NOT NULL,
-		exercises JSONB NOT NULL,
+		exercises JSONB NOT NULL
 	);
+
+-- History
+CREATE TABLE IF NOT EXISTS workout_history (
+    id TEXT PRIMARY KEY,                			
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    name TEXT NOT NULL,                 			
+    date TIMESTAMP NOT NULL,            			
+    duration_minutes INTEGER NOT NULL,  			
+    points_earned INTEGER DEFAULT 0,    			
+    created_at TIMESTAMP DEFAULT NOW()
+);
 
 
 -- Preseed actual data
@@ -226,6 +237,16 @@ VALUES
 	(4, 'Wizard', ROW (7, 7, 7)),
 	(5, 'Gladiator', ROW (6, 5, 5));
 
+
+INSERT INTO 
+	users (id, email, password, onboarding_complete)
+VALUES
+	(1, 'you@example.com', crypt('12345678', gen_salt('md5')), TRUE);
+
+INSERT INTO
+	user_info (user_id, first_name, last_name,username, class, workout_schedule)
+VALUES
+	(1, 'John', 'Doe', 'JDoe', ROW('Warrior', ROW(10, 7, 5)), '{TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE}');
 
 -- Defining exercises
 -- ToDo: Make sure it stores everything right
@@ -259,13 +280,3 @@ VALUES
 -- FROM jsonb_array_elements(:'exercises_json'::jsonb) AS data;
 
 
--- History
-CREATE TABLE IF NOT EXISTS workout_history (
-    id TEXT PRIMARY KEY,                			
-    user_id INTEGER NOT NULL REFERENCES users(id),
-    name TEXT NOT NULL,                 			
-    date TIMESTAMP NOT NULL,            			
-    duration_minutes INTEGER NOT NULL,  			
-    points_earned INTEGER DEFAULT 0,    			
-    created_at TIMESTAMP DEFAULT NOW()
-);
