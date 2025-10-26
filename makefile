@@ -1,7 +1,12 @@
-start: start_backend start_frontend
+start: start_backend wait_for_backend start_frontend
 
 start_backend:
 	make --directory=./backend start &
+	
+wait_for_backend:
+	@echo "Waiting for backend to be ready"
+	npx wait-on tcp:8080
+	@echo "Backend is ready"
 
 start_frontend:
 	make --directory=./frontend start &
