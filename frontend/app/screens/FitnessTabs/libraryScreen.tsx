@@ -16,7 +16,7 @@ import { tabStyles, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { Ionicons } from "@expo/vector-icons";
 import { Exercise } from "@/api/endpoints";
-import Popup from "@/components/PopupModal";
+import Popup from "@/components/Popup";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
 
 const IMAGE_BASE_URL =
