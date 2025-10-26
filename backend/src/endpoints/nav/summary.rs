@@ -22,7 +22,7 @@ pub async fn me(
     let me_response: MeResponse = sqlx::query_as!(
         MeResponse,
         r#"
-            SELECT first_name, last_name, username, class as "class: Class", workout_schedule
+            SELECT first_name, last_name, username, class as "class: Class, workout_schedule
             FROM user_info
             where user_id = $1
         "#,

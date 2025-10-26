@@ -50,7 +50,7 @@ pub struct RoutinesRow {
 
 #[derive(Deserialize, Serialize, sqlx::Type, Debug)]
 pub struct Exercise {
-    pub id: i32,
+    pub id: String,
     pub sets: i32,
     pub reps: i32,
     pub weight: f32,
