@@ -13,7 +13,7 @@ import { tabStyles, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import Popup from "@/components/PopupModal";
+import Popup from "@/components/Popup";
 
 export type Routine = {
   id: string;

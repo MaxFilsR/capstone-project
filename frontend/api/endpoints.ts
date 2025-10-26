@@ -147,3 +147,99 @@ export async function getWorkoutById(id: string): Promise<WorkoutSession> {
   const response = await apiClient.get(`/workouts/history/${id}`);
   return response.data;
 }
+
+// Routine Types and Endpoints
+export type RoutineExercise = {
+  id: string;
+  sets: number;
+  reps: number;
+  weight: number;
+  distance: number;
+};
+
+export type CreateRoutineRequest = {
+  name: string;
+  exercises: RoutineExercise[];
+};
+
+export type CreateRoutineResponse = {
+  id: string;
+  name: string;
+  exercises: RoutineExercise[];
+};
+
+/**
+ * Create a new workout routine
+ * POST /workout/routines
+ */
+export async function createRoutine(
+  payload: CreateRoutineRequest
+): Promise<CreateRoutineResponse> {
+  const response = await apiClient.post("/workout/routines", payload);
+  return response.data;
+}
+
+export type UpdateRoutineRequest = {
+  id: number;
+  name: string;
+  exercises: RoutineExercise[];
+};
+
+export type UpdateRoutineResponse = {
+  id: number;
+  name: string;
+  exercises: RoutineExercise[];
+};
+
+export type DeleteRoutineRequest = {
+  id: number;
+};
+
+export type DeleteRoutineResponse = {
+  success: boolean; // optional convenience field
+};
+
+/**
+ * Edit an existing workout routine
+ * PUT /workout/routines
+ */
+export async function updateRoutine(
+  payload: UpdateRoutineRequest
+): Promise<UpdateRoutineResponse> {
+  const { data } = await apiClient.put<UpdateRoutineResponse>(
+    "/workout/routines",
+    payload
+  );
+  return data;
+}
+
+/**
+ * Delete a workout routine
+ * DELETE /workout/routines
+ */
+export async function deleteRoutine(
+  payload: DeleteRoutineRequest
+): Promise<void> {
+  await apiClient.delete("/workout/routines", { data: payload });
+}
+
+export type RoutineResponse = {
+  id?: number; // May or may not be returned by API
+  name: string;
+  exercises: RoutineExercise[];
+};
+
+export type GetRoutinesResponse = {
+  routines: RoutineResponse[];
+};
+
+/**
+ * Get all workout routines
+ * GET /workout/routines
+ */
+export async function getRoutines(): Promise<GetRoutinesResponse> {
+  const { data } = await apiClient.get<GetRoutinesResponse>(
+    "/workout/routines"
+  );
+  return data;
+}
