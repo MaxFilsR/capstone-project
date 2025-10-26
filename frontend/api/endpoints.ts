@@ -222,24 +222,3 @@ export async function deleteRoutine(
 ): Promise<void> {
   await apiClient.delete("/workout/routines", { data: payload });
 }
-
-export type RoutineResponse = {
-  id?: number; // May or may not be returned by API
-  name: string;
-  exercises: RoutineExercise[];
-};
-
-export type GetRoutinesResponse = {
-  routines: RoutineResponse[];
-};
-
-/**
- * Get all workout routines
- * GET /workout/routines
- */
-export async function getRoutines(): Promise<GetRoutinesResponse> {
-  const { data } = await apiClient.get<GetRoutinesResponse>(
-    "/workout/routines"
-  );
-  return data;
-}
