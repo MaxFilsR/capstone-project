@@ -4,6 +4,7 @@ import { Exercise } from "@/api/endpoints";
 import { popupModalStyles } from "@/styles";
 import ViewExerciseModal from "./ViewExerciseModal";
 import CreateRoutineModal from "./CreateRoutineModal";
+import EditRoutineModal from "./EditRoutineModal";
 
 export type Routine = {
   id: number;
@@ -34,6 +35,7 @@ const Popup: React.FC<PopupProps> = ({
   onClose,
   exercise,
   exerciseId,
+  routine,
 }) => {
   return (
     <Modal
@@ -59,6 +61,8 @@ const Popup: React.FC<PopupProps> = ({
               />
             ) : mode === "createRoutine" ? (
               <CreateRoutineModal onClose={onClose} />
+            ) : mode === "editRoutine" && routine ? (
+              <EditRoutineModal onClose={onClose} routine={routine} />
             ) : null}
           </View>
         </View>

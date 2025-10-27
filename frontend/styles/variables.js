@@ -9,4 +9,5 @@ export const colorPallet = {
   neutral_5: "#3A3A3A",
   neutral_6: "#222222",
   neutral_darkest: "#090909",
+  critical: "#ff3333",
 };

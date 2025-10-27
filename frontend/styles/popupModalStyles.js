@@ -147,4 +147,36 @@ export const popupModalStyles = StyleSheet.create({
     borderColor: colorPallet.neutral_5,
     fontSize: 14,
   },
+  // Header styles
+  headerBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colorPallet.neutral_5,
+    backgroundColor: colorPallet.neutral_darkest,
+  },
+  headerTitle: {
+    color: colorPallet.neutral_1,
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  saveText: {
+    color: colorPallet.primary,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  saveTextDisabled: {
+    color: colorPallet.neutral_3,
+  },
+  // Content styles
+  scrollContent: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: colorPallet.neutral_darkest,
+  },
+  section: {
+    marginBottom: 16,
+  },
 });

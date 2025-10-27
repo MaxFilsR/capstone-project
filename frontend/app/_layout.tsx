@@ -9,6 +9,7 @@ import {
 } from "@expo-google-fonts/inter";
 import { Anton_400Regular } from "@expo-google-fonts/anton";
 import { WorkoutLibraryProvider } from "@/lib/workout-library-context";
+import { RoutinesProvider } from "@/lib/routines-context";
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
@@ -29,7 +30,9 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <WorkoutLibraryProvider>
-        <InnerStack />
+        <RoutinesProvider>
+          <InnerStack />
+        </RoutinesProvider>
       </WorkoutLibraryProvider>
     </AuthProvider>
   );
