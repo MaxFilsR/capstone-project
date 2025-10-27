@@ -2,4 +2,4 @@
 .env
 frontend/.env
 .DS_Store
-./traget
+traget/
