@@ -1,5 +1,5 @@
+//screens/FitnessTabs/routineScreens/startRoutine
 
-///screens/FitnessTabs/routineScreens/startRoutine
 import React, { useEffect, useState, useRef } from "react";
 import {
   View,
@@ -25,7 +25,9 @@ type Params = {
   exerciseName?: string;
   distanceLabel?: string;
   thumbnailUrl?: string;
+  exercises?: string;
 };
+
 
 export default function StartRoutineScreen() {
   const router = useRouter();
@@ -37,9 +39,35 @@ export default function StartRoutineScreen() {
   const pendingNav = useRef<{ id: string; name: string; thumbnailUrl: string; } | null>(null);
 
   const routineName = String(params?.name ?? "Routine");
-  const exerciseName = String(params?.exerciseName ?? "Outdoor Run");
-  const distanceLabel = String(params?.distanceLabel ?? "25 MI");
-  const thumbnailUrl = String(
+  let parsedExercises: string[] = [];
+  try {
+    if (params?.exercises) parsedExercises = JSON.parse(String(params.exercises));
+  } catch (e) {
+    parsedExercises = [];
+  }
+  if (!parsedExercises.length) {
+  const routineMap: Record<string, string[]> = {
+    "Morning Run": ["Outdoor Run"],
+    "Back and Biceps": ["Deadlift", "Seated Row", "Lat Pulldown", "Bicep Curl"],
+    "Legs": ["Squat", "Leg Extension", "Flat Leg Raise", "Standing Calf Raise"],
+  };
+
+  parsedExercises = routineMap[String(params?.name ?? "")] || [];
+}
+
+  // first exercise shown as title
+  const exerciseName =
+    parsedExercises.length > 0 ? parsedExercises[0] : "Exercise";
+
+
+  const distanceLabel =
+    parsedExercises.length > 1
+      ? parsedExercises.slice(1, 4).join(" • ")
+      : parsedExercises.length === 1
+      ? "1 Exercise"
+      : "No exercises listed";
+
+      const thumbnailUrl = String(
     params?.thumbnailUrl ??
     "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/assisted-dip/assisted-dip-1.png"
   );
@@ -53,7 +81,7 @@ export default function StartRoutineScreen() {
     });
   }, [navigation]);
 
-  // Close pop up modal
+  // close pop up modal
   function close() {
     setVisible(false);
     setTimeout(() => router.back(), 10);
@@ -62,17 +90,18 @@ export default function StartRoutineScreen() {
   // go to ongoing or active routine screen
   function startWorkout() {
     const id = params?.id ? String(params.id) : "";
-    pendingNav.current = { id, name: routineName, thumbnailUrl };
+  pendingNav.current = {
+    id,
+    name: routineName,
+    thumbnailUrl,
+    exercises: params?.exercises ?? JSON.stringify(parsedExercises),
+  };
     setVisible(false);
-    //router.push({
-     // pathname: "/screens/FitnessTabs/routineScreens/activeRoutine",
-     // params: { id, name: routineName, thumbnailUrl },
-   // });
   }
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Back arrow */}
+      {/* back arrow */}
       <BackButton onPress={close} />
 
       <Modal
@@ -123,7 +152,7 @@ export default function StartRoutineScreen() {
               styles.modalShadow,
             ]}
           >
-            {/* Header */}
+            {/* header */}
             <View style={styles.headerRow}>
               <Text style={[typography.h2, styles.headerTitle]}>{routineName}</Text>
               <TouchableOpacity onPress={close} style={styles.closeButton}>
@@ -131,7 +160,7 @@ export default function StartRoutineScreen() {
               </TouchableOpacity>
             </View>
 
-            {/* Summary card */}
+            {/* summary card */}
             <View style={styles.summaryCard}>
               <View style={styles.thumbWrap}>
                 <Image
@@ -142,12 +171,15 @@ export default function StartRoutineScreen() {
               </View>
 
               <View style={{ flex: 1 }}>
-                <Text style={styles.exerciseTitle}>{exerciseName}</Text>
-                <Text style={styles.subText}>{distanceLabel}</Text>
+                <Text style={styles.exerciseTitle}>Exercises</Text>
+                <Text style={styles.subText}>{parsedExercises.length > 0
+                  ? `${parsedExercises.length} Exercise${parsedExercises.length > 1 ? "s" : ""}`
+                  : "No exercises listed"}
+                </Text>
               </View>
             </View>
 
-            {/* Start button */}
+            {/* start button */}
             <View style={{ paddingHorizontal: 14, paddingBottom: 16 }}>
               <FormButton title="Start Workout" onPress={startWorkout} />
             </View>
@@ -158,7 +190,7 @@ export default function StartRoutineScreen() {
   );
 }
 
-/* Styling */
+/* styling */
 const styles = StyleSheet.create({
   modalSize: {
     width: "100%",

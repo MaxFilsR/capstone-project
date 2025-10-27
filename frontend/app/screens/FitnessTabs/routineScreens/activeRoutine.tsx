@@ -1,27 +1,16 @@
 ///screens/FitnessTabs/routineScreens/activeRoutine
 
 import React, { useEffect, useState, useMemo } from "react";
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  Modal,
-  StyleSheet as RNStyleSheet,
-  ScrollView,
-  TextInput as RNTextInput,
-} from "react-native";
+import { View,Text, TouchableOpacity, StyleSheet, Image as RNImage, StyleSheet as RNStyleSheet, ScrollView, TextInput as RNTextInput,} from "react-native";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
-import { tabStyles, typography, popupModalStyles } from "@/styles";
-import { BackButton, FormButton } from "@/components";
+import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { Ionicons } from "@expo/vector-icons";
-import { getWorkoutLibrary, Exercise } from "@/api/endpoints";
-import Popup from "@/components/PopupModal";
-import { HeaderTitle } from "@react-navigation/elements";
+import { Exercise } from "@/api/endpoints";
 import AboutExerciseScreen from "../exerciseInfoTabs/aboutExcerciseScreen";
 import InstructionsExerciseScreen from "../exerciseInfoTabs/instructionsExcerciseScreen";
+import { useWorkoutLibrary } from "@/lib/workout-library-context";
+import { Image as ExpoImage } from "expo-image";
 
 type Params = {
   id?: string;
@@ -54,13 +43,27 @@ type ExerciseForAbout = {
   images: string[];
 };
 
+const IMAGE_BASE_URL =
+  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
+
 const FALLBACK_IMG =
     "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/assisted-dip/assisted-dip-1.png";
 
-function pickTopMedia(ex: ExerciseLite | null): string {
-  if (!ex) return FALLBACK_IMG;
-  const gifFromImages = ex.images?.find((u) => u?.toLowerCase().endsWith(".gif"));
-  return ex.gifUrl || gifFromImages || ex.images?.[0] || ex.thumbnailUrl || FALLBACK_IMG;
+
+const abs = (u?: string | null) =>
+  u ? (u.startsWith("http") ? u : `${IMAGE_BASE_URL}${u}`) : undefined;
+
+function pickTopMedia(
+  ex?: { images?: string[]; thumbnailUrl?: string; gifUrl?: string }
+) {
+  const gifFromImages = ex?.images?.find((u) => u?.toLowerCase().endsWith(".gif"));
+  return (
+    abs(ex?.gifUrl) ||
+    abs(gifFromImages) ||
+    abs(ex?.images?.[0]) ||
+    abs(ex?.thumbnailUrl) ||
+    FALLBACK_IMG
+  );
 }
 
 export default function ActiveRoutineScreen() {
@@ -68,7 +71,7 @@ export default function ActiveRoutineScreen() {
   const params = useLocalSearchParams<Params>();
   const navigation = useNavigation();
 
-  //const routineName = String(params?.name ?? "Routine");
+  const { exercises: library, loading: libLoading } = useWorkoutLibrary();
 
   useEffect(() => {
     navigation.setOptions({
@@ -76,118 +79,133 @@ export default function ActiveRoutineScreen() {
       animation: "slide_from_right",
       headerShown: false,
       contentStyle: { backgroundColor: "#0B0B0B" },
-    });
+    } as any);
   }, [navigation]);
 
-  const exercises: ExerciseLite[] = useMemo(() => {
+
+  const exercisesLite: ExerciseLite[] = useMemo(() => {
+    if (params?.exercises) {
     try {
-      if (params?.exercises) {
-        const arr = JSON.parse(String(params.exercises));
-        if (Array.isArray(arr) && arr.length) return arr as ExerciseLite[];
+      const arr = JSON.parse(String(params.exercises));
+
+      if (Array.isArray(arr) && arr.length && typeof arr[0] === "string") {
+        return (arr as string[]).map((name) => {
+          const match = Array.isArray(library)
+            ? library.find(
+                (e) => e.name?.toLowerCase() === String(name).toLowerCase()
+              )
+            : undefined;
+
+          return {
+            id: match?.id ?? name,
+            name,
+            images: match?.images,
+            thumbnailUrl: match?.images?.[0],
+            gifUrl: match?.images?.find((u) => u.toLowerCase().endsWith(".gif")),
+          } as ExerciseLite;
+        });
+      }
+
+      if (Array.isArray(arr) && arr.length) {
+        return arr as ExerciseLite[];
       }
     } catch {}
-    return [
-      {
-        id: "1",
-        name: "Bench Press",
-        thumbnailUrl:
-          "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/bench-press/bench-press-1.png",
-        gifUrl: "https://.../bench-press.gif",
-      },
-      {
-        id: "2",
-        name: "Barbell Row",
-        thumbnailUrl:
-          "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/barbell-row/barbell-row-1.png",
-        gifUrl: "https://.../bench-press.gif",
-      },
-      {
-        id: "3",
-        name: "Squat",
-        thumbnailUrl:
-          "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/squat/squat-1.png",
-        gifUrl: "https://.../bench-press.gif",
-      },
-      {
-        id: "4",
-        name: "Overhead Press",
-        thumbnailUrl:
-          "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/overhead-press/overhead-press-1.png",
-        gifUrl: "https://.../bench-press.gif",
-      },
-    ];
-  }, [params]);
+  }
+
+  if (Array.isArray(library) && library.length) {
+    return library.map((e) => ({
+      id: e.id,
+      name: e.name,
+      images: e.images,
+      thumbnailUrl: e.images?.[0],
+      gifUrl: e.images?.find((u) => u.toLowerCase().endsWith(".gif")),
+    }));
+  }
+
+  return [];
+}, [params?.exercises, library]);
+
 
   const [currentIndex, setCurrentIndex] = useState<number>(
     Math.max(0, Number(params?.index ?? 0))
   );
 
-  const hasExercises = exercises.length > 0;
-  const safeIndex = hasExercises ? Math.min(currentIndex, exercises.length -1): 0;
-  const current: ExerciseLite | null = hasExercises ? exercises[safeIndex] : null;
+  const hasExercises = exercisesLite.length > 0;
+  const safeIndex = hasExercises ? Math.min(currentIndex, exercisesLite.length - 1) : 0;
+  const currentLite = hasExercises ? exercisesLite[safeIndex] : undefined;
 
-  const topImage = pickTopMedia(current);
+  const fullExercise: Exercise | undefined = useMemo(() => {
+    if (!currentLite) return undefined;
+    const byId =
+      library.find((e) => String(e.id) === String(currentLite.id)) ||
+      library.find(
+        (e) =>
+          e.name?.toLowerCase() ===
+          String(currentLite.name || "").toLowerCase()
+      );
+    return byId;
+  }, [currentLite?.id, currentLite?.name, library]);
+
+  const topImage = React.useMemo(
+  () => pickTopMedia(fullExercise || currentLite),
+  [fullExercise, currentLite]
+  );
 
   // Tabs
   const [tab, setTab] = useState<TabKey>("stats");
 
-  // Sets state for current exercise
   const [sets, setSets] = useState(
-    Array.from({ length: 4}, () => ({ reps: "", weight: "" }))
+    Array.from({ length: 4 }, () => ({ reps: "", weight: "" }))
   );
-
-
-  function updateSet(
-    index: number,
-    key: "reps" | "weight",
-    val: string
-  ) {
-    setSets((prev) =>
-      prev.map((set, i) => (i === index ? { ... set, [key]: val } : {...set}))
-    );
+  function updateSet(index: number, key: "reps" | "weight", val: string) {
+    setSets((prev) => prev.map((s, i) => (i === index ? { ...s, [key]: val } : s)));
   }
 
-  //TAHAN SAAKKA TEHNY UNTIL RETURN
-
-  // Navigate between exercises
   function onPrev() {
-    if (!hasExercises) return;
     if (currentIndex > 0) {
       setCurrentIndex((i) => i - 1);
-      setSets(Array.from({ length: 4 }, () => ({ reps: "", weight: ""})));
+      setSets(Array.from({ length: 4 }, () => ({ reps: "", weight: "" })));
     }
   }
-
   function onNext() {
-    if (!hasExercises) return;
-    if (currentIndex < exercises.length - 1) {
-      setCurrentIndex(i => i + 1);
-      setSets(Array.from({ length: 4 }, () => ({ reps: "", weight: ""})));
+    if (currentIndex < exercisesLite.length - 1) {
+      setCurrentIndex((i) => i + 1);
+      setSets(Array.from({ length: 4 }, () => ({ reps: "", weight: "" })));
     } else {
       onEnd();
     }
   }
   function onEnd() {
-    router.back();
+    router.push("/screens/FitnessTabs/routineScreens/durationRoutine");
   }
 
-  const currentExerciseForAbout: ExerciseForAbout = {
-    id: String(current?.id ?? "0"),
-    name: current?.name ?? "Exercise",
-    force: "pull",              // put real values when you fetch them
-    level: "beginner",
-    mechanic: "compound",
-    equipment: "body only",
-    category: "strength",
-    primaryMuscles: ["abdominals"],  // fill from API when available
-    secondaryMuscles: [],
-    images: current?.images ?? (current?.thumbnailUrl ? [current.thumbnailUrl] : []),
-  }
+  const aboutExercise: ExerciseForAbout = useMemo(
+    () => ({
+      id: String(fullExercise?.id ?? currentLite?.id ?? "0"),
+      name: fullExercise?.name ?? currentLite?.name ?? "Exercise",
+      force: fullExercise?.force ?? null,
+      level: fullExercise?.level ?? null,
+      mechanic: fullExercise?.mechanic ?? null,
+      equipment: fullExercise?.equipment ?? null,
+      category: fullExercise?.category ?? null,
+      primaryMuscles: fullExercise?.primaryMuscles ?? [],
+      secondaryMuscles: fullExercise?.secondaryMuscles ?? [],
+      images: (fullExercise?.images ?? currentLite?.images ?? []).map(
+        (p) => abs(p)!
+      ) as string[],
+    }),
+    [fullExercise, currentLite]
+  );
 
   return (
     <View style={{ flex: 1, backgroundColor: colorPallet.neutral_darkest }}>
       {/* Top image */}
-      <Image source={{ uri: topImage }} style={styles.routineImage} resizeMode="cover" />
+      <ExpoImage
+        source={{ uri: topImage }}
+        style={styles.routineImage}
+        contentFit="cover"
+        transition={150}
+      />
 
       {/* Tabs */}
       <View style={styles.tabsWrap}>
@@ -200,20 +218,28 @@ export default function ActiveRoutineScreen() {
 
       {/* Content */}
       {tab === "about" ? (
-        <AboutExerciseScreen exercise={currentExerciseForAbout} />
+        <AboutLike exercise={aboutExercise} />
       ) : tab === "instructions" ? (
-        <InstructionsExerciseScreen exercise={currentExerciseForAbout} />
+        <InstructionsExerciseScreen
+          exercise={
+            (fullExercise as Exercise) ||
+            ({ id: String(currentLite?.id ?? "0"), name: currentLite?.name ?? "", instructions: [] } as Exercise)
+          }
+        />
       ) : (
         <ScrollView
           style={{ flex: 1 }}
           contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 12 }}
         >
-          <StatsCard title={`Log Weight — ${current?.name ?? ""}`} sets={sets} onChange={updateSet} />
+          <StatsCard
+            title={`Log Weight — ${fullExercise?.name ?? currentLite?.name ?? ""}`}
+            sets={sets}
+            onChange={updateSet}
+          />
         </ScrollView>
       )}
 
-
-      {tab !== "about" && ( // hide controls in About tab
+      {tab == "stats" && ( // tabs only in stats
         <View style={styles.transport}>
           <TouchableOpacity
             style={[styles.smallRound, currentIndex === 0 && { opacity: 0.4 }]}
@@ -230,10 +256,10 @@ export default function ActiveRoutineScreen() {
           <TouchableOpacity
             style={[
               styles.smallRound,
-              currentIndex === exercises.length - 1 && { opacity: 0.4 },
+              currentIndex === exercisesLite.length - 1 && { opacity: 0.4 },
             ]}
             onPress={onNext}
-            disabled={currentIndex >= exercises.length - 1}
+            disabled={currentIndex >= exercisesLite.length - 1}
           >
             <Ionicons name="play-forward" size={20} color={colorPallet.neutral_lightest} />
           </TouchableOpacity>
@@ -283,7 +309,7 @@ function StatsCard({
           <View style={styles.setRow} key={i}>
             <Text style={styles.setIndex}>{i + 1}</Text>
 
-            {/* Reps input */}
+            {/* reps input */}
 
             <View style={[styles.inputWrap, { marginRight: 10 }]}>
               <RNTextInput
@@ -366,12 +392,11 @@ function AboutLike({ exercise }: { exercise: ExerciseForAbout }) {
       contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 }}
       showsVerticalScrollIndicator
     >
-      {/* MUSCLES */}
       {combinedMuscles.length > 0 && (
         <View style={{ marginBottom: 18 }}>
           <Text style={aboutStyles.sectionTitle}>MUSCLES</Text>
 
-          {/* Muscle tags */}
+          {/* muscle tags */}
           <View style={aboutStyles.tagWrap}>
             {combinedMuscles.map((m, i) => (
               <View
@@ -393,23 +418,29 @@ function AboutLike({ exercise }: { exercise: ExerciseForAbout }) {
             ))}
           </View>
 
-          {/* Images */}
+          {/* images */}
           {muscleImages.length > 0 && (
             <ScrollView
               horizontal
               pagingEnabled
               showsHorizontalScrollIndicator={false}
-              style={{ marginTop: 12 }}
-              contentContainerStyle={{ paddingRight: 8 }}
+              style={{ marginTop: 12, alignSelf: "stretch" }}
+              contentContainerStyle={{
+                paddingRight: 8,
+                flexGrow: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
             >
               {muscleImages.map((m, idx) => (
-                <Image
+                <RNImage
                   key={idx}
                   source={m.img}
                   resizeMode="contain"
                   style={[
                     aboutStyles.muscleImage,
                     {
+                      alignSelf: "center",
                       borderColor:
                         m.type === "primary" ? colorPallet.primary : colorPallet.secondary,
                     },
@@ -421,7 +452,7 @@ function AboutLike({ exercise }: { exercise: ExerciseForAbout }) {
         </View>
       )}
 
-      {/* Info */}
+      {/* info */}
       {infoCards.length > 0 && (
         <View style={{ marginTop: 6 }}>
           <Text style={aboutStyles.sectionTitle}>INFORMATION</Text>
@@ -600,3 +631,63 @@ const styles = StyleSheet.create({
     letterSpacing: 0.3,
   },
 });
+
+const aboutStyles = StyleSheet.create({
+  sectionTitle: {
+    color: colorPallet.secondary,
+    fontWeight: "800",
+    marginBottom: 10,
+    letterSpacing: 0.3,
+  },
+  tagWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: 10,
+  },
+  tag: {
+    backgroundColor: colorPallet.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  tagSecondary: {
+    backgroundColor: colorPallet.secondary,
+  },
+  tagText: {
+    color: colorPallet.neutral_darkest,
+    fontWeight: "700",
+  },
+  muscleImage: {
+    width: 300,
+    height: 300,
+    borderWidth: 2,
+    borderRadius: 12,
+  },
+  infoGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 10,
+  },
+  infoCard: {
+    width: "48%",
+    borderWidth: 1,
+    borderColor: colorPallet.neutral_5,
+    borderRadius: 10,
+    backgroundColor: colorPallet.neutral_darkest,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
+  infoLabel: {
+    color: colorPallet.secondary,
+    fontWeight: "700",
+    marginBottom: 6,
+  },
+  infoValue: {
+    color: colorPallet.neutral_lightest,
+    fontWeight: "400",
+  },
+});
+
+
