@@ -152,7 +152,6 @@ export const popupModalStyles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
     borderBottomWidth: 1,
     borderBottomColor: colorPallet.neutral_5,
     backgroundColor: colorPallet.neutral_darkest,

@@ -1,23 +1,47 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { View, Text, TouchableOpacity, Alert, ScrollView } from "react-native";
-import { Exercise, createRoutine, RoutineExercise } from "@/api/endpoints";
+import { View, Text, Alert, ScrollView } from "react-native";
+import {
+  Exercise,
+  updateRoutine,
+  deleteRoutine,
+  RoutineExercise,
+} from "@/api/endpoints";
 import { typography } from "@/styles";
 import { popupModalStyles } from "@/styles";
 import { colorPallet } from "@/styles/variables";
-import { FormTextInput } from "./FormTextInput";
-import { FormButton } from "./FormButton";
+import { FormTextInput } from "../FormTextInput";
+import { FormButton } from "../FormButton";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
-import ExerciseSearchList from "./ExerciseSearchList";
-import SelectedExercisesList from "./SelectedExercisesList";
+import ExerciseSearchList from "../ExerciseSearchList";
+import SelectedExercisesList from "../SelectedExercisesList";
 
-type CreateRoutineModalProps = {
-  onClose: () => void;
+type Routine = {
+  id: number;
+  name: string;
+  exercises: Array<
+    Exercise & {
+      uniqueId: string;
+      sets?: number;
+      reps?: number;
+      weight?: number;
+      distance?: number;
+    }
+  >;
 };
 
-const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
+type EditRoutineModalProps = {
+  onClose: () => void;
+  routine: Routine;
+};
+
+const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
+  onClose,
+  routine,
+}) => {
   const { exercises } = useWorkoutLibrary();
   const [isSaving, setIsSaving] = useState(false);
-  const [routineName, setRoutineName] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [routineName, setRoutineName] = useState(routine.name);
   const [selectedExercises, setSelectedExercises] = useState<
     Array<Exercise & { uniqueId: string }>
   >([]);
@@ -26,7 +50,30 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
     {}
   );
 
-  // Filter exercises for search
+  useEffect(() => {
+    const exercisesWithIds = routine.exercises.map((ex, index) => {
+      const exerciseWithId = {
+        ...ex,
+        uniqueId: ex.uniqueId || `${ex.id}-${index}`,
+      };
+
+      return exerciseWithId;
+    });
+
+    setSelectedExercises(exercisesWithIds);
+    const initialMetrics: Record<string, any> = {};
+    exercisesWithIds.forEach((ex) => {
+      initialMetrics[ex.uniqueId] = {
+        sets: ex.sets?.toString() || "",
+        reps: ex.reps?.toString() || "",
+        weight: ex.weight?.toString() || "",
+        distance: ex.distance?.toString() || "",
+      };
+    });
+
+    setExerciseMetrics(initialMetrics);
+  }, [routine]);
+
   const filteredExercises = useMemo(() => {
     if (!searchQuery.trim()) return [];
     return exercises
@@ -37,7 +84,7 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
             m.toLowerCase().includes(searchQuery.toLowerCase())
           )
       )
-      .slice(0, 20); // Limit results
+      .slice(0, 20);
   }, [searchQuery, exercises]);
 
   const handleSave = async () => {
@@ -53,7 +100,6 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
     setIsSaving(true);
 
     try {
-      // Format exercises according to API requirements
       const formattedExercises: RoutineExercise[] = selectedExercises.map(
         (ex) => {
           const metrics = exerciseMetrics[ex.uniqueId] || {};
@@ -69,32 +115,62 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
       );
 
       const payload = {
+        id: routine.id,
         name: routineName.trim(),
         exercises: formattedExercises,
       };
 
-      console.log(
-        "Creating routine with payload:",
-        JSON.stringify(payload, null, 2)
-      );
+      const response = await updateRoutine(payload);
 
-      const response = await createRoutine(payload);
-
-      console.log("Routine created successfully:", response);
-      Alert.alert("Success", "Routine created successfully!");
+      Alert.alert("Success", "Routine updated successfully!");
       onClose();
     } catch (error: any) {
-      console.error("Error creating routine:", error);
+      console.error("Error updating routine:", error);
       console.error("Error response:", error?.response?.data);
       Alert.alert(
         "Error",
         error?.response?.data?.message ||
           error?.response?.data?.error ||
-          "Failed to create routine. Please try again."
+          "Failed to update routine. Please try again."
       );
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Delete Routine",
+      `Are you sure you want to delete "${routine.name}"? This action cannot be undone.`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            setIsDeleting(true);
+            try {
+              await deleteRoutine({ id: routine.id });
+              Alert.alert("Success", "Routine deleted successfully!");
+              onClose();
+            } catch (error: any) {
+              console.error("Error deleting routine:", error);
+              Alert.alert(
+                "Error",
+                error?.response?.data?.message ||
+                  error?.response?.data?.error ||
+                  "Failed to delete routine. Please try again."
+              );
+            } finally {
+              setIsDeleting(false);
+            }
+          },
+        },
+      ]
+    );
   };
 
   const addExercise = (exercise: Exercise) => {
@@ -107,7 +183,6 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
     setSelectedExercises(
       selectedExercises.filter((ex) => ex.uniqueId !== uniqueId)
     );
-    // Clean up metrics for removed exercise
     setExerciseMetrics((prev) => {
       const newMetrics = { ...prev };
       delete newMetrics[uniqueId];
@@ -144,54 +219,34 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
   return (
     <View style={{ flex: 1 }}>
       {/* Header Bar */}
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          paddingHorizontal: 16,
-          paddingVertical: 12,
-          borderBottomWidth: 1,
-          borderBottomColor: colorPallet.neutral_5,
-          backgroundColor: colorPallet.neutral_darkest,
-        }}
-      >
-        <TouchableOpacity onPress={onClose} disabled={isSaving}>
-          <Text style={popupModalStyles.closeText}>✕</Text>
-        </TouchableOpacity>
+      <View style={popupModalStyles.headerBar}>
+        <FormButton
+          title="✕"
+          onPress={onClose}
+          mode="text"
+          fontSize={20}
+          color="secondary"
+          style={{ width: "auto", marginVertical: 0 }}
+        />
 
-        <Text
-          style={{
-            color: colorPallet.neutral_1,
-            fontSize: 18,
-            fontWeight: "bold",
-          }}
-        >
-          New Routine
-        </Text>
+        <Text style={popupModalStyles.headerTitle}>Edit Routine</Text>
 
-        <TouchableOpacity onPress={handleSave} disabled={isSaving}>
-          <Text
-            style={{
-              color: isSaving ? colorPallet.neutral_3 : colorPallet.primary,
-              fontSize: 16,
-              fontWeight: "600",
-            }}
-          >
-            {isSaving ? "Saving..." : "Save"}
-          </Text>
-        </TouchableOpacity>
+        <FormButton
+          title={isSaving ? "Saving..." : "Save"}
+          onPress={handleSave}
+          mode="text"
+          color="primary"
+          fontSize={16}
+          style={{ width: "auto", marginVertical: 0 }}
+        />
       </View>
 
       <ScrollView
-        style={{
-          flex: 1,
-          padding: 16,
-          backgroundColor: colorPallet.neutral_darkest,
-        }}
+        style={popupModalStyles.scrollContent}
+        contentContainerStyle={{ paddingBottom: 32 }}
       >
         {/* Routine Name Input */}
-        <View style={{ marginBottom: 16 }}>
+        <View style={popupModalStyles.section}>
           <FormTextInput
             label="Routine Name"
             value={routineName}
@@ -217,9 +272,21 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
           onRemoveExercise={removeExercise}
           onUpdateMetric={updateExerciseMetric}
         />
+
+        {/* Delete Button */}
+        <View style={popupModalStyles.section}>
+          <FormButton
+            title={isDeleting ? "Deleting..." : "Delete Routine"}
+            onPress={handleDelete}
+            mode="contained"
+            color="critical"
+            textColor={colorPallet.neutral_lightest}
+            style={{ opacity: isDeleting || isSaving ? 0.5 : 1 }}
+          />
+        </View>
       </ScrollView>
     </View>
   );
 };
 
-export default CreateRoutineModal;
+export default EditRoutineModal;

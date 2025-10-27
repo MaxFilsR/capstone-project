@@ -8,11 +8,11 @@ type FormButtonProps = {
   onPress: () => void;
   mode?: "text" | "contained" | "outlined";
   style?: ViewStyle | ViewStyle[];
-  labelStyle?: StyleProp<TextStyle>; // Proper type for text/label style
+  labelStyle?: StyleProp<TextStyle>;
   color?: "primary" | "secondary" | "critical";
-  textColor?: string; // Custom text color override
-  buttonColor?: string; // Custom button background color override
-  fontSize?: number; // Custom font size
+  textColor?: string;
+  buttonColor?: string;
+  fontSize?: number;
   disabled?: boolean;
 };
 
@@ -43,24 +43,29 @@ export const FormButton = ({
   };
 
   const defaultButtonColor = getDefaultButtonColor();
+  const bgColor = customButtonColor || defaultButtonColor;
 
-  const buttonColor = customButtonColor || defaultButtonColor;
+  // Disabled styles
+  const disabledBackground =
+    mode === "contained" ? colorPallet.neutral_5 : "transparent";
+  const disabledText =
+    mode === "contained" ? colorPallet.neutral_3 : colorPallet.neutral_5;
 
-  const getTextColor = () => {
-    if (customTextColor) {
-      return customTextColor;
-    }
+  const computedBackgroundColor = disabled
+    ? disabledBackground
+    : mode === "contained"
+    ? bgColor
+    : "transparent";
 
-    if (mode === "text") {
-      const baseColor = getDefaultButtonColor();
-      return isPressed ? buttonColor : baseColor;
-    }
-
-    return colorPallet.neutral_darkest;
-  };
-
-  const textColor = getTextColor();
-  const backgroundColor = mode === "contained" ? buttonColor : "transparent";
+  const computedTextColor = disabled
+    ? disabledText
+    : customTextColor
+    ? customTextColor
+    : mode === "text"
+    ? isPressed
+      ? bgColor
+      : defaultButtonColor
+    : colorPallet.neutral_darkest;
 
   const computedLabelStyle: StyleProp<TextStyle> = [
     ...(fontSize ? [{ fontSize }] : []),
@@ -73,8 +78,8 @@ export const FormButton = ({
       onPress={onPress}
       onPressIn={() => setIsPressed(true)}
       onPressOut={() => setIsPressed(false)}
-      buttonColor={backgroundColor}
-      textColor={textColor}
+      buttonColor={computedBackgroundColor}
+      textColor={computedTextColor}
       rippleColor={mode === "text" ? "transparent" : undefined}
       style={[styles.button, style]}
       labelStyle={computedLabelStyle}
@@ -91,6 +96,5 @@ const styles = StyleSheet.create({
     width: "100%",
     marginVertical: 0,
     borderRadius: 12,
-    fontSize: 40,
   },
 });

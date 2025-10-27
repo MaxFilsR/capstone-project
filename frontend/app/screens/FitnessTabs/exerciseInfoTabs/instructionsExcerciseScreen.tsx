@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, ScrollView, StyleSheet } from "react-native";
 import { Exercise } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
 import { FormButton } from "@/components";
+import { AddToRoutineModal } from "@/components/popupModals/AddToRoutineModal";
 
 type InstructionsExerciseScreenProps = {
   exercise: Exercise;
@@ -11,6 +12,8 @@ type InstructionsExerciseScreenProps = {
 const InstructionsExerciseScreen: React.FC<InstructionsExerciseScreenProps> = ({
   exercise,
 }) => {
+  const [showRoutineModal, setShowRoutineModal] = useState(false);
+
   return (
     <ScrollView
       showsVerticalScrollIndicator={true}
@@ -37,7 +40,15 @@ const InstructionsExerciseScreen: React.FC<InstructionsExerciseScreenProps> = ({
         </View>
       )}
       <View>
-        <FormButton title="Add to routine" onPress={() => null} />
+        <FormButton
+          title="Add to routine"
+          onPress={() => setShowRoutineModal(true)}
+        />
+        <AddToRoutineModal
+          visible={showRoutineModal}
+          onClose={() => setShowRoutineModal(false)}
+          exerciseId={exercise.id}
+        />
       </View>
     </ScrollView>
   );

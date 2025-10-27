@@ -13,7 +13,7 @@ import { tabStyles, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import Popup from "@/components/Popup";
+import Popup from "@/components/popupModals/Popup";
 import { useRoutines } from "@/lib/routines-context";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
 
@@ -240,6 +240,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 14,
     gap: 8,
+    marginBottom: 12,
   },
   cardTitle: {
     ...typography.h2,

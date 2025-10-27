@@ -7,13 +7,22 @@ import InstructionsExerciseScreen from "@/app/screens/FitnessTabs/exerciseInfoTa
 import { images } from "@/styles";
 import { popupModalStyles } from "@/styles";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
+import { FormButton } from "../FormButton";
+import { AddToRoutineModal } from "./AddToRoutineModal";
+import { colorPallet } from "@/styles/variables";
+// import { AlertMode } from "./AlertBox";
 
-type ViewExerciseModalProps = {
+export type ViewExerciseModalProps = {
   onClose: () => void;
   exercise?: Exercise | null;
   exerciseId?: string | null;
+  // showAlert?: (
+  //   msg: string | string[],
+  //   mode?: AlertMode,
+  //   confirmAction?: () => void,
+  //   cancelAction?: () => void
+  // ) => void;
 };
-
 const IMAGE_BASE_URL =
   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
@@ -21,9 +30,11 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
   onClose,
   exercise: exerciseProp,
   exerciseId,
+  // showAlert,
 }) => {
   const { exercises } = useWorkoutLibrary();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [showRoutineModal, setShowRoutineModal] = useState(false);
 
   // Determine the exercise to display
   const exercise = useMemo(() => {
@@ -34,12 +45,10 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
     return null;
   }, [exerciseProp, exerciseId, exercises]);
 
-  // Reset image index when exercise changes
   useEffect(() => {
     setActiveImageIndex(0);
   }, [exercise?.id]);
 
-  // Rotate images if multiple exist
   useEffect(() => {
     if (!exercise?.images || exercise.images.length < 2) return;
     const interval = setInterval(
@@ -89,8 +98,37 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
         />
       )}
 
+      <View
+        style={{ padding: 12, backgroundColor: colorPallet.neutral_darkest }}
+      >
+        <Text
+          style={{
+            color: colorPallet.primary,
+            textAlign: "center",
+            fontSize: 24, // removed quotes
+            fontWeight: "bold",
+            fontFamily: "Anton",
+            marginBottom: 8, // removed quotes
+          }}
+        >
+          {exercise.name}
+        </Text>
+
+        <FormButton
+          title="Add to routine"
+          onPress={() => {
+            setShowRoutineModal(true);
+          }}
+        />
+
+        <AddToRoutineModal
+          visible={showRoutineModal}
+          onClose={() => setShowRoutineModal(false)}
+          exerciseId={exercise.id}
+        />
+      </View>
+
       <TabBar
-        pageTitle={exercise.name}
         tabs={tabs}
         outerContainerStyle={popupModalStyles.tabOuterContainer}
         tabBarContainerStyle={popupModalStyles.tabBarContainer}
