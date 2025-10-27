@@ -8,12 +8,10 @@
 #! in production best practice would be to change uname and pass and have them hidden too :D
 #*          NAME      |     ADDRESS     |     USERNAME    |   PASSWORD
 #*  postgres_container| localhost:5432  |       root      |     root
-#*  pgadmin4          | localhost:80    | admin@admin.com |     root  
+#*  pgadmin4          | localhost:80    | admin@admin.com |     root
 #
 # TODO: Create backend container and frontend container
 # Maximilian Jaramazovic
-
-
 
 # Comments are provided throughout this file to help you get started.
 # If you need more help, visit the Docker Compose reference guide at
@@ -32,11 +30,11 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - postgres_data:/var/lib/postgresql/data #persistent data
+      - postgres_data:/var/lib/postgresql #persistent data
       - ./seed.pgsql:/docker-entrypoint-initdb.d/seed.sql #preseeding database
       #- ./backend/exercises.json:/docker-entrypoint-initdb.d/exercises.json #library of exercises for database to read from
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres","-d", "gainzdb"]
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "gainzdb"]
       interval: 1m30s
       timeout: 30s
       retries: 5
@@ -60,7 +58,7 @@ services:
       gainzdb:
         condition: service_healthy
         restart: true
-    
+
   #* pgadmin container
   # pgadmin:
   #   container_name: pgadmin4
@@ -81,7 +79,6 @@ services:
 volumes:
   postgres_data:
     driver: local
-
 # secrets:
 #   db-password:
 #     file: ./db/password.txt
