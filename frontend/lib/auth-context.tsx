@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await storage.deleteItem("accessToken");
     await storage.deleteItem("onboarded");
     setUser(null);
-    router.replace("../auth");
+    router.replace("/auth/logIn");
   };
 
   const fetchUserProfile = async (): Promise<UserProfile> => {

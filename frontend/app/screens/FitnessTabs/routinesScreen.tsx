@@ -37,8 +37,12 @@ function RoutineCard({
   routine: Routine;
   onEdit: (r: Routine) => void;
 }) {
+  const handleStartRoutine = () => {
+    alert(`${routine.name} started click detected`);
+  };
+
   return (
-    <View style={{ position: "relative" }}>
+    <Pressable onPress={handleStartRoutine} style={{ position: "relative" }}>
       <View style={styles.card}>
         <View style={{ flex: 1, paddingRight: 8 }}>
           <Text style={styles.cardTitle}>{routine.name}</Text>
@@ -47,19 +51,24 @@ function RoutineCard({
           )}
         </View>
 
-        <Ionicons
-          name="chevron-forward"
-          size={18}
-          color={colorPallet.secondary}
-        />
+        {/* Arrow icon with a larger touchable area */}
+        <TouchableOpacity
+          onPress={() => onEdit(routine)}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 8, // visually invisible padding
+          }}
+        >
+          <Ionicons
+            name="chevron-forward"
+            size={18}
+            color={colorPallet.secondary}
+          />
+        </TouchableOpacity>
       </View>
-
-      <Pressable
-        style={styles.cardOverlay}
-        hitSlop={10}
-        onPress={() => onEdit(routine)}
-      />
-    </View>
+    </Pressable>
   );
 }
 

@@ -1,5 +1,5 @@
 import { AuthProvider, useAuth } from "@/lib/auth-context";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
 import React, { useEffect, useState, useRef } from "react";
 import SplashScreen from "@/components/SplashScreen";
 import {
@@ -48,6 +48,7 @@ function InnerStack() {
       if (!user) {
         hasFetchedProfile.current = false;
         setLoadingUser(false);
+        router.replace("/auth/logIn");
         return;
       }
 
