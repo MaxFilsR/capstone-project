@@ -66,8 +66,6 @@ pub struct UpdateRoutinesRequest {
     id: i32,
     name: String,
     exercises: Json<Vec<Exercise>>,
-    time: i32,
-    gainz: i32,
 }
 
 #[put("/workout/routines")]
