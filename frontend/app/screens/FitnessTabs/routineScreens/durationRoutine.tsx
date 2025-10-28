@@ -1,17 +1,30 @@
-///screens/FitnessTabs/routineScreens/durationRoutine
-
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, TextInput as RNTextInput } from "react-native";
-import { useNavigation, useRouter } from "expo-router";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TextInput as RNTextInput,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
+import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import { typography } from "@/styles";
 import { BackButton, FormButton } from "@/components";
 import { colorPallet } from "@/styles/variables";
-import { TextInput } from "react-native-paper";
+import { recordWorkout, WorkoutExercise } from "@/api/endpoints";
+
+type Params = {
+  routineName?: string;
+  exercises?: string; // JSON stringified array of CompletedExerciseData
+};
 
 export default function DurationRoutineScreen() {
   const navigation = useNavigation();
-  const router = useRouter()
-  const [duration, setDuration] = useState(""); //hh:mm
+  const router = useRouter();
+  const params = useLocalSearchParams<Params>();
+
+  const [duration, setDuration] = useState(""); // hh:mm
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     navigation.setOptions({
@@ -26,13 +39,140 @@ export default function DurationRoutineScreen() {
     router.back();
   }
 
-  function onEndWorkout() {
-    // Go to the Fitness tab root and show the Routines segment
-    router.replace({ pathname: "/(tabs)/fitness", params: { tab: "routines" } });
+  // Parse duration string (hh:mm) to minutes
+  function parseDurationToMinutes(durationStr: string): number {
+    const parts = durationStr.split(":");
+    if (parts.length === 2) {
+      const hours = parseInt(parts[0]) || 0;
+      const minutes = parseInt(parts[1]) || 0;
+      return hours * 60 + minutes;
+    }
+    // If format is just minutes
+    return parseInt(durationStr) || 0;
+  }
+
+  // Calculate points based on workout data
+  function calculatePoints(
+    exercises: WorkoutExercise[],
+    durationMinutes: number
+  ): number {
+    // Example point calculation logic - adjust as needed
+    let points = 0;
+
+    // Points per exercise: sets * reps * weight factor
+    exercises.forEach((ex) => {
+      const setsPoints = ex.sets * 10;
+      const repsPoints = ex.reps * 2;
+      const weightPoints = ex.weight * 0.5;
+      const distancePoints = ex.distance * 1;
+
+      points += setsPoints + repsPoints + weightPoints + distancePoints;
+    });
+
+    // Bonus points for duration (1 point per minute)
+    points += durationMinutes;
+
+    return Math.round(points);
+  }
+
+  async function onEndWorkout() {
+    // Validate duration input
+    if (!duration || !duration.includes(":")) {
+      Alert.alert("Invalid Duration", "Please enter duration in format hh:mm");
+      return;
+    }
+
+    // Parse exercises from params
+    let exercises: WorkoutExercise[] = [];
+    try {
+      if (params.exercises) {
+        exercises = JSON.parse(params.exercises);
+      }
+    } catch (error) {
+      console.error("Failed to parse exercises:", error);
+      Alert.alert("Error", "Failed to load workout data");
+      return;
+    }
+
+    if (exercises.length === 0) {
+      Alert.alert("No Exercises", "No exercise data to record");
+      return;
+    }
+
+    const durationMinutes = parseDurationToMinutes(duration);
+    if (durationMinutes <= 0) {
+      Alert.alert("Invalid Duration", "Please enter a valid workout duration");
+      return;
+    }
+
+    const points = calculatePoints(exercises, durationMinutes);
+
+    // Prepare workout data for API
+    const workoutData = {
+      name: params.routineName || "Workout Session",
+      exercises: exercises.map((ex) => ({
+        id: Number(ex.id),
+        sets: ex.sets,
+        reps: ex.reps,
+        weight: ex.weight,
+        distance: ex.distance,
+      })),
+      date: new Date().toISOString(),
+      duration: durationMinutes,
+      points: points,
+    };
+
+    setIsSubmitting(true);
+
+    try {
+      await recordWorkout(workoutData);
+
+      // Show success message
+      Alert.alert(
+        "Workout Recorded!",
+        `Great job! You earned ${points} points for this ${durationMinutes} minute workout.`,
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              // Navigate to Fitness tab and show Routines segment
+              router.replace({
+                pathname: "/(tabs)/fitness",
+                params: { tab: "routines" },
+              });
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("Failed to record workout:", error);
+      Alert.alert("Error", "Failed to record workout. Please try again.", [
+        {
+          text: "Retry",
+          onPress: onEndWorkout,
+        },
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+      ]);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function onChangeDur(t: string) {
-    const cleaned = t.replace(/[^\d:]/g, "").slice(0, 5);
+    // Allow only digits and colon
+    let cleaned = t.replace(/[^\d:]/g, "");
+
+    // Auto-format as user types
+    if (cleaned.length === 2 && !cleaned.includes(":")) {
+      cleaned = cleaned + ":";
+    }
+
+    // Limit to hh:mm format (5 chars max)
+    cleaned = cleaned.slice(0, 5);
+
     setDuration(cleaned);
   }
 
@@ -47,6 +187,10 @@ export default function DurationRoutineScreen() {
       <View style={styles.contentWrap}>
         <Text style={styles.title}>Workout Duration</Text>
 
+        {params.routineName && (
+          <Text style={styles.routineName}>{params.routineName}</Text>
+        )}
+
         <View style={styles.inputWrap}>
           <RNTextInput
             value={duration}
@@ -56,14 +200,24 @@ export default function DurationRoutineScreen() {
             keyboardType="numbers-and-punctuation"
             returnKeyType="done"
             style={styles.input}
+            editable={!isSubmitting}
           />
         </View>
 
         <FormButton
-          title="End Workout"
+          title={isSubmitting ? "Recording..." : "End Workout"}
           onPress={onEndWorkout}
           style={styles.endButton}
+          disabled={isSubmitting}
         />
+
+        {isSubmitting && (
+          <ActivityIndicator
+            size="large"
+            color={colorPallet.primary}
+            style={{ marginTop: 20 }}
+          />
+        )}
       </View>
     </View>
   );
@@ -93,7 +247,14 @@ const styles = StyleSheet.create({
     ...typography.h1,
     color: colorPallet.neutral_lightest,
     textAlign: "center",
+    marginBottom: 8,
+  },
+  routineName: {
+    ...typography.body,
+    color: colorPallet.primary,
+    textAlign: "center",
     marginBottom: 24,
+    fontWeight: "600",
   },
   inputWrap: {
     borderWidth: 1,
