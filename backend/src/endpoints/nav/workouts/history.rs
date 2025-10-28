@@ -27,14 +27,13 @@ pub async fn create_history(
 ) -> Result<HttpResponse, actix_web::Error> {
     let query = sqlx::query!(
         r#"
-            INSERT INTO history (user_id, name, exercises, date, time, duration, points)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            INSERT INTO history (user_id, name, exercises, date, duration, points)
+            VALUES ($1, $2, $3, $4, $5, $6)
         "#,
         user.id,
         request.name,
         serde_json::to_value(&request.exercises.0).unwrap(),
         request.date,
-        request.time,
         request.duration,
         request.points,
     )
@@ -58,7 +57,7 @@ pub async fn read_history(
     let history: Vec<History> = sqlx::query_as!(
         History,
         r#"
-            SELECT id, name, exercises as "exercises: Json<Vec<Exercise>>", date, time, duration, points
+            SELECT id, name, exercises as "exercises: Json<Vec<Exercise>>", date, duration, points
             FROM history
             WHERE user_id = $1
             ORDER BY date DESC
