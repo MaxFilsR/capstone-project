@@ -6,6 +6,7 @@ import { popupModalStyles } from "@/styles";
 import ViewExerciseModal from "./ViewExerciseModal";
 import CreateRoutineModal from "./CreateRoutineModal";
 import EditRoutineModal from "./EditRoutineModal";
+import StartRoutineModal from "./StartRoutineModal";
 import { AlertBox, AlertMode } from "./AlertBox";
 
 export type Routine = {
@@ -24,7 +25,7 @@ export type Routine = {
 
 type PopupProps = {
   visible: boolean;
-  mode: "viewExercises" | "createRoutine" | "editRoutine";
+  mode: "viewExercises" | "createRoutine" | "editRoutine" | "startRoutine";
   onClose: () => void;
   exercise?: Exercise | null;
   exerciseId?: string | null;
@@ -65,45 +66,75 @@ const Popup: React.FC<PopupProps> = ({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <View style={popupModalStyles.overlay}>
-        <View style={popupModalStyles.modalContainer}>
+      {mode === "startRoutine" ? (
+        // StartRoutine has its own layout and styling
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.5)",
+          }}
+        >
           <TouchableOpacity
-            style={popupModalStyles.backdrop}
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            }}
             activeOpacity={1}
             onPress={onClose}
           />
-
-          <View style={popupModalStyles.contentWrapper}>
-            {/* Child modals */}
-            {mode === "viewExercises" ? (
-              <ViewExerciseModal
-                onClose={onClose}
-                exercise={exercise}
-                exerciseId={exerciseId}
-                showAlert={showAlert} // pass showAlert to child
-              />
-            ) : mode === "createRoutine" ? (
-              <CreateRoutineModal onClose={onClose} showAlert={showAlert} />
-            ) : mode === "editRoutine" && routine ? (
-              <EditRoutineModal
-                onClose={onClose}
-                routine={routine}
-                showAlert={showAlert}
-              />
-            ) : null}
-
-            {/* Centralized alert */}
-            <AlertBox
-              visible={alertVisible}
-              message={alertMessage}
-              mode={alertMode}
-              onClose={() => setAlertVisible(false)}
-              confirmAction={alertConfirmAction}
-              cancelAction={alertCancelAction}
+          {routine && <StartRoutineModal onClose={onClose} routine={routine} />}
+          {/* Centralized alert */}
+          <AlertBox
+            visible={alertVisible}
+            message={alertMessage}
+            mode={alertMode}
+            onClose={() => setAlertVisible(false)}
+            confirmAction={alertConfirmAction}
+            cancelAction={alertCancelAction}
+          />
+        </View>
+      ) : (
+        // Other modals use the standard popup layout
+        <View style={popupModalStyles.overlay}>
+          <View style={popupModalStyles.modalContainer}>
+            <TouchableOpacity
+              style={popupModalStyles.backdrop}
+              activeOpacity={1}
+              onPress={onClose}
             />
+
+            <View style={popupModalStyles.contentWrapper}>
+              {/* Child modals */}
+              {mode === "viewExercises" ? (
+                <ViewExerciseModal
+                  onClose={onClose}
+                  exercise={exercise}
+                  exerciseId={exerciseId}
+                />
+              ) : mode === "createRoutine" ? (
+                <CreateRoutineModal onClose={onClose} />
+              ) : mode === "editRoutine" && routine ? (
+                <EditRoutineModal onClose={onClose} routine={routine} />
+              ) : null}
+
+              {/* Centralized alert */}
+              <AlertBox
+                visible={alertVisible}
+                message={alertMessage}
+                mode={alertMode}
+                onClose={() => setAlertVisible(false)}
+                confirmAction={alertConfirmAction}
+                cancelAction={alertCancelAction}
+              />
+            </View>
           </View>
         </View>
-      </View>
+      )}
     </Modal>
   );
 };

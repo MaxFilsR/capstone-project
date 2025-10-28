@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { Exercise } from "@/api/endpoints";
 import TabBar, { Tab } from "@/components/TabBar";
-import AboutExerciseScreen from "@/app/screens/FitnessTabs/exerciseInfoTabs/aboutExcerciseScreen";
+import AboutExerciseScreen from "@/app/screens/FitnessTabs/exerciseInfoTabs/aboutExerciseScreen";
 import InstructionsExerciseScreen from "@/app/screens/FitnessTabs/exerciseInfoTabs/instructionsExcerciseScreen";
 import { images } from "@/styles";
 import { popupModalStyles } from "@/styles";

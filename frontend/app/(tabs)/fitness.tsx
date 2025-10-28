@@ -1,14 +1,14 @@
 import React from "react";
 import TabBar, { Tab } from "@/components/TabBar";
 import HistoryScreen from "../screens/FitnessTabs/historyScreen";
-import StatsScreen from "../screens/FitnessTabs/statsScreen";
+import RecordsScreen from "../screens/FitnessTabs/recordsScreen";
 import LibraryScreen from "../screens/FitnessTabs/libraryScreen";
 import RoutinesScreen from "../screens/FitnessTabs/routinesScreen";
 
 const FitnessScreen = () => {
   const tabs: Tab[] = [
     { name: "History", component: HistoryScreen },
-    { name: "Stats", component: StatsScreen },
+    { name: "Records", component: RecordsScreen },
     { name: "Routines", component: RoutinesScreen },
     { name: "Library", component: LibraryScreen },
   ];

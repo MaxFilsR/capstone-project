@@ -28,8 +28,7 @@ const SelectedExerciseItem: React.FC<SelectedExerciseItemProps> = ({
   onRemove,
   onUpdateMetric,
 }) => {
-  const hasMetrics =
-    exercise.category === "strength" || exercise.category === "running";
+  const hasMetrics = exercise.category === "" || exercise.category === "";
 
   return (
     <View key={exercise.uniqueId}>

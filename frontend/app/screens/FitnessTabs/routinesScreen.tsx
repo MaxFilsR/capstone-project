@@ -33,12 +33,14 @@ export type Routine = {
 function RoutineCard({
   routine,
   onEdit,
+  onStart,
 }: {
   routine: Routine;
   onEdit: (r: Routine) => void;
+  onStart: (r: Routine) => void;
 }) {
   const handleStartRoutine = () => {
-    alert(`${routine.name} started click detected`);
+    onStart(routine);
   };
 
   return (
@@ -76,11 +78,30 @@ const RoutinesScreen = () => {
   const { routines, loading, error, refreshRoutines } = useRoutines();
   const { exercises } = useWorkoutLibrary();
   const [showModal, setShowModal] = useState(false);
-  const [modalMode, setModalMode] = useState<"createRoutine" | "editRoutine">(
-    "createRoutine"
-  );
+  const [modalMode, setModalMode] = useState<
+    "createRoutine" | "editRoutine" | "startRoutine"
+  >("createRoutine");
   const [selectedRoutine, setSelectedRoutine] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
+
+  const handleStartRoutine = (routine: Routine) => {
+    // Transform routine to include full exercise details for starting
+    const routineWithDetails = {
+      ...routine,
+      exercises: routine.exercises.map((ex: any) => {
+        const fullExercise = exercises.find((e) => e.id === ex.id);
+        return {
+          ...fullExercise,
+          ...ex, // Merge with sets, reps, weight, distance
+          uniqueId: `${ex.id}-${Date.now()}-${Math.random()}`,
+        };
+      }),
+    };
+
+    setModalMode("startRoutine");
+    setSelectedRoutine(routineWithDetails);
+    setShowModal(true);
+  };
 
   const handleEditRoutine = (routine: Routine) => {
     // Transform routine to include full exercise details for editing
@@ -215,6 +236,7 @@ const RoutinesScreen = () => {
               key={r.id ? `routine-${r.id}` : `routine-${index}`}
               routine={r}
               onEdit={handleEditRoutine}
+              onStart={handleStartRoutine}
             />
           ))}
         </View>
@@ -225,7 +247,11 @@ const RoutinesScreen = () => {
         visible={showModal}
         mode={modalMode}
         onClose={handleModalClose}
-        routine={modalMode === "editRoutine" ? selectedRoutine : null}
+        routine={
+          modalMode === "editRoutine" || modalMode === "startRoutine"
+            ? selectedRoutine
+            : null
+        }
       />
 
       <View style={{ height: 24 }} />

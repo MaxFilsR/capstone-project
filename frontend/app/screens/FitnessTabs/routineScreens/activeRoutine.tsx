@@ -1,16 +1,23 @@
-///screens/FitnessTabs/routineScreens/activeRoutine
-
 import React, { useEffect, useState, useMemo } from "react";
-import { View,Text, TouchableOpacity, StyleSheet, Image as RNImage, StyleSheet as RNStyleSheet, ScrollView, TextInput as RNTextInput,} from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image as RNImage,
+  ScrollView,
+  TextInput as RNTextInput,
+} from "react-native";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
-import { typography } from "@/styles";
+import { popupModalStyles, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { Ionicons } from "@expo/vector-icons";
 import { Exercise } from "@/api/endpoints";
-import AboutExerciseScreen from "../exerciseInfoTabs/aboutExcerciseScreen";
 import InstructionsExerciseScreen from "../exerciseInfoTabs/instructionsExcerciseScreen";
+import AboutExerciseScreen from "../exerciseInfoTabs/aboutExerciseScreen";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
 import { Image as ExpoImage } from "expo-image";
+import TabBar, { Tab } from "@/components/TabBar";
 
 type Params = {
   id?: string;
@@ -20,14 +27,16 @@ type Params = {
   index?: string;
 };
 
-type TabKey = "stats" | "about" | "instructions";
-
 type ExerciseLite = {
   id?: string | number;
   name: string;
   thumbnailUrl?: string;
   images?: string[];
   gifUrl?: string;
+  sets?: number;
+  reps?: number;
+  weight?: number;
+  distance?: number;
 };
 
 type ExerciseForAbout = {
@@ -47,16 +56,43 @@ const IMAGE_BASE_URL =
   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
 const FALLBACK_IMG =
-    "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/assisted-dip/assisted-dip-1.png";
-
+  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/assisted-dip/assisted-dip-1.png";
 
 const abs = (u?: string | null) =>
   u ? (u.startsWith("http") ? u : `${IMAGE_BASE_URL}${u}`) : undefined;
 
-function pickTopMedia(
-  ex?: { images?: string[]; thumbnailUrl?: string; gifUrl?: string }
-) {
-  const gifFromImages = ex?.images?.find((u) => u?.toLowerCase().endsWith(".gif"));
+const ImageCarousel = React.memo(({ images }: { images: string[] }) => {
+  const [imageIndex, setImageIndex] = useState(0);
+
+  useEffect(() => {
+    if (images.length > 1) {
+      const interval = setInterval(() => {
+        setImageIndex((prev) => (prev + 1) % images.length);
+      }, 1500);
+      return () => clearInterval(interval);
+    }
+  }, [images.length]);
+
+  const currentImage = images[imageIndex] ?? FALLBACK_IMG;
+
+  return (
+    <ExpoImage
+      source={{ uri: currentImage }}
+      style={styles.routineImage}
+      contentFit="cover"
+      transition={150}
+    />
+  );
+});
+
+function pickTopMedia(ex?: {
+  images?: string[];
+  thumbnailUrl?: string;
+  gifUrl?: string;
+}) {
+  const gifFromImages = ex?.images?.find((u) =>
+    u?.toLowerCase().endsWith(".gif")
+  );
   return (
     abs(ex?.gifUrl) ||
     abs(gifFromImages) ||
@@ -70,8 +106,7 @@ export default function ActiveRoutineScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<Params>();
   const navigation = useNavigation();
-
-  const { exercises: library, loading: libLoading } = useWorkoutLibrary();
+  const { exercises: library } = useWorkoutLibrary();
 
   useEffect(() => {
     navigation.setOptions({
@@ -82,56 +117,61 @@ export default function ActiveRoutineScreen() {
     } as any);
   }, [navigation]);
 
-
   const exercisesLite: ExerciseLite[] = useMemo(() => {
     if (params?.exercises) {
-    try {
-      const arr = JSON.parse(String(params.exercises));
+      try {
+        const arr = JSON.parse(String(params.exercises));
+        if (Array.isArray(arr) && arr.length) {
+          if (typeof arr[0] === "object" && arr[0].id) {
+            return arr.map((ex) => ({
+              id: ex.id,
+              name: ex.name,
+              images: ex.images,
+              thumbnailUrl: ex.thumbnailUrl || ex.images?.[0],
+              gifUrl:
+                ex.gifUrl ||
+                ex.images?.find((u: string) =>
+                  u?.toLowerCase().endsWith(".gif")
+                ),
+              sets: ex.sets,
+              reps: ex.reps,
+              weight: ex.weight,
+              distance: ex.distance,
+            }));
+          }
+          if (typeof arr[0] === "string") {
+            return (arr as string[]).map((name) => {
+              const match = Array.isArray(library)
+                ? library.find(
+                    (e) => e.name?.toLowerCase() === String(name).toLowerCase()
+                  )
+                : undefined;
 
-      if (Array.isArray(arr) && arr.length && typeof arr[0] === "string") {
-        return (arr as string[]).map((name) => {
-          const match = Array.isArray(library)
-            ? library.find(
-                (e) => e.name?.toLowerCase() === String(name).toLowerCase()
-              )
-            : undefined;
-
-          return {
-            id: match?.id ?? name,
-            name,
-            images: match?.images,
-            thumbnailUrl: match?.images?.[0],
-            gifUrl: match?.images?.find((u) => u.toLowerCase().endsWith(".gif")),
-          } as ExerciseLite;
-        });
-      }
-
-      if (Array.isArray(arr) && arr.length) {
-        return arr as ExerciseLite[];
-      }
-    } catch {}
-  }
-
-  if (Array.isArray(library) && library.length) {
-    return library.map((e) => ({
-      id: e.id,
-      name: e.name,
-      images: e.images,
-      thumbnailUrl: e.images?.[0],
-      gifUrl: e.images?.find((u) => u.toLowerCase().endsWith(".gif")),
-    }));
-  }
-
-  return [];
-}, [params?.exercises, library]);
-
+              return {
+                id: match?.id ?? name,
+                name,
+                images: match?.images,
+                thumbnailUrl: match?.images?.[0],
+                gifUrl: match?.images?.find((u) =>
+                  u.toLowerCase().endsWith(".gif")
+                ),
+              } as ExerciseLite;
+            });
+          }
+        }
+      } catch {}
+    }
+    return [];
+  }, [params?.exercises, library]);
 
   const [currentIndex, setCurrentIndex] = useState<number>(
     Math.max(0, Number(params?.index ?? 0))
   );
 
   const hasExercises = exercisesLite.length > 0;
-  const safeIndex = hasExercises ? Math.min(currentIndex, exercisesLite.length - 1) : 0;
+  const safeIndex = hasExercises
+    ? Math.min(currentIndex, exercisesLite.length - 1)
+    : 0;
   const currentLite = hasExercises ? exercisesLite[safeIndex] : undefined;
 
   const fullExercise: Exercise | undefined = useMemo(() => {
@@ -140,25 +180,26 @@ export default function ActiveRoutineScreen() {
       library.find((e) => String(e.id) === String(currentLite.id)) ||
       library.find(
         (e) =>
-          e.name?.toLowerCase() ===
-          String(currentLite.name || "").toLowerCase()
+          e.name?.toLowerCase() === String(currentLite.name || "").toLowerCase()
       );
     return byId;
   }, [currentLite?.id, currentLite?.name, library]);
 
-  const topImage = React.useMemo(
-  () => pickTopMedia(fullExercise || currentLite),
-  [fullExercise, currentLite]
-  );
-
-  // Tabs
-  const [tab, setTab] = useState<TabKey>("stats");
+  // ----- IMAGE CYCLE LOGIC -----
+  const topImages = useMemo(() => {
+    const imgs = fullExercise?.images ?? currentLite?.images ?? [];
+    return imgs.map(abs).filter(Boolean) as string[];
+  }, [fullExercise, currentLite]);
+  // -------------------------------
 
   const [sets, setSets] = useState(
     Array.from({ length: 4 }, () => ({ reps: "", weight: "" }))
   );
+
   function updateSet(index: number, key: "reps" | "weight", val: string) {
-    setSets((prev) => prev.map((s, i) => (i === index ? { ...s, [key]: val } : s)));
+    setSets((prev) =>
+      prev.map((s, i) => (i === index ? { ...s, [key]: val } : s))
+    );
   }
 
   function onPrev() {
@@ -167,6 +208,7 @@ export default function ActiveRoutineScreen() {
       setSets(Array.from({ length: 4 }, () => ({ reps: "", weight: "" })));
     }
   }
+
   function onNext() {
     if (currentIndex < exercisesLite.length - 1) {
       setCurrentIndex((i) => i + 1);
@@ -175,6 +217,7 @@ export default function ActiveRoutineScreen() {
       onEnd();
     }
   }
+
   function onEnd() {
     router.push("/screens/FitnessTabs/routineScreens/durationRoutine");
   }
@@ -197,56 +240,66 @@ export default function ActiveRoutineScreen() {
     [fullExercise, currentLite]
   );
 
+  const StatsTab = () => (
+    <ScrollView
+      style={{ flex: 1 }}
+      contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 12 }}
+    >
+      <StatsCard
+        title={`Log Weight — ${fullExercise?.name ?? currentLite?.name ?? ""}`}
+        sets={sets}
+        onChange={updateSet}
+      />
+    </ScrollView>
+  );
+
+  const AboutTab = () => (
+    <AboutExerciseScreen exercise={fullExercise as Exercise} />
+  );
+
+  const InstructionsTab = () => (
+    <InstructionsExerciseScreen exercise={fullExercise as Exercise} />
+  );
+
+  const tabs: Tab[] = [
+    { name: "Stats", component: StatsTab },
+    { name: "About", component: AboutTab },
+    { name: "Instructions", component: InstructionsTab },
+  ];
+
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
+
   return (
     <View style={{ flex: 1, backgroundColor: colorPallet.neutral_darkest }}>
       {/* Top image */}
-      <ExpoImage
-        source={{ uri: topImage }}
-        style={styles.routineImage}
-        contentFit="cover"
-        transition={150}
+      <ImageCarousel images={topImages} />
+
+      {/* TabBar */}
+      <TabBar
+        tabs={tabs}
+        pageTitle={fullExercise?.name ?? currentLite?.name ?? ""}
+        initialTab={0}
+        onTabChange={setActiveTabIndex}
+        outerContainerStyle={popupModalStyles.tabOuterContainer}
+        tabBarContainerStyle={popupModalStyles.tabBarContainer}
+        tabBarStyle={popupModalStyles.tabBar}
+        tabButtonStyle={popupModalStyles.tabButton}
+        pageTitleStyle={popupModalStyles.pageTitle}
       />
 
-      {/* Tabs */}
-      <View style={styles.tabsWrap}>
-        <View style={styles.tabsPill}>
-          <TabButton label="Stats" active={tab === "stats"} onPress={() => setTab("stats")} />
-          <TabButton label="About" active={tab === "about"} onPress={() => setTab("about")} />
-          <TabButton label="Instructions" active={tab === "instructions"} onPress={() => setTab("instructions")} />
-        </View>
-      </View>
-
-      {/* Content */}
-      {tab === "about" ? (
-        <AboutLike exercise={aboutExercise} />
-      ) : tab === "instructions" ? (
-        <InstructionsExerciseScreen
-          exercise={
-            (fullExercise as Exercise) ||
-            ({ id: String(currentLite?.id ?? "0"), name: currentLite?.name ?? "", instructions: [] } as Exercise)
-          }
-        />
-      ) : (
-        <ScrollView
-          style={{ flex: 1 }}
-          contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 12 }}
-        >
-          <StatsCard
-            title={`Log Weight — ${fullExercise?.name ?? currentLite?.name ?? ""}`}
-            sets={sets}
-            onChange={updateSet}
-          />
-        </ScrollView>
-      )}
-
-      {tab == "stats" && ( // tabs only in stats
+      {/* Control buttons */}
+      {activeTabIndex === 0 && (
         <View style={styles.transport}>
           <TouchableOpacity
             style={[styles.smallRound, currentIndex === 0 && { opacity: 0.4 }]}
             onPress={onPrev}
             disabled={currentIndex === 0}
           >
-            <Ionicons name="play-back" size={20} color={colorPallet.neutral_lightest} />
+            <Ionicons
+              name="play-back"
+              size={20}
+              color={colorPallet.neutral_lightest}
+            />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.endRound} onPress={onEnd}>
@@ -261,34 +314,16 @@ export default function ActiveRoutineScreen() {
             onPress={onNext}
             disabled={currentIndex >= exercisesLite.length - 1}
           >
-            <Ionicons name="play-forward" size={20} color={colorPallet.neutral_lightest} />
+            <Ionicons
+              name="play-forward"
+              size={20}
+              color={colorPallet.neutral_lightest}
+            />
           </TouchableOpacity>
         </View>
       )}
     </View>
   );
-}
-
-
-function TabButton({
-  label,
-  active,
-  onPress,
-}: {
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      style={[styles.tabButton, active && styles.tabButtonActive]}
-    >
-      <Text style={[styles.tabText, active && styles.tabTextActive]}>
-        {label}
-      </Text>
-    </TouchableOpacity>
-  )
 }
 
 function StatsCard({
@@ -302,14 +337,12 @@ function StatsCard({
 }) {
   return (
     <View style={styles.card}>
-      <Text style={[styles.cardTitle, { marginBottom: 20}]}>{title}</Text>
+      <Text style={[styles.cardTitle, { marginBottom: 20 }]}>{title}</Text>
 
       <View style={{ gap: 14, marginTop: 12 }}>
         {sets.map((s, i) => (
           <View style={styles.setRow} key={i}>
             <Text style={styles.setIndex}>{i + 1}</Text>
-
-            {/* reps input */}
 
             <View style={[styles.inputWrap, { marginRight: 10 }]}>
               <RNTextInput
@@ -318,26 +351,20 @@ function StatsCard({
                 placeholder="Reps"
                 placeholderTextColor={colorPallet.neutral_4}
                 keyboardType="numeric"
-                style={[
-                  styles.input,
-                  { color: colorPallet.neutral_lightest }, //visible text
-                ]}
+                style={[styles.input, { color: colorPallet.neutral_lightest }]}
               />
             </View>
 
             <Text style={styles.times}>x</Text>
 
-            <View style={[styles.inputWrap, {marginLeft: 10 }]}>
+            <View style={[styles.inputWrap, { marginLeft: 10 }]}>
               <RNTextInput
                 value={s.weight}
                 onChangeText={(t) => onChange(i, "weight", t)}
                 placeholder="Weight"
                 placeholderTextColor={colorPallet.neutral_4}
                 keyboardType="numeric"
-                style={[
-                  styles.input,
-                  { color: colorPallet.neutral_lightest }, //visible text
-                ]}
+                style={[styles.input, { color: colorPallet.neutral_lightest }]}
               />
             </View>
           </View>
@@ -347,148 +374,12 @@ function StatsCard({
   );
 }
 
-function AboutLike({ exercise }: { exercise: ExerciseForAbout }) {
-  const muscleImagesMap: Record<string, any> = {
-    Abdominals: require("@/assets/images/muscleGroups/Abdominals.png"),
-    Abductors: require("@/assets/images/muscleGroups/Abductors.png"),
-    Adductors: require("@/assets/images/muscleGroups/Adductors.png"),
-    Biceps: require("@/assets/images/muscleGroups/Biceps.png"),
-    Calves: require("@/assets/images/muscleGroups/Calves.png"),
-    Chest: require("@/assets/images/muscleGroups/Chest.png"),
-    Forearms: require("@/assets/images/muscleGroups/Forearms.png"),
-    Glutes: require("@/assets/images/muscleGroups/Glutes.png"),
-    Hamstrings: require("@/assets/images/muscleGroups/Hamstrings.png"),
-    Lats: require("@/assets/images/muscleGroups/Lats.png"),
-    Neck: require("@/assets/images/muscleGroups/Neck.png"),
-    Shoulders: require("@/assets/images/muscleGroups/Shoulders.png"),
-    Triceps: require("@/assets/images/muscleGroups/Triceps.png"),
-  };
-
-  const combinedMuscles = [
-    ...(exercise.primaryMuscles || []).map((name) => ({ name, type: "primary" as const })),
-    ...(exercise.secondaryMuscles || []).map((name) => ({ name, type: "secondary" as const })),
-  ];
-
-  const muscleImages =
-    combinedMuscles
-      .map((m) => {
-        const normalized = m.name.charAt(0).toUpperCase() + m.name.slice(1).toLowerCase();
-        const img = muscleImagesMap[normalized];
-        return img ? { img, type: m.type } : null;
-      })
-      .filter(Boolean) as { img: any; type: "primary" | "secondary" }[];
-
-  const infoCards = [
-    { label: "Equipment", value: exercise.equipment },
-    { label: "Force Type", value: exercise.force },
-    { label: "Difficulty Level", value: exercise.level },
-    { label: "Mechanic", value: exercise.mechanic },
-    { label: "Category", value: exercise.category },
-  ].filter((i) => i.value);
-
-  return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: colorPallet.neutral_6 }}
-      contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 8, paddingBottom: 24 }}
-      showsVerticalScrollIndicator
-    >
-      {combinedMuscles.length > 0 && (
-        <View style={{ marginBottom: 18 }}>
-          <Text style={aboutStyles.sectionTitle}>MUSCLES</Text>
-
-          {/* muscle tags */}
-          <View style={aboutStyles.tagWrap}>
-            {combinedMuscles.map((m, i) => (
-              <View
-                key={`${m.name}-${i}`}
-                style={[
-                  aboutStyles.tag,
-                  m.type === "secondary" && aboutStyles.tagSecondary,
-                ]}
-              >
-                <Text
-                  style={[
-                    aboutStyles.tagText,
-                    m.type === "secondary" && { color: colorPallet.secondary },
-                  ]}
-                >
-                  {m.name}
-                </Text>
-              </View>
-            ))}
-          </View>
-
-          {/* images */}
-          {muscleImages.length > 0 && (
-            <ScrollView
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              style={{ marginTop: 12, alignSelf: "stretch" }}
-              contentContainerStyle={{
-                paddingRight: 8,
-                flexGrow: 1,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              {muscleImages.map((m, idx) => (
-                <RNImage
-                  key={idx}
-                  source={m.img}
-                  resizeMode="contain"
-                  style={[
-                    aboutStyles.muscleImage,
-                    {
-                      alignSelf: "center",
-                      borderColor:
-                        m.type === "primary" ? colorPallet.primary : colorPallet.secondary,
-                    },
-                  ]}
-                />
-              ))}
-            </ScrollView>
-          )}
-        </View>
-      )}
-
-      {/* info */}
-      {infoCards.length > 0 && (
-        <View style={{ marginTop: 6 }}>
-          <Text style={aboutStyles.sectionTitle}>INFORMATION</Text>
-          <View style={aboutStyles.infoGrid}>
-            {infoCards.map((it, i) => (
-              <View key={i} style={aboutStyles.infoCard}>
-                <Text style={aboutStyles.infoLabel}>{it.label}</Text>
-                <Text style={aboutStyles.infoValue as any}>{it.value}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-      )}
-    </ScrollView>
-  );
-}
-
-function InstructionCard() {
-  return (
-    <View style={styles.card}>
-      <Text style={styles.cardTitle}>Instructions</Text>
-      <Text style={styles.body}>
-        xyz
-      </Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   routineImage: {
-    width:"100%",
+    width: "100%",
     height: 340,
-    backgroundColor: colorPallet.neutral_6
+    backgroundColor: colorPallet.neutral_6,
   },
-
-  /* tabs */
   tabsWrap: {
     paddingHorizontal: 8,
     marginHorizontal: 4,
@@ -512,25 +403,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 10,
   },
-  tabButtonActive: {
-    backgroundColor: colorPallet.primary,
-  },
   tabText: {
-    color: colorPallet.neutral_1,
     fontWeight: "700",
   },
-  tabTextActive: {
-    color: colorPallet.neutral_darkest,
-    fontWeight: "700",
-  },
-  TabDivider: {
-    width: 1,
-    height: 20,
-    backgroundColor: colorPallet.neutral_5,
-    marginHorizontal: 6,
-  },
-
-  /* cards */
   card: {
     backgroundColor: colorPallet.neutral_darkest,
     paddingVertical: 16,
@@ -543,13 +418,6 @@ const styles = StyleSheet.create({
     color: colorPallet.neutral_lightest,
     marginBottom: 2,
   },
-  body: {
-    color: colorPallet.neutral_2,
-    marginTop: 6,
-    lineHeight: 20,
-  },
-
-  /* stats */
   setRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -590,7 +458,6 @@ const styles = StyleSheet.create({
     color: colorPallet.primary,
     fontWeight: "400",
   },
-  /* control buttons */
   transport: {
     position: "absolute",
     left: 0,
@@ -689,5 +556,3 @@ const aboutStyles = StyleSheet.create({
     fontWeight: "400",
   },
 });
-
-

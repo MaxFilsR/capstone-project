@@ -9,8 +9,6 @@ import {
 } from "react-native";
 import { Exercise } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
-import { FormButton } from "@/components";
-import { AddToRoutineModal } from "@/components/popupModals/AddToRoutineModal";
 
 type AboutExerciseScreenProps = {
   exercise: Exercise;
@@ -152,18 +150,6 @@ const AboutExerciseScreen: React.FC<AboutExerciseScreenProps> = ({
           </View>
         </View>
       )}
-
-      <View>
-        <FormButton
-          title="Add to routine"
-          onPress={() => setShowRoutineModal(true)}
-        />
-        <AddToRoutineModal
-          visible={showRoutineModal}
-          onClose={() => setShowRoutineModal(false)}
-          exerciseId={exercise.id}
-        />
-      </View>
     </ScrollView>
   );
 };

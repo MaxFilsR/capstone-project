@@ -8,7 +8,7 @@ const RecordsScreen = () => (
   <ScrollView style={tabStyles.tabContent}>
     <Image style={globalStyles.logo} source={logo} />
 
-    <Text style={[globalStyles.h1, { alignSelf: "center" }]}> Stats Tab</Text>
+    <Text style={[globalStyles.h1, { alignSelf: "center" }]}> Coming Soon</Text>
   </ScrollView>
 );
 
