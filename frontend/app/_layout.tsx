@@ -10,6 +10,7 @@ import {
 import { Anton_400Regular } from "@expo-google-fonts/anton";
 import { WorkoutLibraryProvider } from "@/lib/workout-library-context";
 import { RoutinesProvider } from "@/lib/routines-context";
+import { storage } from "@/utils/storageHelper";
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
@@ -45,12 +46,16 @@ function InnerStack() {
 
   useEffect(() => {
     async function verifyUser() {
-      if (!user) {
+      const token = await storage.getItem("accessToken");
+
+      // ✅ If no token, don't even try fetching the profile
+      if (!token || !user) {
         hasFetchedProfile.current = false;
         setLoadingUser(false);
         return;
       }
 
+      // ✅ If user hasn’t completed onboarding, skip
       if (user.onboarded !== true) {
         setLoadingUser(false);
         return;

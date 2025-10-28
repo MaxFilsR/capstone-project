@@ -52,7 +52,7 @@ const CachedExerciseImage = React.memo(
       <Image
         source={{ uri: imageUrl }}
         style={styles.thumbnail}
-        resizeMode="cover"
+        // resizeMode="cover"
         defaultSource={require("@/assets/images/icon.png")}
       />
     );

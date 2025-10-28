@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { getRoutines, RoutineResponse } from "@/api/endpoints";
+import { useAuth } from "@/lib/auth-context";
 
 type RoutinesContextType = {
   routines: RoutineResponse[];
@@ -15,11 +16,18 @@ const RoutinesContext = createContext<RoutinesContextType | undefined>(
 export const RoutinesProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const { user } = useAuth();
   const [routines, setRoutines] = useState<RoutineResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchRoutines = async () => {
+    if (!user) {
+      setRoutines([]);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -35,7 +43,7 @@ export const RoutinesProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     fetchRoutines();
-  }, []);
+  }, [user]); // ✅ Now refetches when user changes
 
   return (
     <RoutinesContext.Provider
