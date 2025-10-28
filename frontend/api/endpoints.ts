@@ -113,32 +113,6 @@ export async function getWorkoutLibrary(): Promise<Exercise[]> {
   return data;
 }
 
-// Workout History
-export type WorkoutSession = {
-  id: string;
-  name: string;
-  date: string;
-  workoutTime: number;
-  pointsEarned: number;
-};
-
-export type MonthGroup = {
-  monthYear: string; // ex: "2025-10"
-  displayMonth: string; // ex: "October 2025"
-  totalSessions: number;
-  totalGainz: number;
-  workouts: WorkoutSession[];
-};
-
-/**
- * Fetch grouped workout history for the authenticated user
- * GET /workouts/history
- */
-export async function getWorkoutHistory(): Promise<MonthGroup[]> {
-  const response = await apiClient.get("/workouts/history");
-  return response.data;
-}
-
 /**
  * Fetch details of a specific workout by ID
  * GET /workouts/history/${id}
@@ -242,4 +216,50 @@ export async function getRoutines(): Promise<GetRoutinesResponse> {
     "/workout/routines"
   );
   return data;
+}
+
+// Workout History
+export type WorkoutExercise = {
+  id: number;
+  sets: number;
+  reps: number;
+  weight: number;
+  distance: number;
+};
+
+export type WorkoutSession = {
+  id: number;
+  name: string;
+  exercises: WorkoutExercise[];
+  date: string; // ISO 8601
+  duration: number;
+  points: number;
+};
+
+export type RecordWorkoutRequest = {
+  name: string;
+  exercises: WorkoutExercise[];
+  date: string; // ISO 8601
+  duration: number;
+  points: number;
+};
+
+/**
+ * Fetch workout history for the authenticated user
+ * GET /workouts/history
+ */
+export async function getWorkoutHistory(): Promise<WorkoutSession[]> {
+  const response = await apiClient.get("/workouts/history");
+  return response.data;
+}
+
+/**
+ * Record a new workout session
+ * POST /workouts/history
+ */
+export async function recordWorkout(
+  payload: RecordWorkoutRequest
+): Promise<WorkoutSession> {
+  const response = await apiClient.post("/workouts/history", payload);
+  return response.data;
 }

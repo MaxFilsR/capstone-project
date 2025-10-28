@@ -52,6 +52,15 @@ type ExerciseForAbout = {
   images: string[];
 };
 
+// Type for storing completed exercise data
+type CompletedExerciseData = {
+  id: string | number;
+  sets: number;
+  reps: number;
+  weight: number;
+  distance: number;
+};
+
 const IMAGE_BASE_URL =
   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
@@ -168,6 +177,11 @@ export default function ActiveRoutineScreen() {
     Math.max(0, Number(params?.index ?? 0))
   );
 
+  // Store all exercise data as user progresses through workout
+  const [completedExercises, setCompletedExercises] = useState<
+    Map<number, CompletedExerciseData>
+  >(new Map());
+
   const hasExercises = exercisesLite.length > 0;
   const safeIndex = hasExercises
     ? Math.min(currentIndex, exercisesLite.length - 1)
@@ -192,9 +206,33 @@ export default function ActiveRoutineScreen() {
   }, [fullExercise, currentLite]);
   // -------------------------------
 
-  const [sets, setSets] = useState(
-    Array.from({ length: 4 }, () => ({ reps: "", weight: "" }))
-  );
+  // Initialize sets from completed data or default
+  const [sets, setSets] = useState(() => {
+    const existing = completedExercises.get(currentIndex);
+    if (existing) {
+      // Reconstruct the sets array from stored data
+      return Array.from({ length: 4 }, () => ({
+        reps: String(existing.reps || ""),
+        weight: String(existing.weight || ""),
+      }));
+    }
+    return Array.from({ length: 4 }, () => ({ reps: "", weight: "" }));
+  });
+
+  // Load sets data when index changes
+  useEffect(() => {
+    const existing = completedExercises.get(currentIndex);
+    if (existing) {
+      setSets(
+        Array.from({ length: 4 }, () => ({
+          reps: String(existing.reps || ""),
+          weight: String(existing.weight || ""),
+        }))
+      );
+    } else {
+      setSets(Array.from({ length: 4 }, () => ({ reps: "", weight: "" })));
+    }
+  }, [currentIndex]);
 
   function updateSet(index: number, key: "reps" | "weight", val: string) {
     setSets((prev) =>
@@ -202,24 +240,62 @@ export default function ActiveRoutineScreen() {
     );
   }
 
+  // Save current exercise data before moving to next
+  function saveCurrentExercise() {
+    if (!currentLite?.id) return;
+
+    // Calculate totals from all sets
+    const totalSets = sets.filter((s) => s.reps || s.weight).length;
+    const totalReps = sets.reduce((sum, s) => sum + (Number(s.reps) || 0), 0);
+    const avgWeight =
+      sets.reduce((sum, s) => sum + (Number(s.weight) || 0), 0) /
+      (totalSets || 1);
+
+    const exerciseData: CompletedExerciseData = {
+      id: currentLite.id,
+      sets: totalSets,
+      reps: totalReps,
+      weight: avgWeight,
+      distance: 0, // You can add distance tracking if needed
+    };
+
+    setCompletedExercises((prev) =>
+      new Map(prev).set(currentIndex, exerciseData)
+    );
+  }
+
   function onPrev() {
     if (currentIndex > 0) {
+      saveCurrentExercise();
       setCurrentIndex((i) => i - 1);
-      setSets(Array.from({ length: 4 }, () => ({ reps: "", weight: "" })));
     }
   }
 
   function onNext() {
+    saveCurrentExercise();
+
     if (currentIndex < exercisesLite.length - 1) {
       setCurrentIndex((i) => i + 1);
-      setSets(Array.from({ length: 4 }, () => ({ reps: "", weight: "" })));
     } else {
       onEnd();
     }
   }
 
   function onEnd() {
-    router.push("/screens/FitnessTabs/routineScreens/durationRoutine");
+    // Save current exercise before ending
+    saveCurrentExercise();
+
+    // Convert Map to array for passing to next screen
+    const exercisesArray = Array.from(completedExercises.values());
+
+    // Pass workout data to duration screen
+    router.push({
+      pathname: "/screens/FitnessTabs/routineScreens/durationRoutine",
+      params: {
+        routineName: params.name || "Workout",
+        exercises: JSON.stringify(exercisesArray),
+      },
+    });
   }
 
   const aboutExercise: ExerciseForAbout = useMemo(
