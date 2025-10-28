@@ -1,6 +1,6 @@
 use std::fs;
 
-use actix_web::{HttpResponse, Result, error::ErrorBadRequest, get, web};
+use actix_web::{HttpResponse, Result, get, web};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -20,7 +20,7 @@ pub struct Exercise {
 
 #[get("/workouts/library")]
 async fn library() -> Result<HttpResponse, actix_web::Error> {
-    let file_path = "./db/exercises.json";
+    let file_path = "/app/exercises.json";
 
     let file_content = web::block(move || fs::read_to_string(file_path))
         .await?

@@ -1,6 +1,6 @@
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { Stack } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import SplashScreen from "@/components/SplashScreen";
 import {
   useFonts,
@@ -8,6 +8,9 @@ import {
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
 import { Anton_400Regular } from "@expo-google-fonts/anton";
+import { WorkoutLibraryProvider } from "@/lib/workout-library-context";
+import { RoutinesProvider } from "@/lib/routines-context";
+import { storage } from "@/utils/storageHelper";
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
@@ -27,19 +30,52 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <InnerStack />
+      <WorkoutLibraryProvider>
+        <RoutinesProvider>
+          <InnerStack />
+        </RoutinesProvider>
+      </WorkoutLibraryProvider>
     </AuthProvider>
   );
 }
 
 function InnerStack() {
-  const { user } = useAuth();
+  const { user, fetchUserProfile, logout } = useAuth();
   const [loadingUser, setLoadingUser] = useState(true);
+  const hasFetchedProfile = useRef(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoadingUser(false), 100);
-    return () => clearTimeout(timer);
-  }, []);
+    async function verifyUser() {
+      const token = await storage.getItem("accessToken");
+
+      // ✅ If no token, don't even try fetching the profile
+      if (!token || !user) {
+        hasFetchedProfile.current = false;
+        setLoadingUser(false);
+        return;
+      }
+
+      // ✅ If user hasn’t completed onboarding, skip
+      if (user.onboarded !== true) {
+        setLoadingUser(false);
+        return;
+      }
+
+      if (hasFetchedProfile.current) return;
+      hasFetchedProfile.current = true;
+
+      try {
+        await fetchUserProfile();
+      } catch (err) {
+        console.warn("Failed to load user profile:", err);
+        await logout();
+      } finally {
+        setLoadingUser(false);
+      }
+    }
+
+    verifyUser();
+  }, [user]);
 
   if (loadingUser) return <SplashScreen />;
 
@@ -51,12 +87,10 @@ function InnerStack() {
         headerShadowVisible: false,
       }}
     >
-      {/* Main app - for authenticated AND onboarded users */}
       <Stack.Protected guard={!!user && user.onboarded === true}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack.Protected>
 
-      {/* Auth folder - handles both login AND onboarding */}
       <Stack.Protected guard={!user || user.onboarded !== true}>
         <Stack.Screen name="auth" options={{ headerShown: false }} />
       </Stack.Protected>
