@@ -4,7 +4,12 @@ pub mod endpoints {
         pub mod quests;
         pub mod social;
         pub mod summary;
-        pub mod workouts;
+        pub mod workouts {
+            pub mod history;
+            pub mod library;
+            pub mod records;
+            pub mod routines;
+        }
     }
     pub mod auth;
     pub mod constants;

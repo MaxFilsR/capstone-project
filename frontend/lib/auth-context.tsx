@@ -6,11 +6,10 @@ import React, {
   ReactNode,
 } from "react";
 import { router } from "expo-router";
-import { clearMockUserProfile, getMe, UserProfile } from "@/api/endpoints";
+import { getMe, UserProfile } from "@/api/endpoints";
 import { storage } from "@/utils/storageHelper";
 
 type User = {
-  email?: string;
   onboarded?: boolean;
   profile?: UserProfile;
 };
@@ -18,7 +17,7 @@ type User = {
 type AuthContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
-  login: (token: string, email?: string, onboarded?: boolean) => Promise<void>;
+  login: (token: string, onboarded: boolean) => Promise<void>;
   logout: () => Promise<void>;
   completeOnboarding: () => Promise<void>;
   fetchUserProfile: () => Promise<UserProfile>;
@@ -33,12 +32,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     async function loadUser() {
       const token = await storage.getItem("accessToken");
-      const email = await storage.getItem("userEmail");
       const onboardedStr = await storage.getItem("onboarded");
 
       if (token) {
         setUser({
-          email: email || undefined,
           onboarded: onboardedStr === "true",
         });
       }
@@ -46,19 +43,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loadUser();
   }, []);
 
-  const login = async (
-    token: string,
-    email?: string,
-    onboarded: boolean = false
-  ) => {
+  const login = async (token: string, onboarded: boolean) => {
     await storage.setItem("accessToken", token);
-    if (email) {
-      await storage.setItem("userEmail", email);
-    }
     await storage.setItem("onboarded", String(onboarded));
 
     setUser({
-      email,
       onboarded,
     });
   };
@@ -70,9 +59,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = async () => {
     await storage.deleteItem("accessToken");
-    await storage.deleteItem("userEmail");
     await storage.deleteItem("onboarded");
-    await clearMockUserProfile();
     setUser(null);
     router.replace("../auth");
   };

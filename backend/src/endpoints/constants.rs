@@ -8,13 +8,13 @@ use sqlx::PgPool;
 
 #[derive(Serialize)]
 struct ClassesResponse {
-    pub classes: Vec<ClassRow>,
+    pub classes: Vec<ClassesRow>,
 }
 
 #[post("/constants/classes")]
 async fn classes(pool: web::Data<PgPool>) -> Result<HttpResponse, actix_web::Error> {
-    let classes: Vec<ClassRow> = sqlx::query_as!(
-        ClassRow,
+    let classes: Vec<ClassesRow> = sqlx::query_as!(
+        ClassesRow,
         r#"
             SELECT id, name, stats as "stats: Stats"
             FROM classes

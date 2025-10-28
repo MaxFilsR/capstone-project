@@ -5,6 +5,7 @@ export const tabStyles = StyleSheet.create({
   tabContent: {
     flex: 1,
     backgroundColor: colorPallet.neutral_darkest,
+    paddingHorizontal: 22,
   },
   contentTitle: {
     fontSize: 24,
@@ -28,7 +29,6 @@ export const tabStyles = StyleSheet.create({
   tabBarContainer: {
     paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: colorPallet.neutral_darkest,
   },
   tabBar: {
     flexDirection: "row",

@@ -16,10 +16,14 @@ type FormInputProps = {
   placeholder?: string;
   value?: string;
   onChangeText?: (text: string) => void;
+  onBlur?: () => void;
   secureTextEntry?: boolean;
   keyboardType?: "default" | "email-address" | "numeric";
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
-  style?: ViewStyle;
+  containerStyle?: ViewStyle;
+  labelStyle?: TextStyle;
+  inputStyle?: TextStyle;
+  iconContainerStyle?: ViewStyle;
 };
 
 export const FormTextInput = ({
@@ -30,13 +34,17 @@ export const FormTextInput = ({
   secureTextEntry = false,
   keyboardType = "default",
   autoCapitalize = "none",
+  containerStyle,
+  labelStyle,
+  inputStyle,
+  iconContainerStyle,
 }: FormInputProps) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <View>
-      <Text style={styles.label}>{label}</Text>
+    <View style={containerStyle}>
+      <Text style={[styles.label, labelStyle]}>{label}</Text>
 
       <View>
         <TextInput
@@ -47,6 +55,7 @@ export const FormTextInput = ({
                 ? colorPallet.primary
                 : colorPallet.neutral_lightest,
             },
+            inputStyle,
           ]}
           placeholder={placeholder}
           placeholderTextColor={colorPallet.neutral_3}
@@ -62,7 +71,7 @@ export const FormTextInput = ({
         {secureTextEntry && (
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
-            style={styles.iconContainer}
+            style={[styles.iconContainer, iconContainerStyle]}
           >
             <Ionicons
               name={showPassword ? "eye-off" : "eye"}
