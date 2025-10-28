@@ -216,14 +216,15 @@ CREATE TABLE IF NOT EXISTS
 
 -- History
 CREATE TABLE IF NOT EXISTS 
-	workout_history (
-		id TEXT PRIMARY KEY,                			
+	history (
+		id SERIAL PRIMARY KEY,
 		user_id INTEGER NOT NULL REFERENCES users(id),
-		name TEXT NOT NULL,                 			
-		date TIMESTAMP NOT NULL,            			
-		duration_minutes INTEGER NOT NULL,  			
-		points_earned INTEGER DEFAULT 0,    			
-		created_at TIMESTAMP DEFAULT NOW()
+		name TEXT NOT NULL,
+		exercises JSONB NOT NULL,
+		date DATE NOT NULL,         			
+		-- time TIME NOT NULL,         			
+		duration INTEGER NOT NULL,  			
+		points INTEGER NOT NULL
 	);
 
 

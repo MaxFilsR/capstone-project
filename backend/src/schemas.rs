@@ -1,3 +1,4 @@
+use chrono::{NaiveDate, NaiveTime};
 use serde::{Deserialize, Serialize};
 use sqlx::types::Json;
 
@@ -40,14 +41,6 @@ pub struct UserInfoRow {
     pub workout_schedule: Vec<bool>,
 }
 
-#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
-pub struct RoutinesRow {
-    pub id: i32,
-    pub user_id: i32,
-    pub name: String,
-    pub exercises: Json<Vec<Exercise>>,
-}
-
 #[derive(Deserialize, Serialize, sqlx::Type, Debug)]
 pub struct Exercise {
     pub id: String,
@@ -57,9 +50,45 @@ pub struct Exercise {
     pub distance: f32,
 }
 
+#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
+pub struct RoutinesRow {
+    pub id: i32,
+    pub user_id: i32,
+    pub name: String,
+    pub exercises: Json<Vec<Exercise>>,
+}
+
 #[derive(Deserialize, Serialize, sqlx::FromRow)]
 pub struct Routine {
     pub id: i32,
     pub name: String,
     pub exercises: Json<Vec<Exercise>>,
+}
+
+#[derive(Serialize, Deserialize, sqlx::FromRow)]
+struct HistoryRow {
+    pub id: i32,
+    pub user_id: i32,
+    pub name: String,
+    pub exercises: Json<Vec<Exercise>>,
+    pub date: NaiveDate,
+    pub time: NaiveTime,
+    pub duration: i32,
+    pub points: i32,
+}
+
+struct HistoryRoutine {
+    pub name: String,
+    pub exercises: Json<Vec<Exercise>>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct History {
+    pub id: i32,
+    pub name: String,
+    pub exercises: Json<Vec<Exercise>>,
+    pub date: NaiveDate,
+    // pub time: NaiveTime,
+    pub duration: i32,
+    pub points: i32,
 }
