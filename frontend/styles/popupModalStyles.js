@@ -1,0 +1,181 @@
+import { Dimensions, StyleSheet } from "react-native";
+import { colorPallet } from "./variables";
+
+const { height: SCREEN_HEIGHT } = Dimensions.get("window");
+
+export const popupModalStyles = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  backdrop: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  modalContainer: {
+    width: "90%",
+    maxWidth: 500,
+    height: SCREEN_HEIGHT * 0.85,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  contentWrapper: {
+    width: "100%",
+    height: "100%",
+    backgroundColor: colorPallet.neutral_6,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colorPallet.neutral_6,
+    overflow: "hidden",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    zIndex: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colorPallet.neutral_6,
+  },
+  closeText: {
+    color: colorPallet.secondary,
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  text: {
+    color: colorPallet.neutral_3,
+    fontSize: 16,
+    textAlign: "center",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  // TabBar style overrides
+  tabOuterContainer: {
+    paddingTop: 0,
+    margin: 0,
+    paddingBottom: 0,
+    justifyContent: "center",
+  },
+  tabBarContainer: {
+    paddingBottom: 0,
+    paddingHorizontal: 0,
+  },
+  tabBar: {
+    backgroundColor: colorPallet.neutral_darkest,
+    margin: 0,
+    borderRadius: 0,
+    padding: 0,
+    borderBottomColor: colorPallet.primary,
+    borderBottomWidth: 1,
+  },
+  tabButton: {
+    borderBottomEndRadius: 0,
+    borderBottomStartRadius: 0,
+  },
+  pageTitle: {
+    alignSelf: "center",
+    paddingTop: 16,
+  },
+  // Exercise cards
+  exerciseCard: {
+    flexDirection: "row",
+    backgroundColor: colorPallet.neutral_6,
+    borderBottomWidth: 1,
+    borderColor: colorPallet.neutral_lightest,
+    overflow: "hidden",
+    alignItems: "center",
+  },
+  selectedExerciseCard: {
+    flexDirection: "row",
+    backgroundColor: colorPallet.neutral_6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colorPallet.neutral_lightest,
+    overflow: "hidden",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  selectedExerciseCardWithMetrics: {
+    flexDirection: "row",
+    backgroundColor: colorPallet.neutral_6,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    borderColor: colorPallet.neutral_lightest,
+    overflow: "hidden",
+    alignItems: "center",
+  },
+  exerciseThumbnail: {
+    width: 70,
+    height: 70,
+    marginRight: 12,
+    backgroundColor: colorPallet.neutral_5,
+    borderTopStartRadius: 8,
+  },
+  metricsContainer: {
+    padding: 8,
+    borderWidth: 1,
+    borderTopWidth: 0,
+    borderColor: colorPallet.neutral_lightest,
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    backgroundColor: colorPallet.neutral_5,
+    marginBottom: 16,
+  },
+  metricInput: {
+    flex: 1,
+    backgroundColor: colorPallet.neutral_darkest,
+    color: colorPallet.neutral_1,
+    padding: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colorPallet.neutral_5,
+    fontSize: 14,
+  },
+  // Header styles
+  headerBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: colorPallet.neutral_5,
+    backgroundColor: colorPallet.neutral_darkest,
+  },
+  headerTitle: {
+    color: colorPallet.neutral_1,
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  saveText: {
+    color: colorPallet.primary,
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  saveTextDisabled: {
+    color: colorPallet.neutral_3,
+  },
+  // Content styles
+  scrollContent: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: colorPallet.neutral_darkest,
+  },
+  section: {
+    marginBottom: 16,
+  },
+});

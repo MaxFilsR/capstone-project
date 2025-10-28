@@ -9,7 +9,6 @@ import {
   StyleSheet,
 } from "react-native";
 import { BackButton, FormButton } from "@/components";
-import { globalStyles } from "@/styles/globalStyles";
 import { typography, containers } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { useOnboarding } from "@/lib/onboarding-context";
@@ -39,7 +38,7 @@ export default function WorkoutScheduleScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={globalStyles.centerContainer}
+      style={containers.centerContainer}
     >
       <BackButton />
       <View style={containers.formContainer}>

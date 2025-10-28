@@ -44,8 +44,8 @@ async fn main() -> std::io::Result<()> {
             // Summary
             .service(endpoints::nav::summary::me)
             // Workouts
-            .service(endpoints::nav::workouts::history::by_id)
-            .service(endpoints::nav::workouts::history::history)
+            .service(endpoints::nav::workouts::history::create_history)
+            .service(endpoints::nav::workouts::history::read_history)
             .service(endpoints::nav::workouts::library::library)
             .service(endpoints::nav::workouts::routines::create_rotuines)
             .service(endpoints::nav::workouts::routines::delete_rotuines)

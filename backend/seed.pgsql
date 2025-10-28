@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS
 		name TEXT NOT NULL,
 		exercises JSONB NOT NULL,
 		date DATE NOT NULL,         			
-		time TIME NOT NULL,         			
+		-- time TIME NOT NULL,         			
 		duration INTEGER NOT NULL,  			
 		points INTEGER NOT NULL
 	);

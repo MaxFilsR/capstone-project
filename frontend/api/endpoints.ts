@@ -1,81 +1,81 @@
 import { apiClient } from "./client";
 
 export type SignUpRequest = {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 };
 
 export type SignUpResponse = {
-    access_token: string;
-    refresh_token: string;
+  access_token: string;
+  refresh_token: string;
 };
 
 export type LoginRequest = {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 };
 
 export type LoginResponse = {
-    access_token: string;
-    refresh_token: string;
-    onboarding_complete: boolean;
+  access_token: string;
+  refresh_token: string;
+  onboarding_complete: boolean;
 };
 
 export async function signUp(payload: SignUpRequest): Promise<SignUpResponse> {
-    const response = await apiClient.post("/auth/sign-up", payload);
-    return response.data;
+  const response = await apiClient.post("/auth/sign-up", payload);
+  return response.data;
 }
 
 export async function logIn(payload: LoginRequest): Promise<LoginResponse> {
-    const response = await apiClient.post("/auth/login", payload);
-    return response.data;
+  const response = await apiClient.post("/auth/login", payload);
+  return response.data;
 }
 
 // Onboarding Types and Endpoints
 export type CharacterClass = {
-    id: number;
-    name: string;
-    stats: {
-        strength: number;
-        endurance: number;
-        flexibility: number;
-    };
+  id: number;
+  name: string;
+  stats: {
+    strength: number;
+    endurance: number;
+    flexibility: number;
+  };
 };
 
 export type OnboardingRequest = {
-    first_name: string;
-    last_name: string;
-    class_id: number;
-    workout_schedule: boolean[];
-    username: string;
+  first_name: string;
+  last_name: string;
+  class_id: number;
+  workout_schedule: boolean[];
+  username: string;
 };
 
 export async function getClasses(): Promise<CharacterClass[]> {
-    const response = await apiClient.post("/constants/classes");
-    return response.data.classes;
+  const response = await apiClient.post("/constants/classes");
+  return response.data.classes;
 }
 
 export async function submitOnboarding(
-    payload: OnboardingRequest
+  payload: OnboardingRequest
 ): Promise<void> {
-    const response = await apiClient.post("/onboarding", payload);
-    return response.data;
+  const response = await apiClient.post("/onboarding", payload);
+  return response.data;
 }
 
 // User Profile Types and Endpoints
 export type UserProfile = {
-    first_name: string;
-    last_name: string;
-    username: string;
-    class: {
-        name: string;
-        stats: {
-            strength: number;
-            endurance: number;
-            flexibility: number;
-        };
+  first_name: string;
+  last_name: string;
+  username: string;
+  class: {
+    name: string;
+    stats: {
+      strength: number;
+      endurance: number;
+      flexibility: number;
     };
-    workout_schedule: boolean[]; // 7 days
+  };
+  workout_schedule: boolean[]; // 7 days
 };
 
 /**
@@ -83,8 +83,8 @@ export type UserProfile = {
  * GET /summary/me
  */
 export async function getMe(): Promise<UserProfile> {
-    const response = await apiClient.get("/summary/me");
-    return response.data;
+  const response = await apiClient.get("/summary/me");
+  return response.data;
 }
 
 // Workout Library Types and Endpoints
@@ -117,14 +117,14 @@ export async function getWorkoutLibrary(): Promise<Exercise[]> {
 export type WorkoutSession = {
   id: string;
   name: string;
-  date: string;            
+  date: string;
   workoutTime: number;
   pointsEarned: number;
 };
 
 export type MonthGroup = {
-  monthYear: string;        // ex: "2025-10"
-  displayMonth: string;     // ex: "October 2025"
+  monthYear: string; // ex: "2025-10"
+  displayMonth: string; // ex: "October 2025"
   totalSessions: number;
   totalGainz: number;
   workouts: WorkoutSession[];
@@ -146,4 +146,100 @@ export async function getWorkoutHistory(): Promise<MonthGroup[]> {
 export async function getWorkoutById(id: string): Promise<WorkoutSession> {
   const response = await apiClient.get(`/workouts/history/${id}`);
   return response.data;
+}
+
+// Routine Types and Endpoints
+export type RoutineExercise = {
+  id: string;
+  sets: number;
+  reps: number;
+  weight: number;
+  distance: number;
+};
+
+export type CreateRoutineRequest = {
+  name: string;
+  exercises: RoutineExercise[];
+};
+
+export type CreateRoutineResponse = {
+  id: string;
+  name: string;
+  exercises: RoutineExercise[];
+};
+
+/**
+ * Create a new workout routine
+ * POST /workout/routines
+ */
+export async function createRoutine(
+  payload: CreateRoutineRequest
+): Promise<CreateRoutineResponse> {
+  const response = await apiClient.post("/workout/routines", payload);
+  return response.data;
+}
+
+export type UpdateRoutineRequest = {
+  id: number;
+  name: string;
+  exercises: RoutineExercise[];
+};
+
+export type UpdateRoutineResponse = {
+  id: number;
+  name: string;
+  exercises: RoutineExercise[];
+};
+
+export type DeleteRoutineRequest = {
+  id: number;
+};
+
+export type DeleteRoutineResponse = {
+  success: boolean; // optional convenience field
+};
+
+/**
+ * Edit an existing workout routine
+ * PUT /workout/routines
+ */
+export async function updateRoutine(
+  payload: UpdateRoutineRequest
+): Promise<UpdateRoutineResponse> {
+  const { data } = await apiClient.put<UpdateRoutineResponse>(
+    "/workout/routines",
+    payload
+  );
+  return data;
+}
+
+/**
+ * Delete a workout routine
+ * DELETE /workout/routines
+ */
+export async function deleteRoutine(
+  payload: DeleteRoutineRequest
+): Promise<void> {
+  await apiClient.delete("/workout/routines", { data: payload });
+}
+
+export type RoutineResponse = {
+  id?: number; // May or may not be returned by API
+  name: string;
+  exercises: RoutineExercise[];
+};
+
+export type GetRoutinesResponse = {
+  routines: RoutineResponse[];
+};
+
+/**
+ * Get all workout routines
+ * GET /workout/routines
+ */
+export async function getRoutines(): Promise<GetRoutinesResponse> {
+  const { data } = await apiClient.get<GetRoutinesResponse>(
+    "/workout/routines"
+  );
+  return data;
 }

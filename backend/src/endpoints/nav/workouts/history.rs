@@ -32,7 +32,7 @@ pub async fn create_history(
         "#,
         user.id,
         request.name,
-        request.exercises,
+        serde_json::to_value(&request.exercises.0).unwrap(),
         request.date,
         request.time,
         request.duration,

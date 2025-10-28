@@ -88,7 +88,7 @@ pub struct History {
     pub name: String,
     pub exercises: Json<Vec<Exercise>>,
     pub date: NaiveDate,
-    pub time: NaiveTime,
+    // pub time: NaiveTime,
     pub duration: i32,
     pub points: i32,
 }
