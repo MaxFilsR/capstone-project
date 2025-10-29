@@ -1,3 +1,5 @@
+///screens/FitnessTabs/routineScreens/durationRoutine
+
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -56,23 +58,8 @@ export default function DurationRoutineScreen() {
     exercises: WorkoutExercise[],
     durationMinutes: number
   ): number {
-    // Example point calculation logic - adjust as needed
-    let points = 0;
-
-    // Points per exercise: sets * reps * weight factor
-    exercises.forEach((ex) => {
-      const setsPoints = ex.sets * 10;
-      const repsPoints = ex.reps * 2;
-      const weightPoints = ex.weight * 0.5;
-      const distancePoints = ex.distance * 1;
-
-      points += setsPoints + repsPoints + weightPoints + distancePoints;
-    });
-
-    // Bonus points for duration (1 point per minute)
-    points += durationMinutes;
-
-    return Math.round(points);
+    // 50 XP base + time in minutes
+    return 50 + durationMinutes;
   }
 
   async function onEndWorkout() {
@@ -111,16 +98,17 @@ export default function DurationRoutineScreen() {
     const workoutData = {
       name: params.routineName || "Workout Session",
       exercises: exercises.map((ex) => ({
-        id: Number(ex.id),
+        id: ex.id,
         sets: ex.sets,
         reps: ex.reps,
         weight: ex.weight,
         distance: ex.distance,
       })),
-      date: new Date().toISOString(),
+      date: new Date().toISOString().split("T")[0],
       duration: durationMinutes,
       points: points,
     };
+    console.log(workoutData);
 
     setIsSubmitting(true);
 

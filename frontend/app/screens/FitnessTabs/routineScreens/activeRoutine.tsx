@@ -206,56 +206,61 @@ export default function ActiveRoutineScreen() {
   }, [fullExercise, currentLite]);
   // -------------------------------
 
-  // Initialize sets from completed data or default
-  const [sets, setSets] = useState(() => {
-    const existing = completedExercises.get(currentIndex);
+  // Store sets data per exercise index to maintain state when navigating
+  const [setsData, setSetsData] = useState<
+    Map<number, { reps: string; weight: string }[]>
+  >(new Map());
+
+  // Get or initialize sets for current exercise
+  const sets = useMemo(() => {
+    const existing = setsData.get(currentIndex);
     if (existing) {
-      // Reconstruct the sets array from stored data
-      return Array.from({ length: 4 }, () => ({
-        reps: String(existing.reps || ""),
-        weight: String(existing.weight || ""),
-      }));
+      return existing;
     }
     return Array.from({ length: 4 }, () => ({ reps: "", weight: "" }));
-  });
-
-  // Load sets data when index changes
-  useEffect(() => {
-    const existing = completedExercises.get(currentIndex);
-    if (existing) {
-      setSets(
-        Array.from({ length: 4 }, () => ({
-          reps: String(existing.reps || ""),
-          weight: String(existing.weight || ""),
-        }))
-      );
-    } else {
-      setSets(Array.from({ length: 4 }, () => ({ reps: "", weight: "" })));
-    }
-  }, [currentIndex]);
+  }, [currentIndex, setsData]);
 
   function updateSet(index: number, key: "reps" | "weight", val: string) {
-    setSets((prev) =>
-      prev.map((s, i) => (i === index ? { ...s, [key]: val } : s))
-    );
+    // Only allow numeric input
+    const numericValue = val.replace(/[^0-9.]/g, "");
+
+    setSetsData((prev) => {
+      const newMap = new Map(prev);
+      const currentSets =
+        newMap.get(currentIndex) ||
+        Array.from({ length: 4 }, () => ({ reps: "", weight: "" }));
+      const updatedSets = currentSets.map((s, i) =>
+        i === index ? { ...s, [key]: numericValue } : s
+      );
+      newMap.set(currentIndex, updatedSets);
+      return newMap;
+    });
   }
 
   // Save current exercise data before moving to next
   function saveCurrentExercise() {
     if (!currentLite?.id) return;
 
+    const currentSets = setsData.get(currentIndex) || [];
+
     // Calculate totals from all sets
-    const totalSets = sets.filter((s) => s.reps || s.weight).length;
-    const totalReps = sets.reduce((sum, s) => sum + (Number(s.reps) || 0), 0);
-    const avgWeight =
-      sets.reduce((sum, s) => sum + (Number(s.weight) || 0), 0) /
-      (totalSets || 1);
+    const completedSets = currentSets.filter((s) => s.reps || s.weight);
+    const totalSets = completedSets.length;
+    const totalReps = completedSets.reduce(
+      (sum, s) => sum + (Number(s.reps) || 0),
+      0
+    );
+    const totalWeight = completedSets.reduce(
+      (sum, s) => sum + (Number(s.weight) || 0),
+      0
+    );
+    const avgWeight = totalSets > 0 ? totalWeight / totalSets : 0;
 
     const exerciseData: CompletedExerciseData = {
       id: currentLite.id,
       sets: totalSets,
       reps: totalReps,
-      weight: avgWeight,
+      weight: Math.round(avgWeight * 10) / 10, // Round to 1 decimal
       distance: 0, // You can add distance tracking if needed
     };
 

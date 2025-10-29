@@ -1,18 +1,18 @@
-import React, { useMemo } from "react";
-import { Text, ScrollView, Image, View, StyleSheet, Pressable } from "react-native";
+import React, { useMemo, useEffect, useState } from "react";
+import {
+  Text,
+  ScrollView,
+  View,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+} from "react-native";
 import { tabStyles } from "@/styles";
 import { WorkoutCard } from "@/components/workoutCard";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
 import { router } from "expo-router";
-
-interface WorkoutSession {
-  id: string;
-  name: string;
-  date: string;
-  workoutTime: number;
-  pointsEarned: number;
-}
+import { getWorkoutHistory, WorkoutSession } from "@/api/endpoints";
 
 interface MonthGroup {
   monthYear: string;
@@ -22,51 +22,36 @@ interface MonthGroup {
   workouts: WorkoutSession[];
 }
 
-// Mock data - replace with API call later
-const mockWorkouts: WorkoutSession[] = [
-  {
-    id: "wkt_1a2b3c4d",
-    name: "Morning Strength Training",
-    date: "2025-10-15T08:30:00Z",
-    workoutTime: 45,
-    pointsEarned: 120,
-  },
-  {
-    id: "wkt_5e6f7g8h",
-    name: "Evening Cardio Session",
-    date: "2025-10-14T18:00:00Z",
-    workoutTime: 30,
-    pointsEarned: 85,
-  },
-  {
-    id: "wkt_9i0j1k2l",
-    name: "Upper Body Strength",
-    date: "2025-10-12T10:00:00Z",
-    workoutTime: 50,
-    pointsEarned: 135,
-  },
-  {
-    id: "wkt_3m4n5o6p",
-    name: "Leg Day",
-    date: "2025-09-28T09:00:00Z",
-    workoutTime: 60,
-    pointsEarned: 150,
-  },
-  {
-    id: "wkt_7q8r9s0t",
-    name: "HIIT Training",
-    date: "2025-09-25T17:30:00Z",
-    workoutTime: 25,
-    pointsEarned: 95,
-  },
-];
-
 const HistoryScreen = () => {
+  const [workouts, setWorkouts] = useState<WorkoutSession[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch workout history on mount
+  useEffect(() => {
+    loadWorkoutHistory();
+  }, []);
+
+  async function loadWorkoutHistory() {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const history = await getWorkoutHistory();
+
+      setWorkouts(history);
+    } catch (err) {
+      console.error("❌ Failed to load workout history:", err);
+      setError("Failed to load workout history");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   // Group workouts by month
   const groupedWorkouts = useMemo(() => {
     const groups: { [key: string]: MonthGroup } = {};
 
-    mockWorkouts.forEach((workout) => {
+    workouts.forEach((workout) => {
       const date = new Date(workout.date);
       const monthYear = `${date.getFullYear()}-${String(
         date.getMonth() + 1
@@ -88,14 +73,48 @@ const HistoryScreen = () => {
 
       groups[monthYear].workouts.push(workout);
       groups[monthYear].totalSessions += 1;
-      groups[monthYear].totalGainz += workout.pointsEarned;
+      groups[monthYear].totalGainz += workout.points;
     });
 
     // Sort by month (most recent first)
     return Object.values(groups).sort((a, b) =>
       b.monthYear.localeCompare(a.monthYear)
     );
-  }, []);
+  }, [workouts]);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <View style={[tabStyles.tabContent, styles.centerContainer]}>
+        <ActivityIndicator size="large" color={colorPallet.primary} />
+        <Text style={styles.loadingText}>Loading workout history...</Text>
+      </View>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <View style={[tabStyles.tabContent, styles.centerContainer]}>
+        <Text style={styles.errorText}>{error}</Text>
+        <Pressable onPress={loadWorkoutHistory} style={styles.retryButton}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  // Empty state
+  if (workouts.length === 0) {
+    return (
+      <View style={[tabStyles.tabContent, styles.centerContainer]}>
+        <Text style={styles.emptyTitle}>No Workouts Yet</Text>
+        <Text style={styles.emptySubtitle}>
+          Complete your first workout to see your history here!
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView
@@ -125,16 +144,25 @@ const HistoryScreen = () => {
             {/* Workout Cards */}
             {group.workouts.map((session) => (
               <View key={session.id} style={{ position: "relative" }}>
-                <WorkoutCard session={session} />
+                <WorkoutCard
+                  session={{
+                    id: String(session.id),
+                    name: session.name,
+                    date: session.date,
+                    workoutTime: session.duration,
+                    pointsEarned: session.points,
+                  }}
+                />
                 <Pressable
                   onPress={() => {
-                    console.log("Tapped:", session.id, session.name);
                     router.push({
                       pathname: "/screens/FitnessTabs/workoutComplete",
                       params: {
+                        id: String(session.id),
                         name: session.name,
-                        workoutTime: String(session.workoutTime),
-                        points: String(session.pointsEarned),
+                        workoutTime: String(session.duration),
+                        points: String(session.points),
+                        date: session.date,
                       },
                     });
                   }}
@@ -143,7 +171,7 @@ const HistoryScreen = () => {
                     top: 0,
                     right: 0,
                     bottom: 0,
-                    left: 0
+                    left: 0,
                   }}
                   hitSlop={10}
                 />
@@ -155,7 +183,6 @@ const HistoryScreen = () => {
     </ScrollView>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -186,6 +213,45 @@ const styles = StyleSheet.create({
   statValue: {
     color: colorPallet.neutral_lightest,
     fontWeight: "bold",
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  loadingText: {
+    ...typography.body,
+    color: colorPallet.neutral_lightest,
+    marginTop: 16,
+  },
+  errorText: {
+    ...typography.body,
+    color: colorPallet.critical,
+    textAlign: "center",
+    marginBottom: 16,
+  },
+  retryButton: {
+    backgroundColor: colorPallet.primary,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+  },
+  retryButtonText: {
+    ...typography.body,
+    color: colorPallet.neutral_darkest,
+    fontWeight: "700",
+  },
+  emptyTitle: {
+    ...typography.h2,
+    color: colorPallet.neutral_lightest,
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  emptySubtitle: {
+    ...typography.body,
+    color: colorPallet.neutral_4,
+    textAlign: "center",
   },
 });
 

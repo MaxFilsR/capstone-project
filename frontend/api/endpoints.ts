@@ -244,22 +244,29 @@ export type RecordWorkoutRequest = {
   points: number;
 };
 
+export type GetWorkoutHistoryResponse = {
+  history: WorkoutSession[];
+};
+
 /**
  * Fetch workout history for the authenticated user
  * GET /workouts/history
+ * Returns: { history: WorkoutSession[] }
  */
 export async function getWorkoutHistory(): Promise<WorkoutSession[]> {
-  const response = await apiClient.get("/workouts/history");
-  return response.data;
+  const response = await apiClient.get<GetWorkoutHistoryResponse>(
+    "/workouts/history"
+  );
+  return response.data.history;
 }
 
 /**
  * Record a new workout session
  * POST /workouts/history
+ * Returns: 200 OK (no body)
  */
 export async function recordWorkout(
   payload: RecordWorkoutRequest
-): Promise<WorkoutSession> {
-  const response = await apiClient.post("/workouts/history", payload);
-  return response.data;
+): Promise<void> {
+  await apiClient.post("/workouts/history", payload);
 }
