@@ -7,6 +7,7 @@ import {
   Image as RNImage,
   ScrollView,
   TextInput as RNTextInput,
+  Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { popupModalStyles, typography } from "@/styles";
@@ -208,31 +209,64 @@ export default function ActiveRoutineScreen() {
 
   // Store sets data per exercise index to maintain state when navigating
   const [setsData, setSetsData] = useState<
-    Map<number, { reps: string; weight: string }[]>
+    Map<number, { reps: string; weight: string; distance: string }[]>
   >(new Map());
 
-  // Get or initialize sets for current exercise
+  // Get or initialize sets for current exercise (start with 1 set)
   const sets = useMemo(() => {
     const existing = setsData.get(currentIndex);
     if (existing) {
       return existing;
     }
-    return Array.from({ length: 4 }, () => ({ reps: "", weight: "" }));
+    return [{ reps: "", weight: "", distance: "" }]; // Start with 1 empty set
   }, [currentIndex, setsData]);
 
-  function updateSet(index: number, key: "reps" | "weight", val: string) {
+  function updateSet(
+    index: number,
+    key: "reps" | "weight" | "distance",
+    val: string
+  ) {
     // Only allow numeric input
     const numericValue = val.replace(/[^0-9.]/g, "");
 
     setSetsData((prev) => {
       const newMap = new Map(prev);
-      const currentSets =
-        newMap.get(currentIndex) ||
-        Array.from({ length: 4 }, () => ({ reps: "", weight: "" }));
+      const currentSets = newMap.get(currentIndex) || [
+        { reps: "", weight: "", distance: "" },
+      ];
       const updatedSets = currentSets.map((s, i) =>
         i === index ? { ...s, [key]: numericValue } : s
       );
       newMap.set(currentIndex, updatedSets);
+      return newMap;
+    });
+  }
+
+  function addSet() {
+    setSetsData((prev) => {
+      const newMap = new Map(prev);
+      const currentSets = newMap.get(currentIndex) || [
+        { reps: "", weight: "", distance: "" },
+      ];
+      newMap.set(currentIndex, [
+        ...currentSets,
+        { reps: "", weight: "", distance: "" },
+      ]);
+      return newMap;
+    });
+  }
+
+  function removeSet(index: number) {
+    setSetsData((prev) => {
+      const newMap = new Map(prev);
+      const currentSets = newMap.get(currentIndex) || [];
+      if (currentSets.length > 1) {
+        // Keep at least one set
+        newMap.set(
+          currentIndex,
+          currentSets.filter((_, i) => i !== index)
+        );
+      }
       return newMap;
     });
   }
@@ -243,17 +277,60 @@ export default function ActiveRoutineScreen() {
 
     const currentSets = setsData.get(currentIndex) || [];
 
-    // Calculate totals from all sets
-    const completedSets = currentSets.filter((s) => s.reps || s.weight);
-    const totalSets = completedSets.length;
-    const totalReps = completedSets.reduce(
-      (sum, s) => sum + (Number(s.reps) || 0),
-      0
-    );
-    const totalWeight = completedSets.reduce(
-      (sum, s) => sum + (Number(s.weight) || 0),
-      0
-    );
+    // Determine exercise type
+    const isStrength =
+      fullExercise?.category?.toLowerCase() === "strength" ||
+      fullExercise?.category?.toLowerCase() === "powerlifting" ||
+      fullExercise?.category?.toLowerCase() === "olympic weightlifting";
+    const isCardio =
+      fullExercise?.category?.toLowerCase() === "cardio" ||
+      fullExercise?.category?.toLowerCase() === "running";
+
+    // Calculate totals based on exercise type
+    let completedSets;
+    let totalSets = 0;
+    let totalReps = 0;
+    let totalWeight = 0;
+    let totalDistance = 0;
+
+    if (isStrength) {
+      completedSets = currentSets.filter((s) => s.reps || s.weight);
+      totalSets = completedSets.length;
+      totalReps = completedSets.reduce(
+        (sum, s) => sum + (Number(s.reps) || 0),
+        0
+      );
+      totalWeight = completedSets.reduce(
+        (sum, s) => sum + (Number(s.weight) || 0),
+        0
+      );
+    } else if (isCardio) {
+      completedSets = currentSets.filter((s) => s.distance);
+      totalSets = completedSets.length;
+      totalDistance = completedSets.reduce(
+        (sum, s) => sum + (Number(s.distance) || 0),
+        0
+      );
+    } else {
+      // Default: accept any filled set
+      completedSets = currentSets.filter(
+        (s) => s.reps || s.weight || s.distance
+      );
+      totalSets = completedSets.length;
+      totalReps = completedSets.reduce(
+        (sum, s) => sum + (Number(s.reps) || 0),
+        0
+      );
+      totalWeight = completedSets.reduce(
+        (sum, s) => sum + (Number(s.weight) || 0),
+        0
+      );
+      totalDistance = completedSets.reduce(
+        (sum, s) => sum + (Number(s.distance) || 0),
+        0
+      );
+    }
+
     const avgWeight = totalSets > 0 ? totalWeight / totalSets : 0;
 
     const exerciseData: CompletedExerciseData = {
@@ -261,7 +338,7 @@ export default function ActiveRoutineScreen() {
       sets: totalSets,
       reps: totalReps,
       weight: Math.round(avgWeight * 10) / 10, // Round to 1 decimal
-      distance: 0, // You can add distance tracking if needed
+      distance: Math.round(totalDistance * 10) / 10, // Round to 1 decimal
     };
 
     setCompletedExercises((prev) =>
@@ -290,17 +367,40 @@ export default function ActiveRoutineScreen() {
     // Save current exercise before ending
     saveCurrentExercise();
 
-    // Convert Map to array for passing to next screen
-    const exercisesArray = Array.from(completedExercises.values());
+    // Use setTimeout to ensure state updates are complete
+    setTimeout(() => {
+      // Convert Map to array for passing to next screen
+      const exercisesArray = Array.from(completedExercises.values());
 
-    // Pass workout data to duration screen
-    router.push({
-      pathname: "/screens/FitnessTabs/routineScreens/durationRoutine",
-      params: {
-        routineName: params.name || "Workout",
-        exercises: JSON.stringify(exercisesArray),
-      },
-    });
+      // Pass workout data to duration screen
+      router.push({
+        pathname: "/screens/FitnessTabs/routineScreens/durationRoutine",
+        params: {
+          routineName: params.name || "Workout",
+          exercises: JSON.stringify(exercisesArray),
+        },
+      });
+    }, 100);
+  }
+
+  function onCancel() {
+    Alert.alert(
+      "Cancel Workout?",
+      "Are you sure you want to cancel this workout? Your progress will be lost.",
+      [
+        {
+          text: "Keep Going",
+          style: "cancel",
+        },
+        {
+          text: "Cancel Workout",
+          style: "destructive",
+          onPress: () => {
+            router.back();
+          },
+        },
+      ]
+    );
   }
 
   const aboutExercise: ExerciseForAbout = useMemo(
@@ -321,18 +421,35 @@ export default function ActiveRoutineScreen() {
     [fullExercise, currentLite]
   );
 
-  const StatsTab = () => (
-    <ScrollView
-      style={{ flex: 1 }}
-      contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 12 }}
-    >
-      <StatsCard
-        title={`Log Weight — ${fullExercise?.name ?? currentLite?.name ?? ""}`}
-        sets={sets}
-        onChange={updateSet}
-      />
-    </ScrollView>
-  );
+  const StatsTab = () => {
+    // Determine exercise type
+    const isStrength =
+      fullExercise?.category?.toLowerCase() === "strength" ||
+      fullExercise?.category?.toLowerCase() === "powerlifting" ||
+      fullExercise?.category?.toLowerCase() === "olympic weightlifting";
+    const isCardio =
+      fullExercise?.category?.toLowerCase() === "cardio" ||
+      fullExercise?.category?.toLowerCase() === "running";
+
+    return (
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 12 }}
+      >
+        <StatsCard
+          title={`Log ${isCardio ? "Distance" : "Weight"} — ${
+            fullExercise?.name ?? currentLite?.name ?? ""
+          }`}
+          sets={sets}
+          onChange={updateSet}
+          onAddSet={addSet}
+          onRemoveSet={removeSet}
+          isStrength={isStrength}
+          isCardio={isCardio}
+        />
+      </ScrollView>
+    );
+  };
 
   const AboutTab = () => (
     <AboutExerciseScreen exercise={fullExercise as Exercise} />
@@ -354,6 +471,15 @@ export default function ActiveRoutineScreen() {
     <View style={{ flex: 1, backgroundColor: colorPallet.neutral_darkest }}>
       {/* Top image */}
       <ImageCarousel images={topImages} />
+
+      {/* Cancel Button */}
+      <TouchableOpacity
+        style={styles.cancelButton}
+        onPress={onCancel}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Ionicons name="close" size={24} color={colorPallet.secondary} />
+      </TouchableOpacity>
 
       {/* TabBar */}
       <TabBar
@@ -411,10 +537,22 @@ function StatsCard({
   title,
   sets,
   onChange,
+  onAddSet,
+  onRemoveSet,
+  isStrength,
+  isCardio,
 }: {
   title: string;
-  sets: { reps: string; weight: string }[];
-  onChange: (index: number, key: "reps" | "weight", val: string) => void;
+  sets: { reps: string; weight: string; distance: string }[];
+  onChange: (
+    index: number,
+    key: "reps" | "weight" | "distance",
+    val: string
+  ) => void;
+  onAddSet: () => void;
+  onRemoveSet: (index: number) => void;
+  isStrength: boolean;
+  isCardio: boolean;
 }) {
   return (
     <View style={styles.card}>
@@ -425,32 +563,136 @@ function StatsCard({
           <View style={styles.setRow} key={i}>
             <Text style={styles.setIndex}>{i + 1}</Text>
 
-            <View style={[styles.inputWrap, { marginRight: 10 }]}>
-              <RNTextInput
-                value={s.reps}
-                onChangeText={(t) => onChange(i, "reps", t)}
-                placeholder="Reps"
-                placeholderTextColor={colorPallet.neutral_4}
-                keyboardType="numeric"
-                style={[styles.input, { color: colorPallet.neutral_lightest }]}
-              />
-            </View>
+            {isStrength && (
+              <>
+                {/* Reps Input */}
+                <View style={[styles.inputWrap, { marginRight: 10 }]}>
+                  <RNTextInput
+                    value={s.reps}
+                    onChangeText={(t) => onChange(i, "reps", t)}
+                    placeholder="Reps"
+                    placeholderTextColor={colorPallet.neutral_4}
+                    keyboardType="numeric"
+                    style={[
+                      styles.input,
+                      { color: colorPallet.neutral_lightest },
+                    ]}
+                  />
+                </View>
 
-            <Text style={styles.times}>x</Text>
+                <Text style={styles.times}>x</Text>
 
-            <View style={[styles.inputWrap, { marginLeft: 10 }]}>
-              <RNTextInput
-                value={s.weight}
-                onChangeText={(t) => onChange(i, "weight", t)}
-                placeholder="Weight"
-                placeholderTextColor={colorPallet.neutral_4}
-                keyboardType="numeric"
-                style={[styles.input, { color: colorPallet.neutral_lightest }]}
-              />
-            </View>
+                {/* Weight Input */}
+                <View style={[styles.inputWrap, { marginLeft: 10 }]}>
+                  <RNTextInput
+                    value={s.weight}
+                    onChangeText={(t) => onChange(i, "weight", t)}
+                    placeholder="Weight"
+                    placeholderTextColor={colorPallet.neutral_4}
+                    keyboardType="numeric"
+                    style={[
+                      styles.input,
+                      { color: colorPallet.neutral_lightest },
+                    ]}
+                  />
+                </View>
+              </>
+            )}
+
+            {isCardio && (
+              <>
+                {/* Distance Input */}
+                <View style={[styles.inputWrap, { flex: 1 }]}>
+                  <RNTextInput
+                    value={s.distance}
+                    onChangeText={(t) => onChange(i, "distance", t)}
+                    placeholder="Distance (km)"
+                    placeholderTextColor={colorPallet.neutral_4}
+                    keyboardType="numeric"
+                    style={[
+                      styles.input,
+                      { color: colorPallet.neutral_lightest },
+                    ]}
+                  />
+                </View>
+              </>
+            )}
+
+            {!isStrength && !isCardio && (
+              <>
+                {/* Default: Show all fields */}
+                <View style={[styles.inputWrap, { marginRight: 6, flex: 1 }]}>
+                  <RNTextInput
+                    value={s.reps}
+                    onChangeText={(t) => onChange(i, "reps", t)}
+                    placeholder="Reps"
+                    placeholderTextColor={colorPallet.neutral_4}
+                    keyboardType="numeric"
+                    style={[
+                      styles.input,
+                      { color: colorPallet.neutral_lightest },
+                    ]}
+                  />
+                </View>
+
+                <View
+                  style={[styles.inputWrap, { marginHorizontal: 6, flex: 1 }]}
+                >
+                  <RNTextInput
+                    value={s.weight}
+                    onChangeText={(t) => onChange(i, "weight", t)}
+                    placeholder="Weight"
+                    placeholderTextColor={colorPallet.neutral_4}
+                    keyboardType="numeric"
+                    style={[
+                      styles.input,
+                      { color: colorPallet.neutral_lightest },
+                    ]}
+                  />
+                </View>
+
+                <View style={[styles.inputWrap, { marginLeft: 6, flex: 1 }]}>
+                  <RNTextInput
+                    value={s.distance}
+                    onChangeText={(t) => onChange(i, "distance", t)}
+                    placeholder="Dist"
+                    placeholderTextColor={colorPallet.neutral_4}
+                    keyboardType="numeric"
+                    style={[
+                      styles.input,
+                      { color: colorPallet.neutral_lightest },
+                    ]}
+                  />
+                </View>
+              </>
+            )}
+
+            {/* Delete Set Button (only show if more than 1 set) */}
+            {sets.length > 1 && (
+              <TouchableOpacity
+                onPress={() => onRemoveSet(i)}
+                style={styles.deleteButton}
+              >
+                <Ionicons
+                  name="close-circle"
+                  size={24}
+                  color={colorPallet.secondary}
+                />
+              </TouchableOpacity>
+            )}
           </View>
         ))}
       </View>
+
+      {/* Add Set Button */}
+      <TouchableOpacity onPress={onAddSet} style={styles.addSetButton}>
+        <Ionicons
+          name="add-circle-outline"
+          size={20}
+          color={colorPallet.primary}
+        />
+        <Text style={styles.addSetText}>Add Set</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -460,6 +702,17 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 340,
     backgroundColor: colorPallet.neutral_6,
+  },
+  cancelButton: {
+    position: "absolute",
+    top: 50,
+    right: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colorPallet.neutral_6,
+    alignItems: "center",
+    justifyContent: "center",
   },
   tabsWrap: {
     paddingHorizontal: 8,
@@ -506,7 +759,7 @@ const styles = StyleSheet.create({
   setIndex: {
     width: 20,
     color: colorPallet.primary,
-    fontWeight: "400",
+    fontWeight: "bold",
     textAlign: "center",
     marginRight: 8,
   },
@@ -537,7 +790,7 @@ const styles = StyleSheet.create({
     width: 16,
     textAlign: "center",
     color: colorPallet.primary,
-    fontWeight: "400",
+    fontWeight: "bold",
   },
   transport: {
     position: "absolute",
@@ -578,62 +831,27 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: 0.3,
   },
-});
-
-const aboutStyles = StyleSheet.create({
-  sectionTitle: {
-    color: colorPallet.secondary,
-    fontWeight: "800",
-    marginBottom: 10,
-    letterSpacing: 0.3,
+  deleteButton: {
+    marginLeft: 8,
+    padding: 4,
   },
-  tagWrap: {
+  addSetButton: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginBottom: 10,
-  },
-  tag: {
-    backgroundColor: colorPallet.primary,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
-  },
-  tagSecondary: {
-    backgroundColor: colorPallet.secondary,
-  },
-  tagText: {
-    color: colorPallet.neutral_darkest,
-    fontWeight: "700",
-  },
-  muscleImage: {
-    width: 300,
-    height: 300,
-    borderWidth: 2,
-    borderRadius: 12,
-  },
-  infoGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-    marginTop: 10,
-  },
-  infoCard: {
-    width: "48%",
-    borderWidth: 1,
-    borderColor: colorPallet.neutral_5,
-    borderRadius: 10,
-    backgroundColor: colorPallet.neutral_darkest,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 16,
     paddingVertical: 12,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
+    backgroundColor: colorPallet.neutral_6,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colorPallet.primary,
+    borderStyle: "dashed",
   },
-  infoLabel: {
-    color: colorPallet.secondary,
-    fontWeight: "700",
-    marginBottom: 6,
-  },
-  infoValue: {
-    color: colorPallet.neutral_lightest,
-    fontWeight: "400",
+  addSetText: {
+    color: colorPallet.primary,
+    fontWeight: "600",
+    marginLeft: 8,
+    fontSize: 14,
   },
 });

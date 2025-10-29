@@ -14,7 +14,7 @@ pub struct CreateHistoryRequest {
     name: String,
     exercises: Json<Vec<Exercise>>,
     date: NaiveDate,
-    time: NaiveTime,
+    // time: NaiveTime,
     duration: i32,
     points: i32,
 }
@@ -25,6 +25,7 @@ pub async fn create_history(
     pool: web::Data<PgPool>,
     request: web::Json<CreateHistoryRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
+    dbg!();
     let query = sqlx::query!(
         r#"
             INSERT INTO history (user_id, name, exercises, date, duration, points)
@@ -40,6 +41,7 @@ pub async fn create_history(
     .execute(pool.get_ref())
     .await
     .unwrap();
+    dbg!();
 
     return Ok(HttpResponse::Ok().finish());
 }
