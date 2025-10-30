@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
+  Modal,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colorPallet } from "@/styles/variables";
@@ -15,6 +17,7 @@ type DropdownProps = {
   options: string[];
   onSelect: (value: string) => void;
   style?: any;
+  zIndex?: number;
 };
 
 export const Dropdown: React.FC<DropdownProps> = ({
@@ -23,72 +26,106 @@ export const Dropdown: React.FC<DropdownProps> = ({
   options,
   onSelect,
   style,
+  zIndex = 1,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [buttonLayout, setButtonLayout] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
+  const buttonRef = useRef<View>(null);
+
+  const handleOpen = () => {
+    buttonRef.current?.measureInWindow((x, y, width, height) => {
+      setButtonLayout({ x, y, width, height });
+      setIsOpen(true);
+    });
+  };
 
   return (
-    <View style={[styles.dropdownContainer, style]}>
-      <TouchableOpacity
-        style={styles.dropdownButton}
-        onPress={() => setIsOpen(!isOpen)}
+    <>
+      <View
+        style={[styles.dropdownContainer, style, { zIndex }]}
+        ref={buttonRef}
       >
-        <Text style={styles.dropdownLabel}>{label}</Text>
-        <View style={styles.dropdownValueRow}>
-          <Text style={styles.dropdownValue} numberOfLines={1}>
-            {value}
-          </Text>
-          <Ionicons
-            name={isOpen ? "chevron-up" : "chevron-down"}
-            size={20}
-            color={colorPallet.neutral_lightest}
-          />
-        </View>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.dropdownButton} onPress={handleOpen}>
+          <Text style={styles.dropdownLabel}>{label}</Text>
+          <View style={styles.dropdownValueRow}>
+            <Text style={styles.dropdownValue} numberOfLines={1}>
+              {value}
+            </Text>
+            <Ionicons
+              name={isOpen ? "chevron-up" : "chevron-down"}
+              size={20}
+              color={colorPallet.neutral_lightest}
+            />
+          </View>
+        </TouchableOpacity>
+      </View>
 
-      {isOpen && (
-        <View style={styles.dropdownMenu}>
-          <ScrollView style={styles.dropdownScroll} nestedScrollEnabled>
-            {options.map((option) => (
-              <TouchableOpacity
-                key={option}
-                style={[
-                  styles.dropdownItem,
-                  value === option && styles.dropdownItemActive,
-                ]}
-                onPress={() => {
-                  onSelect(option);
-                  setIsOpen(false);
-                }}
-              >
-                <Text
-                  style={[
-                    styles.dropdownItemText,
-                    value === option && styles.dropdownItemTextActive,
-                  ]}
-                >
-                  {option}
-                </Text>
-                {value === option && (
-                  <Ionicons
-                    name="checkmark"
-                    size={20}
-                    color={colorPallet.primary}
-                  />
-                )}
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-      )}
-    </View>
+      <Modal
+        visible={isOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsOpen(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setIsOpen(false)}>
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.dropdownMenu,
+                {
+                  position: "absolute",
+                  top: buttonLayout.y + buttonLayout.height + 4,
+                  left: buttonLayout.x,
+                  width: buttonLayout.width,
+                },
+              ]}
+            >
+              <ScrollView style={styles.dropdownScroll} nestedScrollEnabled>
+                {options.map((option) => (
+                  <TouchableOpacity
+                    key={option}
+                    style={[
+                      styles.dropdownItem,
+                      value === option && styles.dropdownItemActive,
+                    ]}
+                    onPress={() => {
+                      onSelect(option);
+                      setIsOpen(false);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.dropdownItemText,
+                        value === option && styles.dropdownItemTextActive,
+                      ]}
+                    >
+                      {option}
+                    </Text>
+                    {value === option && (
+                      <Ionicons
+                        name="checkmark"
+                        size={20}
+                        color={colorPallet.primary}
+                      />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   dropdownContainer: {
     flex: 1,
-    position: "relative",
-    zIndex: 1,
   },
   dropdownButton: {
     backgroundColor: colorPallet.neutral_6,
@@ -115,18 +152,24 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     flex: 1,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.2)",
+  },
   dropdownMenu: {
-    position: "absolute",
-    top: "100%",
-    left: 0,
-    right: 0,
-    marginTop: 4,
     backgroundColor: colorPallet.neutral_6,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: colorPallet.neutral_lightest,
     maxHeight: 200,
-    zIndex: 1000,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   dropdownScroll: {
     maxHeight: 200,

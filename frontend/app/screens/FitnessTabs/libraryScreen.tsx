@@ -8,7 +8,6 @@ import {
   ActivityIndicator,
   ViewToken,
   SectionListData,
-  LayoutAnimation,
   Platform,
   UIManager,
 } from "react-native";
@@ -23,6 +22,7 @@ import { Dropdown } from "@/components/Dropdown";
 import { ExerciseCard } from "@/components/ExerciseCard";
 import { SearchBar } from "@/components/SearchBar";
 import { AlphabetSidebar } from "@/components/AlphabetSidebar";
+
 if (
   Platform.OS === "android" &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -91,7 +91,9 @@ const LibraryScreen = () => {
       }
     });
     return ["All", ...Array.from(levelSet).sort()];
-  }, [exercises]); // Extract unique categories dynamically
+  }, [exercises]);
+
+  // Extract unique categories dynamically
   const categories = useMemo(() => {
     if (!exercises || !Array.isArray(exercises)) return ["All"];
     const categorySet = new Set<string>();
@@ -318,8 +320,8 @@ const LibraryScreen = () => {
   }
 
   const allCollapsed = sections.every((s) => collapsedSections[s.title]);
+
   const toggleFilters = useCallback(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     setFiltersVisible((prev) => !prev);
   }, []);
 
@@ -365,39 +367,68 @@ const LibraryScreen = () => {
       </View>
 
       {/* Dropdown Filters (collapsible) */}
-      {filtersVisible && (
-        <View style={{ marginBottom: 12 }}>
-          <View style={[styles.filtersRow, { zIndex: 2 }]}>
-            <Dropdown
-              label="Muscle Group"
-              value={selectedMuscle}
-              options={muscleGroups}
-              onSelect={setSelectedMuscle}
-            />
-            <Dropdown
-              label="Level"
-              value={selectedLevel}
-              options={levels}
-              onSelect={setSelectedLevel}
-            />
-          </View>
+      <View
+        style={[
+          styles.filtersContainer,
+          filtersVisible ? styles.filtersVisible : styles.filtersHidden,
+        ]}
+      >
+        {filtersVisible && (
+          <>
+            <View style={styles.filtersRow}>
+              <Dropdown
+                label="Muscle Group"
+                value={selectedMuscle}
+                options={muscleGroups}
+                onSelect={setSelectedMuscle}
+                zIndex={4}
+              />
+              <Dropdown
+                label="Level"
+                value={selectedLevel}
+                options={levels}
+                onSelect={setSelectedLevel}
+                zIndex={3}
+              />
+            </View>
 
-          <View style={[styles.filtersRow, { marginTop: -4, zIndex: 1 }]}>
-            <Dropdown
-              label="Category"
-              value={selectedCategory}
-              options={categories}
-              onSelect={setSelectedCategory}
-            />
-            <Dropdown
-              label="Equipment"
-              value={selectedEquipment}
-              options={equipment}
-              onSelect={setSelectedEquipment}
-            />
-          </View>
-        </View>
-      )}
+            <View style={[styles.filtersRow, { marginTop: -4 }]}>
+              <Dropdown
+                label="Category"
+                value={selectedCategory}
+                options={categories}
+                onSelect={setSelectedCategory}
+                zIndex={2}
+              />
+              <Dropdown
+                label="Equipment"
+                value={selectedEquipment}
+                options={equipment}
+                onSelect={setSelectedEquipment}
+                zIndex={1}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={styles.resetButton}
+              onPress={() => {
+                setSelectedMuscle("All");
+                setSelectedLevel("All");
+                setSelectedCategory("All");
+                setSelectedEquipment("All");
+              }}
+            >
+              <Ionicons
+                name="refresh"
+                size={16}
+                color={colorPallet.secondary}
+                style={{ marginRight: 6 }}
+              />
+              <Text style={typography.body}>Reset Filters</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
 
       <View style={{ flex: 1, flexDirection: "row" }}>
         <SectionList
@@ -523,23 +554,41 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colorPallet.neutral_lightest,
   },
-
   filterToggleText: {
     color: colorPallet.secondary,
     fontSize: 14,
     fontWeight: "500",
-  },
-  filtersRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 12,
-    zIndex: 1,
   },
   topControlsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 12,
+  },
+  filtersContainer: {
+    overflow: "hidden",
+    marginBottom: 12,
+  },
+  filtersVisible: {
+    opacity: 1,
+    height: "auto",
+  },
+  filtersHidden: {
+    opacity: 0,
+    height: 0,
+    marginBottom: 0,
+  },
+  resetButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: colorPallet.neutral_6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colorPallet.secondary,
+    marginTop: 8,
   },
 });
 
