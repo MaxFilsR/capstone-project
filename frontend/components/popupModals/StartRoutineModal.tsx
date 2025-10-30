@@ -1,5 +1,4 @@
-// StartRoutineModal.tsx
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -12,6 +11,7 @@ import { Routine } from "./Popup";
 import { colorPallet } from "@/styles/variables";
 import { typography, popupModalStyles } from "@/styles";
 import { FormButton } from "@/components";
+import Alert from "./Alert";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
@@ -28,33 +28,73 @@ const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
   routine,
 }) => {
   const router = useRouter();
+  const [alert, setAlert] = useState<{
+    visible: boolean;
+    mode: "alert" | "success" | "error" | "confirmAction";
+    title: string;
+    message: string;
+  }>({
+    visible: false,
+    mode: "alert",
+    title: "",
+    message: "",
+  });
 
   const handleStartRoutine = () => {
-    // Prepare exercises data for ActiveRoutineScreen
-    const exercisesData = routine.exercises.map((ex) => ({
-      id: ex.id,
-      name: ex.name,
-      images: ex.images,
-      thumbnailUrl: ex.images?.[0],
-      gifUrl: ex.images?.find((u) => u?.toLowerCase().endsWith(".gif")),
-      sets: ex.sets,
-      reps: ex.reps,
-      weight: ex.weight,
-      distance: ex.distance,
-    }));
+    if (!routine.exercises || routine.exercises.length === 0) {
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "No Exercises",
+        message:
+          "This routine has no exercises. Please add exercises before starting.",
+      });
+      return;
+    }
 
-    // Navigate to ActiveRoutineScreen
-    router.push({
-      pathname: "/screens/FitnessTabs/routineScreens/activeRoutine",
-      params: {
-        id: routine.id?.toString() || "0",
-        name: routine.name,
-        exercises: JSON.stringify(exercisesData),
-        index: "0",
-      },
-    });
+    try {
+      // Prepare exercises data for ActiveRoutineScreen
+      const exercisesData = routine.exercises.map((ex) => ({
+        id: ex.id,
+        name: ex.name,
+        images: ex.images,
+        thumbnailUrl: ex.images?.[0],
+        gifUrl: ex.images?.find((u) => u?.toLowerCase().endsWith(".gif")),
+        sets: ex.sets,
+        reps: ex.reps,
+        weight: ex.weight,
+        distance: ex.distance,
+      }));
 
-    onClose();
+      // Navigate to ActiveRoutineScreen
+      router.push({
+        pathname: "/screens/FitnessTabs/routineScreens/activeRoutine",
+        params: {
+          id: routine.id?.toString() || "0",
+          name: routine.name,
+          exercises: JSON.stringify(exercisesData),
+          index: "0",
+        },
+      });
+
+      onClose();
+    } catch (error) {
+      console.error("Error starting routine:", error);
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Error",
+        message: "Failed to start routine. Please try again.",
+      });
+    }
+  };
+
+  const handleAlertConfirm = () => {
+    setAlert({ ...alert, visible: false });
+  };
+
+  const handleAlertCancel = () => {
+    setAlert({ ...alert, visible: false });
   };
 
   // Get thumbnail from first exercise with images - same pattern as LibraryScreen
@@ -109,6 +149,15 @@ const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
       <View style={styles.buttonContainer}>
         <FormButton title="Start Workout" onPress={handleStartRoutine} />
       </View>
+
+      <Alert
+        visible={alert.visible}
+        mode={alert.mode}
+        title={alert.title}
+        message={alert.message}
+        onConfirm={handleAlertConfirm}
+        onCancel={handleAlertCancel}
+      />
     </View>
   );
 };

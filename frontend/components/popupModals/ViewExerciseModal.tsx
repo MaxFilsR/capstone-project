@@ -9,20 +9,15 @@ import { popupModalStyles } from "@/styles";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
 import { FormButton } from "../FormButton";
 import { AddToRoutineModal } from "./AddToRoutineModal";
+import Alert from "./Alert";
 import { colorPallet } from "@/styles/variables";
-// import { AlertMode } from "./AlertBox";
 
 export type ViewExerciseModalProps = {
   onClose: () => void;
   exercise?: Exercise | null;
   exerciseId?: string | null;
-  // showAlert?: (
-  //   msg: string | string[],
-  //   mode?: AlertMode,
-  //   confirmAction?: () => void,
-  //   cancelAction?: () => void
-  // ) => void;
 };
+
 const IMAGE_BASE_URL =
   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
@@ -30,11 +25,21 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
   onClose,
   exercise: exerciseProp,
   exerciseId,
-  // showAlert,
 }) => {
   const { exercises } = useWorkoutLibrary();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showRoutineModal, setShowRoutineModal] = useState(false);
+  const [alert, setAlert] = useState<{
+    visible: boolean;
+    mode: "alert" | "success" | "error" | "confirmAction";
+    title: string;
+    message: string;
+  }>({
+    visible: false,
+    mode: "alert",
+    title: "",
+    message: "",
+  });
 
   // Determine the exercise to display
   const exercise = useMemo(() => {
@@ -74,6 +79,27 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
     { name: "Instructions", component: InstructionsTab },
   ];
 
+  const handleAddToRoutine = () => {
+    if (!exercise) {
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Error",
+        message: "No exercise selected.",
+      });
+      return;
+    }
+    setShowRoutineModal(true);
+  };
+
+  const handleAlertConfirm = () => {
+    setAlert({ ...alert, visible: false });
+  };
+
+  const handleAlertCancel = () => {
+    setAlert({ ...alert, visible: false });
+  };
+
   if (!exercise) {
     return (
       <View style={popupModalStyles.emptyContainer}>
@@ -105,21 +131,16 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
           style={{
             color: colorPallet.primary,
             textAlign: "center",
-            fontSize: 24, // removed quotes
+            fontSize: 24,
             fontWeight: "bold",
             fontFamily: "Anton",
-            marginBottom: 8, // removed quotes
+            marginBottom: 8,
           }}
         >
           {exercise.name}
         </Text>
 
-        <FormButton
-          title="Add to routine"
-          onPress={() => {
-            setShowRoutineModal(true);
-          }}
-        />
+        <FormButton title="Add to routine" onPress={handleAddToRoutine} />
 
         <AddToRoutineModal
           visible={showRoutineModal}
@@ -135,6 +156,15 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
         tabBarStyle={popupModalStyles.tabBar}
         tabButtonStyle={popupModalStyles.tabButton}
         pageTitleStyle={popupModalStyles.pageTitle}
+      />
+
+      <Alert
+        visible={alert.visible}
+        mode={alert.mode}
+        title={alert.title}
+        message={alert.message}
+        onConfirm={handleAlertConfirm}
+        onCancel={handleAlertCancel}
       />
     </>
   );
