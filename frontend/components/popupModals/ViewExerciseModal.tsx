@@ -28,7 +28,7 @@ export type ViewExerciseModalProps = {
 const IMAGE_BASE_URL =
   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
-const HEADER_EXPANDED_HEIGHT = 260;
+const HEADER_EXPANDED_HEIGHT = 310;
 const HEADER_COLLAPSED_HEIGHT = 80;
 const SCROLL_THRESHOLD = 100;
 
@@ -82,7 +82,7 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
 
   // Animated values for header transformation
   const headerHeight = scrollY.interpolate({
-    inputRange: [0, SCROLL_THRESHOLD],
+    inputRange: [0, SCROLL_THRESHOLD * 2.5],
     outputRange: [HEADER_EXPANDED_HEIGHT, HEADER_COLLAPSED_HEIGHT],
     extrapolate: "clamp",
   });
@@ -343,14 +343,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: HEADER_EXPANDED_HEIGHT,
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    justifyContent: "center",
     alignItems: "center",
   },
   expandedImageContainer: {
     width: "100%",
-    height: 180,
+    height: 250,
     borderRadius: 12,
     overflow: "hidden",
     marginBottom: 12,

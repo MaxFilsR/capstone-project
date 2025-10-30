@@ -3,7 +3,6 @@ import { Platform } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getWorkoutLibrary, Exercise } from "@/api/endpoints";
 import { useAuth } from "@/lib/auth-context";
-import { apiClient } from "@/api/client";
 
 const CACHE_KEY = "workout_library_cache";
 const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days

@@ -1,12 +1,18 @@
-import React, { useEffect, useState, useMemo } from "react";
+// activeRoutine.tsx
+import React, {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+} from "react";
 import {
   View,
-  Text,
   TouchableOpacity,
   StyleSheet,
-  Image as RNImage,
-  ScrollView,
-  TextInput as RNTextInput,
+  Animated,
+  Text,
+  Image,
 } from "react-native";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { popupModalStyles, typography } from "@/styles";
@@ -16,9 +22,22 @@ import { Exercise } from "@/api/endpoints";
 import InstructionsExerciseScreen from "../exerciseInfoTabs/instructionsExcerciseScreen";
 import AboutExerciseScreen from "../exerciseInfoTabs/aboutExerciseScreen";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
-import { Image as ExpoImage } from "expo-image";
 import TabBar, { Tab } from "@/components/TabBar";
 import Alert from "@/components/popupModals/Alert";
+
+// Import new components
+import { StatsView } from "@/components/activeRoutineComponents/StatsView";
+import { WorkoutControls } from "@/components/activeRoutineComponents/WorkoutControls";
+import {
+  ExerciseLite,
+  CompletedExerciseData,
+  ExerciseForAbout,
+} from "@/components/activeRoutineComponents/types";
+import {
+  abs,
+  getExerciseType,
+  IMAGE_BASE_URL,
+} from "@/components/activeRoutineComponents/utils";
 
 type Params = {
   id?: string;
@@ -28,95 +47,16 @@ type Params = {
   index?: string;
 };
 
-type ExerciseLite = {
-  id?: string | number;
-  name: string;
-  thumbnailUrl?: string;
-  images?: string[];
-  gifUrl?: string;
-  sets?: number;
-  reps?: number;
-  weight?: number;
-  distance?: number;
-};
-
-type ExerciseForAbout = {
-  id: string;
-  name: string;
-  force: string | null;
-  level: string | null;
-  mechanic: string | null;
-  equipment: string | null;
-  category: string | null;
-  primaryMuscles: string[];
-  secondaryMuscles: string[];
-  images: string[];
-};
-
-// Type for storing completed exercise data
-type CompletedExerciseData = {
-  id: string | number;
-  sets: number;
-  reps: number;
-  weight: number;
-  distance: number;
-};
-
-const IMAGE_BASE_URL =
-  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
-
-const FALLBACK_IMG =
-  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/assisted-dip/assisted-dip-1.png";
-
-const abs = (u?: string | null) =>
-  u ? (u.startsWith("http") ? u : `${IMAGE_BASE_URL}${u}`) : undefined;
-
-const ImageCarousel = React.memo(({ images }: { images: string[] }) => {
-  const [imageIndex, setImageIndex] = useState(0);
-
-  useEffect(() => {
-    if (images.length > 1) {
-      const interval = setInterval(() => {
-        setImageIndex((prev) => (prev + 1) % images.length);
-      }, 1500);
-      return () => clearInterval(interval);
-    }
-  }, [images.length]);
-
-  const currentImage = images[imageIndex] ?? FALLBACK_IMG;
-
-  return (
-    <ExpoImage
-      source={{ uri: currentImage }}
-      style={styles.routineImage}
-      contentFit="cover"
-      transition={150}
-    />
-  );
-});
-
-function pickTopMedia(ex?: {
-  images?: string[];
-  thumbnailUrl?: string;
-  gifUrl?: string;
-}) {
-  const gifFromImages = ex?.images?.find((u) =>
-    u?.toLowerCase().endsWith(".gif")
-  );
-  return (
-    abs(ex?.gifUrl) ||
-    abs(gifFromImages) ||
-    abs(ex?.images?.[0]) ||
-    abs(ex?.thumbnailUrl) ||
-    FALLBACK_IMG
-  );
-}
+const HEADER_EXPANDED_HEIGHT = 340;
+const HEADER_COLLAPSED_HEIGHT = 132;
+const SCROLL_THRESHOLD = 150;
 
 export default function ActiveRoutineScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<Params>();
   const navigation = useNavigation();
   const { exercises: library } = useWorkoutLibrary();
+
   const [alert, setAlert] = useState<{
     visible: boolean;
     mode: "alert" | "success" | "error" | "confirmAction";
@@ -130,6 +70,24 @@ export default function ActiveRoutineScreen() {
     message: "",
     onConfirmAction: undefined,
   });
+
+  const [currentIndex, setCurrentIndex] = useState<number>(
+    Math.max(0, Number(params?.index ?? 0))
+  );
+
+  const [completedExercises, setCompletedExercises] = useState<
+    Map<number, CompletedExerciseData>
+  >(new Map());
+
+  const [setsData, setSetsData] = useState<
+    Map<number, { reps: string; weight: string; distance: string }[]>
+  >(new Map());
+
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
+
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     navigation.setOptions({
@@ -187,15 +145,6 @@ export default function ActiveRoutineScreen() {
     return [];
   }, [params?.exercises, library]);
 
-  const [currentIndex, setCurrentIndex] = useState<number>(
-    Math.max(0, Number(params?.index ?? 0))
-  );
-
-  // Store all exercise data as user progresses through workout
-  const [completedExercises, setCompletedExercises] = useState<
-    Map<number, CompletedExerciseData>
-  >(new Map());
-
   const hasExercises = exercisesLite.length > 0;
   const safeIndex = hasExercises
     ? Math.min(currentIndex, exercisesLite.length - 1)
@@ -213,100 +162,88 @@ export default function ActiveRoutineScreen() {
     return byId;
   }, [currentLite?.id, currentLite?.name, library]);
 
-  // ----- IMAGE CYCLE LOGIC -----
   const topImages = useMemo(() => {
     const imgs = fullExercise?.images ?? currentLite?.images ?? [];
     return imgs.map(abs).filter(Boolean) as string[];
   }, [fullExercise, currentLite]);
-  // -------------------------------
 
-  // Store sets data per exercise index to maintain state when navigating
-  const [setsData, setSetsData] = useState<
-    Map<number, { reps: string; weight: string; distance: string }[]>
-  >(new Map());
+  // Reset image index when exercise changes
+  useEffect(() => {
+    setActiveImageIndex(0);
+  }, [fullExercise?.id]);
 
-  // Get or initialize sets for current exercise (start with 1 set)
-  const sets = useMemo(() => {
-    const existing = setsData.get(currentIndex);
-    if (existing) {
-      return existing;
+  // Auto-rotate images
+  useEffect(() => {
+    if (topImages.length < 2) return;
+
+    const interval = setInterval(() => {
+      setActiveImageIndex((prev) => (prev + 1) % topImages.length);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [topImages.length]);
+
+  useEffect(() => {
+    if (!setsData.has(currentIndex)) {
+      setSetsData((prev) => {
+        const newMap = new Map(prev);
+        newMap.set(currentIndex, [{ reps: "", weight: "", distance: "" }]);
+        return newMap;
+      });
     }
-    return [{ reps: "", weight: "", distance: "" }]; // Start with 1 empty set
-  }, [currentIndex, setsData]);
+  }, [currentIndex]);
 
-  function updateSet(
-    index: number,
-    key: "reps" | "weight" | "distance",
-    val: string
-  ) {
-    // Only allow numeric input
-    const numericValue = val.replace(/[^0-9.]/g, "");
+  // Animated values for header transformation
+  const headerHeight = scrollY.interpolate({
+    inputRange: [0, SCROLL_THRESHOLD * 1.5],
+    outputRange: [HEADER_EXPANDED_HEIGHT, HEADER_COLLAPSED_HEIGHT],
+    extrapolate: "clamp",
+  });
 
-    setSetsData((prev) => {
-      const newMap = new Map(prev);
-      const currentSets = newMap.get(currentIndex) || [
-        { reps: "", weight: "", distance: "" },
-      ];
-      const updatedSets = currentSets.map((s, i) =>
-        i === index ? { ...s, [key]: numericValue } : s
-      );
-      newMap.set(currentIndex, updatedSets);
-      return newMap;
-    });
-  }
+  const imageOpacity = scrollY.interpolate({
+    inputRange: [0, SCROLL_THRESHOLD / 2],
+    outputRange: [1, 0],
+    extrapolate: "clamp",
+  });
 
-  function addSet() {
-    setSetsData((prev) => {
-      const newMap = new Map(prev);
-      const currentSets = newMap.get(currentIndex) || [
-        { reps: "", weight: "", distance: "" },
-      ];
-      newMap.set(currentIndex, [
-        ...currentSets,
-        { reps: "", weight: "", distance: "" },
-      ]);
-      return newMap;
-    });
-  }
+  const imageScale = scrollY.interpolate({
+    inputRange: [0, SCROLL_THRESHOLD],
+    outputRange: [1, 0.3],
+    extrapolate: "clamp",
+  });
 
-  function removeSet(index: number) {
-    setSetsData((prev) => {
-      const newMap = new Map(prev);
-      const currentSets = newMap.get(currentIndex) || [];
-      if (currentSets.length > 1) {
-        // Keep at least one set
-        newMap.set(
-          currentIndex,
-          currentSets.filter((_, i) => i !== index)
-        );
-      }
-      return newMap;
-    });
-  }
+  const titleFontSize = scrollY.interpolate({
+    inputRange: [0, SCROLL_THRESHOLD],
+    outputRange: [24, 16],
+    extrapolate: "clamp",
+  });
 
-  // Save current exercise data before moving to next
+  const collapsedHeaderOpacity = scrollY.interpolate({
+    inputRange: [SCROLL_THRESHOLD - 20, SCROLL_THRESHOLD],
+    outputRange: [0, 1],
+    extrapolate: "clamp",
+  });
+
+  const expandedHeaderOpacity = scrollY.interpolate({
+    inputRange: [0, SCROLL_THRESHOLD - 20],
+    outputRange: [1, 0],
+    extrapolate: "clamp",
+  });
+
   function saveCurrentExercise() {
     if (!currentLite?.id) return;
 
     const currentSets = setsData.get(currentIndex) || [];
+    const exerciseType = getExerciseType(fullExercise?.category);
 
-    // Determine exercise type
-    const isStrength =
-      fullExercise?.category?.toLowerCase() === "strength" ||
-      fullExercise?.category?.toLowerCase() === "powerlifting" ||
-      fullExercise?.category?.toLowerCase() === "olympic weightlifting";
-    const isCardio =
-      fullExercise?.category?.toLowerCase() === "cardio" ||
-      fullExercise?.category?.toLowerCase() === "running";
-
-    // Calculate totals based on exercise type
     let completedSets;
     let totalSets = 0;
     let totalReps = 0;
     let totalWeight = 0;
     let totalDistance = 0;
 
-    if (isStrength) {
+    if (exerciseType === "strength") {
+      // Filter out empty sets (must have reps OR weight)
       completedSets = currentSets.filter((s) => s.reps || s.weight);
       totalSets = completedSets.length;
       totalReps = completedSets.reduce(
@@ -317,7 +254,8 @@ export default function ActiveRoutineScreen() {
         (sum, s) => sum + (Number(s.weight) || 0),
         0
       );
-    } else if (isCardio) {
+    } else if (exerciseType === "cardio") {
+      // Filter out empty sets (must have distance)
       completedSets = currentSets.filter((s) => s.distance);
       totalSets = completedSets.length;
       totalDistance = completedSets.reduce(
@@ -325,23 +263,21 @@ export default function ActiveRoutineScreen() {
         0
       );
     } else {
-      // Default: accept any filled set
-      completedSets = currentSets.filter(
-        (s) => s.reps || s.weight || s.distance
-      );
-      totalSets = completedSets.length;
-      totalReps = completedSets.reduce(
-        (sum, s) => sum + (Number(s.reps) || 0),
-        0
-      );
-      totalWeight = completedSets.reduce(
-        (sum, s) => sum + (Number(s.weight) || 0),
-        0
-      );
-      totalDistance = completedSets.reduce(
-        (sum, s) => sum + (Number(s.distance) || 0),
-        0
-      );
+      totalSets = currentSets.length;
+    }
+
+    // Also update the setsData to remove empty sets
+    if (exerciseType === "strength" || exerciseType === "cardio") {
+      setSetsData((prev) => {
+        const newMap = new Map(prev);
+        if (completedSets && completedSets.length > 0) {
+          newMap.set(currentIndex, completedSets);
+        } else {
+          // Keep at least one empty set if all were removed
+          newMap.set(currentIndex, [{ reps: "", weight: "", distance: "" }]);
+        }
+        return newMap;
+      });
     }
 
     const avgWeight = totalSets > 0 ? totalWeight / totalSets : 0;
@@ -350,8 +286,8 @@ export default function ActiveRoutineScreen() {
       id: currentLite.id,
       sets: totalSets,
       reps: totalReps,
-      weight: Math.round(avgWeight * 10) / 10, // Round to 1 decimal
-      distance: Math.round(totalDistance * 10) / 10, // Round to 1 decimal
+      weight: Math.round(avgWeight * 10) / 10,
+      distance: Math.round(totalDistance * 10) / 10,
     };
 
     setCompletedExercises((prev) =>
@@ -377,15 +313,11 @@ export default function ActiveRoutineScreen() {
   }
 
   function onEnd() {
-    // Save current exercise before ending
     saveCurrentExercise();
 
-    // Use setTimeout to ensure state updates are complete
     setTimeout(() => {
-      // Convert Map to array for passing to next screen
       const exercisesArray = Array.from(completedExercises.values());
 
-      // Pass workout data to duration screen
       router.push({
         pathname: "/screens/FitnessTabs/routineScreens/durationRoutine",
         params: {
@@ -421,131 +353,163 @@ export default function ActiveRoutineScreen() {
     setAlert({ ...alert, visible: false, onConfirmAction: undefined });
   };
 
-  const aboutExercise: ExerciseForAbout = useMemo(
-    () => ({
-      id: String(fullExercise?.id ?? currentLite?.id ?? "0"),
-      name: fullExercise?.name ?? currentLite?.name ?? "Exercise",
-      force: fullExercise?.force ?? null,
-      level: fullExercise?.level ?? null,
-      mechanic: fullExercise?.mechanic ?? null,
-      equipment: fullExercise?.equipment ?? null,
-      category: fullExercise?.category ?? null,
-      primaryMuscles: fullExercise?.primaryMuscles ?? [],
-      secondaryMuscles: fullExercise?.secondaryMuscles ?? [],
-      images: (fullExercise?.images ?? currentLite?.images ?? []).map(
-        (p) => abs(p)!
-      ) as string[],
-    }),
-    [fullExercise, currentLite]
+  const handleScroll = Animated.event(
+    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+    {
+      useNativeDriver: false,
+      listener: (event: any) => {
+        const offsetY = event.nativeEvent.contentOffset.y;
+        setIsHeaderCollapsed(offsetY > SCROLL_THRESHOLD - 20);
+      },
+    }
   );
 
-  const StatsTab = () => {
-    // Determine exercise type
-    const isStrength =
-      fullExercise?.category?.toLowerCase() === "strength" ||
-      fullExercise?.category?.toLowerCase() === "powerlifting" ||
-      fullExercise?.category?.toLowerCase() === "olympic weightlifting";
-    const isCardio =
-      fullExercise?.category?.toLowerCase() === "cardio" ||
-      fullExercise?.category?.toLowerCase() === "running";
+  const exerciseType = getExerciseType(fullExercise?.category);
 
-    return (
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingHorizontal: 10, paddingBottom: 12 }}
-      >
-        <StatsCard
-          title={`Log ${isCardio ? "Distance" : "Weight"} — ${
-            fullExercise?.name ?? currentLite?.name ?? ""
-          }`}
-          sets={sets}
-          onChange={updateSet}
-          onAddSet={addSet}
-          onRemoveSet={removeSet}
-          isStrength={isStrength}
-          isCardio={isCardio}
+  const statsTitle = `Log ${
+    exerciseType === "cardio"
+      ? "Distance"
+      : exerciseType === "strength"
+      ? "Sets & Reps"
+      : "Exercise"
+  } — ${fullExercise?.name ?? currentLite?.name ?? ""}`;
+
+  // Include setsData in dependencies so we don't have stale closures
+  const StatsTabComponent = useMemo(
+    () => () =>
+      (
+        <StatsView
+          title={statsTitle}
+          currentIndex={currentIndex}
+          setsData={setsData}
+          setSetsData={setSetsData}
+          exerciseType={exerciseType}
         />
-      </ScrollView>
-    );
-  };
-
-  const AboutTab = () => (
-    <AboutExerciseScreen exercise={fullExercise as Exercise} />
+      ),
+    [statsTitle, currentIndex, exerciseType, setsData, setSetsData]
   );
 
-  const InstructionsTab = () => (
-    <InstructionsExerciseScreen exercise={fullExercise as Exercise} />
+  const AboutTab = useMemo(
+    () => () => <AboutExerciseScreen exercise={fullExercise as Exercise} />,
+    [fullExercise]
   );
 
-  const tabs: Tab[] = [
-    { name: "Stats", component: StatsTab },
-    { name: "About", component: AboutTab },
-    { name: "Instructions", component: InstructionsTab },
-  ];
+  const InstructionsTab = useMemo(
+    () => () =>
+      <InstructionsExerciseScreen exercise={fullExercise as Exercise} />,
+    [fullExercise]
+  );
 
-  const [activeTabIndex, setActiveTabIndex] = useState(0);
+  const tabs: Tab[] = useMemo(
+    () => [
+      { name: "Stats", component: StatsTabComponent },
+      { name: "About", component: AboutTab },
+      { name: "Instructions", component: InstructionsTab },
+    ],
+    [StatsTabComponent, AboutTab, InstructionsTab]
+  );
 
   return (
     <View style={{ flex: 1, backgroundColor: colorPallet.neutral_darkest }}>
-      {/* Top image */}
-      <ImageCarousel images={topImages} />
+      {/* Sticky Animated Header */}
+      <Animated.View style={[styles.stickyHeader, { height: headerHeight }]}>
+        {/* Cancel Button - Always on top */}
+        <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+          <Ionicons name="close" size={24} color={colorPallet.secondary} />
+        </TouchableOpacity>
 
-      {/* Cancel Button */}
-      <TouchableOpacity
-        style={styles.cancelButton}
-        onPress={onCancel}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        {/* Expanded Header */}
+        <Animated.View
+          style={[styles.expandedHeader, { opacity: expandedHeaderOpacity }]}
+          pointerEvents={isHeaderCollapsed ? "none" : "auto"}
+        >
+          {topImages.length > 0 && (
+            <Animated.View
+              style={[
+                styles.expandedImageContainer,
+                { opacity: imageOpacity, transform: [{ scale: imageScale }] },
+              ]}
+            >
+              <Image
+                source={{ uri: topImages[activeImageIndex] }}
+                style={styles.expandedImage}
+                resizeMode="cover"
+              />
+              {topImages.length > 1 && (
+                <View style={styles.imageDots}>
+                  {topImages.map((_, index) => (
+                    <View
+                      key={index}
+                      style={[
+                        styles.dot,
+                        index === activeImageIndex && styles.dotActive,
+                      ]}
+                    />
+                  ))}
+                </View>
+              )}
+            </Animated.View>
+          )}
+          <Animated.Text
+            style={[styles.expandedTitle, { fontSize: titleFontSize }]}
+          >
+            {fullExercise?.name ?? currentLite?.name ?? ""}
+          </Animated.Text>
+        </Animated.View>
+
+        {/* Collapsed Header */}
+        <Animated.View
+          style={[styles.collapsedHeader, { opacity: collapsedHeaderOpacity }]}
+          pointerEvents={isHeaderCollapsed ? "auto" : "none"}
+        >
+          {topImages.length > 0 && (
+            <Image
+              source={{ uri: topImages[activeImageIndex] }}
+              style={styles.collapsedImage}
+              resizeMode="cover"
+            />
+          )}
+          <View style={styles.collapsedContent}>
+            <Text style={typography.h1} numberOfLines={2}>
+              {fullExercise?.name ?? currentLite?.name ?? ""}
+            </Text>
+          </View>
+        </Animated.View>
+      </Animated.View>
+
+      {/* Scrollable Content */}
+      <Animated.ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={{ paddingTop: HEADER_EXPANDED_HEIGHT }}
+        showsVerticalScrollIndicator={false}
+        bounces={true}
+        scrollEventThrottle={16}
+        onScroll={handleScroll}
       >
-        <Ionicons name="close" size={24} color={colorPallet.secondary} />
-      </TouchableOpacity>
-
-      {/* TabBar */}
-      <TabBar
-        tabs={tabs}
-        pageTitle={fullExercise?.name ?? currentLite?.name ?? ""}
-        initialTab={0}
-        onTabChange={setActiveTabIndex}
-        outerContainerStyle={popupModalStyles.tabOuterContainer}
-        tabBarContainerStyle={popupModalStyles.tabBarContainer}
-        tabBarStyle={popupModalStyles.tabBar}
-        tabButtonStyle={popupModalStyles.tabButton}
-        pageTitleStyle={popupModalStyles.pageTitle}
-      />
-
-      {/* Control buttons */}
-      {activeTabIndex === 0 && (
-        <View style={styles.transport}>
-          <TouchableOpacity
-            style={[styles.smallRound, currentIndex === 0 && { opacity: 0.4 }]}
-            onPress={onPrev}
-            disabled={currentIndex === 0}
-          >
-            <Ionicons
-              name="play-back"
-              size={20}
-              color={colorPallet.neutral_lightest}
-            />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.endRound} onPress={onEnd}>
-            <Text style={styles.endText}>End</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[
-              styles.smallRound,
-              currentIndex === exercisesLite.length - 1 && { opacity: 0.4 },
-            ]}
-            onPress={onNext}
-            disabled={currentIndex >= exercisesLite.length - 1}
-          >
-            <Ionicons
-              name="play-forward"
-              size={20}
-              color={colorPallet.neutral_lightest}
-            />
-          </TouchableOpacity>
+        {/* Tabs Content */}
+        <View style={styles.tabsContainer}>
+          <TabBar
+            tabs={tabs}
+            initialTab={0}
+            onTabChange={setActiveTabIndex}
+            outerContainerStyle={popupModalStyles.tabOuterContainer}
+            tabBarContainerStyle={popupModalStyles.tabBarContainer}
+            tabBarStyle={popupModalStyles.tabBar}
+            tabButtonStyle={popupModalStyles.tabButton}
+            pageTitleStyle={popupModalStyles.pageTitle}
+          />
         </View>
+      </Animated.ScrollView>
+
+      {/* Workout Controls */}
+      {activeTabIndex === 0 && (
+        <WorkoutControls
+          currentIndex={currentIndex}
+          totalExercises={exercisesLite.length}
+          onPrev={onPrev}
+          onNext={onNext}
+          onEnd={onEnd}
+        />
       )}
 
       <Alert
@@ -562,326 +526,113 @@ export default function ActiveRoutineScreen() {
   );
 }
 
-function StatsCard({
-  title,
-  sets,
-  onChange,
-  onAddSet,
-  onRemoveSet,
-  isStrength,
-  isCardio,
-}: {
-  title: string;
-  sets: { reps: string; weight: string; distance: string }[];
-  onChange: (
-    index: number,
-    key: "reps" | "weight" | "distance",
-    val: string
-  ) => void;
-  onAddSet: () => void;
-  onRemoveSet: (index: number) => void;
-  isStrength: boolean;
-  isCardio: boolean;
-}) {
-  return (
-    <View style={styles.card}>
-      <Text style={[styles.cardTitle, { marginBottom: 20 }]}>{title}</Text>
-
-      <View style={{ gap: 14, marginTop: 12 }}>
-        {sets.map((s, i) => (
-          <View style={styles.setRow} key={i}>
-            <Text style={styles.setIndex}>{i + 1}</Text>
-
-            {isStrength && (
-              <>
-                {/* Reps Input */}
-                <View style={[styles.inputWrap, { marginRight: 10 }]}>
-                  <RNTextInput
-                    value={s.reps}
-                    onChangeText={(t) => onChange(i, "reps", t)}
-                    placeholder="Reps"
-                    placeholderTextColor={colorPallet.neutral_4}
-                    keyboardType="numeric"
-                    style={[
-                      styles.input,
-                      { color: colorPallet.neutral_lightest },
-                    ]}
-                  />
-                </View>
-
-                <Text style={styles.times}>x</Text>
-
-                {/* Weight Input */}
-                <View style={[styles.inputWrap, { marginLeft: 10 }]}>
-                  <RNTextInput
-                    value={s.weight}
-                    onChangeText={(t) => onChange(i, "weight", t)}
-                    placeholder="Weight"
-                    placeholderTextColor={colorPallet.neutral_4}
-                    keyboardType="numeric"
-                    style={[
-                      styles.input,
-                      { color: colorPallet.neutral_lightest },
-                    ]}
-                  />
-                </View>
-              </>
-            )}
-
-            {isCardio && (
-              <>
-                {/* Distance Input */}
-                <View style={[styles.inputWrap, { flex: 1 }]}>
-                  <RNTextInput
-                    value={s.distance}
-                    onChangeText={(t) => onChange(i, "distance", t)}
-                    placeholder="Distance (km)"
-                    placeholderTextColor={colorPallet.neutral_4}
-                    keyboardType="numeric"
-                    style={[
-                      styles.input,
-                      { color: colorPallet.neutral_lightest },
-                    ]}
-                  />
-                </View>
-              </>
-            )}
-
-            {!isStrength && !isCardio && (
-              <>
-                {/* Default: Show all fields */}
-                <View style={[styles.inputWrap, { marginRight: 6, flex: 1 }]}>
-                  <RNTextInput
-                    value={s.reps}
-                    onChangeText={(t) => onChange(i, "reps", t)}
-                    placeholder="Reps"
-                    placeholderTextColor={colorPallet.neutral_4}
-                    keyboardType="numeric"
-                    style={[
-                      styles.input,
-                      { color: colorPallet.neutral_lightest },
-                    ]}
-                  />
-                </View>
-
-                <View
-                  style={[styles.inputWrap, { marginHorizontal: 6, flex: 1 }]}
-                >
-                  <RNTextInput
-                    value={s.weight}
-                    onChangeText={(t) => onChange(i, "weight", t)}
-                    placeholder="Weight"
-                    placeholderTextColor={colorPallet.neutral_4}
-                    keyboardType="numeric"
-                    style={[
-                      styles.input,
-                      { color: colorPallet.neutral_lightest },
-                    ]}
-                  />
-                </View>
-
-                <View style={[styles.inputWrap, { marginLeft: 6, flex: 1 }]}>
-                  <RNTextInput
-                    value={s.distance}
-                    onChangeText={(t) => onChange(i, "distance", t)}
-                    placeholder="Dist"
-                    placeholderTextColor={colorPallet.neutral_4}
-                    keyboardType="numeric"
-                    style={[
-                      styles.input,
-                      { color: colorPallet.neutral_lightest },
-                    ]}
-                  />
-                </View>
-              </>
-            )}
-
-            {/* Delete Set Button (only show if more than 1 set) */}
-            {sets.length > 1 && (
-              <TouchableOpacity
-                onPress={() => onRemoveSet(i)}
-                style={styles.deleteButton}
-              >
-                <Ionicons
-                  name="close-circle"
-                  size={24}
-                  color={colorPallet.secondary}
-                />
-              </TouchableOpacity>
-            )}
-          </View>
-        ))}
-      </View>
-
-      {/* Add Set Button */}
-      <TouchableOpacity onPress={onAddSet} style={styles.addSetButton}>
-        <Ionicons
-          name="add-circle-outline"
-          size={20}
-          color={colorPallet.primary}
-        />
-        <Text style={styles.addSetText}>Add Set</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  routineImage: {
-    width: "100%",
-    height: 340,
-    backgroundColor: colorPallet.neutral_6,
+  scrollView: {
+    flex: 1,
+  },
+  stickyHeader: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
+    backgroundColor: colorPallet.neutral_darkest,
+    borderBottomWidth: 1,
+    borderBottomColor: colorPallet.primary,
+    overflow: "hidden",
   },
   cancelButton: {
     position: "absolute",
     top: 50,
     right: 16,
+    zIndex: 101,
     width: 40,
     height: 40,
     borderRadius: 20,
     backgroundColor: colorPallet.neutral_6,
     alignItems: "center",
     justifyContent: "center",
-    zIndex: 100,
   },
-  tabsWrap: {
-    paddingHorizontal: 8,
-    marginHorizontal: 4,
-    marginTop: 10,
-    marginBottom: 5,
-  },
-  tabsPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colorPallet.neutral_6,
-    borderRadius: 12,
-    padding: 4,
-    borderWidth: 1,
-    borderColor: colorPallet.neutral_6,
-    overflow: "hidden",
-  },
-  tabButton: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 10,
-    borderRadius: 10,
-  },
-  tabText: {
-    fontWeight: "700",
-  },
-  card: {
-    backgroundColor: colorPallet.neutral_darkest,
-    paddingVertical: 16,
-    paddingLeft: 0,
-    paddingRight: 8,
-    marginTop: 8,
-  },
-  cardTitle: {
-    ...typography.h2,
-    color: colorPallet.neutral_lightest,
-    marginBottom: 2,
-  },
-  setRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  setIndex: {
-    width: 20,
-    color: colorPallet.primary,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginRight: 8,
-  },
-  inputWrap: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: colorPallet.neutral_1,
-    borderRadius: 10,
-    backgroundColor: colorPallet.neutral_darkest,
-    height: 50,
-    overflow: "hidden",
-  },
-  input: {
-    flex: 1,
-    height: 38,
-    textAlignVertical: "center",
-    lineHeight: 18,
-    paddingTop: 0,
-    paddingBottom: 2,
-    paddingHorizontal: 14,
-    color: colorPallet.neutral_lightest,
-    fontWeight: "300",
-    fontSize: 14,
-    backgroundColor: "transparent",
-    borderRadius: 10,
-  },
-  times: {
-    width: 16,
-    textAlign: "center",
-    color: colorPallet.primary,
-    fontWeight: "bold",
-  },
-  transport: {
+  // Expanded Header Styles
+  expandedHeader: {
     position: "absolute",
+    top: 0,
     left: 0,
     right: 0,
-    bottom: 8,
-    height: 150,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    paddingHorizontal: 28,
-  },
-  smallRound: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colorPallet.neutral_6,
-    alignItems: "center",
+    height: HEADER_EXPANDED_HEIGHT,
+    paddingHorizontal: 0,
+    paddingTop: 0,
     justifyContent: "center",
-    borderWidth: 1,
-    borderColor: colorPallet.neutral_5,
-  },
-  endRound: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colorPallet.neutral_6,
     alignItems: "center",
-    justifyContent: "center",
-    shadowColor: colorPallet.neutral_darkest,
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 8,
   },
-  endText: {
-    color: colorPallet.neutral_lightest,
-    fontWeight: "800",
-    letterSpacing: 0.3,
+  expandedImageContainer: {
+    width: "100%",
+    height: 280,
+    overflow: "hidden",
+    marginBottom: 12,
+    backgroundColor: colorPallet.neutral_5,
+    position: "relative",
   },
-  deleteButton: {
-    marginLeft: 8,
-    padding: 4,
+  expandedImage: {
+    width: "100%",
+    height: "100%",
   },
-  addSetButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: colorPallet.neutral_6,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: colorPallet.primary,
-    borderStyle: "dashed",
-  },
-  addSetText: {
+  expandedTitle: {
     color: colorPallet.primary,
-    fontWeight: "600",
-    marginLeft: 8,
-    fontSize: 14,
+    textAlign: "center",
+    fontWeight: "bold",
+    fontFamily: "Anton",
+    paddingHorizontal: 16,
+  },
+  // Collapsed Header Styles
+  collapsedHeader: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: HEADER_COLLAPSED_HEIGHT,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginTop: 32,
+  },
+  collapsedImage: {
+    width: 56,
+    height: 56,
+    borderRadius: 8,
+    backgroundColor: colorPallet.neutral_5,
+    marginRight: 12,
+  },
+  collapsedContent: {
+    flex: 1,
+    justifyContent: "center",
+    paddingRight: 50,
+  },
+  imageDots: {
+    position: "absolute",
+    bottom: 8,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 6,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colorPallet.neutral_3,
+  },
+  dotActive: {
+    backgroundColor: colorPallet.primary,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  tabsContainer: {
+    flex: 1,
+    minHeight: 400,
   },
 });

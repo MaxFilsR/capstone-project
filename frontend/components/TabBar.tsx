@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -52,7 +52,9 @@ const TabBar: React.FC<TabBarProps> = ({
   inactiveTextColor = colorPallet.neutral_lightest,
 }) => {
   const [activeTab, setActiveTab] = useState(initialTab);
-  const ActiveComponent = tabs[activeTab].component;
+
+  // Get the active component but don't store it in derived state
+  const ActiveComponent = tabs[activeTab]?.component;
 
   const handleTabPress = (index: number) => {
     if (index !== activeTab) {
@@ -116,7 +118,20 @@ const TabBar: React.FC<TabBarProps> = ({
       </View>
 
       <View style={[{ flex: 1 }, contentContainerStyle]}>
-        <ActiveComponent />
+        {tabs.map((tab, index) => {
+          const Component = tab.component;
+          return (
+            <View
+              key={tab.name}
+              style={{
+                flex: 1,
+                display: activeTab === index ? "flex" : "none",
+              }}
+            >
+              <Component />
+            </View>
+          );
+        })}
       </View>
     </View>
   );

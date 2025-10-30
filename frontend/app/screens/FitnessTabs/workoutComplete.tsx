@@ -9,6 +9,7 @@ import {
   Pressable,
   ActivityIndicator,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import trophy from "@/assets/images/trophy_summary.png";
 import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
@@ -16,8 +17,13 @@ import {
   getWorkoutHistory,
   WorkoutSession,
   WorkoutExercise,
+  Exercise,
 } from "@/api/endpoints";
 import { useAuth } from "@/lib/auth-context";
+import { useWorkoutLibrary } from "@/lib/workout-library-context";
+
+const IMAGE_BASE_URL =
+  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
 type StatPair = { label: string; value: string | number };
 
@@ -27,6 +33,30 @@ type Props = {
   summary?: StatPair[];
   onDone?: () => void;
 };
+
+// Helper function to determine exercise type
+function getExerciseType(
+  category: string | null | undefined
+): "strength" | "cardio" | "none" {
+  if (!category) return "none";
+
+  const cat = category.toLowerCase();
+
+  if (
+    cat === "strength" ||
+    cat === "olympic weightlifting" ||
+    cat === "powerlifting" ||
+    cat === "strongman"
+  ) {
+    return "strength";
+  }
+
+  if (cat === "cardio") {
+    return "cardio";
+  }
+
+  return "none";
+}
 
 export default function WorkoutComplete({
   routineName = "Strength Workout",
@@ -40,13 +70,17 @@ export default function WorkoutComplete({
     workoutTime?: string;
     points?: string;
     date?: string;
-    exercises?: string; // For newly completed workouts
+    exercises?: string;
   }>();
 
   const [workout, setWorkout] = useState<WorkoutSession | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [expandedExercises, setExpandedExercises] = useState<Set<number>>(
+    new Set()
+  );
+  const { user } = useAuth();
+  const { exercises: exerciseLibrary } = useWorkoutLibrary();
 
-  // Fetch workout details if ID is provided (from history)
   useEffect(() => {
     if (params.id) {
       loadWorkoutDetails(params.id);
@@ -56,10 +90,8 @@ export default function WorkoutComplete({
   async function loadWorkoutDetails(id: string) {
     try {
       setIsLoading(true);
-
       const history = await getWorkoutHistory();
       const foundWorkout = history.find((w) => String(w.id) === id);
-
       if (foundWorkout) {
         setWorkout(foundWorkout);
       }
@@ -70,7 +102,6 @@ export default function WorkoutComplete({
     }
   }
 
-  // Parse exercises from params if provided
   const exercisesFromParams: WorkoutExercise[] = React.useMemo(() => {
     if (params.exercises) {
       try {
@@ -89,19 +120,19 @@ export default function WorkoutComplete({
     workout?.points ?? (params.points ? Number(params.points) : 0);
   const workoutExercises = workout?.exercises ?? exercisesFromParams;
 
-  // Build summary stats
-  const rows: StatPair[] = summary ?? [
-    {
-      label: "Workout Time",
-      value: workoutDuration ? `${workoutDuration} min` : "-",
-    },
-    { label: "Gainz Earned", value: workoutPoints || "-" },
-    { label: "Total Exercises", value: workoutExercises.length },
-    {
-      label: "Total Sets",
-      value: workoutExercises.reduce((sum, ex) => sum + ex.sets, 0),
-    },
-  ];
+  const totalSets = workoutExercises.reduce((sum, ex) => sum + ex.sets, 0);
+
+  const toggleExpanded = (index: number) => {
+    setExpandedExercises((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  };
 
   const handleDone = () => {
     if (onDone) {
@@ -111,159 +142,285 @@ export default function WorkoutComplete({
     router.replace("/(tabs)/fitness");
   };
 
-  const HEADER_OFFSET = 80;
-
-  const pairs: StatPair[][] = [];
-  for (let i = 0; i < rows.length; i += 2) {
-    pairs.push(rows.slice(i, i + 2));
-  }
-
   if (isLoading) {
     return (
-      <View
-        style={[
-          styles.container,
-          { justifyContent: "center", alignItems: "center" },
-        ]}
-      >
+      <View style={[styles.container, styles.centered]}>
         <ActivityIndicator size="large" color={colorPallet.primary} />
-        <Text
-          style={[
-            typography.body,
-            { color: colorPallet.neutral_lightest, marginTop: 16 },
-          ]}
-        >
+        <Text style={[typography.body, styles.loadingText]}>
           Loading workout details...
         </Text>
       </View>
     );
   }
-  const { user } = useAuth();
 
   return (
     <ScrollView
       style={styles.container}
-      contentContainerStyle={[styles.content, { paddingTop: HEADER_OFFSET }]}
+      contentContainerStyle={styles.scrollContent}
+      showsVerticalScrollIndicator={false}
     >
-      {/* Done Button */}
-      <Pressable
-        onPress={handleDone}
-        hitSlop={24}
-        style={[styles.doneWrap, { top: HEADER_OFFSET }]}
-      >
-        <Text style={styles.doneText}>Done</Text>
-      </Pressable>
-
-      {/* Title */}
-      <Text style={[typography.h1, styles.title]}>
-        {`${workoutName} Complete`}
-      </Text>
-
-      <Image source={trophy} style={styles.trophy} resizeMode="contain" />
-
-      {/* Post Workout Message */}
-      <Text style={[typography.h1, styles.postMessage]}>
-        Good job, {user?.profile?.username}!
-      </Text>
-
-      {/* Summary Stats */}
-      <Text style={styles.sectionHeader}>Workout Summary</Text>
-
-      <View style={styles.card}>
-        {pairs.map((pair, idx) => (
-          <View
-            key={`${pair[0].label}-${pair[1]?.label ?? idx}`}
-            style={[styles.row, idx > 0 && styles.rowDivider]}
-          >
-            {/* Left Cell */}
-            <View style={styles.cell}>
-              <Text style={styles.cellLabel}>{pair[0].label}</Text>
-              <Text style={styles.cellValue}>
-                {typeof pair[0].value === "number"
-                  ? pair[0].value.toLocaleString()
-                  : pair[0].value}
-              </Text>
-            </View>
-
-            {/* Right Cell */}
-            <View style={[styles.cell, styles.cellLeftDivider]}>
-              {pair[1] ? (
-                <>
-                  <Text style={styles.cellLabel}>{pair[1].label}</Text>
-                  <Text style={styles.cellValue}>
-                    {typeof pair[1].value === "number"
-                      ? pair[1].value.toLocaleString()
-                      : pair[1].value}
-                  </Text>
-                </>
-              ) : null}
-            </View>
-          </View>
-        ))}
+      {/* Header with Done Button */}
+      <View style={styles.header}>
+        <Pressable onPress={handleDone} hitSlop={24}>
+          <Text style={styles.doneText}>Done</Text>
+        </Pressable>
       </View>
 
-      {/* Exercise Details */}
-      {workoutExercises.length > 0 && (
-        <>
-          <Text style={styles.sectionHeader}>Exercises</Text>
-          <View style={styles.exercisesContainer}>
-            {workoutExercises.map((exercise, idx) => (
-              <ExerciseDetailCard key={idx} exercise={exercise} index={idx} />
-            ))}
+      {/* Hero Section */}
+      <View style={styles.heroSection}>
+        <Image source={trophy} style={styles.trophy} resizeMode="contain" />
+        <Text style={styles.title}>
+          {workoutName
+            ? workoutName[0].toUpperCase() + workoutName.slice(1)
+            : "Workout"}{" "}
+          Complete!
+        </Text>
+        <Text style={styles.subtitle}>
+          Great work, {user?.profile?.username || "Champion"}!
+        </Text>
+      </View>
+
+      {/* Stats Cards - Single Row */}
+      <View style={styles.statsContainer}>
+        <View style={styles.statCard}>
+          <View style={styles.statIconWrapper}>
+            <Ionicons
+              name="time-outline"
+              size={20}
+              color={colorPallet.primary}
+            />
           </View>
-        </>
+          <Text style={styles.statValue}>
+            {workoutDuration ? `${workoutDuration}` : "-"}
+          </Text>
+          <Text style={styles.statLabel}>Minutes</Text>
+        </View>
+
+        <View style={styles.statCard}>
+          <View style={styles.statIconWrapper}>
+            <Ionicons
+              name="trophy-outline"
+              size={20}
+              color={colorPallet.primary}
+            />
+          </View>
+          <Text style={styles.statValue}>{workoutPoints || "-"}</Text>
+          <Text style={styles.statLabel}>Gainz</Text>
+        </View>
+
+        <View style={styles.statCard}>
+          <View style={styles.statIconWrapper}>
+            <Ionicons
+              name="barbell-outline"
+              size={20}
+              color={colorPallet.primary}
+            />
+          </View>
+          <Text style={styles.statValue}>{workoutExercises.length}</Text>
+          <Text style={styles.statLabel}>Exercises</Text>
+        </View>
+
+        <View style={styles.statCard}>
+          <View style={styles.statIconWrapper}>
+            <Ionicons
+              name="repeat-outline"
+              size={20}
+              color={colorPallet.primary}
+            />
+          </View>
+          <Text style={styles.statValue}>{totalSets}</Text>
+          <Text style={styles.statLabel}>Sets</Text>
+        </View>
+      </View>
+
+      {/* Exercises Section */}
+      {workoutExercises.length > 0 && (
+        <View style={styles.exercisesSection}>
+          <View style={styles.sectionHeaderContainer}>
+            <Text style={styles.sectionHeader}>Exercises Completed</Text>
+            <View style={styles.countBadge}>
+              <Text style={styles.countBadgeText}>
+                {workoutExercises.length}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.exercisesContainer}>
+            {workoutExercises.map((exercise, idx) => {
+              const exerciseDetails = exerciseLibrary.find(
+                (ex) => ex.id === String(exercise.id)
+              );
+
+              if (!exerciseDetails) return null;
+
+              return (
+                <ExpandableExerciseCard
+                  key={idx}
+                  exercise={exercise}
+                  exerciseDetails={exerciseDetails}
+                  isExpanded={expandedExercises.has(idx)}
+                  onToggle={() => toggleExpanded(idx)}
+                />
+              );
+            })}
+          </View>
+        </View>
       )}
 
-      <View style={{ height: 32 }} />
+      <View style={styles.bottomSpacer} />
     </ScrollView>
   );
 }
 
-function ExerciseDetailCard({
+function ExpandableExerciseCard({
   exercise,
-  index,
+  exerciseDetails,
+  isExpanded,
+  onToggle,
 }: {
   exercise: WorkoutExercise;
-  index: number;
+  exerciseDetails: Exercise;
+  isExpanded: boolean;
+  onToggle: () => void;
 }) {
-  const hasWeight = exercise.weight > 0;
-  const hasReps = exercise.reps > 0;
-  const hasDistance = exercise.distance > 0;
+  const exerciseType = getExerciseType(exerciseDetails.category);
+  const imageUrl = exerciseDetails.images?.[0]
+    ? `${IMAGE_BASE_URL}${exerciseDetails.images[0]}`
+    : null;
 
   return (
     <View style={styles.exerciseCard}>
-      <View style={styles.exerciseHeader}>
-        <Text style={styles.exerciseNumber}>{index + 1}</Text>
-        <Text style={styles.exerciseName}>Exercise {exercise.id}</Text>
-      </View>
+      {/* Exercise Header */}
+      <Pressable onPress={onToggle} style={styles.exerciseHeader}>
+        {imageUrl ? (
+          <Image
+            source={{ uri: imageUrl }}
+            style={styles.exerciseThumbnail}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={[styles.exerciseThumbnail, styles.thumbnailPlaceholder]}>
+            <Ionicons name="barbell" size={24} color={colorPallet.neutral_3} />
+          </View>
+        )}
 
-      <View style={styles.exerciseStats}>
-        <View style={styles.exerciseStat}>
-          <Text style={styles.exerciseStatLabel}>Sets</Text>
-          <Text style={styles.exerciseStatValue}>{exercise.sets}</Text>
+        <View style={styles.exerciseInfo}>
+          <Text style={styles.exerciseName} numberOfLines={1}>
+            {exerciseDetails.name}
+          </Text>
+          {exerciseDetails.primaryMuscles &&
+            exerciseDetails.primaryMuscles.length > 0 && (
+              <Text style={styles.exerciseMuscle}>
+                {exerciseDetails.primaryMuscles.join(", ")}
+              </Text>
+            )}
         </View>
 
-        {hasReps && (
-          <View style={styles.exerciseStat}>
-            <Text style={styles.exerciseStatLabel}>Total Reps</Text>
-            <Text style={styles.exerciseStatValue}>{exercise.reps}</Text>
-          </View>
-        )}
+        <Ionicons
+          name={isExpanded ? "chevron-up" : "chevron-down"}
+          size={24}
+          color={colorPallet.neutral_3}
+        />
+      </Pressable>
 
-        {hasWeight && (
-          <View style={styles.exerciseStat}>
-            <Text style={styles.exerciseStatLabel}>Avg Weight</Text>
-            <Text style={styles.exerciseStatValue}>{exercise.weight} lbs</Text>
+      {/* Expanded Summary Details */}
+      {isExpanded && exerciseType !== "none" && (
+        <View style={styles.detailsContainer}>
+          <View style={styles.detailsHeader}>
+            <Text style={styles.detailsHeaderText}>Summary</Text>
           </View>
-        )}
 
-        {hasDistance && (
-          <View style={styles.exerciseStat}>
-            <Text style={styles.exerciseStatLabel}>Distance</Text>
-            <Text style={styles.exerciseStatValue}>{exercise.distance} km</Text>
+          <View style={styles.summaryGrid}>
+            {exerciseType === "strength" && (
+              <>
+                {exercise.sets > 0 && (
+                  <View style={styles.summaryMetric}>
+                    <Ionicons
+                      name="layers-outline"
+                      size={20}
+                      color={colorPallet.primary}
+                    />
+                    <Text style={styles.summaryMetricValue}>
+                      {exercise.sets}
+                    </Text>
+                    <Text style={styles.summaryMetricLabel}>
+                      {exercise.sets === 1 ? "Set" : "Sets"}
+                    </Text>
+                  </View>
+                )}
+
+                {exercise.reps > 0 && (
+                  <View style={styles.summaryMetric}>
+                    <Ionicons
+                      name="repeat-outline"
+                      size={20}
+                      color={colorPallet.primary}
+                    />
+                    <Text style={styles.summaryMetricValue}>
+                      {exercise.reps}
+                    </Text>
+                    <Text style={styles.summaryMetricLabel}>
+                      Total {exercise.reps === 1 ? "Rep" : "Reps"}
+                    </Text>
+                  </View>
+                )}
+
+                {exercise.weight > 0 && (
+                  <View style={styles.summaryMetric}>
+                    <Ionicons
+                      name="barbell-outline"
+                      size={20}
+                      color={colorPallet.primary}
+                    />
+                    <Text style={styles.summaryMetricValue}>
+                      {exercise.weight}
+                    </Text>
+                    <Text style={styles.summaryMetricLabel}>
+                      Avg Weight (lbs)
+                    </Text>
+                  </View>
+                )}
+              </>
+            )}
+
+            {exerciseType === "cardio" && (
+              <>
+                {exercise.sets > 0 && (
+                  <View style={styles.summaryMetric}>
+                    <Ionicons
+                      name="layers-outline"
+                      size={20}
+                      color={colorPallet.primary}
+                    />
+                    <Text style={styles.summaryMetricValue}>
+                      {exercise.sets}
+                    </Text>
+                    <Text style={styles.summaryMetricLabel}>
+                      {exercise.sets === 1 ? "Set" : "Sets"}
+                    </Text>
+                  </View>
+                )}
+
+                {exercise.distance > 0 && (
+                  <View style={styles.summaryMetric}>
+                    <Ionicons
+                      name="trail-sign-outline"
+                      size={20}
+                      color={colorPallet.primary}
+                    />
+                    <Text style={styles.summaryMetricValue}>
+                      {exercise.distance}
+                    </Text>
+                    <Text style={styles.summaryMetricLabel}>
+                      Total Distance (km)
+                    </Text>
+                  </View>
+                )}
+              </>
+            )}
           </View>
-        )}
-      </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -273,148 +430,213 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colorPallet.neutral_darkest,
   },
-  content: {
-    padding: 16,
-    paddingTop: 100,
+  centered: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    color: colorPallet.neutral_lightest,
+    marginTop: 16,
+  },
+  scrollContent: {
+    paddingBottom: 32,
   },
 
-  doneWrap: {
-    position: "absolute",
-    right: 16,
-    zIndex: 1,
+  // Header
+  header: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingHorizontal: 20,
+    paddingTop: 60,
+    paddingBottom: 20,
   },
   doneText: {
-    color: colorPallet.secondary,
-    fontSize: 16,
-    fontWeight: "700",
-  },
-
-  title: {
+    ...typography.body,
     color: colorPallet.primary,
-    textAlign: "center",
-    marginTop: 80,
+    fontWeight: "bold",
   },
 
+  // Hero Section
+  heroSection: {
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+  },
   trophy: {
-    width: "72%",
-    height: 180,
-    alignSelf: "center",
-    marginVertical: 12,
-    marginTop: 20,
+    width: 250,
+    height: 250,
+    marginBottom: 8,
   },
-
-  postMessage: {
-    color: colorPallet.neutral_lightest,
-    textAlign: "center",
-    marginBottom: 12,
-    marginTop: 4,
-  },
-
-  sectionHeader: {
-    color: colorPallet.neutral_lightest,
-    fontSize: 18,
-    fontWeight: "800",
-    marginTop: 24,
-    marginBottom: 12,
-  },
-
-  card: {
-    backgroundColor: colorPallet.neutral_darkest,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: colorPallet.primary,
-    overflow: "hidden",
-  },
-
-  row: {
-    flexDirection: "row",
-  },
-  rowDivider: {
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colorPallet.neutral_5,
-  },
-
-  cell: {
-    flex: 1,
-    paddingVertical: 14,
-    paddingHorizontal: 14,
-  },
-
-  cellLeftDivider: {
-    borderLeftWidth: StyleSheet.hairlineWidth,
-    borderLeftColor: colorPallet.neutral_5,
-  },
-
-  cellLabel: {
+  title: {
     ...typography.h1,
+    fontSize: 32,
+    fontWeight: "800",
+    textAlign: "center",
+  },
+  subtitle: {
+    ...typography.body,
+    fontWeight: "500",
+    color: colorPallet.neutral_3,
+    textAlign: "center",
+  },
+
+  // Stats Container
+  statsContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 16,
+    gap: 12,
+    marginBottom: 32,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: colorPallet.neutral_6,
+    borderRadius: 12,
+    paddingHorizontal: 4,
+    paddingVertical: 12,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colorPallet.neutral_5,
+  },
+  statIconWrapper: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: `${colorPallet.primary}15`,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 8,
+  },
+  statValue: {
+    fontSize: 24,
+    fontWeight: "800",
     color: colorPallet.neutral_lightest,
-    fontSize: 13,
-    fontWeight: "700",
     marginBottom: 4,
   },
-
-  cellValue: {
+  statLabel: {
+    fontSize: 11,
+    fontWeight: "600",
     color: colorPallet.neutral_3,
-    fontSize: 16,
-    fontWeight: "400",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
 
-  // Exercise Cards
+  // Exercises Section
+  exercisesSection: {
+    paddingHorizontal: 16,
+  },
+  sectionHeaderContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+    gap: 12,
+  },
+  sectionHeader: {
+    ...typography.h2,
+    fontSize: 20,
+    fontWeight: "700",
+    color: colorPallet.neutral_lightest,
+  },
+  countBadge: {
+    backgroundColor: colorPallet.secondary,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  countBadgeText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: colorPallet.neutral_darkest,
+  },
   exercisesContainer: {
     gap: 12,
   },
+
+  // Exercise Card
   exerciseCard: {
     backgroundColor: colorPallet.neutral_6,
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 8,
+    overflow: "hidden",
     borderWidth: 1,
-    borderColor: colorPallet.neutral_5,
+    borderColor: colorPallet.primary,
   },
   exerciseHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    padding: 12,
   },
-  exerciseNumber: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colorPallet.primary,
-    color: colorPallet.neutral_darkest,
-    textAlign: "center",
-    lineHeight: 28,
-    fontWeight: "700",
-    fontSize: 14,
+  exerciseThumbnail: {
+    width: 60,
+    height: 60,
+    borderRadius: 6,
+    backgroundColor: colorPallet.neutral_darkest,
     marginRight: 12,
   },
-  exerciseName: {
-    ...typography.h3,
-    color: colorPallet.neutral_lightest,
+  thumbnailPlaceholder: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  exerciseInfo: {
     flex: 1,
   },
-  exerciseStats: {
+  exerciseName: {
+    color: colorPallet.neutral_1,
+    fontWeight: "600",
+    fontSize: 16,
+  },
+  exerciseMuscle: {
+    color: colorPallet.neutral_3,
+    fontSize: 12,
+    marginTop: 4,
+  },
+
+  // Details Container
+  detailsContainer: {
+    backgroundColor: colorPallet.neutral_darkest,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderTopWidth: 1,
+    borderTopColor: colorPallet.neutral_5,
+  },
+  detailsHeader: {
+    marginBottom: 16,
+  },
+  detailsHeaderText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: colorPallet.neutral_3,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  summaryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12,
+    gap: 16,
   },
-  exerciseStat: {
+  summaryMetric: {
     flex: 1,
     minWidth: "45%",
-    backgroundColor: colorPallet.neutral_darkest,
+    backgroundColor: colorPallet.neutral_6,
     borderRadius: 8,
-    padding: 12,
+    padding: 16,
+    alignItems: "center",
     borderWidth: 1,
     borderColor: colorPallet.neutral_5,
   },
-  exerciseStatLabel: {
-    color: colorPallet.neutral_4,
-    fontSize: 12,
-    fontWeight: "600",
+  summaryMetricValue: {
+    fontSize: 28,
+    fontWeight: "800",
+    color: colorPallet.neutral_lightest,
+    marginTop: 8,
     marginBottom: 4,
   },
-  exerciseStatValue: {
-    color: colorPallet.neutral_lightest,
-    fontSize: 18,
-    fontWeight: "700",
+  summaryMetricLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: colorPallet.neutral_3,
+    textAlign: "center",
+  },
+
+  bottomSpacer: {
+    height: 20,
   },
 });
