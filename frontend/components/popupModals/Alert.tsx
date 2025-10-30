@@ -1,3 +1,5 @@
+import { typography } from "@/styles";
+import { colorPallet } from "@/styles/variables";
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
@@ -29,11 +31,11 @@ const Alert: React.FC<AlertProps> = ({
       case "success":
         return "#4CAF50";
       case "error":
-        return "#F44336";
+        return colorPallet.critical;
       case "alert":
       case "confirmAction":
       default:
-        return "#2196F3";
+        return colorPallet.critical;
     }
   };
 
@@ -52,12 +54,16 @@ const Alert: React.FC<AlertProps> = ({
           <View
             style={[styles.header, { backgroundColor: getBackgroundColor() }]}
           >
-            <Text style={styles.title}>{title}</Text>
+            <Text
+              style={[typography.h3, { color: colorPallet.neutral_lightest }]}
+            >
+              {title}
+            </Text>
           </View>
         )}
 
         <View style={styles.content}>
-          <Text style={styles.message}>{message}</Text>
+          <Text style={typography.body}>{message}</Text>
         </View>
 
         <View style={styles.buttonContainer}>
@@ -115,31 +121,24 @@ const styles = StyleSheet.create({
     zIndex: 9999,
   },
   alertBox: {
-    backgroundColor: "white",
+    backgroundColor: colorPallet.neutral_6,
     borderRadius: 8,
-    width: "80%",
+    width: "90%",
     maxWidth: 400,
     overflow: "hidden",
   },
   header: {
     padding: 16,
   },
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "white",
-  },
+
   content: {
     padding: 20,
   },
-  message: {
-    fontSize: 16,
-    color: "#333",
-  },
+
   buttonContainer: {
     flexDirection: "row",
     borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
+    borderTopColor: colorPallet.neutral_lightest,
   },
   button: {
     flex: 1,
@@ -150,20 +149,20 @@ const styles = StyleSheet.create({
     borderRadius: 0,
   },
   cancelButton: {
-    backgroundColor: "#F5F5F5",
+    backgroundColor: colorPallet.neutral_lightest,
     borderRightWidth: 1,
-    borderRightColor: "#E0E0E0",
+    borderRightColor: colorPallet.neutral_lightest,
   },
   confirmButton: {
     borderRadius: 0,
   },
   buttonText: {
-    fontSize: 16,
+    fontSize: typography.body.fontSize,
     fontWeight: "600",
-    color: "#333",
+    color: colorPallet.neutral_darkest,
   },
   confirmButtonText: {
-    color: "white",
+    color: colorPallet.neutral_lightest,
   },
 });
 
