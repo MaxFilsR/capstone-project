@@ -108,15 +108,7 @@ export default function WorkoutComplete({
       onDone();
       return;
     }
-    try {
-      if (router.canGoBack && router.canGoBack()) {
-        router.back();
-      } else {
-        router.replace("/(tabs)/fitness");
-      }
-    } catch {
-      router.replace("/(tabs)/fitness");
-    }
+    router.replace("/(tabs)/fitness");
   };
 
   const HEADER_OFFSET = 80;

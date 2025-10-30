@@ -7,7 +7,6 @@ import {
   Image as RNImage,
   ScrollView,
   TextInput as RNTextInput,
-  Alert,
 } from "react-native";
 import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
 import { popupModalStyles, typography } from "@/styles";
@@ -19,6 +18,7 @@ import AboutExerciseScreen from "../exerciseInfoTabs/aboutExerciseScreen";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
 import { Image as ExpoImage } from "expo-image";
 import TabBar, { Tab } from "@/components/TabBar";
+import Alert from "@/components/popupModals/Alert";
 
 type Params = {
   id?: string;
@@ -117,6 +117,19 @@ export default function ActiveRoutineScreen() {
   const params = useLocalSearchParams<Params>();
   const navigation = useNavigation();
   const { exercises: library } = useWorkoutLibrary();
+  const [alert, setAlert] = useState<{
+    visible: boolean;
+    mode: "alert" | "success" | "error" | "confirmAction";
+    title: string;
+    message: string;
+    onConfirmAction?: () => void;
+  }>({
+    visible: false,
+    mode: "alert",
+    title: "",
+    message: "",
+    onConfirmAction: undefined,
+  });
 
   useEffect(() => {
     navigation.setOptions({
@@ -384,24 +397,29 @@ export default function ActiveRoutineScreen() {
   }
 
   function onCancel() {
-    Alert.alert(
-      "Cancel Workout?",
-      "Are you sure you want to cancel this workout? Your progress will be lost.",
-      [
-        {
-          text: "Keep Going",
-          style: "cancel",
-        },
-        {
-          text: "Cancel Workout",
-          style: "destructive",
-          onPress: () => {
-            router.back();
-          },
-        },
-      ]
-    );
+    setAlert({
+      visible: true,
+      mode: "confirmAction",
+      title: "Cancel Workout?",
+      message:
+        "Are you sure you want to cancel this workout? Your progress will be lost.",
+      onConfirmAction: () => {
+        router.back();
+      },
+    });
   }
+
+  const handleAlertConfirm = () => {
+    setAlert({ ...alert, visible: false, onConfirmAction: undefined });
+
+    if (alert.mode === "confirmAction" && alert.onConfirmAction) {
+      alert.onConfirmAction();
+    }
+  };
+
+  const handleAlertCancel = () => {
+    setAlert({ ...alert, visible: false, onConfirmAction: undefined });
+  };
 
   const aboutExercise: ExerciseForAbout = useMemo(
     () => ({
@@ -529,6 +547,17 @@ export default function ActiveRoutineScreen() {
           </TouchableOpacity>
         </View>
       )}
+
+      <Alert
+        visible={alert.visible}
+        mode={alert.mode}
+        title={alert.title}
+        message={alert.message}
+        onConfirm={handleAlertConfirm}
+        onCancel={handleAlertCancel}
+        confirmText={alert.mode === "confirmAction" ? "Cancel Workout" : "OK"}
+        cancelText="Keep Going"
+      />
     </View>
   );
 }
@@ -713,6 +742,7 @@ const styles = StyleSheet.create({
     backgroundColor: colorPallet.neutral_6,
     alignItems: "center",
     justifyContent: "center",
+    zIndex: 100,
   },
   tabsWrap: {
     paddingHorizontal: 8,

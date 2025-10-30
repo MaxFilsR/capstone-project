@@ -1,11 +1,8 @@
-///screens/FitnessTabs/routineScreens/durationRoutine
-
 import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Alert,
   ActivityIndicator,
   ScrollView,
   Dimensions,
@@ -13,6 +10,7 @@ import {
 import { useNavigation, useRouter, useLocalSearchParams } from "expo-router";
 import { typography } from "@/styles";
 import { BackButton, FormButton } from "@/components";
+import Alert from "@/components/popupModals/Alert";
 import { colorPallet } from "@/styles/variables";
 import { recordWorkout, WorkoutExercise } from "@/api/endpoints";
 
@@ -31,6 +29,19 @@ export default function DurationRoutineScreen() {
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(30);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [alert, setAlert] = useState<{
+    visible: boolean;
+    mode: "alert" | "success" | "error" | "confirmAction";
+    title: string;
+    message: string;
+    onConfirmAction?: () => void;
+  }>({
+    visible: false,
+    mode: "alert",
+    title: "",
+    message: "",
+    onConfirmAction: undefined,
+  });
 
   const hoursScrollRef = useRef<ScrollView>(null);
   const minutesScrollRef = useRef<ScrollView>(null);
@@ -111,42 +122,45 @@ export default function DurationRoutineScreen() {
   }
 
   async function onEndWorkout() {
-    console.log("=== onEndWorkout called ===");
-    console.log("Raw params:", params);
-    console.log("Hours:", hours, "Minutes:", minutes);
-
     const durationMinutes = parseDurationToMinutes(hours, minutes);
-    console.log("Duration in minutes:", durationMinutes);
 
     if (durationMinutes <= 0) {
-      console.log("❌ Invalid duration minutes");
-      Alert.alert("Invalid Duration", "Please select a workout duration");
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Invalid Duration",
+        message: "Please select a workout duration",
+      });
       return;
     }
 
     // Parse exercises from params
     let exercises: WorkoutExercise[] = [];
     try {
-      console.log("Raw exercises param:", params.exercises);
       if (params.exercises) {
         exercises = JSON.parse(params.exercises);
-        console.log("✅ Parsed exercises:", exercises);
       }
     } catch (error) {
-      console.error("❌ Failed to parse exercises:", error);
-      Alert.alert("Error", "Failed to load workout data");
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Error",
+        message: "Failed to load workout data",
+      });
       return;
     }
 
     if (exercises.length === 0) {
-      console.log("❌ No exercises found");
-      Alert.alert("No Exercises", "No exercise data to record");
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "No Exercises",
+        message: "No exercise data to record",
+      });
       return;
     }
 
     const points = calculatePoints(exercises, durationMinutes);
-    console.log("Calculated points:", points);
-
     // Prepare workout data for API
     const workoutData = {
       name: params.routineName || "Workout Session",
@@ -161,57 +175,57 @@ export default function DurationRoutineScreen() {
       duration: durationMinutes,
       points: points,
     };
-    console.log("=== Final workout data to send ===");
-    console.log(JSON.stringify(workoutData, null, 2));
 
     setIsSubmitting(true);
 
     try {
-      console.log("📡 Calling recordWorkout API...");
       await recordWorkout(workoutData);
-      console.log("✅ Workout recorded successfully!");
 
       // Show success message
-      Alert.alert(
-        "Workout Recorded!",
-        `Great job! You earned ${points} points for this ${durationMinutes} minute workout.`,
-        [
-          {
-            text: "OK",
-            onPress: () => {
-              console.log("Navigating to workout complete screen");
-              // Navigate to workout complete screen with all data
-              router.replace({
-                pathname: "/screens/FitnessTabs/workoutComplete",
-                params: {
-                  name: workoutData.name,
-                  workoutTime: String(durationMinutes),
-                  points: String(points),
-                  exercises: JSON.stringify(exercises),
-                },
-              });
+      setAlert({
+        visible: true,
+        mode: "success",
+        title: "Workout Recorded!",
+        message: `Great job! You earned ${points} points for this ${durationMinutes} minute workout.`,
+        onConfirmAction: () => {
+          // Navigate to workout complete screen with all data
+          router.replace({
+            pathname: "/screens/FitnessTabs/workoutComplete",
+            params: {
+              name: workoutData.name,
+              workoutTime: String(durationMinutes),
+              points: String(points),
+              exercises: JSON.stringify(exercises),
             },
-          },
-        ]
-      );
+          });
+        },
+      });
     } catch (error) {
       console.error("❌ Failed to record workout:", error);
       console.error("Error details:", JSON.stringify(error, null, 2));
-      Alert.alert("Error", "Failed to record workout. Please try again.", [
-        {
-          text: "Retry",
-          onPress: onEndWorkout,
-        },
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-      ]);
+      setAlert({
+        visible: true,
+        mode: "confirmAction",
+        title: "Error",
+        message: "Failed to record workout. Please try again.",
+        onConfirmAction: onEndWorkout,
+      });
     } finally {
       setIsSubmitting(false);
-      console.log("=== onEndWorkout finished ===");
     }
   }
+
+  const handleAlertConfirm = () => {
+    setAlert({ ...alert, visible: false, onConfirmAction: undefined });
+
+    if (alert.onConfirmAction) {
+      alert.onConfirmAction();
+    }
+  };
+
+  const handleAlertCancel = () => {
+    setAlert({ ...alert, visible: false, onConfirmAction: undefined });
+  };
 
   // Generate number arrays
   const hoursArray = Array.from({ length: 24 }, (_, i) => i); // 0-23
@@ -326,6 +340,17 @@ export default function DurationRoutineScreen() {
           />
         )}
       </View>
+
+      <Alert
+        visible={alert.visible}
+        mode={alert.mode}
+        title={alert.title}
+        message={alert.message}
+        onConfirm={handleAlertConfirm}
+        onCancel={handleAlertCancel}
+        confirmText={alert.mode === "confirmAction" ? "Retry" : "OK"}
+        cancelText="Cancel"
+      />
     </View>
   );
 }
