@@ -1,6 +1,5 @@
 import axios from "axios";
 import { storage } from "@/utils/storageHelper";
-import { router } from "expo-router";
 import { Platform } from "react-native";
 
 const API_BASE_URL =
@@ -17,6 +16,13 @@ export const apiClient = axios.create({
 });
 
 const PUBLIC_ENDPOINTS = ["/auth/login", "/auth/sign-up"];
+
+// Store logout callback that will be set by AuthProvider
+let logoutCallback: (() => Promise<void>) | null = null;
+
+export function setLogoutCallback(callback: () => Promise<void>) {
+  logoutCallback = callback;
+}
 
 apiClient.interceptors.request.use(
   async (config) => {
@@ -51,10 +57,12 @@ apiClient.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      console.warn("Unauthorized — clearing credentials and redirecting...");
-      await storage.deleteItem("accessToken");
-      await storage.deleteItem("onboarded");
-      router.replace("/auth/logIn");
+      console.warn("Unauthorized — token expired or invalid");
+
+      // Call the logout callback if it's set
+      if (logoutCallback) {
+        await logoutCallback();
+      }
     }
 
     return Promise.reject(error);
