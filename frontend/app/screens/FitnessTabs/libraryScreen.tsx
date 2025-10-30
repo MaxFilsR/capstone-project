@@ -2,25 +2,33 @@ import React, { useState, useMemo, useRef, useCallback } from "react";
 import {
   View,
   Text,
-  TextInput,
   SectionList,
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
   ViewToken,
-  ScrollView,
-  Image,
   SectionListData,
+  LayoutAnimation,
+  Platform,
+  UIManager,
 } from "react-native";
+
 import { tabStyles, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { Ionicons } from "@expo/vector-icons";
 import { Exercise } from "@/api/endpoints";
 import Popup from "@/components/popupModals/Popup";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
-
-const IMAGE_BASE_URL =
-  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
+import { Dropdown } from "@/components/Dropdown";
+import { ExerciseCard } from "@/components/ExerciseCard";
+import { SearchBar } from "@/components/SearchBar";
+import { AlphabetSidebar } from "@/components/AlphabetSidebar";
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 // Group exercises alphabetically by primary muscle
 const groupByPrimaryMuscle = (list: Exercise[]) => {
@@ -37,57 +45,6 @@ const groupByPrimaryMuscle = (list: Exercise[]) => {
     .map((muscle) => ({ title: muscle, data: grouped[muscle] }));
 };
 
-// Memoized image component with better caching
-const CachedExerciseImage = React.memo(
-  ({ imageUrl }: { imageUrl: string | null }) => {
-    if (!imageUrl) {
-      return (
-        <View style={[styles.thumbnail, styles.thumbnailPlaceholder]}>
-          <Ionicons name="barbell" size={32} color={colorPallet.neutral_3} />
-        </View>
-      );
-    }
-
-    return (
-      <Image
-        source={{ uri: imageUrl }}
-        style={styles.thumbnail}
-        // resizeMode="cover"
-        defaultSource={require("@/assets/images/icon.png")}
-      />
-    );
-  }
-);
-
-// Memoized card component
-const ExerciseCard = React.memo(
-  ({
-    item,
-    onPress,
-  }: {
-    item: Exercise;
-    onPress: (item: Exercise) => void;
-  }) => {
-    const imageUrl =
-      item.images && item.images.length > 0
-        ? `${IMAGE_BASE_URL}${item.images[0]}`
-        : null;
-
-    return (
-      <TouchableOpacity style={styles.card} onPress={() => onPress(item)}>
-        <CachedExerciseImage imageUrl={imageUrl} />
-        <View style={styles.info}>
-          <Text style={styles.name}>{item.name}</Text>
-          <Text style={styles.muscle}>{item.primaryMuscles.join(", ")}</Text>
-          {item.equipment && (
-            <Text style={styles.equipment}>Level: {item.level}</Text>
-          )}
-        </View>
-      </TouchableOpacity>
-    );
-  }
-);
-
 const SECTION_HEADER_HEIGHT = 10;
 const ITEM_HEIGHT = 85;
 
@@ -99,6 +56,11 @@ const LibraryScreen = () => {
   const { exercises, loading, error, refresh } = useWorkoutLibrary();
   const [query, setQuery] = useState("");
   const [selectedMuscle, setSelectedMuscle] = useState("All");
+  const [selectedLevel, setSelectedLevel] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedEquipment, setSelectedEquipment] = useState("All");
+  const [filtersVisible, setFiltersVisible] = useState(false);
+
   const [searchVisible, setSearchVisible] = useState(false);
   const sectionListRef = useRef<SectionList>(null);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
@@ -118,6 +80,50 @@ const LibraryScreen = () => {
     return ["All", ...Array.from(muscleSet).sort()];
   }, [exercises]);
 
+  // Extract unique levels dynamically
+  const levels = useMemo(() => {
+    if (!exercises || !Array.isArray(exercises)) return ["All"];
+    const levelSet = new Set<string>();
+    exercises.forEach((ex) => {
+      if (ex.level) {
+        const formatted = ex.level.charAt(0).toUpperCase() + ex.level.slice(1);
+        levelSet.add(formatted);
+      }
+    });
+    return ["All", ...Array.from(levelSet).sort()];
+  }, [exercises]); // Extract unique categories dynamically
+  const categories = useMemo(() => {
+    if (!exercises || !Array.isArray(exercises)) return ["All"];
+    const categorySet = new Set<string>();
+    exercises.forEach((ex) => {
+      if (ex.category) {
+        const formatted =
+          ex.category.charAt(0).toUpperCase() + ex.category.slice(1);
+        categorySet.add(formatted);
+      }
+    });
+    return ["All", ...Array.from(categorySet).sort()];
+  }, [exercises]);
+
+  // Extract unique equipment dynamically
+  const equipment = useMemo(() => {
+    if (!exercises || !Array.isArray(exercises)) return ["All"];
+    const equipmentSet = new Set<string>();
+    exercises.forEach((ex) => {
+      if (Array.isArray(ex.equipment)) {
+        ex.equipment.forEach((eq) => {
+          const formatted = eq.charAt(0).toUpperCase() + eq.slice(1);
+          equipmentSet.add(formatted);
+        });
+      } else if (ex.equipment) {
+        const formatted =
+          ex.equipment.charAt(0).toUpperCase() + ex.equipment.slice(1);
+        equipmentSet.add(formatted);
+      }
+    });
+    return ["All", ...Array.from(equipmentSet).sort()];
+  }, [exercises]);
+
   // Filter & group
   const sections = useMemo(() => {
     if (!exercises || !Array.isArray(exercises)) return [];
@@ -135,11 +141,40 @@ const LibraryScreen = () => {
           (m) => m.toLowerCase() === selectedMuscle.toLowerCase()
         );
 
-      return matchesSearch && matchesMuscle;
+      const matchesLevel =
+        selectedLevel === "All" ||
+        ex.level?.toLowerCase() === selectedLevel.toLowerCase();
+
+      const matchesCategory =
+        selectedCategory === "All" ||
+        ex.category?.toLowerCase() === selectedCategory.toLowerCase();
+
+      const matchesEquipment =
+        selectedEquipment === "All" ||
+        (Array.isArray(ex.equipment)
+          ? ex.equipment.some(
+              (eq) => eq.toLowerCase() === selectedEquipment.toLowerCase()
+            )
+          : ex.equipment?.toLowerCase() === selectedEquipment.toLowerCase());
+
+      return (
+        matchesSearch &&
+        matchesMuscle &&
+        matchesLevel &&
+        matchesCategory &&
+        matchesEquipment
+      );
     });
 
     return groupByPrimaryMuscle(filtered);
-  }, [query, exercises, selectedMuscle]);
+  }, [
+    query,
+    exercises,
+    selectedMuscle,
+    selectedLevel,
+    selectedCategory,
+    selectedEquipment,
+  ]);
 
   // Filter alphabet to only show letters that exist in sections
   const availableLetters = useMemo(() => {
@@ -206,15 +241,6 @@ const LibraryScreen = () => {
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 30 });
 
-  // Memoized renderItem for SectionList
-  const renderExerciseItem = useCallback(
-    ({ item, section }: { item: Exercise; section: any }) => {
-      if (collapsedSections[section.title]) return null;
-      return <ExerciseCard item={item} onPress={handleExercisePress} />;
-    },
-    [collapsedSections, handleExercisePress]
-  );
-
   const renderItem = ({ item }: { item: Exercise }) => (
     <ExerciseCard item={item} onPress={handleExercisePress} />
   );
@@ -265,6 +291,11 @@ const LibraryScreen = () => {
     [sectionsWithCollapsedData]
   );
 
+  const handleSearchClose = useCallback(() => {
+    setSearchVisible(false);
+    setQuery("");
+  }, []);
+
   if (loading) {
     return (
       <View style={[tabStyles.tabContent, styles.centerContainer]}>
@@ -287,74 +318,36 @@ const LibraryScreen = () => {
   }
 
   const allCollapsed = sections.every((s) => collapsedSections[s.title]);
+  const toggleFilters = useCallback(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setFiltersVisible((prev) => !prev);
+  }, []);
 
   return (
     <View style={[tabStyles.tabContent, { flex: 1, paddingBottom: 100 }]}>
-      {!searchVisible && (
-        <TouchableOpacity
-          style={styles.searchIcon}
-          onPress={() => setSearchVisible(true)}
-        >
-          <Ionicons name="search" size={24} color={colorPallet.secondary} />
-        </TouchableOpacity>
-      )}
-
-      {searchVisible && (
-        <View style={styles.searchContainer}>
+      <SearchBar
+        visible={searchVisible}
+        query={query}
+        onQueryChange={setQuery}
+        onToggle={() => setSearchVisible(true)}
+        onClose={handleSearchClose}
+      />
+      {/* Controls Row (Filters + Expand/Collapse) */}
+      <View style={styles.topControlsRow}>
+        {/* Filter Toggle */}
+        <TouchableOpacity style={styles.filterToggle} onPress={toggleFilters}>
           <Ionicons
-            name="search"
-            size={20}
+            name={filtersVisible ? "filter" : "filter-outline"}
+            size={18}
             color={colorPallet.secondary}
-            style={{ marginRight: 8 }}
+            style={{ marginRight: 6 }}
           />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search exercises or muscles..."
-            placeholderTextColor={colorPallet.neutral_3}
-            value={query}
-            onChangeText={setQuery}
-            autoFocus
-          />
-          <TouchableOpacity
-            onPress={() => {
-              setSearchVisible(false);
-              setQuery("");
-            }}
-            style={{ paddingLeft: 8 }}
-          >
-            <Ionicons name="close" size={24} color={colorPallet.neutral_3} />
-          </TouchableOpacity>
-        </View>
-      )}
+          <Text style={styles.filterToggleText}>
+            {filtersVisible ? "Hide Filters" : "Show Filters"}
+          </Text>
+        </TouchableOpacity>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filterContainer}
-        contentContainerStyle={styles.filterContent}
-      >
-        {muscleGroups.map((muscle) => (
-          <TouchableOpacity
-            key={muscle}
-            style={[
-              styles.filterButton,
-              selectedMuscle === muscle && styles.filterButtonActive,
-            ]}
-            onPress={() => setSelectedMuscle(muscle)}
-          >
-            <Text
-              style={[
-                styles.filterButtonText,
-                selectedMuscle === muscle && styles.filterButtonTextActive,
-              ]}
-            >
-              {muscle}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      <View style={styles.controlsContainer}>
+        {/* Expand/Collapse All */}
         <TouchableOpacity
           style={styles.expandCollapseButton}
           onPress={toggleAllSections}
@@ -369,10 +362,42 @@ const LibraryScreen = () => {
             {allCollapsed ? "Expand All" : "Collapse All"}
           </Text>
         </TouchableOpacity>
-        <Text style={styles.resultsCount}>
-          {sections.reduce((sum, s) => sum + s.data.length, 0)} exercises
-        </Text>
       </View>
+
+      {/* Dropdown Filters (collapsible) */}
+      {filtersVisible && (
+        <View style={{ marginBottom: 12 }}>
+          <View style={[styles.filtersRow, { zIndex: 2 }]}>
+            <Dropdown
+              label="Muscle Group"
+              value={selectedMuscle}
+              options={muscleGroups}
+              onSelect={setSelectedMuscle}
+            />
+            <Dropdown
+              label="Level"
+              value={selectedLevel}
+              options={levels}
+              onSelect={setSelectedLevel}
+            />
+          </View>
+
+          <View style={[styles.filtersRow, { marginTop: -4, zIndex: 1 }]}>
+            <Dropdown
+              label="Category"
+              value={selectedCategory}
+              options={categories}
+              onSelect={setSelectedCategory}
+            />
+            <Dropdown
+              label="Equipment"
+              value={selectedEquipment}
+              options={equipment}
+              onSelect={setSelectedEquipment}
+            />
+          </View>
+        </View>
+      )}
 
       <View style={{ flex: 1, flexDirection: "row" }}>
         <SectionList
@@ -393,30 +418,18 @@ const LibraryScreen = () => {
               <Text style={styles.emptyText}>No exercises found</Text>
             </View>
           }
-          getItemLayout={getItemLayout} // fixed
+          getItemLayout={getItemLayout}
           initialNumToRender={15}
           maxToRenderPerBatch={10}
           updateCellsBatchingPeriod={50}
           windowSize={10}
         />
 
-        <View style={styles.sidebar}>
-          {availableLetters.map((letter) => (
-            <TouchableOpacity
-              key={letter}
-              onPress={() => scrollToSection(letter)}
-            >
-              <Text
-                style={[
-                  styles.letter,
-                  activeLetter === letter && styles.activeLetter,
-                ]}
-              >
-                {letter}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        <AlphabetSidebar
+          letters={availableLetters}
+          activeLetter={activeLetter}
+          onLetterPress={scrollToSection}
+        />
       </View>
 
       <Popup
@@ -430,52 +443,10 @@ const LibraryScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  searchIcon: {
-    position: "absolute",
-    top: -125,
-    right: 12,
-    zIndex: 22,
-    padding: 8,
-  },
-  searchContainer: {
+  filtersRow: {
     flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colorPallet.neutral_6,
-    borderRadius: 8,
-    paddingHorizontal: 10,
+    gap: 12,
     marginBottom: 12,
-    borderWidth: 2,
-    borderColor: colorPallet.neutral_lightest,
-  },
-  searchInput: {
-    flex: 1,
-    color: colorPallet.neutral_lightest,
-    paddingVertical: 12,
-  },
-  filterContainer: { marginBottom: 12, maxHeight: 42 },
-  filterContent: { paddingRight: 8 },
-  filterButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-    justifyContent: "center",
-    marginRight: 8,
-    borderRadius: 8,
-    backgroundColor: colorPallet.neutral_6,
-    borderWidth: 1,
-    borderColor: colorPallet.neutral_lightest,
-  },
-  filterButtonActive: {
-    backgroundColor: colorPallet.primary,
-    borderColor: colorPallet.primary,
-  },
-  filterButtonText: {
-    color: colorPallet.neutral_lightest,
-    fontSize: 14,
-    fontWeight: "500",
-  },
-  filterButtonTextActive: {
-    color: colorPallet.neutral_darkest,
-    fontWeight: "600",
   },
   controlsContainer: {
     flexDirection: "row",
@@ -511,38 +482,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   collapseIcon: { color: colorPallet.secondary, fontSize: 16 },
-  card: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colorPallet.neutral_6,
-    marginVertical: 8,
-    marginHorizontal: 0,
-    borderRadius: 8,
-    overflow: "hidden",
-    borderColor: colorPallet.primary,
-    borderWidth: 1,
-  },
-  thumbnail: {
-    width: 80,
-    height: 80,
-    borderRadius: 6,
-    backgroundColor: colorPallet.neutral_darkest,
-    marginRight: 12,
-  },
-  thumbnailPlaceholder: { justifyContent: "center", alignItems: "center" },
-  info: { flex: 1 },
-  name: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  muscle: { color: "#aaa", fontSize: 13, marginTop: 4 },
-  equipment: { color: "#888", fontSize: 12, marginTop: 2 },
-  sidebar: {
-    width: 25,
-    justifyContent: "flex-start",
-    alignItems: "center",
-    paddingVertical: 5,
-    marginLeft: 5,
-  },
-  letter: { color: "#888", fontSize: 12, paddingVertical: 2 },
-  activeLetter: { color: colorPallet.primary, fontWeight: "bold" },
   centerContainer: {
     flex: 1,
     justifyContent: "center",
@@ -574,6 +513,34 @@ const styles = StyleSheet.create({
   },
   emptyContainer: { padding: 20, alignItems: "center" },
   emptyText: { color: colorPallet.neutral_3, fontSize: 16 },
+  filterToggle: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    backgroundColor: colorPallet.neutral_6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colorPallet.neutral_lightest,
+  },
+
+  filterToggleText: {
+    color: colorPallet.secondary,
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  filtersRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 12,
+    zIndex: 1,
+  },
+  topControlsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 12,
+  },
 });
 
 export default LibraryScreen;
