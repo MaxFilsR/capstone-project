@@ -11,6 +11,7 @@ import { containers, typography } from "@/styles/index";
 import { useAuth } from "@/lib/auth-context";
 import { getMe, UserProfile } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
+import QuickActionButton from "@/components/QuickActionButton";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -62,83 +63,89 @@ export default function Index() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <Text style={[typography.header, { marginBottom: 24 }]}>
-        Account Profile
-      </Text>
+    <>
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <Text style={[typography.header, { marginBottom: 24 }]}>
+          Account Profile
+        </Text>
 
-      {/* Character Info */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Character Info</Text>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Name:</Text>
-          <Text style={styles.value}>
-            {profile.first_name} {profile.last_name}
-          </Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Username:</Text>
-          <Text style={styles.value}>@{profile.username}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Class:</Text>
-          <Text style={styles.classValue}>{profile.class.name}</Text>
-        </View>
-      </View>
-
-      {/* Stats */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Stats</Text>
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Strength</Text>
-            <Text style={styles.statValue}>{profile.class.stats.strength}</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Endurance</Text>
-            <Text style={styles.statValue}>
-              {profile.class.stats.endurance}
+        {/* Character Info */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Character Info</Text>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Name:</Text>
+            <Text style={styles.value}>
+              {profile.first_name} {profile.last_name}
             </Text>
           </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Flexibility</Text>
-            <Text style={styles.statValue}>
-              {profile.class.stats.flexibility}
-            </Text>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Username:</Text>
+            <Text style={styles.value}>@{profile.username}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Class:</Text>
+            <Text style={styles.classValue}>{profile.class.name}</Text>
           </View>
         </View>
-      </View>
 
-      {/* Workout Schedule */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Workout Schedule</Text>
-        <View style={styles.scheduleGrid}>
-          {profile.workout_schedule.map((isActive, index) => (
-            <View
-              key={index}
-              style={[
-                styles.dayCard,
-                isActive ? styles.dayActive : styles.dayInactive,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.dayText,
-                  isActive ? styles.dayTextActive : styles.dayTextInactive,
-                ]}
-              >
-                {DAYS[index]}
+        {/* Stats */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Stats</Text>
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>Strength</Text>
+              <Text style={styles.statValue}>
+                {profile.class.stats.strength}
               </Text>
             </View>
-          ))}
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>Endurance</Text>
+              <Text style={styles.statValue}>
+                {profile.class.stats.endurance}
+              </Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>Flexibility</Text>
+              <Text style={styles.statValue}>
+                {profile.class.stats.flexibility}
+              </Text>
+            </View>
+          </View>
         </View>
-      </View>
 
-      {/* Logout Button */}
-      <View style={styles.logoutContainer}>
-        <Button title="Logout" onPress={handleLogout} color="#dc3545" />
-      </View>
-    </ScrollView>
+        {/* Workout Schedule */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Workout Schedule</Text>
+          <View style={styles.scheduleGrid}>
+            {profile.workout_schedule.map((isActive, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.dayCard,
+                  isActive ? styles.dayActive : styles.dayInactive,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.dayText,
+                    isActive ? styles.dayTextActive : styles.dayTextInactive,
+                  ]}
+                >
+                  {DAYS[index]}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Logout Button */}
+        <View style={styles.logoutContainer}>
+          <Button title="Logout" onPress={handleLogout} color="#dc3545" />
+        </View>
+      </ScrollView>
+      {/* Quick Action Button */}
+      <QuickActionButton />
+    </>
   );
 }
 

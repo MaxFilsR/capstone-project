@@ -12,6 +12,7 @@ import { colorPallet } from "@/styles/variables";
 import { FormTextInput } from "../FormTextInput";
 import { FormButton } from "../FormButton";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
+import { useRouter } from "expo-router";
 import ExerciseSearchList from "../ExerciseSearchList";
 import SelectedExercisesList from "../SelectedExercisesList";
 import Alert from "./Alert";
@@ -40,6 +41,7 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
   routine,
 }) => {
   const { exercises } = useWorkoutLibrary();
+  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [routineName, setRoutineName] = useState(routine.name);
@@ -100,6 +102,58 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
       )
       .slice(0, 20);
   }, [searchQuery, exercises]);
+
+  const handleStartRoutine = () => {
+    if (selectedExercises.length === 0) {
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "No Exercises",
+        message:
+          "Please add at least one exercise before starting the workout.",
+      });
+      return;
+    }
+
+    try {
+      // Prepare exercises data for ActiveRoutineScreen
+      const exercisesData = selectedExercises.map((ex) => {
+        const metrics = exerciseMetrics[ex.uniqueId] || {};
+        return {
+          id: ex.id,
+          name: ex.name,
+          images: ex.images,
+          thumbnailUrl: ex.images?.[0],
+          gifUrl: ex.images?.find((u) => u?.toLowerCase().endsWith(".gif")),
+          sets: parseInt(metrics.sets) || 0,
+          reps: parseInt(metrics.reps) || 0,
+          weight: parseFloat(metrics.weight) || 0,
+          distance: parseFloat(metrics.distance) || 0,
+        };
+      });
+
+      // Navigate to ActiveRoutineScreen
+      router.push({
+        pathname: "/screens/FitnessTabs/routineScreens/activeRoutine",
+        params: {
+          id: routine.id?.toString() || "0",
+          name: routineName,
+          exercises: JSON.stringify(exercisesData),
+          index: "0",
+        },
+      });
+
+      onClose();
+    } catch (error) {
+      console.error("Error starting routine:", error);
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Error",
+        message: "Failed to start routine. Please try again.",
+      });
+    }
+  };
 
   const handleSave = async () => {
     if (!routineName.trim()) {
@@ -315,6 +369,17 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
           filteredExercises={filteredExercises}
           onAddExercise={addExercise}
         />
+
+        {/* Start Routine Button */}
+        <View style={popupModalStyles.section}>
+          <FormButton
+            title="Start Workout"
+            onPress={handleStartRoutine}
+            mode="contained"
+            color="primary"
+            style={{ marginBottom: 0 }}
+          />
+        </View>
 
         {/* Selected Exercises */}
         <SelectedExercisesList

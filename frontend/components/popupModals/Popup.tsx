@@ -76,10 +76,8 @@ const Popup: React.FC<PopupProps> = ({
               activeOpacity={1}
               onPress={onClose}
             />
-            {routine && (
-              <StartRoutineModal onClose={onClose} routine={routine} />
-            )}
-            {/* Centralized alert */}
+            {/* Always render StartRoutineModal - it handles both cases (with/without routine) */}
+            <StartRoutineModal onClose={onClose} routine={routine} />
           </View>
         ) : (
           // Other modals use the standard popup layout
