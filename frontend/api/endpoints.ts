@@ -83,7 +83,7 @@ export type UserProfile = {
  * GET /summary/me
  */
 export async function getMe(): Promise<UserProfile> {
-  const response = await apiClient.get("/summary/me");
+  const response = await apiClient.get("/character");
   return response.data;
 }
 

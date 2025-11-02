@@ -142,3 +142,17 @@ pub struct Character {
     pub inventory: Inventory,
 }
 
+#[derive(Serialize, Deserialize, sqlx::FromRow)]
+pub struct SettingsRow {
+    pub user_id: i32,
+	pub first_name: String,
+	pub last_name: String,
+	pub workout_schedule: Vec<bool>,
+}
+
+#[derive(Serialize, Deserialize, sqlx::Type, Debug)]
+pub struct Settings {
+	pub first_name: String,
+	pub last_name: String,
+	pub workout_schedule: Vec<bool>,
+}

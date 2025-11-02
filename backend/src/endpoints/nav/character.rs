@@ -1,10 +1,9 @@
 use crate::jwt::AuthenticatedUser;
+use crate::level::exp_needed_for_level;
 use crate::schemas::*;
 use actix_web::{HttpResponse, get, put, web};
-use crate::level::exp_needed_for_level;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
-
 
 #[derive(Serialize, Deserialize)]
 pub struct ReadCharacterResponse {
@@ -23,7 +22,7 @@ pub async fn read_character(
     user: AuthenticatedUser,
     pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    let response: Character = sqlx::query_as!(
+    let query: Character = sqlx::query_as!(
         Character,
         r#"
             SELECT username, class as "class: Class", level, exp_leftover, streak, equipped as "equipped: Equipped", inventory as "inventory: Inventory"
@@ -37,14 +36,14 @@ pub async fn read_character(
     .unwrap();
 
     return Ok(HttpResponse::Ok().json(ReadCharacterResponse {
-        username: response.username,
-        class: response.class,
-        level: response.level,
-        exp_leftover: response.exp_leftover,
-        exp_needed: exp_needed_for_level(response.level + 1),
-        streak: response.streak,
-        equipped: response.equipped,
-        inventory: response.inventory,
+        username: query.username,
+        class: query.class,
+        level: query.level,
+        exp_leftover: query.exp_leftover,
+        exp_needed: exp_needed_for_level(query.level + 1),
+        streak: query.streak,
+        equipped: query.equipped,
+        inventory: query.inventory,
     }));
 }
 
@@ -59,18 +58,48 @@ pub async fn read_character(
 //     todo!();
 // }
 
-// pub struct ReadSettingsResponse {
-//     first_name: String,
-//     last_name: String,
-//     email: String,
-//     password: String,
-//     workout_schedule: Vec<bool>,
-// }
+#[derive(Serialize, Deserialize)]
+pub struct ReadSettingsResponse {
+    email: String,
+    first_name: String,
+    last_name: String,
+    workout_schedule: Vec<bool>,
+}
 
-// #[get("/character/settings")]
-// pub async fn read_settings(
-//     user: AuthenticatedUser,
-//     pool: web::Data<PgPool>,
-// ) -> Result<HttpResponse, actix_web::Error> {
-//     todo!();
-// }
+#[get("/character/settings")]
+pub async fn read_settings(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let email = sqlx::query_scalar!(
+        r#"
+            SELECT email
+            FROM users
+            where id = $1
+        "#,
+        user.id
+    )
+    .fetch_one(pool.get_ref())
+    .await
+    .unwrap();
+
+    let query: Settings = sqlx::query_as!(
+        Settings,
+        r#"
+            SELECT first_name, last_name, workout_schedule
+            FROM settings
+            where user_id = $1
+        "#,
+        user.id
+    )
+    .fetch_one(pool.get_ref())
+    .await
+    .unwrap();
+
+    return Ok(HttpResponse::Ok().json(ReadSettingsResponse {
+        email: email,
+        first_name: query.first_name,
+        last_name: query.last_name,
+        workout_schedule: query.workout_schedule,
+    }));
+}

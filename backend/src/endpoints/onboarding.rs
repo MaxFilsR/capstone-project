@@ -18,7 +18,6 @@ async fn onboarding(
     pool: web::Data<PgPool>,
     request: web::Json<OnboardingRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
-
     let query = sqlx::query!(
         r#"
             SELECT user_id 
@@ -35,7 +34,7 @@ async fn onboarding(
         return Err(ErrorBadRequest("This username is already taken"));
     }
 
-        let _query = sqlx::query!(
+    let _query = sqlx::query!(
         r#"
             INSERT INTO settings (user_id, first_name, last_name, workout_schedule) 
             VALUES ($1, $2, $3, $4)
@@ -71,7 +70,7 @@ async fn onboarding(
         &request.username,
         class as Class,
         0,
-        0,
+        1,
         0,
     )
     .execute(pool.get_ref())
