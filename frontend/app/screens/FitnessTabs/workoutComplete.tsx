@@ -34,6 +34,29 @@ type Props = {
   onDone?: () => void;
 };
 
+// Helper function to format numbers with commas
+function formatNumber(
+  value: number | string | undefined | null,
+  decimals?: number
+): string {
+  if (value === undefined || value === null || value === "") return "0";
+
+  const num = typeof value === "string" ? parseFloat(value) : value;
+
+  if (isNaN(num)) return "0";
+
+  // If decimals specified, format with fixed decimal places
+  if (decimals !== undefined) {
+    return num.toLocaleString("en-US", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+  }
+
+  // Otherwise, format naturally (removing unnecessary decimals)
+  return num.toLocaleString("en-US");
+}
+
 // Helper function to determine exercise type
 function getExerciseType(
   category: string | null | undefined
@@ -191,7 +214,7 @@ export default function WorkoutComplete({
             />
           </View>
           <Text style={styles.statValue}>
-            {workoutDuration ? `${workoutDuration}` : "-"}
+            {workoutDuration ? formatNumber(workoutDuration) : "-"}
           </Text>
           <Text style={styles.statLabel}>Minutes</Text>
         </View>
@@ -204,7 +227,7 @@ export default function WorkoutComplete({
               color={colorPallet.primary}
             />
           </View>
-          <Text style={styles.statValue}>{workoutPoints || "-"}</Text>
+          <Text style={styles.statValue}>{formatNumber(workoutPoints)}</Text>
           <Text style={styles.statLabel}>Gainz</Text>
         </View>
 
@@ -216,7 +239,9 @@ export default function WorkoutComplete({
               color={colorPallet.primary}
             />
           </View>
-          <Text style={styles.statValue}>{workoutExercises.length}</Text>
+          <Text style={styles.statValue}>
+            {formatNumber(workoutExercises.length)}
+          </Text>
           <Text style={styles.statLabel}>Exercises</Text>
         </View>
 
@@ -228,7 +253,7 @@ export default function WorkoutComplete({
               color={colorPallet.primary}
             />
           </View>
-          <Text style={styles.statValue}>{totalSets}</Text>
+          <Text style={styles.statValue}>{formatNumber(totalSets)}</Text>
           <Text style={styles.statLabel}>Sets</Text>
         </View>
       </View>
@@ -341,7 +366,7 @@ function ExpandableExerciseCard({
                       color={colorPallet.primary}
                     />
                     <Text style={styles.summaryMetricValue}>
-                      {exercise.sets}
+                      {formatNumber(exercise.sets)}
                     </Text>
                     <Text style={styles.summaryMetricLabel}>
                       {exercise.sets === 1 ? "Set" : "Sets"}
@@ -357,7 +382,7 @@ function ExpandableExerciseCard({
                       color={colorPallet.primary}
                     />
                     <Text style={styles.summaryMetricValue}>
-                      {exercise.reps}
+                      {formatNumber(exercise.reps)}
                     </Text>
                     <Text style={styles.summaryMetricLabel}>
                       Total {exercise.reps === 1 ? "Rep" : "Reps"}
@@ -373,7 +398,7 @@ function ExpandableExerciseCard({
                       color={colorPallet.primary}
                     />
                     <Text style={styles.summaryMetricValue}>
-                      {exercise.weight}
+                      {formatNumber(exercise.weight, 1)}
                     </Text>
                     <Text style={styles.summaryMetricLabel}>
                       Avg Weight (lbs)
@@ -393,7 +418,7 @@ function ExpandableExerciseCard({
                       color={colorPallet.primary}
                     />
                     <Text style={styles.summaryMetricValue}>
-                      {exercise.sets}
+                      {formatNumber(exercise.sets)}
                     </Text>
                     <Text style={styles.summaryMetricLabel}>
                       {exercise.sets === 1 ? "Set" : "Sets"}
@@ -409,7 +434,7 @@ function ExpandableExerciseCard({
                       color={colorPallet.primary}
                     />
                     <Text style={styles.summaryMetricValue}>
-                      {exercise.distance}
+                      {formatNumber(exercise.distance, 1)}
                     </Text>
                     <Text style={styles.summaryMetricLabel}>
                       Total Distance (km)

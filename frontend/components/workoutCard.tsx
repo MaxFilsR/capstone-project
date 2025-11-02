@@ -18,6 +18,29 @@ interface WorkoutCardProps {
   session: WorkoutSession;
 }
 
+// Helper function to format numbers with commas
+function formatNumber(
+  value: number | string | undefined | null,
+  decimals?: number
+): string {
+  if (value === undefined || value === null || value === "") return "0";
+
+  const num = typeof value === "string" ? parseFloat(value) : value;
+
+  if (isNaN(num)) return "0";
+
+  // If decimals specified, format with fixed decimal places
+  if (decimals !== undefined) {
+    return num.toLocaleString("en-US", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+  }
+
+  // Otherwise, format naturally (removing unnecessary decimals)
+  return num.toLocaleString("en-US");
+}
+
 export const WorkoutCard: React.FC<WorkoutCardProps> = ({ session }) => {
   const handlePress = () => {
     // router.push(`/workout/${session.id}`);
@@ -59,7 +82,9 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({ session }) => {
                 size={20}
                 color={colorPallet.primary}
               />
-              <Text style={styles.metricValue}>{session.workoutTime}</Text>
+              <Text style={styles.metricValue}>
+                {formatNumber(session.workoutTime)}
+              </Text>
               <Text style={styles.metricLabel}>mins</Text>
             </View>
 
@@ -70,7 +95,9 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({ session }) => {
                 size={20}
                 color={colorPallet.secondary}
               />
-              <Text style={styles.metricValue}>{session.pointsEarned}</Text>
+              <Text style={styles.metricValue}>
+                {formatNumber(session.pointsEarned)}
+              </Text>
               <Text style={styles.metricLabel}>Gainz</Text>
             </View>
           </View>

@@ -22,6 +22,29 @@ interface MonthGroup {
   workouts: WorkoutSession[];
 }
 
+// Helper function to format numbers with commas
+function formatNumber(
+  value: number | string | undefined | null,
+  decimals?: number
+): string {
+  if (value === undefined || value === null || value === "") return "0";
+
+  const num = typeof value === "string" ? parseFloat(value) : value;
+
+  if (isNaN(num)) return "0";
+
+  // If decimals specified, format with fixed decimal places
+  if (decimals !== undefined) {
+    return num.toLocaleString("en-US", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+  }
+
+  // Otherwise, format naturally (removing unnecessary decimals)
+  return num.toLocaleString("en-US");
+}
+
 const HistoryScreen = () => {
   const [workouts, setWorkouts] = useState<WorkoutSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +63,7 @@ const HistoryScreen = () => {
 
       setWorkouts(history);
     } catch (err) {
-      console.error("❌ Failed to load workout history:", err);
+      console.error("Failed to load workout history:", err);
       setError("Failed to load workout history");
     } finally {
       setIsLoading(false);
@@ -132,12 +155,16 @@ const HistoryScreen = () => {
 
               <Text style={styles.statTextPrimary}>
                 Gainz earned:{" "}
-                <Text style={styles.statValue}>{group.totalGainz}</Text>
+                <Text style={styles.statValue}>
+                  {formatNumber(group.totalGainz)}
+                </Text>
               </Text>
 
               <Text style={styles.statTextSecondary}>
                 Workout sessions:{" "}
-                <Text style={styles.statValue}>{group.totalSessions}</Text>
+                <Text style={styles.statValue}>
+                  {formatNumber(group.totalSessions)}
+                </Text>
               </Text>
             </View>
 
