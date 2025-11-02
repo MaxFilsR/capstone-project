@@ -47,8 +47,8 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::auth::healthpoint)
             // Onboarding
             .service(endpoints::onboarding::onboarding)
-            // Summary
-            .service(endpoints::nav::summary::me)
+            // Character
+            .service(endpoints::nav::character::read_character)
             // Workouts
             .service(endpoints::nav::workouts::history::create_history)
             .service(endpoints::nav::workouts::history::read_history)

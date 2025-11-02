@@ -37,6 +37,26 @@ CREATE TYPE class AS (
 	stats STATS
 );
 
+CREATE TYPE equipped AS (
+	arms INT,
+    background INT,
+    bodies INT,
+    head INT,
+    head_accessory INT,
+    pet INT,
+    weapon INT
+);
+
+CREATE TYPE inventory AS (
+	arms INT[],
+    backgrounds INT[],
+    bodies INT[],
+    heads INT[],
+    head_accessories INT[],
+    pets INT[],
+    weapons INT[]
+);
+
 -- Defines item rarity
 CREATE TYPE item_rarity AS ENUM (
     'common',
@@ -133,13 +153,23 @@ CREATE TABLE IF NOT EXISTS
 
 -- Table to store more detailed information about users
 CREATE TABLE IF NOT EXISTS
-	user_info (
+	settings (
 		user_id INT REFERENCES users (id) PRIMARY KEY,
 		first_name VARCHAR(255) NOT NULL,
 		last_name VARCHAR(255) NOT NULL,
-		username VARCHAR(255) NOT NULL,
-		class CLASS NOT NULL,
 		workout_schedule BOOLEAN[7] NOT NULL
+	);
+
+CREATE TABLE IF NOT EXISTS
+	characters (
+		user_id INT REFERENCES users (id) PRIMARY KEY,
+		username VARCHAR(255) NOT NULL,
+		class Class NOT NULL,
+		level INT NOT NULL,
+		exp_leftover INT NOT NULL,
+		streak INT NOT NULL,
+		equipped Equipped NOT NULL,
+		inventory Inventory NOT NULL
 	);
 
 -- Table to store items
@@ -246,9 +276,24 @@ VALUES
 	(1, 'you@example.com', crypt('12345678', gen_salt('md5')), TRUE);
 
 INSERT INTO
-	user_info (user_id, first_name, last_name,username, class, workout_schedule)
+	settings (user_id, first_name, last_name, workout_schedule)
 VALUES
-	(1, 'John', 'Doe', 'JDoe', ROW('Warrior', ROW(10, 7, 5)), '{TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE}');
+	(1, 'John', 'Doe', '{TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE}');
+
+INSERT INTO
+	characters (user_id, username, class, level, exp_leftover, streak, equipped, inventory)
+VALUES
+	(1, 'JDoe', ROW('Warrior', ROW(10, 7, 5)), 0, 0, 0, ROW(0, 0, 0, 0, 0, 0, 0), 
+		ROW(
+			'{0}', 
+			'{0}', 
+			'{0}', 
+			'{0}', 
+			'{0}', 
+			'{0}', 
+			'{0}'
+		)
+	);
 
 -- Defining exercises
 -- ToDo: Make sure it stores everything right
