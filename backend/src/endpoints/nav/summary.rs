@@ -34,3 +34,12 @@ pub async fn me(
 
     return Ok(HttpResponse::Ok().json(me_response));
 }
+
+#[get("/summary/level")]
+pub async fn level(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+) -> Result<HttpResponse, actix_web::Error> {
+
+    return Ok( HttpResponse::Ok().json(value))
+}
