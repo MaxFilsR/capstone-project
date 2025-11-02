@@ -12,7 +12,13 @@ import { typography } from "@/styles";
 import { BackButton, FormButton } from "@/components";
 import Alert from "@/components/popupModals/Alert";
 import { colorPallet } from "@/styles/variables";
-import { recordWorkout, WorkoutExercise } from "@/api/endpoints";
+import {
+  recordWorkout,
+  WorkoutExercise,
+  Exercise,
+  getMe,
+  getWorkoutLibrary,
+} from "@/api/endpoints";
 
 type Params = {
   routineName?: string;
@@ -29,6 +35,13 @@ export default function DurationRoutineScreen() {
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(30);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userStats, setUserStats] = useState({
+    strength: 0,
+    endurance: 0,
+    flexibility: 0,
+  });
+  const [exerciseLibrary, setExerciseLibrary] = useState<Exercise[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [alert, setAlert] = useState<{
     visible: boolean;
     mode: "alert" | "success" | "error" | "confirmAction";
@@ -53,6 +66,30 @@ export default function DurationRoutineScreen() {
       headerShown: false,
       contentstyle: { backgroundColor: "#0B0B0B" },
     });
+
+    // Load user stats and exercise library
+    async function loadData() {
+      try {
+        const [profile, library] = await Promise.all([
+          getMe(),
+          getWorkoutLibrary(),
+        ]);
+        setUserStats(profile.class.stats);
+        setExerciseLibrary(library);
+      } catch (error) {
+        console.error("Failed to load data:", error);
+        setAlert({
+          visible: true,
+          mode: "error",
+          title: "Error",
+          message: "Failed to load workout data. Please try again.",
+        });
+      } finally {
+        setIsLoadingData(false);
+      }
+    }
+
+    loadData();
 
     // Scroll to initial position
     setTimeout(() => {
@@ -112,16 +149,95 @@ export default function DurationRoutineScreen() {
     return hours * 60 + minutes;
   }
 
+  // Helper function to determine which stat to use based on exercise categories
+  function determineWorkoutStat(
+    exercises: WorkoutExercise[],
+    exerciseLibrary: Exercise[]
+  ): "strength" | "endurance" | "flexibility" {
+    // Create a map of exercise IDs to their details for quick lookup
+    const exerciseMap = new Map(exerciseLibrary.map((ex) => [ex.id, ex]));
+
+    // Count categories
+    const categoryCounts = {
+      strength: 0,
+      cardio: 0,
+      other: 0,
+    };
+
+    exercises.forEach((workoutEx) => {
+      const exerciseDetails = exerciseMap.get(String(workoutEx.id));
+      if (!exerciseDetails) return;
+
+      const category = exerciseDetails.category.toLowerCase();
+
+      // Categorize based on exercise category
+      if (
+        category.includes("strength") ||
+        category.includes("powerlifting") ||
+        category.includes("olympic") ||
+        exerciseDetails.equipment === "barbell" ||
+        exerciseDetails.equipment === "dumbbell"
+      ) {
+        categoryCounts.strength++;
+      } else if (
+        category.includes("cardio") ||
+        category.includes("plyometrics") ||
+        exerciseDetails.equipment === "body only"
+      ) {
+        categoryCounts.cardio++;
+      } else {
+        categoryCounts.other++;
+      }
+    });
+
+    // Determine which stat to use based on highest count
+    if (
+      categoryCounts.strength >= categoryCounts.cardio &&
+      categoryCounts.strength >= categoryCounts.other
+    ) {
+      return "strength";
+    } else if (categoryCounts.cardio >= categoryCounts.other) {
+      return "endurance";
+    } else {
+      return "flexibility";
+    }
+  }
+
   // Calculate points based on workout data
   function calculatePoints(
     exercises: WorkoutExercise[],
     durationMinutes: number
   ): number {
-    // 50 XP base + time in minutes
-    return 50 + durationMinutes;
+    const streak = 10;
+
+    // Determine which stat to use based on workout composition
+    const statType = determineWorkoutStat(exercises, exerciseLibrary);
+    const stat = userStats[statType];
+
+    // New formula: (50 + duration) * (1 + (stat/50 + streak/50))
+    const points = Math.round(
+      (50 + durationMinutes) * (1 + (stat / 50 + streak / 50))
+    );
+
+    console.log(`Using ${statType} stat (${stat}) for point calculation`);
+    console.log(
+      `Points calculated: ${points} for ${durationMinutes} minute workout`
+    );
+
+    return points;
   }
 
   async function onEndWorkout() {
+    if (isLoadingData) {
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Loading",
+        message: "Please wait while data is loading",
+      });
+      return;
+    }
+
     const durationMinutes = parseDurationToMinutes(hours, minutes);
 
     if (durationMinutes <= 0) {
@@ -161,6 +277,7 @@ export default function DurationRoutineScreen() {
     }
 
     const points = calculatePoints(exercises, durationMinutes);
+
     // Prepare workout data for API
     const workoutData = {
       name: params.routineName || "Workout Session",
@@ -329,10 +446,10 @@ export default function DurationRoutineScreen() {
           title={isSubmitting ? "Recording..." : "End Workout"}
           onPress={onEndWorkout}
           style={styles.endButton}
-          disabled={isSubmitting}
+          disabled={isSubmitting || isLoadingData}
         />
 
-        {isSubmitting && (
+        {(isSubmitting || isLoadingData) && (
           <ActivityIndicator
             size="large"
             color={colorPallet.primary}

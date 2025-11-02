@@ -313,19 +313,73 @@ export default function ActiveRoutineScreen() {
   }
 
   function onEnd() {
-    saveCurrentExercise();
+    // Save current exercise first
+    if (!currentLite?.id) {
+      // If no current exercise, just use what we have
+      navigateToDuration();
+      return;
+    }
 
-    setTimeout(() => {
-      const exercisesArray = Array.from(completedExercises.values());
+    const currentSets = setsData.get(currentIndex) || [];
+    const exerciseType = getExerciseType(fullExercise?.category);
 
-      router.push({
-        pathname: "/screens/FitnessTabs/routineScreens/durationRoutine",
-        params: {
-          routineName: params.name || "Workout",
-          exercises: JSON.stringify(exercisesArray),
-        },
-      });
-    }, 100);
+    let completedSets;
+    let totalSets = 0;
+    let totalReps = 0;
+    let totalWeight = 0;
+    let totalDistance = 0;
+
+    if (exerciseType === "strength") {
+      completedSets = currentSets.filter((s) => s.reps || s.weight);
+      totalSets = completedSets.length;
+      totalReps = completedSets.reduce(
+        (sum, s) => sum + (Number(s.reps) || 0),
+        0
+      );
+      totalWeight = completedSets.reduce(
+        (sum, s) => sum + (Number(s.weight) || 0),
+        0
+      );
+    } else if (exerciseType === "cardio") {
+      completedSets = currentSets.filter((s) => s.distance);
+      totalSets = completedSets.length;
+      totalDistance = completedSets.reduce(
+        (sum, s) => sum + (Number(s.distance) || 0),
+        0
+      );
+    } else {
+      totalSets = currentSets.length;
+    }
+
+    const avgWeight = totalSets > 0 ? totalWeight / totalSets : 0;
+
+    const exerciseData: CompletedExerciseData = {
+      id: currentLite.id,
+      sets: totalSets,
+      reps: totalReps,
+      weight: Math.round(avgWeight * 10) / 10,
+      distance: Math.round(totalDistance * 10) / 10,
+    };
+
+    // Create the final exercises array directly without relying on state update
+    const finalExercises = new Map(completedExercises);
+    finalExercises.set(currentIndex, exerciseData);
+
+    // Convert to array and navigate immediately
+    navigateToDuration(Array.from(finalExercises.values()));
+  }
+
+  // Helper function to navigate
+  function navigateToDuration(exercisesArray?: CompletedExerciseData[]) {
+    const exercises = exercisesArray || Array.from(completedExercises.values());
+
+    router.push({
+      pathname: "/screens/FitnessTabs/routineScreens/durationRoutine",
+      params: {
+        routineName: params.name || "Workout",
+        exercises: JSON.stringify(exercises),
+      },
+    });
   }
 
   function onCancel() {
