@@ -1,5 +1,8 @@
 use actix_cors::Cors;
-use actix_web::{App, HttpServer, cookie::time::format_description::well_known::iso8601::Config, middleware::Logger, web};
+use actix_web::{
+    App, HttpServer, cookie::time::format_description::well_known::iso8601::Config,
+    middleware::Logger, web,
+};
 use capstone_project::endpoints;
 use dotenvy::dotenv;
 use env_logger::Env;
@@ -7,26 +10,20 @@ use sqlx::PgPool;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // const ACTIX_WEB_ADDRESS: &'static str = "0.0.0.0";
-    // const ACTIX_WEB_ADDRESS: &str =
-    //     &*std::env::var("ACTIX_WEB_ADDRESS").expect("ACTIX_WEB_ADDRESS must be set");
-    // dbg!(ACTIX_WEB_ADDRESS);
-    // const ACTIX_WEB_PORT: u16 = std::env::var("ACTIX_WEB_PORT")
-    //     .expect("ACTIX_WEB_PORT must be set")
-    //     .parse()
-    //     .unwrap();
-    // dbg!(ACTIX_WEB_PORT);
-    // const DATABASE_URL: &str = &*std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    // dbg!(DATABASE_URL);
-    
-    dotenv().ok();
+    let ACTIX_WEB_ADDRESS: &str =
+        &*std::env::var("ACTIX_WEB_ADDRESS").expect("ACTIX_WEB_ADDRESS must be set");
+    dbg!(ACTIX_WEB_ADDRESS);
+    let ACTIX_WEB_PORT: u16 = std::env::var("ACTIX_WEB_PORT")
+        .expect("ACTIX_WEB_PORT must be set")
+        .parse()
+        .unwrap();
+    dbg!(ACTIX_WEB_PORT);
+    let DATABASE_URL: &str = &*std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    dbg!(DATABASE_URL);
+
     env_logger::init_from_env(Env::default().default_filter_or("info"));
 
-    let pool = PgPoolOptions::new()
-        .max_connections(10)
-        .connect(&config.database_url)
-        .await?;
-
+    let pool = PgPool::connect(DATABASE_URL).await.unwrap();
 
     HttpServer::new(move || {
         let cors = Cors::default()

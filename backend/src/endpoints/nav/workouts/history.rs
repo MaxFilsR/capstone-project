@@ -4,12 +4,12 @@ use crate::schemas::History;
 use actix_web::post;
 use actix_web::{HttpResponse, Result, error::ErrorBadRequest, error::ErrorNotFound, get, web};
 use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
 use sqlx::types::Json;
 use sqlx::types::chrono::{
-    NaiveDate, 
+    NaiveDate,
     // NaiveTime,
 };
-use sqlx::PgPool;
 
 #[derive(Deserialize, Serialize)]
 pub struct CreateHistoryRequest {
