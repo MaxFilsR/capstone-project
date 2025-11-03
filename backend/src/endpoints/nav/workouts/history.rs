@@ -1,4 +1,5 @@
 use crate::jwt::AuthenticatedUser;
+use crate::level::add_exp;
 use crate::schemas::Exercise;
 use crate::schemas::History;
 use actix_web::post;
@@ -42,6 +43,8 @@ pub async fn create_history(
     .execute(pool.get_ref())
     .await
     .unwrap();
+
+    let _ = add_exp(user, pool, request.points).await.unwrap();
 
     return Ok(HttpResponse::Ok().finish());
 }
