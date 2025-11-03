@@ -18,3 +18,4 @@ pub mod endpoints {
 pub mod jwt;
 pub mod schemas;
 pub mod level;
+pub mod stats;
