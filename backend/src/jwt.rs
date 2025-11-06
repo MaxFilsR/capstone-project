@@ -1,4 +1,5 @@
 use chrono::{Duration, Utc};
+use dotenvy::dotenv;
 use jsonwebtoken::{EncodingKey, Header, encode};
 use serde::{Deserialize, Serialize};
 use std::env;
@@ -18,7 +19,8 @@ pub enum TokenType {
 }
 
 pub fn generate_jwt(user_id: i32, token_type: TokenType) -> String {
-    let JWT_SECRET = &*env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+    dotenv().ok();
+    let JWT_SECRET = &*env::var("JWT_SECRET_KEY").expect("JWT_SECRET must be set");
 
     let expiration = match token_type {
         TokenType::Access => Utc::now() + Duration::minutes(15),
@@ -52,7 +54,7 @@ impl FromRequest for AuthenticatedUser {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
-        let JWT_SECRET = &*env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+        let JWT_SECRET = &*env::var("JWT_SECRET_KEY").expect("JWT_SECRET must be set");
 
         let token = req
             .headers()

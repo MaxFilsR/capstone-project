@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:1
 
 ARG RUST_VERSION=1.90.0
-ARG ACTIX_WEB_ADDRESS=0.0.0.0
-ARG ACTIX_WEB_PORT=8080
+ARG ACTIX_WEB_ADDRESS
+ARG ACTIX_WEB_PORT
+ARG JWT_SECRET_KEY
 ARG APP_NAME=capstone-project
 
 ################################################################################
@@ -10,6 +11,9 @@ ARG APP_NAME=capstone-project
 
 FROM rust:${RUST_VERSION}-alpine AS build
 ENV SQLX_OFFLINE=true
+ENV ACTIX_WEB_ADDRESS $ACTIX_WEB_ADDRESS 
+ENV ACTIX_WEB_PORT $ACTIX_WEB_PORT
+ENV JWT_SECRET_KEY $JWT_SECRET_KEY
 ARG APP_NAME
 WORKDIR /app
 
@@ -22,9 +26,9 @@ RUN --mount=type=bind,source=src,target=src \
     --mount=type=bind,source=migrations,target=migrations \
     --mount=type=bind,source=Cargo.toml,target=Cargo.toml \
     --mount=type=bind,source=Cargo.lock,target=Cargo.lock \
-    #--mount=type=cache,target=/app/target/ \
-    #--mount=type=cache,target=/usr/local/cargo/git/db \
-    #--mount=type=cache,target=/usr/local/cargo/registry/ \
+    --mount=type=cache,target=/app/target/ \
+    --mount=type=cache,target=/usr/local/cargo/git/db \
+    --mount=type=cache,target=/usr/local/cargo/registry/ \
     #DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${PGPORT}/${POSTGRES_DB} 
     cargo build --locked --release && \ 
     cp ./target/release/$APP_NAME /bin/server

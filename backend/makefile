@@ -17,4 +17,3 @@ force-wipe:
 	-docker volume prune -af
 	-docker builder prune -af
 	-docker rmi mjaramazovic/gainz-api
-	-cargo clean

@@ -1,7 +1,6 @@
 use actix_cors::Cors;
 use actix_web::{
-    App, HttpServer, cookie::time::format_description::well_known::iso8601::Config,
-    middleware::Logger, web,
+    App, HttpServer, cookie::time::format_description::well_known::iso8601::Config, middleware::Logger, test, web
 };
 use capstone_project::endpoints;
 use dotenvy::dotenv;
@@ -73,3 +72,23 @@ async fn main() -> std::io::Result<()> {
 
     Ok(())
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use actix_web::{http::StatusCode, test, App};
+//     use capstone_project::endpoints::auth::sign_up;
+
+//     #[actix_web::test]
+//     async fn test_signup() {
+//         let app = test::init_service(App::new().service(sign_up)).await;
+
+//         let request = test::TestRequest::post().uri("/auth/sign-up").to_request();
+
+//         let response = test::call_service(&app, request).await;
+
+//         assert_eq!(response.status(), StatusCode::OK);
+
+
+//     }
+// }
