@@ -62,10 +62,28 @@ export async function submitOnboarding(
   return response.data;
 }
 
-// User Profile Types and Endpoints
-export type UserProfile = {
-  first_name: string;
-  last_name: string;
+// Character Profile Types and Endpoints
+export type CharacterEquipment = {
+  arms: number;
+  background: number;
+  bodies: number;
+  head: number;
+  head_accessory: number;
+  pet: number;
+  weapon: number;
+};
+
+export type CharacterInventory = {
+  arms: number[];
+  backgrounds: number[];
+  bodies: number[];
+  heads: number[];
+  head_accessories: number[];
+  pets: number[];
+  weapons: number[];
+};
+
+export type CharacterProfile = {
   username: string;
   class: {
     name: string;
@@ -75,15 +93,20 @@ export type UserProfile = {
       flexibility: number;
     };
   };
-  workout_schedule: boolean[]; // 7 days
+  level: number;
+  exp_leftover: number;
+  exp_needed: number;
+  streak: number;
+  equipped: CharacterEquipment;
+  inventory: CharacterInventory;
 };
 
 /**
- * Fetch the logged-in user's profile
- * GET /summary/me
+ * Fetch the logged-in user's character profile
+ * GET /character
  */
-export async function getMe(): Promise<UserProfile> {
-  const response = await apiClient.get("/summary/me");
+export async function getCharacter(): Promise<CharacterProfile> {
+  const response = await apiClient.get("/character");
   return response.data;
 }
 

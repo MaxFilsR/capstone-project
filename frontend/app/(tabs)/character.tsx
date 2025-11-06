@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { containers, typography } from "@/styles/index";
 import { useAuth } from "@/lib/auth-context";
-import { getMe, UserProfile } from "@/api/endpoints";
+import { getCharacter, CharacterProfile } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
 import QuickActionButton from "@/components/QuickActionButton";
 
@@ -17,7 +17,7 @@ const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export default function Index() {
   const { logout } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profile, setProfile] = useState<CharacterProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,7 +28,7 @@ export default function Index() {
   const loadProfile = async () => {
     try {
       setLoading(true);
-      const data = await getMe();
+      const data = await getCharacter();
       setProfile(data);
       setError(null);
     } catch (err) {
@@ -66,18 +66,12 @@ export default function Index() {
     <>
       <ScrollView contentContainerStyle={styles.scrollContainer}>
         <Text style={[typography.header, { marginBottom: 24 }]}>
-          Account Profile
+          Character Profile
         </Text>
 
         {/* Character Info */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Character Info</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Name:</Text>
-            <Text style={styles.value}>
-              {profile.first_name} {profile.last_name}
-            </Text>
-          </View>
           <View style={styles.infoRow}>
             <Text style={styles.label}>Username:</Text>
             <Text style={styles.value}>@{profile.username}</Text>
@@ -85,6 +79,36 @@ export default function Index() {
           <View style={styles.infoRow}>
             <Text style={styles.label}>Class:</Text>
             <Text style={styles.classValue}>{profile.class.name}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Level:</Text>
+            <Text style={styles.value}>{profile.level}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Text style={styles.label}>Streak:</Text>
+            <Text style={styles.value}>{profile.streak} days</Text>
+          </View>
+        </View>
+
+        {/* Experience Progress */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Experience</Text>
+          <View style={styles.expContainer}>
+            <Text style={styles.expText}>
+              {profile.exp_leftover} / {profile.exp_needed} XP
+            </Text>
+            <View style={styles.expBarBackground}>
+              <View
+                style={[
+                  styles.expBarFill,
+                  {
+                    width: `${
+                      (profile.exp_leftover / profile.exp_needed) * 100
+                    }%`,
+                  },
+                ]}
+              />
+            </View>
           </View>
         </View>
 
@@ -113,28 +137,95 @@ export default function Index() {
           </View>
         </View>
 
-        {/* Workout Schedule */}
+        {/* Equipped Items */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Workout Schedule</Text>
-          <View style={styles.scheduleGrid}>
-            {profile.workout_schedule.map((isActive, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.dayCard,
-                  isActive ? styles.dayActive : styles.dayInactive,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.dayText,
-                    isActive ? styles.dayTextActive : styles.dayTextInactive,
-                  ]}
-                >
-                  {DAYS[index]}
-                </Text>
-              </View>
-            ))}
+          <Text style={styles.sectionTitle}>Equipped Items</Text>
+          <View style={styles.equippedGrid}>
+            <View style={styles.equipmentItem}>
+              <Text style={styles.equipmentLabel}>Head:</Text>
+              <Text style={styles.equipmentValue}>{profile.equipped.head}</Text>
+            </View>
+            <View style={styles.equipmentItem}>
+              <Text style={styles.equipmentLabel}>Head Accessory:</Text>
+              <Text style={styles.equipmentValue}>
+                {profile.equipped.head_accessory}
+              </Text>
+            </View>
+            <View style={styles.equipmentItem}>
+              <Text style={styles.equipmentLabel}>Body:</Text>
+              <Text style={styles.equipmentValue}>
+                {profile.equipped.bodies}
+              </Text>
+            </View>
+            <View style={styles.equipmentItem}>
+              <Text style={styles.equipmentLabel}>Arms:</Text>
+              <Text style={styles.equipmentValue}>{profile.equipped.arms}</Text>
+            </View>
+            <View style={styles.equipmentItem}>
+              <Text style={styles.equipmentLabel}>Weapon:</Text>
+              <Text style={styles.equipmentValue}>
+                {profile.equipped.weapon}
+              </Text>
+            </View>
+            <View style={styles.equipmentItem}>
+              <Text style={styles.equipmentLabel}>Pet:</Text>
+              <Text style={styles.equipmentValue}>{profile.equipped.pet}</Text>
+            </View>
+            <View style={styles.equipmentItem}>
+              <Text style={styles.equipmentLabel}>Background:</Text>
+              <Text style={styles.equipmentValue}>
+                {profile.equipped.background}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Inventory Summary */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Inventory</Text>
+          <View style={styles.inventoryGrid}>
+            <View style={styles.inventoryItem}>
+              <Text style={styles.inventoryLabel}>Heads:</Text>
+              <Text style={styles.inventoryValue}>
+                {profile.inventory.heads.length}
+              </Text>
+            </View>
+            <View style={styles.inventoryItem}>
+              <Text style={styles.inventoryLabel}>Bodies:</Text>
+              <Text style={styles.inventoryValue}>
+                {profile.inventory.bodies.length}
+              </Text>
+            </View>
+            <View style={styles.inventoryItem}>
+              <Text style={styles.inventoryLabel}>Arms:</Text>
+              <Text style={styles.inventoryValue}>
+                {profile.inventory.arms.length}
+              </Text>
+            </View>
+            <View style={styles.inventoryItem}>
+              <Text style={styles.inventoryLabel}>Weapons:</Text>
+              <Text style={styles.inventoryValue}>
+                {profile.inventory.weapons.length}
+              </Text>
+            </View>
+            <View style={styles.inventoryItem}>
+              <Text style={styles.inventoryLabel}>Pets:</Text>
+              <Text style={styles.inventoryValue}>
+                {profile.inventory.pets.length}
+              </Text>
+            </View>
+            <View style={styles.inventoryItem}>
+              <Text style={styles.inventoryLabel}>Backgrounds:</Text>
+              <Text style={styles.inventoryValue}>
+                {profile.inventory.backgrounds.length}
+              </Text>
+            </View>
+            <View style={styles.inventoryItem}>
+              <Text style={styles.inventoryLabel}>Head Accessories:</Text>
+              <Text style={styles.inventoryValue}>
+                {profile.inventory.head_accessories.length}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -154,7 +245,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 22,
     paddingTop: 64,
-    paddingBottom: 100, // Extra padding for bottom tab navigation
+    paddingBottom: 100,
     backgroundColor: colorPallet.neutral_darkest,
   },
   centered: {
@@ -205,6 +296,27 @@ const styles = StyleSheet.create({
     color: colorPallet.primary,
     fontWeight: "bold",
   },
+  expContainer: {
+    marginTop: 8,
+  },
+  expText: {
+    fontSize: 16,
+    color: colorPallet.neutral_lightest,
+    fontWeight: "600",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  expBarBackground: {
+    height: 20,
+    backgroundColor: colorPallet.neutral_4,
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+  expBarFill: {
+    height: "100%",
+    backgroundColor: colorPallet.secondary,
+    borderRadius: 10,
+  },
   statsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -218,6 +330,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 2,
     borderColor: colorPallet.primary,
+    flex: 1,
+    marginHorizontal: 4,
+    minWidth: "30%",
   },
   statLabel: {
     fontSize: 14,
@@ -229,33 +344,50 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: colorPallet.secondary,
   },
-  scheduleGrid: {
+  equippedGrid: {
+    gap: 8,
+  },
+  equipmentItem: {
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colorPallet.neutral_1,
   },
-  dayCard: {
-    flex: 1,
-    aspectRatio: 1,
+  equipmentLabel: {
+    fontSize: 14,
+    color: colorPallet.neutral_lightest,
+    fontWeight: "500",
+  },
+  equipmentValue: {
+    fontSize: 14,
+    color: colorPallet.secondary,
+    fontWeight: "600",
+  },
+  inventoryGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+  },
+  inventoryItem: {
+    backgroundColor: colorPallet.neutral_darkest,
     borderRadius: 8,
-    justifyContent: "center",
+    padding: 12,
     alignItems: "center",
-    marginHorizontal: 2,
+    flex: 1,
+    minWidth: "30%",
+    borderWidth: 1,
+    borderColor: colorPallet.neutral_4,
   },
-  dayActive: {
-    backgroundColor: colorPallet.primary,
-  },
-  dayInactive: {
-    backgroundColor: colorPallet.neutral_4,
-  },
-  dayText: {
+  inventoryLabel: {
     fontSize: 12,
+    color: colorPallet.neutral_lightest,
+    marginBottom: 4,
+  },
+  inventoryValue: {
+    fontSize: 20,
     fontWeight: "bold",
-  },
-  dayTextActive: {
-    color: colorPallet.neutral_darkest,
-  },
-  dayTextInactive: {
-    color: colorPallet.neutral_1,
+    color: colorPallet.primary,
   },
   logoutContainer: {
     marginHorizontal: 16,
