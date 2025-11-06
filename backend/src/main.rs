@@ -1,7 +1,6 @@
 use actix_cors::Cors;
 use actix_web::{
-    App, HttpServer, cookie::time::format_description::well_known::iso8601::Config,
-    middleware::Logger, web,
+    App, HttpServer, cookie::time::format_description::well_known::iso8601::Config, middleware::Logger, test, web
 };
 use capstone_project::endpoints;
 use dotenvy::dotenv;
@@ -10,20 +9,32 @@ use sqlx::PgPool;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let ACTIX_WEB_ADDRESS: &str =
+    dotenv().ok();
+    env_logger::init_from_env(Env::default().default_filter_or("info"));
+    
+    let actix_web_address =
         &*std::env::var("ACTIX_WEB_ADDRESS").expect("ACTIX_WEB_ADDRESS must be set");
-    dbg!(ACTIX_WEB_ADDRESS);
-    let ACTIX_WEB_PORT: u16 = std::env::var("ACTIX_WEB_PORT")
+    dbg!(actix_web_address);
+    let actix_web_port: u16 = std::env::var("ACTIX_WEB_PORT")
         .expect("ACTIX_WEB_PORT must be set")
         .parse()
         .unwrap();
-    dbg!(ACTIX_WEB_PORT);
-    let DATABASE_URL: &str = &*std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    dbg!(DATABASE_URL);
+    dbg!(actix_web_port);
+    let database_url = &*std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    dbg!(database_url);
 
-    env_logger::init_from_env(Env::default().default_filter_or("info"));
 
-    let pool = PgPool::connect(DATABASE_URL).await.unwrap();
+    let pool = PgPool::connect(database_url).await.unwrap();
+
+    match sqlx::migrate!("./migrations").run(&pool).await {
+        Ok(_) => println!("Migrations executed successfully."),
+        Err(e) => eprintln!("Error executing migrations: {}", e),
+    };
+
+    println!(
+        "{}", 
+        format!("Server is running on https://localhost:{}", actix_web_port)
+    );
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -55,9 +66,29 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::nav::workouts::routines::read_routines)
             .service(endpoints::nav::workouts::routines::update_rotuines)
     })
-    .bind((ACTIX_WEB_ADDRESS, ACTIX_WEB_PORT))?
+    .bind((actix_web_address, actix_web_port))?
     .run()
     .await?;
 
     Ok(())
 }
+
+// #[cfg(test)]
+// mod tests {
+//     use super::*;
+//     use actix_web::{http::StatusCode, test, App};
+//     use capstone_project::endpoints::auth::sign_up;
+
+//     #[actix_web::test]
+//     async fn test_signup() {
+//         let app = test::init_service(App::new().service(sign_up)).await;
+
+//         let request = test::TestRequest::post().uri("/auth/sign-up").to_request();
+
+//         let response = test::call_service(&app, request).await;
+
+//         assert_eq!(response.status(), StatusCode::OK);
+
+
+//     }
+// }

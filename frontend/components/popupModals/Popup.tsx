@@ -1,4 +1,3 @@
-// Popup.tsx
 import React, { useEffect, useState } from "react";
 import { View, Modal, TouchableOpacity } from "react-native";
 import { Exercise } from "@/api/endpoints";
@@ -7,7 +6,8 @@ import ViewExerciseModal from "./ViewExerciseModal";
 import CreateRoutineModal from "./CreateRoutineModal";
 import EditRoutineModal from "./EditRoutineModal";
 import StartRoutineModal from "./StartRoutineModal";
-import { AlertBox, AlertMode } from "./AlertBox";
+
+import { BlurView } from "expo-blur";
 
 export type Routine = {
   id: number;
@@ -40,25 +40,6 @@ const Popup: React.FC<PopupProps> = ({
   exerciseId,
   routine,
 }) => {
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState<string | string[]>("");
-  const [alertMode, setAlertMode] = useState<AlertMode>("alert");
-  const [alertConfirmAction, setAlertConfirmAction] = useState<() => void>();
-  const [alertCancelAction, setAlertCancelAction] = useState<() => void>();
-
-  const showAlert = (
-    msg: string | string[],
-    mode: AlertMode = "alert",
-    confirmAction?: () => void,
-    cancelAction?: () => void
-  ) => {
-    setAlertMessage(msg);
-    setAlertMode(mode);
-    setAlertConfirmAction(() => confirmAction);
-    setAlertCancelAction(() => cancelAction);
-    setAlertVisible(true);
-  };
-
   return (
     <Modal
       visible={visible}
@@ -66,75 +47,66 @@ const Popup: React.FC<PopupProps> = ({
       animationType="fade"
       onRequestClose={onClose}
     >
-      {mode === "startRoutine" ? (
-        // StartRoutine has its own layout and styling
-        <View
-          style={{
-            flex: 1,
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "rgba(0,0,0,0.5)",
-          }}
-        >
-          <TouchableOpacity
+      <BlurView
+        intensity={20} // blur strength
+        tint="dark" //dark frosted glass
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          backgroundColor: "rgba(0,0,0,0.5)",
+        }} // cover full screen
+      >
+        {mode === "startRoutine" ? (
+          // StartRoutine has its own layout and styling
+          <View
             style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
+              flex: 1,
+              justifyContent: "center",
+              alignItems: "center",
             }}
-            activeOpacity={1}
-            onPress={onClose}
-          />
-          {routine && <StartRoutineModal onClose={onClose} routine={routine} />}
-          {/* Centralized alert */}
-          <AlertBox
-            visible={alertVisible}
-            message={alertMessage}
-            mode={alertMode}
-            onClose={() => setAlertVisible(false)}
-            confirmAction={alertConfirmAction}
-            cancelAction={alertCancelAction}
-          />
-        </View>
-      ) : (
-        // Other modals use the standard popup layout
-        <View style={popupModalStyles.overlay}>
-          <View style={popupModalStyles.modalContainer}>
+          >
             <TouchableOpacity
-              style={popupModalStyles.backdrop}
+              style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+              }}
               activeOpacity={1}
               onPress={onClose}
             />
-
-            <View style={popupModalStyles.contentWrapper}>
-              {/* Child modals */}
-              {mode === "viewExercises" ? (
-                <ViewExerciseModal
-                  onClose={onClose}
-                  exercise={exercise}
-                  exerciseId={exerciseId}
-                />
-              ) : mode === "createRoutine" ? (
-                <CreateRoutineModal onClose={onClose} />
-              ) : mode === "editRoutine" && routine ? (
-                <EditRoutineModal onClose={onClose} routine={routine} />
-              ) : null}
-
-              {/* Centralized alert */}
-              <AlertBox
-                visible={alertVisible}
-                message={alertMessage}
-                mode={alertMode}
-                onClose={() => setAlertVisible(false)}
-                confirmAction={alertConfirmAction}
-                cancelAction={alertCancelAction}
+            {/* Always render StartRoutineModal - it handles both cases (with/without routine) */}
+            <StartRoutineModal onClose={onClose} routine={routine} />
+          </View>
+        ) : (
+          // Other modals use the standard popup layout
+          <View style={popupModalStyles.overlay}>
+            <View style={popupModalStyles.modalContainer}>
+              <TouchableOpacity
+                style={popupModalStyles.backdrop}
+                activeOpacity={1}
+                onPress={onClose}
               />
+
+              <View style={popupModalStyles.contentWrapper}>
+                {/* Child modals */}
+                {mode === "viewExercises" ? (
+                  <ViewExerciseModal
+                    onClose={onClose}
+                    exercise={exercise}
+                    exerciseId={exerciseId}
+                  />
+                ) : mode === "createRoutine" ? (
+                  <CreateRoutineModal onClose={onClose} />
+                ) : mode === "editRoutine" && routine ? (
+                  <EditRoutineModal onClose={onClose} routine={routine} />
+                ) : null}
+              </View>
             </View>
           </View>
-        </View>
-      )}
+        )}
+      </BlurView>
     </Modal>
   );
 };

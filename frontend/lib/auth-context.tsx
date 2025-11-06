@@ -6,12 +6,13 @@ import React, {
   ReactNode,
 } from "react";
 import { router } from "expo-router";
-import { getMe, UserProfile } from "@/api/endpoints";
+import { getCharacter, CharacterProfile } from "@/api/endpoints";
 import { storage } from "@/utils/storageHelper";
+import { setLogoutCallback } from "@/api/client";
 
 type User = {
   onboarded?: boolean;
-  profile?: UserProfile;
+  profile?: CharacterProfile;
 };
 
 type AuthContextType = {
@@ -20,13 +21,26 @@ type AuthContextType = {
   login: (token: string, onboarded: boolean) => Promise<void>;
   logout: () => Promise<void>;
   completeOnboarding: () => Promise<void>;
-  fetchUserProfile: () => Promise<UserProfile>;
+  fetchUserProfile: () => Promise<CharacterProfile>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+
+  const logout = async () => {
+    console.log("Logging out user...");
+    await storage.deleteItem("accessToken");
+    await storage.deleteItem("onboarded");
+    setUser(null);
+    router.replace("../auth");
+  };
+
+  // Register logout callback with API client on mount
+  useEffect(() => {
+    setLogoutCallback(logout);
+  }, []);
 
   // Auto-login on app start
   useEffect(() => {
@@ -57,15 +71,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser((prev) => (prev ? { ...prev, onboarded: true } : null));
   };
 
-  const logout = async () => {
-    await storage.deleteItem("accessToken");
-    await storage.deleteItem("onboarded");
-    setUser(null);
-    router.replace("../auth");
-  };
-
-  const fetchUserProfile = async (): Promise<UserProfile> => {
-    const profile = await getMe();
+  const fetchUserProfile = async (): Promise<CharacterProfile> => {
+    const profile = await getCharacter();
     setUser((prev) => (prev ? { ...prev, profile } : null));
     return profile;
   };

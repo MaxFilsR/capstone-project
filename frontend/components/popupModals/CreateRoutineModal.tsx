@@ -9,7 +9,7 @@ import { FormButton } from "../FormButton";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
 import ExerciseSearchList from "../ExerciseSearchList";
 import SelectedExercisesList from "../SelectedExercisesList";
-import { AlertBox, AlertMode } from "./AlertBox";
+import Alert from "./Alert";
 
 type CreateRoutineModalProps = {
   onClose: () => void;
@@ -26,16 +26,19 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
   const [exerciseMetrics, setExerciseMetrics] = useState<Record<string, any>>(
     {}
   );
-
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState<string | string[]>("");
-  const [alertMode, setAlertMode] = useState<AlertMode>("alert");
-
-  const showAlert = (msg: string | string[], mode: AlertMode = "alert") => {
-    setAlertMessage(msg);
-    setAlertMode(mode);
-    setAlertVisible(true);
-  };
+  const [alert, setAlert] = useState<{
+    visible: boolean;
+    mode: "alert" | "success" | "error" | "confirmAction";
+    title: string;
+    message: string;
+    onConfirmAction?: () => void;
+  }>({
+    visible: false,
+    mode: "alert",
+    title: "",
+    message: "",
+    onConfirmAction: undefined,
+  });
 
   const filteredExercises = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -52,11 +55,21 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
 
   const handleSave = async () => {
     if (!routineName.trim()) {
-      showAlert("Please enter a routine name.", "error");
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Missing Name",
+        message: "Please enter a routine name.",
+      });
       return;
     }
     if (selectedExercises.length === 0) {
-      showAlert("Please add at least one exercise.", "error");
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "No Exercises",
+        message: "Please add at least one exercise to the routine.",
+      });
       return;
     }
 
@@ -83,10 +96,19 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
 
       await createRoutine(payload);
 
-      showAlert("Routine created successfully!", "success");
-      onClose();
+      setAlert({
+        visible: true,
+        mode: "success",
+        title: "Success",
+        message: "Routine created successfully!",
+      });
     } catch (error: any) {
-      showAlert("Failed to create routine. Please try again.", "action"); // uses action mode
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Error",
+        message: "Failed to create routine. Please try again.",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -99,13 +121,21 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
   };
 
   const removeExercise = (uniqueId: string) => {
-    setSelectedExercises(
-      selectedExercises.filter((ex) => ex.uniqueId !== uniqueId)
-    );
-    setExerciseMetrics((prev) => {
-      const newMetrics = { ...prev };
-      delete newMetrics[uniqueId];
-      return newMetrics;
+    setAlert({
+      visible: true,
+      mode: "confirmAction",
+      title: "Remove Exercise",
+      message: "Are you sure you want to remove this exercise?",
+      onConfirmAction: () => {
+        setSelectedExercises(
+          selectedExercises.filter((ex) => ex.uniqueId !== uniqueId)
+        );
+        setExerciseMetrics((prev) => {
+          const newMetrics = { ...prev };
+          delete newMetrics[uniqueId];
+          return newMetrics;
+        });
+      },
     });
   };
 
@@ -135,15 +165,21 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
     }));
   };
 
+  const handleAlertConfirm = () => {
+    if (alert.mode === "success") {
+      onClose();
+    } else if (alert.mode === "confirmAction" && alert.onConfirmAction) {
+      alert.onConfirmAction();
+    }
+    setAlert({ ...alert, visible: false, onConfirmAction: undefined });
+  };
+
+  const handleAlertCancel = () => {
+    setAlert({ ...alert, visible: false, onConfirmAction: undefined });
+  };
+
   return (
     <View style={{ flex: 1 }}>
-      <AlertBox
-        visible={alertVisible}
-        message={alertMessage}
-        mode={alertMode}
-        onClose={() => setAlertVisible(false)}
-      />
-
       {/* Header Bar */}
       <View
         style={{
@@ -216,6 +252,16 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
           onUpdateMetric={updateExerciseMetric}
         />
       </ScrollView>
+
+      <Alert
+        visible={alert.visible}
+        mode={alert.mode}
+        title={alert.title}
+        message={alert.message}
+        onConfirm={handleAlertConfirm}
+        onCancel={handleAlertCancel}
+        confirmText={alert.mode === "confirmAction" ? "Remove" : "OK"}
+      />
     </View>
   );
 };
