@@ -52,7 +52,8 @@ const TabBar: React.FC<TabBarProps> = ({
   inactiveTextColor = colorPallet.neutral_lightest,
 }) => {
   const [activeTab, setActiveTab] = useState(initialTab);
-  const ActiveComponent = tabs[activeTab].component;
+
+  const ActiveComponent = tabs[activeTab]?.component;
 
   const handleTabPress = (index: number) => {
     if (index !== activeTab) {
@@ -116,7 +117,8 @@ const TabBar: React.FC<TabBarProps> = ({
       </View>
 
       <View style={[{ flex: 1 }, contentContainerStyle]}>
-        <ActiveComponent />
+        {/* Only render the active tab component */}
+        {ActiveComponent && <ActiveComponent />}
       </View>
     </View>
   );

@@ -20,9 +20,10 @@ pub enum TokenType {
 pub fn generate_jwt(user_id: i32, token_type: TokenType) -> String {
     let JWT_SECRET = &*env::var("JWT_SECRET").expect("JWT_SECRET must be set");
 
+    // Set expiration to 30 days for both Access and Refresh tokens
     let expiration = match token_type {
-        TokenType::Access => Utc::now() + Duration::minutes(15),
-        TokenType::Refresh => Utc::now() + Duration::days(30),
+        TokenType::Access => Utc::now() + Duration::days(30),  // Set access token to 30 days
+        TokenType::Refresh => Utc::now() + Duration::days(30), // Set refresh token to 30 days
     };
 
     let claims = Claims {
@@ -38,6 +39,7 @@ pub fn generate_jwt(user_id: i32, token_type: TokenType) -> String {
     )
     .expect("Failed to create token")
 }
+
 
 use actix_web::{Error, FromRequest, HttpRequest, dev::Payload};
 use futures_util::future::{Ready, ready};

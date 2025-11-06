@@ -48,14 +48,14 @@ function InnerStack() {
     async function verifyUser() {
       const token = await storage.getItem("accessToken");
 
-      // ✅ If no token, don't even try fetching the profile
+      // If no token, don't even try fetching the profile
       if (!token || !user) {
         hasFetchedProfile.current = false;
         setLoadingUser(false);
         return;
       }
 
-      // ✅ If user hasn’t completed onboarding, skip
+      //If user hasn’t completed onboarding, skip
       if (user.onboarded !== true) {
         setLoadingUser(false);
         return;

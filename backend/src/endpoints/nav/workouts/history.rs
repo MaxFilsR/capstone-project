@@ -28,6 +28,7 @@ pub async fn create_history(
     pool: web::Data<PgPool>,
     request: web::Json<CreateHistoryRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
+    dbg!();
     let query = sqlx::query!(
         r#"
             INSERT INTO history (user_id, name, exercises, date, duration, points)
@@ -43,6 +44,7 @@ pub async fn create_history(
     .execute(pool.get_ref())
     .await
     .unwrap();
+    dbg!();
 
     let _ = add_exp(user, pool, request.points).await.unwrap();
 

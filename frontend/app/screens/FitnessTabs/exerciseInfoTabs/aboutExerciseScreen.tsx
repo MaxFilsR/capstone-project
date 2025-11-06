@@ -182,6 +182,8 @@ const styles = StyleSheet.create({
   muscleImage: {
     width: SCREEN_WIDTH * 0.8,
     height: SCREEN_WIDTH * 0.8,
+    maxWidth: 400,
+    maxHeight: 400,
     borderRadius: 8,
     borderWidth: 2,
     marginRight: 16,

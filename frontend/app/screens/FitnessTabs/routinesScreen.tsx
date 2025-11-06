@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { tabStyles, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
@@ -16,6 +17,9 @@ import { router } from "expo-router";
 import Popup from "@/components/popupModals/Popup";
 import { useRoutines } from "@/lib/routines-context";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
+
+const IMAGE_BASE_URL =
+  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
 export type Routine = {
   id?: number;
@@ -33,19 +37,35 @@ export type Routine = {
 function RoutineCard({
   routine,
   onEdit,
-  onStart,
+  thumbnailUrl,
 }: {
   routine: Routine;
   onEdit: (r: Routine) => void;
-  onStart: (r: Routine) => void;
+  thumbnailUrl: string | null;
 }) {
-  const handleStartRoutine = () => {
-    onStart(routine);
-  };
-
   return (
-    <Pressable onPress={handleStartRoutine} style={{ position: "relative" }}>
+    <TouchableOpacity onPress={() => onEdit(routine)} activeOpacity={0.7}>
       <View style={styles.card}>
+        {/* Thumbnail */}
+        <View style={styles.thumbnailContainer}>
+          {thumbnailUrl ? (
+            <Image
+              source={{ uri: thumbnailUrl }}
+              style={styles.thumbnail}
+              resizeMode="cover"
+            />
+          ) : (
+            <View style={[styles.thumbnail, styles.thumbnailPlaceholder]}>
+              <Ionicons
+                name="barbell"
+                size={28}
+                color={colorPallet.neutral_4}
+              />
+            </View>
+          )}
+        </View>
+
+        {/* Content */}
         <View style={{ flex: 1, paddingRight: 8 }}>
           <Text style={styles.cardTitle}>{routine.name}</Text>
           {routine.summary && (
@@ -53,24 +73,14 @@ function RoutineCard({
           )}
         </View>
 
-        {/* Arrow icon with a larger touchable area */}
-        <TouchableOpacity
-          onPress={() => onEdit(routine)}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            padding: 8, // visually invisible padding
-          }}
-        >
-          <Ionicons
-            name="chevron-forward"
-            size={18}
-            color={colorPallet.secondary}
-          />
-        </TouchableOpacity>
+        {/* Arrow icon */}
+        <Ionicons
+          name="chevron-forward"
+          size={18}
+          color={colorPallet.secondary}
+        />
       </View>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
@@ -84,25 +94,6 @@ const RoutinesScreen = () => {
   const [selectedRoutine, setSelectedRoutine] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  const handleStartRoutine = (routine: Routine) => {
-    // Transform routine to include full exercise details for starting
-    const routineWithDetails = {
-      ...routine,
-      exercises: routine.exercises.map((ex: any) => {
-        const fullExercise = exercises.find((e) => e.id === ex.id);
-        return {
-          ...fullExercise,
-          ...ex, // Merge with sets, reps, weight, distance
-          uniqueId: `${ex.id}-${Date.now()}-${Math.random()}`,
-        };
-      }),
-    };
-
-    setModalMode("startRoutine");
-    setSelectedRoutine(routineWithDetails);
-    setShowModal(true);
-  };
-
   const handleEditRoutine = (routine: Routine) => {
     // Transform routine to include full exercise details for editing
     const routineWithDetails = {
@@ -111,7 +102,7 @@ const RoutinesScreen = () => {
         const fullExercise = exercises.find((e) => e.id === ex.id);
         return {
           ...fullExercise,
-          ...ex, // Merge with sets, reps, weight, distance
+          ...ex,
           uniqueId: `${ex.id}-${Date.now()}-${Math.random()}`,
         };
       }),
@@ -148,7 +139,7 @@ const RoutinesScreen = () => {
         const fullExercise = exercises.find((e) => e.id === ex.id);
         return fullExercise?.name || ex.id;
       })
-      .slice(0, 4); // Show first 4 exercises
+      .slice(0, 4);
 
     const summary =
       exerciseNames.length > 0
@@ -158,104 +149,125 @@ const RoutinesScreen = () => {
             : "")
         : "No exercises";
 
+    // Get thumbnail from first exercise with images
+    const firstExerciseWithImages = routine.exercises.find((ex) => {
+      const fullExercise = exercises.find((e) => e.id === ex.id);
+      return fullExercise?.images && fullExercise.images.length > 0;
+    });
+
+    const thumbnailUrl = firstExerciseWithImages
+      ? (() => {
+          const fullExercise = exercises.find(
+            (e) => e.id === firstExerciseWithImages.id
+          );
+          return fullExercise?.images?.[0]
+            ? `${IMAGE_BASE_URL}${fullExercise.images[0]}`
+            : null;
+        })()
+      : null;
+
     return {
       ...routine,
-      // Ensure we have an id (use index as fallback if API doesn't provide one)
       id: routine.id ?? index,
       summary,
+      thumbnailUrl,
     };
   });
 
   return (
-    <ScrollView
-      style={tabStyles.tabContent}
-      contentContainerStyle={{ paddingBottom: 100 }}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          tintColor={colorPallet.primary}
-        />
-      }
-    >
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          marginBottom: 16,
-        }}
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        style={tabStyles.tabContent}
+        contentContainerStyle={{ paddingBottom: 100 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={colorPallet.primary}
+          />
+        }
       >
-        {/* Header */}
-        <Text style={[typography.h2]}>My Routines</Text>
-
-        {/* + Button */}
-        <TouchableOpacity
+        <View
           style={{
+            flexDirection: "row",
             alignItems: "center",
-            justifyContent: "center",
-            paddingHorizontal: 8,
-            paddingVertical: 4,
+            justifyContent: "space-between",
+            marginBottom: 16,
           }}
-          onPress={handleCreateRoutine}
         >
-          <Text style={{ color: colorPallet.secondary, fontSize: 30 }}>+</Text>
-        </TouchableOpacity>
-      </View>
+          {/* Header */}
+          <Text style={[typography.h2]}>My Routines</Text>
 
-      {/* Loading State */}
-      {loading && routines.length === 0 ? (
-        <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color={colorPallet.primary} />
-          <Text style={styles.loadingText}>Loading routines...</Text>
-        </View>
-      ) : error ? (
-        /* Error State */
-        <View style={styles.centerContainer}>
-          <Text style={styles.errorText}>Error: {error}</Text>
+          {/* + Button */}
           <TouchableOpacity
-            style={styles.retryButton}
-            onPress={refreshRoutines}
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+            }}
+            onPress={handleCreateRoutine}
           >
-            <Text style={styles.retryButtonText}>Retry</Text>
+            <Text style={{ color: colorPallet.secondary, fontSize: 30 }}>
+              +
+            </Text>
           </TouchableOpacity>
         </View>
-      ) : routines.length === 0 ? (
-        /* Empty State */
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No routines yet</Text>
-          <Text style={styles.emptySubtext}>
-            Create your first workout routine!
-          </Text>
-        </View>
-      ) : (
-        /* Routines List */
-        <View style={{ gap: 12, marginBottom: 28 }}>
-          {routinesWithSummary.map((r, index) => (
-            <RoutineCard
-              key={r.id ? `routine-${r.id}` : `routine-${index}`}
-              routine={r}
-              onEdit={handleEditRoutine}
-              onStart={handleStartRoutine}
-            />
-          ))}
-        </View>
-      )}
 
-      {/* Modal */}
-      <Popup
-        visible={showModal}
-        mode={modalMode}
-        onClose={handleModalClose}
-        routine={
-          modalMode === "editRoutine" || modalMode === "startRoutine"
-            ? selectedRoutine
-            : null
-        }
-      />
+        {/* Loading State */}
+        {loading && routines.length === 0 ? (
+          <View style={styles.centerContainer}>
+            <ActivityIndicator size="large" color={colorPallet.primary} />
+            <Text style={styles.loadingText}>Loading routines...</Text>
+          </View>
+        ) : error ? (
+          /* Error State */
+          <View style={styles.centerContainer}>
+            <Text style={styles.errorText}>Error: {error}</Text>
+            <TouchableOpacity
+              style={styles.retryButton}
+              onPress={refreshRoutines}
+            >
+              <Text style={styles.retryButtonText}>Retry</Text>
+            </TouchableOpacity>
+          </View>
+        ) : routines.length === 0 ? (
+          /* Empty State */
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyText}>No routines yet</Text>
+            <Text style={styles.emptySubtext}>
+              Create your first workout routine!
+            </Text>
+          </View>
+        ) : (
+          /* Routines List */
+          <View style={{ gap: 12, marginBottom: 28 }}>
+            {routinesWithSummary.map((r, index) => (
+              <RoutineCard
+                key={r.id ? `routine-${r.id}` : `routine-${index}`}
+                routine={r}
+                onEdit={handleEditRoutine}
+                thumbnailUrl={r.thumbnailUrl || null}
+              />
+            ))}
+          </View>
+        )}
 
-      <View style={{ height: 24 }} />
-    </ScrollView>
+        {/* Modal */}
+        <Popup
+          visible={showModal}
+          mode={modalMode}
+          onClose={handleModalClose}
+          routine={
+            modalMode === "editRoutine" || modalMode === "startRoutine"
+              ? selectedRoutine
+              : null
+          }
+        />
+
+        <View style={{ height: 24 }} />
+      </ScrollView>
+    </View>
   );
 };
 
@@ -272,10 +284,28 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     borderWidth: 1,
     borderColor: colorPallet.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    gap: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    gap: 12,
     marginBottom: 12,
+  },
+  thumbnailContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    overflow: "hidden",
+    backgroundColor: colorPallet.neutral_darkest,
+    borderWidth: 1,
+    borderColor: colorPallet.neutral_5,
+  },
+  thumbnail: {
+    width: "100%",
+    height: "100%",
+  },
+  thumbnailPlaceholder: {
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colorPallet.neutral_5,
   },
   cardTitle: {
     ...typography.h2,

@@ -62,10 +62,28 @@ export async function submitOnboarding(
   return response.data;
 }
 
-// User Profile Types and Endpoints
-export type UserProfile = {
-  first_name: string;
-  last_name: string;
+// Character Profile Types and Endpoints
+export type CharacterEquipment = {
+  arms: number;
+  background: number;
+  bodies: number;
+  head: number;
+  head_accessory: number;
+  pet: number;
+  weapon: number;
+};
+
+export type CharacterInventory = {
+  arms: number[];
+  backgrounds: number[];
+  bodies: number[];
+  heads: number[];
+  head_accessories: number[];
+  pets: number[];
+  weapons: number[];
+};
+
+export type CharacterProfile = {
   username: string;
   class: {
     name: string;
@@ -75,14 +93,19 @@ export type UserProfile = {
       flexibility: number;
     };
   };
-  workout_schedule: boolean[]; // 7 days
+  level: number;
+  exp_leftover: number;
+  exp_needed: number;
+  streak: number;
+  equipped: CharacterEquipment;
+  inventory: CharacterInventory;
 };
 
 /**
- * Fetch the logged-in user's profile
- * GET /summary/me
+ * Fetch the logged-in user's character profile
+ * GET /character
  */
-export async function getMe(): Promise<UserProfile> {
+export async function getCharacter(): Promise<CharacterProfile> {
   const response = await apiClient.get("/character");
   return response.data;
 }
@@ -244,22 +267,29 @@ export type RecordWorkoutRequest = {
   points: number;
 };
 
+export type GetWorkoutHistoryResponse = {
+  history: WorkoutSession[];
+};
+
 /**
  * Fetch workout history for the authenticated user
  * GET /workouts/history
+ * Returns: { history: WorkoutSession[] }
  */
 export async function getWorkoutHistory(): Promise<WorkoutSession[]> {
-  const response = await apiClient.get("/workouts/history");
-  return response.data;
+  const response = await apiClient.get<GetWorkoutHistoryResponse>(
+    "/workouts/history"
+  );
+  return response.data.history;
 }
 
 /**
  * Record a new workout session
  * POST /workouts/history
+ * Returns: 200 OK (no body)
  */
 export async function recordWorkout(
   payload: RecordWorkoutRequest
-): Promise<WorkoutSession> {
-  const response = await apiClient.post("/workouts/history", payload);
-  return response.data;
+): Promise<void> {
+  await apiClient.post("/workouts/history", payload);
 }

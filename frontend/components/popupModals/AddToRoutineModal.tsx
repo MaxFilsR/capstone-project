@@ -7,11 +7,11 @@ import {
   FlatList,
   ActivityIndicator,
   StyleSheet,
-  Alert,
 } from "react-native";
 import { getRoutines, updateRoutine, RoutineResponse } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
 import { FormButton } from "@/components";
+import Alert from "./Alert";
 
 type AddToRoutineModalProps = {
   visible: boolean;
@@ -28,6 +28,17 @@ export const AddToRoutineModal: React.FC<AddToRoutineModalProps> = ({
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<number[]>([]);
   const [saving, setSaving] = useState(false);
+  const [alert, setAlert] = useState<{
+    visible: boolean;
+    mode: "alert" | "success" | "error" | "confirmAction";
+    title: string;
+    message: string;
+  }>({
+    visible: false,
+    mode: "alert",
+    title: "",
+    message: "",
+  });
 
   useEffect(() => {
     if (visible) fetchRoutines();
@@ -40,6 +51,12 @@ export const AddToRoutineModal: React.FC<AddToRoutineModalProps> = ({
       setRoutines(data.routines || []);
     } catch (e) {
       console.error("Failed to fetch routines:", e);
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Error",
+        message: "Failed to fetch routines. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
@@ -75,14 +92,36 @@ export const AddToRoutineModal: React.FC<AddToRoutineModalProps> = ({
           exercises: updatedExercises,
         });
       }
-      Alert.alert(`Added successfully`);
 
-      onClose();
+      setAlert({
+        visible: true,
+        mode: "success",
+        title: "Success",
+        message: "Exercise added to routine(s) successfully!",
+      });
     } catch (error) {
       console.error("Error adding exercise to routine:", error);
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Error",
+        message: "Failed to add exercise to routine. Please try again.",
+      });
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleAlertConfirm = () => {
+    setAlert({ ...alert, visible: false });
+
+    if (alert.mode === "success") {
+      setTimeout(() => onClose(), 100);
+    }
+  };
+
+  const handleAlertCancel = () => {
+    setAlert({ ...alert, visible: false });
   };
 
   return (
@@ -139,6 +178,15 @@ export const AddToRoutineModal: React.FC<AddToRoutineModalProps> = ({
             />
           </View>
         </View>
+
+        <Alert
+          visible={alert.visible}
+          mode={alert.mode}
+          title={alert.title}
+          message={alert.message}
+          onConfirm={handleAlertConfirm}
+          onCancel={handleAlertCancel}
+        />
       </View>
     </Modal>
   );

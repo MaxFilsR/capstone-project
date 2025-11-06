@@ -23,7 +23,6 @@ export const tabStyles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingTop: 64,
     backgroundColor: colorPallet.neutral_darkest,
   },
   tabBarContainer: {

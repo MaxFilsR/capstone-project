@@ -6,7 +6,6 @@ const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 export const popupModalStyles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.7)",
     justifyContent: "center",
     alignItems: "center",
   },

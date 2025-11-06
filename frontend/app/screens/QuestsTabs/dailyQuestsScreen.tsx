@@ -1,16 +1,8 @@
 import React, { useState } from "react";
 import { router } from "expo-router";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  Pressable,
-} from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Pressable, } from "react-native";
 import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
-import QuickActionButton from "@/components/QuickActionButton";
 
 type QuestStatus = "active" | "inactive" | "completed";
 
@@ -51,7 +43,7 @@ const sampleQuests: Quest[] = [
     },
     progress: 60,
     status: "active",
-    expiresAt: "January 1st",
+    expiresAt: "January 1st"
   },
   {
     id: "3",
@@ -63,7 +55,7 @@ const sampleQuests: Quest[] = [
     },
     progress: 40,
     status: "active",
-    expiresAt: "December 3rd",
+    expiresAt: "December 3rd"
   },
   {
     id: "4",
@@ -75,7 +67,7 @@ const sampleQuests: Quest[] = [
     },
     progress: 50,
     status: "active",
-    expiresAt: "December 18th",
+    expiresAt: "December 18th"
   },
   {
     id: "5",
@@ -87,7 +79,7 @@ const sampleQuests: Quest[] = [
     },
     progress: 45,
     status: "active",
-    expiresAt: "November 21st",
+    expiresAt: "November 21st"
   },
   {
     id: "6",
@@ -99,11 +91,11 @@ const sampleQuests: Quest[] = [
     },
     progress: 45,
     status: "active",
-    expiresAt: "November 10st",
+    expiresAt: "November 10st"
   },
 ];
 
-type FilterType = "all" | "active" | "inactive" | "completed";
+type FilterType = "all" | "active"| "inactive" | "completed";
 
 const DailyQuestsScreen = () => {
   const [selectedFilter, setSelectedFilter] = useState<FilterType>("all");
@@ -195,7 +187,6 @@ const DailyQuestsScreen = () => {
           </View>
         )}
       </ScrollView>
-      <QuickActionButton />
     </View>
   );
 };
@@ -217,10 +208,7 @@ function FilterButton({
       activeOpacity={0.7}
     >
       <Text
-        style={[
-          styles.filterButtonText,
-          isActive && styles.filterButtonTextActive,
-        ]}
+        style={[styles.filterButtonText, isActive && styles.filterButtonTextActive]}
       >
         {label}
       </Text>
@@ -238,41 +226,39 @@ function QuestCard({ quest, onPress }: { quest: Quest; onPress: () => void }) {
   };
 
   return (
-    <>
-      <Pressable style={styles.questCard} onPress={onPress}>
-        <View style={styles.questCardContent}>
-          {/* title */}
-          <Text style={styles.questTitle}>{quest.title}</Text>
+    <Pressable style={styles.questCard} onPress={onPress}>
+      <View style={styles.questCardContent}>
+        {/* title */}
+        <Text style={styles.questTitle}>{quest.title}</Text>
 
-          {/* description */}
-          <Text style={styles.questDescription}>{quest.description}</Text>
+        {/* description */}
+        <Text style={styles.questDescription}>{quest.description}</Text>
 
-          {/* expiry date */}
-          {quest.expiresAt && (
-            <Text style={styles.questExpiry}>Expires: {quest.expiresAt}</Text>
-          )}
+        {/* expiry date */}
+        {quest.expiresAt && (
+          <Text style={styles.questExpiry}>Expires: {quest.expiresAt}</Text>
+        )}
 
-          {/* reward */}
-          <Text style={styles.questReward}>
-            Reward: +{quest.reward.xp} XP
-            {quest.reward.statBonus && `, ${quest.reward.statBonus}`}
-          </Text>
+        {/* reward */}
+        <Text style={styles.questReward}>
+          Reward: +{quest.reward.xp} XP
+          {quest.reward.statBonus && `, ${quest.reward.statBonus}`}
+        </Text>
 
-          {/* progress bar */}
-          <View style={styles.progressBarContainer}>
-            <View
-              style={[
-                styles.progressBarFill,
-                {
-                  width: `${quest.progress}%`,
-                  backgroundColor: getProgressColor(),
-                },
-              ]}
-            />
-          </View>
+        {/* progress bar */}
+        <View style={styles.progressBarContainer}>
+          <View
+            style={[
+              styles.progressBarFill,
+              {
+                width: `${quest.progress}%`,
+                backgroundColor: getProgressColor(),
+              },
+            ]}
+          />
         </View>
-      </Pressable>
-    </>
+      </View>
+    </Pressable>
   );
 }
 
@@ -292,7 +278,8 @@ const styles = StyleSheet.create({
   header: {
     ...typography.h1,
     color: colorPallet.primary,
-    fontWeight: "800",
+    fontSize: 32,
+    fontWeight: "800"
   },
   addButton: {
     alignItems: "center",
@@ -404,7 +391,7 @@ const styles = StyleSheet.create({
   emptyText: {
     ...typography.body,
     color: colorPallet.neutral_4,
-    fontSize: 16,
+    fontSize: 16
   },
 });
 
