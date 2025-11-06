@@ -1,4 +1,7 @@
-use chrono::{NaiveDate, NaiveTime};
+use chrono::{
+    NaiveDate, 
+    // NaiveTime
+};
 use serde::{Deserialize, Serialize};
 use sqlx::types::Json;
 
@@ -31,15 +34,15 @@ pub struct Class {
 }
 
 // Represents a complete user record including login credentials, personal info, chosen class, and workout schedule.
-#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
-pub struct UserInfoRow {
-    pub user_id: i32,
-    pub first_name: String,
-    pub last_name: String,
-    pub username: String,
-    pub class: Class,
-    pub workout_schedule: Vec<bool>,
-}
+// #[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
+// pub struct UserInfoRow {
+//     pub user_id: i32,
+//     pub first_name: String,
+//     pub last_name: String,
+//     pub username: String,
+//     pub class: Class,
+//     pub workout_schedule: Vec<bool>,
+// }
 
 #[derive(Deserialize, Serialize, sqlx::Type, Debug)]
 pub struct Exercise {
@@ -72,7 +75,7 @@ struct HistoryRow {
     pub name: String,
     pub exercises: Json<Vec<Exercise>>,
     pub date: NaiveDate,
-    pub time: NaiveTime,
+    // pub time: NaiveTime,
     pub duration: i32,
     pub points: i32,
 }
@@ -91,4 +94,65 @@ pub struct History {
     // pub time: NaiveTime,
     pub duration: i32,
     pub points: i32,
+}
+
+#[derive(Serialize, Deserialize, sqlx::Type, Debug)]
+pub struct Equipped {
+    pub arms: i32,
+    pub background: i32,
+    pub bodies: i32,
+    pub head: i32,
+    pub head_accessory: i32,
+    pub pet: i32,
+    pub weapon: i32,
+}
+
+#[derive(Serialize, Deserialize, sqlx::Type, Debug)]
+pub struct Inventory {
+    pub arms: Vec<i32>,
+    pub backgrounds: Vec<i32>,
+    pub bodiess: Vec<i32>,
+    pub heads: Vec<i32>,
+    pub head_accessories: Vec<i32>,
+    pub pets: Vec<i32>,
+    pub weapons: Vec<i32>,
+}
+
+
+#[derive(Serialize, Deserialize, sqlx::FromRow)]
+pub struct CharactersRow {
+    pub user_id: i32,
+    pub username: String,
+    pub class: Class,
+    pub level: i32,
+    pub exp_leftover: i32,
+    pub streak: i32,
+    pub equipped: Equipped,
+    pub inventory: Inventory,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct Character {
+    pub username: String,
+    pub class: Class,
+    pub level: i32,
+    pub exp_leftover: i32,
+    pub streak: i32,
+    pub equipped: Equipped,
+    pub inventory: Inventory,
+}
+
+#[derive(Serialize, Deserialize, sqlx::FromRow)]
+pub struct SettingsRow {
+    pub user_id: i32,
+	pub first_name: String,
+	pub last_name: String,
+	pub workout_schedule: Vec<bool>,
+}
+
+#[derive(Serialize, Deserialize, sqlx::Type, Debug)]
+pub struct Settings {
+	pub first_name: String,
+	pub last_name: String,
+	pub workout_schedule: Vec<bool>,
 }

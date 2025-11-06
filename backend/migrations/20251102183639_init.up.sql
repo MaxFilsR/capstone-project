@@ -4,7 +4,7 @@
 -- !Database gainzdb is initially created during postgres initialization, no need to create a new one
 
 -- Enter database to initialize it
-\c gainzdb;
+--\c gainzdb;
 
 -- -- Fix for Daniel
 -- CREATE ROLE dyredhead
