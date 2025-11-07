@@ -15,7 +15,8 @@ pub mod endpoints {
     pub mod onboarding;
 }
 
+pub mod env;
 pub mod jwt;
-pub mod schemas;
 pub mod level;
+pub mod schemas;
 pub mod stats;

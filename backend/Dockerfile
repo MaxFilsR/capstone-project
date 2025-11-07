@@ -49,7 +49,7 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-    # Copy the exercises.json file BEFORE switching to appuser
+# Copy the exercises.json file BEFORE switching to appuser
 COPY /exercises.json /app/exercises.json
 
 USER appuser

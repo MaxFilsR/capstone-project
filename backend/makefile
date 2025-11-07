@@ -11,9 +11,10 @@ no-api:
 dev:
 	docker compose -f compose.yaml -f docker-compose.dev.yml up -d
 
-force-wipe:
+start:
+	make init
+	make dev
+
+stop:
 	-docker compose down
-	-pkill capstone-projec
 	-docker volume prune -af
-	-docker builder prune -af
-	-docker rmi mjaramazovic/gainz-api
