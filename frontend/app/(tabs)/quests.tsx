@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from "react";
 import { router } from "expo-router";
 import {
@@ -409,3 +410,9 @@ const styles = StyleSheet.create({
 });
 
 export default DailyQuestsScreen;
+=======
+import React from "react";
+import DailyQuestsScreen from "../screens/QuestsTabs/dailyQuestsScreen";
+
+export default DailyQuestsScreen;
+>>>>>>> 2cd92ce (Updated placeholder to redirect to Quests tab)
