@@ -1,5 +1,6 @@
 init:
 	docker compose -f docker-compose.noapi.yml up -d
+	sleep 5 # make it wait since it gets an error if it tries to run before the database is ready 
 	cargo sqlx migrate run
 	cargo sqlx prepare
 	cargo test

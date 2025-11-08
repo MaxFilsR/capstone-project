@@ -63,14 +63,15 @@ async fn onboarding(
 
     let _query = sqlx::query!(
         r#"
-            INSERT INTO characters (user_id, username, class, level, exp_leftover, streak) 
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO characters (user_id, username, class, level, exp_leftover, pending_stat_points, streak) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
         "#,
         user.id,
         &request.username,
         class as Class,
-        0,
         1,
+        0,
+        0,
         0,
     )
     .execute(pool.get_ref())

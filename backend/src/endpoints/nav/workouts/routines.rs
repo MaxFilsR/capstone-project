@@ -1,7 +1,7 @@
 use crate::jwt::AuthenticatedUser;
 use crate::schemas::{Exercise, Routine};
 use actix_web::put;
-use actix_web::{HttpResponse, Result, delete, error::ErrorBadRequest, get, post, web};
+use actix_web::{HttpResponse, Result, delete, get, post, web};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use sqlx::types::Json;

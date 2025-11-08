@@ -57,6 +57,8 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::nav::workouts::routines::delete_rotuines)
             .service(endpoints::nav::workouts::routines::read_routines)
             .service(endpoints::nav::workouts::routines::update_rotuines)
+            // Stats
+            .service(endpoints::stats::increase_stat)
     })
     .bind(format!("{actix_web_address}:{actix_web_port}"))?
     .run()

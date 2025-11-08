@@ -13,10 +13,11 @@ pub mod endpoints {
     pub mod auth;
     pub mod constants;
     pub mod onboarding;
+    pub mod stats;
 }
 
 pub mod env;
 pub mod jwt;
 pub mod level;
 pub mod schemas;
-pub mod stats;
+
