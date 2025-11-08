@@ -3,6 +3,7 @@ import { router } from "expo-router";
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Pressable, } from "react-native";
 import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
+import { MaterialIcons } from "@expo/vector-icons";
 
 type QuestStatus = "active" | "inactive" | "completed";
 
@@ -12,14 +13,13 @@ type Quest = {
   description: string;
   reward: {
     xp: number;
-    statBonus?: string;
   };
   progress: number; // 0-100
   status: QuestStatus;
   expiresAt?: string;
 };
 
-// sample quests TAYTA NAA KAIKKI
+// sample quests
 const sampleQuests: Quest[] = [
   {
     id: "1",
@@ -27,7 +27,6 @@ const sampleQuests: Quest[] = [
     description: "Complete 4 strength workouts",
     reward: {
       xp: 200,
-      statBonus: "+4 Strength",
     },
     progress: 75,
     status: "active",
@@ -36,22 +35,20 @@ const sampleQuests: Quest[] = [
   {
     id: "2",
     title: "The Early Bird",
-    description: "Log a workout before 9 AM on 3 different days",
+    description: "Log a workout before 9 AM",
     reward: {
       xp: 400,
-      statBonus: "+3 Discipline",
     },
-    progress: 60,
+    progress: 100,
     status: "active",
     expiresAt: "January 1st"
   },
   {
     id: "3",
     title: "Path of the Unknown",
-    description: "Log a workout type you've never tried before",
+    description: "Log a new type of workout",
     reward: {
       xp: 100,
-      statBonus: "+4 Strength",
     },
     progress: 40,
     status: "active",
@@ -63,7 +60,6 @@ const sampleQuests: Quest[] = [
     description: "Complete 3 cardio sessions this week",
     reward: {
       xp: 200,
-      statBonus: "+3 Endurance",
     },
     progress: 50,
     status: "active",
@@ -75,7 +71,6 @@ const sampleQuests: Quest[] = [
     description: "Log atleast 3 hours yoga, pilates or stretching",
     reward: {
       xp: 200,
-      statBonus: "+4 Flexibility",
     },
     progress: 45,
     status: "active",
@@ -87,7 +82,6 @@ const sampleQuests: Quest[] = [
     description: "Do atleast 240 minutes of cardio in a week",
     reward: {
       xp: 200,
-      statBonus: "+2 Endurance",
     },
     progress: 45,
     status: "active",
@@ -95,10 +89,10 @@ const sampleQuests: Quest[] = [
   },
 ];
 
-type FilterType = "all" | "active"| "inactive" | "completed";
+type FilterType = "active"| "inactive" | "completed";
 
 const DailyQuestsScreen = () => {
-  const [selectedFilter, setSelectedFilter] = useState<FilterType>("all");
+  const [selectedFilter, setSelectedFilter] = useState<FilterType>("active");
 
   // filter quests based on selected filter
   const filteredQuests = sampleQuests.filter((quest) => {
@@ -114,26 +108,10 @@ const DailyQuestsScreen = () => {
     });
   };
 
-  // tulevalle uus quest
-  const handleCreateQuest = () => {
-    // go to create quest screen
-    console.log("Create new quest pressed");
-  };
-
   return (
     <View style={styles.container}>
-      {/* header w/ add button */}
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Quests</Text>
-
-        {/* + Button */}
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={handleCreateQuest}
-          activeOpacity={0.7}
-        >
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
       </View>
 
       {/* filters */}
@@ -144,22 +122,17 @@ const DailyQuestsScreen = () => {
         contentContainerStyle={styles.filterContent}
       >
         <FilterButton
-          label="All Quests"
-          isActive={selectedFilter === "all"}
-          onPress={() => setSelectedFilter("all")}
-        />
-        <FilterButton
           label="Active"
           isActive={selectedFilter === "active"}
           onPress={() => setSelectedFilter("active")}
         />
         <FilterButton
-          label="All Inactive"
+          label="Inactive"
           isActive={selectedFilter === "inactive"}
           onPress={() => setSelectedFilter("inactive")}
         />
         <FilterButton
-          label="All Completed"
+          label="Completed"
           isActive={selectedFilter === "completed"}
           onPress={() => setSelectedFilter("completed")}
         />
@@ -242,7 +215,6 @@ function QuestCard({ quest, onPress }: { quest: Quest; onPress: () => void }) {
         {/* reward */}
         <Text style={styles.questReward}>
           Reward: +{quest.reward.xp} XP
-          {quest.reward.statBonus && `, ${quest.reward.statBonus}`}
         </Text>
 
         {/* progress bar */}
@@ -258,6 +230,13 @@ function QuestCard({ quest, onPress }: { quest: Quest; onPress: () => void }) {
           />
         </View>
       </View>
+
+      {/* Chevron */}
+      <MaterialIcons
+        name="chevron-right"
+        size={24}
+        color={colorPallet.neutral_4}
+      />
     </Pressable>
   );
 }
@@ -280,17 +259,6 @@ const styles = StyleSheet.create({
     color: colorPallet.primary,
     fontSize: 32,
     fontWeight: "800"
-  },
-  addButton: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  addButtonText: {
-    color: colorPallet.secondary,
-    fontSize: 30,
-    fontWeight: "600",
   },
 
   // filter button
@@ -333,6 +301,8 @@ const styles = StyleSheet.create({
 
   // quest card
   questCard: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: colorPallet.neutral_6,
     borderRadius: 12,
     padding: 16,
@@ -341,6 +311,7 @@ const styles = StyleSheet.create({
     borderColor: colorPallet.neutral_5,
   },
   questCardContent: {
+    flex: 1,
     gap: 4,
   },
   questTitle: {
@@ -348,7 +319,6 @@ const styles = StyleSheet.create({
     color: colorPallet.secondary,
     fontSize: 18,
     fontWeight: "700",
-    //marginBottom: 2,
   },
   questDescription: {
     ...typography.body,
