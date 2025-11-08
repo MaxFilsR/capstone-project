@@ -181,7 +181,7 @@ export default function Index() {
         </View>
 
         {/* Inventory Summary */}
-        <View style={styles.section}>
+        {/* <View style={styles.section}>
           <Text style={styles.sectionTitle}>Inventory</Text>
           <View style={styles.inventoryGrid}>
             <View style={styles.inventoryItem}>
@@ -227,7 +227,7 @@ export default function Index() {
               </Text>
             </View>
           </View>
-        </View>
+        </View> */}
 
         {/* Logout Button */}
         <View style={styles.logoutContainer}>
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
   },
   expBarFill: {
     height: "100%",
-    backgroundColor: colorPallet.secondary,
+    backgroundColor: colorPallet.primary,
     borderRadius: 10,
   },
   statsGrid: {
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
   statCard: {
     backgroundColor: colorPallet.neutral_darkest,
     borderRadius: 8,
-    padding: 16,
+    padding: 8,
     marginBottom: 8,
     alignItems: "center",
     borderWidth: 2,
