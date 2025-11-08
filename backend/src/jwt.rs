@@ -1,7 +1,10 @@
+use crate::env;
+use actix_web::{Error, FromRequest, HttpRequest, dev::Payload};
 use chrono::{Duration, Utc};
+use futures_util::future::{Ready, ready};
+use jsonwebtoken::{DecodingKey, Validation, decode};
 use jsonwebtoken::{EncodingKey, Header, encode};
 use serde::{Deserialize, Serialize};
-use std::env;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
@@ -18,11 +21,11 @@ pub enum TokenType {
 }
 
 pub fn generate_jwt(user_id: i32, token_type: TokenType) -> String {
-    let JWT_SECRET = &*env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+    let jwt_secret_key = env::get_env_var_with_key(env::JWT_SECRET_KEY);
 
     // Set expiration to 30 days for both Access and Refresh tokens
     let expiration = match token_type {
-        TokenType::Access => Utc::now() + Duration::days(30),  // Set access token to 30 days
+        TokenType::Access => Utc::now() + Duration::days(30), // Set access token to 30 days
         TokenType::Refresh => Utc::now() + Duration::days(30), // Set refresh token to 30 days
     };
 
@@ -35,15 +38,10 @@ pub fn generate_jwt(user_id: i32, token_type: TokenType) -> String {
     encode(
         &Header::default(),
         &claims,
-        &EncodingKey::from_secret(JWT_SECRET.as_bytes()),
+        &EncodingKey::from_secret(jwt_secret_key.as_bytes()),
     )
     .expect("Failed to create token")
 }
-
-
-use actix_web::{Error, FromRequest, HttpRequest, dev::Payload};
-use futures_util::future::{Ready, ready};
-use jsonwebtoken::{DecodingKey, Validation, decode};
 
 pub struct AuthenticatedUser {
     pub id: i32,
@@ -54,7 +52,7 @@ impl FromRequest for AuthenticatedUser {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
-        let JWT_SECRET = &*env::var("JWT_SECRET").expect("JWT_SECRET must be set");
+        let jwt_secret_key = env::get_env_var_with_key(env::JWT_SECRET_KEY);
 
         let token = req
             .headers()
@@ -69,7 +67,7 @@ impl FromRequest for AuthenticatedUser {
 
                 match decode::<super::jwt::Claims>(
                     &token,
-                    &DecodingKey::from_secret(JWT_SECRET.as_bytes()),
+                    &DecodingKey::from_secret(jwt_secret_key.as_bytes()),
                     &Validation::default(),
                 ) {
                     Ok(data) => ready(Ok(AuthenticatedUser {

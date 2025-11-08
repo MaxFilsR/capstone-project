@@ -25,12 +25,12 @@ services:
             POSTGRES_USER: ${POSTGRES_USER}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
             POSTGRES_DB: ${POSTGRES_DB}
-            JWT_SECRET_KEY: ${JWT_SECRET_KEY} 
         volumes:
             - postgres_data:/var/lib/postgresql #persistent data
             - ./exercises.json:/docker-entrypoint-initdb.d/exercises.json #library of exercises for database to read from
         healthcheck:
-            test: ["CMD", "pg_isready", "-h", "gainzdb", "-U", "${POSTGRES_USER}"]
+            test:
+                ["CMD", "pg_isready", "-h", "gainzdb", "-U", "${POSTGRES_USER}"]
             interval: 5s
             timeout: 5s
             retries: 5
@@ -50,30 +50,32 @@ services:
         build:
             context: .
             dockerfile: Dockerfile
+            network: host # Daniel Yentin: Container fails to fetch alpine packages without this line
         networks:
             - gainz_net
 
     # * pgadmin container
-    pgadmin:
-        image: dpage/pgadmin4
-        container_name: pgadmin4
-        environment:
-            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-            PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
-        restart: always
-        volumes:
-            - pgadmin-data:/var/lib/pgadmin
-        depends_on:
-            - gainzdb
-        healthcheck:
-            test: ["CMD", "pg_isready", "-U", "postgres", "-d", "gainzdb"]
-            interval: 1m30s
-            timeout: 30s
-            retries: 5
-            start_period: 30s
-        networks:
-            - gainz_net
+    # pgadmin:
+    #     image: dpage/pgadmin4
+    #     container_name: pgadmin4
+    #     environment:
+    #         PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+    #         PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    #         PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
+    #     restart: always
+    #     volumes:
+    #         - pgadmin-data:/var/lib/pgadmin
+    #     depends_on:
+    #         - gainzdb
+    #     healthcheck:
+    #         test: ["CMD", "pg_isready", "-U", "postgres", "-d", "gainzdb"]
+    #         interval: 1m30s
+    #         timeout: 30s
+    #         retries: 5
+    #         start_period: 30s
+    #     networks:
+    #         - gainz_net
+
 volumes:
     postgres_data:
         driver: local

@@ -3,7 +3,7 @@ use crate::level::add_exp;
 use crate::schemas::Exercise;
 use crate::schemas::History;
 use actix_web::post;
-use actix_web::{HttpResponse, Result, error::ErrorBadRequest, error::ErrorNotFound, get, web};
+use actix_web::{HttpResponse, Result, get, web};
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;
 use sqlx::types::Json;

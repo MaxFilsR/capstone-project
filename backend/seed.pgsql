@@ -167,6 +167,7 @@ CREATE TABLE IF NOT EXISTS
 		class Class NOT NULL,
 		level INT NOT NULL,
 		exp_leftover INT NOT NULL,
+		pending_stat_points INT NOT NULL,
 		streak INT NOT NULL,
 		equipped Equipped NOT NULL,
 		inventory Inventory NOT NULL
@@ -281,7 +282,7 @@ VALUES
 	(1, 'John', 'Doe', '{TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE}');
 
 INSERT INTO
-	characters (user_id, username, class, level, exp_leftover, streak, equipped, inventory)
+	characters (user_id, username, class, level, exp_leftover, pending_stat_points, streak, equipped, inventory)
 VALUES
 	(1, 'JDoe', ROW('Warrior', ROW(10, 7, 5)), 0, 0, 0, ROW(0, 0, 0, 0, 0, 0, 0), 
 		ROW(
