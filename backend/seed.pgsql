@@ -170,7 +170,8 @@ CREATE TABLE IF NOT EXISTS
 		pending_stat_points INT NOT NULL,
 		streak INT NOT NULL,
 		equipped Equipped NOT NULL,
-		inventory Inventory NOT NULL
+		inventory Inventory NOT NULL,
+		friends INT[] DEFAULT '{}' NOT NULL
 	);
 
 -- Table to store items
@@ -282,9 +283,9 @@ VALUES
 	(1, 'John', 'Doe', '{TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE}');
 
 INSERT INTO
-	characters (user_id, username, class, level, exp_leftover, pending_stat_points, streak, equipped, inventory)
+	characters (user_id, username, class, level, exp_leftover, pending_stat_points, streak, equipped, inventory, friends)
 VALUES
-	(1, 'JDoe', ROW('Warrior', ROW(10, 7, 5)), 0, 0, 0, ROW(0, 0, 0, 0, 0, 0, 0), 
+	(1, 'JDoe', ROW('Warrior', ROW(10, 7, 5)), 0, 0, 0, 0, ROW(0, 0, 0, 0, 0, 0, 0), 
 		ROW(
 			'{0}', 
 			'{0}', 
@@ -293,7 +294,8 @@ VALUES
 			'{0}', 
 			'{0}', 
 			'{0}'
-		)
+		),
+		'{}'
 	);
 
 -- Defining exercises

@@ -111,7 +111,7 @@ pub struct Equipped {
 pub struct Inventory {
     pub arms: Vec<i32>,
     pub backgrounds: Vec<i32>,
-    pub bodiess: Vec<i32>,
+    pub bodies: Vec<i32>,
     pub heads: Vec<i32>,
     pub head_accessories: Vec<i32>,
     pub pets: Vec<i32>,
@@ -130,6 +130,7 @@ pub struct CharactersRow {
     pub streak: i32,
     pub equipped: Equipped,
     pub inventory: Inventory,
+    pub friends: Vec<i32>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -142,6 +143,7 @@ pub struct Character {
     pub streak: i32,
     pub equipped: Equipped,
     pub inventory: Inventory,
+    pub friends: Vec<i32>,
 }
 
 #[derive(Serialize, Deserialize, sqlx::FromRow)]

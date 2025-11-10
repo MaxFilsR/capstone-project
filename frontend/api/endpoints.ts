@@ -294,3 +294,63 @@ export async function recordWorkout(
 ): Promise<void> {
   await apiClient.post("/workouts/history", payload);
 }
+
+// Friends Types
+export type Friend = {
+  user_id: number;
+  username: string;
+  class: {
+    name: string;
+    stats: {
+      strength: number;
+      endurance: number;
+      flexibility: number;
+    };
+  };
+  level: number;
+  exp_leftover: number;
+  exp_needed: number;
+};
+
+export type FriendDetail = {
+  username: string;
+  class: {
+    name: string;
+    stats: {
+      strength: number;
+      endurance: number;
+      flexibility: number;
+    };
+  };
+  level: number;
+  exp_leftover: number;
+  exp_needed: number;
+  streak: number;
+  equipped: CharacterEquipment; 
+};
+
+export async function getFriends(): Promise<Friend[]> {
+  const response = await apiClient.get("/social/friends");
+  return response.data;
+}
+
+export async function getFriendDetail(id: number): Promise<FriendDetail> {
+  const response = await apiClient.get(`/social/friends/${id}`);
+  return response.data;
+}
+
+export async function updateFriends(friend_ids: number[]): Promise<{ message: string; friend_id: number }> {
+  const response = await apiClient.put("/social/friends", { friend_ids });
+  return response.data;
+}
+
+// Stats
+export type IncreaseStatRequest = {
+  stat: "strength" | "endurance" | "flexibility";
+  amount: number;
+};
+
+export type IncreaseStatResponse = {
+  message: string;
+  remaining: number;
+};
