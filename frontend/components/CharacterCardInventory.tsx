@@ -5,6 +5,7 @@ import {
   Image,
   StyleSheet,
   ImageSourcePropType,
+  TouchableOpacity,
 } from "react-native";
 import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
@@ -27,8 +28,15 @@ type CharacterCardInventoryProps = {
     weapon?: ImageSourcePropType | null;
     pet?: ImageSourcePropType | null;
   };
+  stats: {
+    strength: number;
+    endurance: number;
+    flexibility: number;
+  };
+  availableStatPoints?: number;
   borderColor?: string;
   accentColor?: string;
+  onSettingsPress?: () => void;
 };
 
 type EquipmentSlotItemProps = {
@@ -63,8 +71,11 @@ export default function CharacterCardInventory({
   username,
   level,
   equipment,
+  stats,
+  availableStatPoints = 0,
   borderColor = colorPallet.primary,
   accentColor = colorPallet.secondary,
+  onSettingsPress,
 }: CharacterCardInventoryProps) {
   const equipmentSlots: EquipmentSlot[] = [
     { name: "Background", image: equipment.background },
@@ -94,7 +105,9 @@ export default function CharacterCardInventory({
               <Text style={styles.level}>Level {level}</Text>
             )}
           </View>
-          <Ionicons name="settings" size={24} color={colorPallet.secondary} />
+          <TouchableOpacity onPress={onSettingsPress} activeOpacity={0.7}>
+            <Ionicons name="settings" size={24} color={colorPallet.secondary} />
+          </TouchableOpacity>
         </View>
       )}
 
@@ -214,6 +227,40 @@ export default function CharacterCardInventory({
           </View>
         </View>
       </View>
+
+      {/* Stats Section */}
+      <View style={[styles.statsContainer, { borderTopColor: accentColor }]}>
+        {/* Available Stat Points */}
+        {availableStatPoints > 0 && (
+          <View style={styles.availablePointsContainer}>
+            <Ionicons name="add-circle" size={20} color={colorPallet.primary} />
+            <Text style={styles.availablePointsText}>
+              {availableStatPoints}{" "}
+              {availableStatPoints === 1 ? "Point" : "Points"} Available
+            </Text>
+          </View>
+        )}
+
+        {/* Stat Items */}
+        <View style={styles.statsRow}>
+          {[
+            { label: "Strength", value: stats.strength, color: "#D64545" },
+            { label: "Endurance", value: stats.endurance, color: "#E9E34A" },
+            {
+              label: "Flexibility",
+              value: stats.flexibility,
+              color: "#6DE66D",
+            },
+          ].map((stat) => (
+            <View key={stat.label} style={styles.statItem}>
+              <Text style={styles.statValue}>{stat.value}</Text>
+              <Text style={[styles.statLabel, { color: stat.color }]}>
+                {stat.label}
+              </Text>
+            </View>
+          ))}
+        </View>
+      </View>
     </View>
   );
 }
@@ -221,7 +268,7 @@ export default function CharacterCardInventory({
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    backgroundColor: colorPallet.neutral_6,
+    backgroundColor: colorPallet.neutral_darkest,
   },
   headerContainer: {
     flexDirection: "row",
@@ -261,11 +308,6 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
   },
-  absoluteLayer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-  },
   emptyCharacter: {
     width: "100%",
     height: "100%",
@@ -294,25 +336,6 @@ const styles = StyleSheet.create({
     transform: [{ translateY: -50 }],
     zIndex: 100,
     gap: 8,
-  },
-  equipmentHeader: {
-    borderTopWidth: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: colorPallet.neutral_6,
-  },
-  equipmentTitle: {
-    ...typography.h1,
-    fontWeight: "800",
-    fontSize: 16,
-    textTransform: "uppercase",
-    letterSpacing: 1,
-  },
-  equipmentGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    paddingHorizontal: 12,
-    gap: 12,
   },
   slotContainer: {
     width: 60,
@@ -352,5 +375,43 @@ const styles = StyleSheet.create({
     fontSize: 9,
     textAlign: "center",
     fontWeight: "600",
+  },
+  statsContainer: {
+    borderTopWidth: 1,
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+  },
+  availablePointsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingBottom: 12,
+    marginBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colorPallet.neutral_5,
+  },
+  availablePointsText: {
+    ...typography.body,
+    color: colorPallet.primary,
+    fontWeight: "700",
+    fontSize: 14,
+  },
+  statsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  statItem: {
+    alignItems: "center",
+    width: "25%",
+  },
+  statValue: {
+    color: colorPallet.neutral_lightest,
+    fontWeight: "800",
+    fontSize: 18,
+  },
+  statLabel: {
+    marginTop: 2,
+    fontSize: 12,
   },
 });

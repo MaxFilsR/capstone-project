@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   StatusBar,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { containers, typography } from "@/styles/index";
@@ -19,12 +20,15 @@ import CharacterCardInventory from "@/components/CharacterCardInventory";
 import TabBar, { Tab } from "@/components/TabBar";
 import InventoryScreen from "../screens/CharacterTabs/inventoryScreen";
 import ShopScreen from "../screens/CharacterTabs/ShopScreen";
+import Popup from "@/components/popupModals/Popup";
 
 export default function Index() {
   const { logout } = useAuth();
   const [profile, setProfile] = useState<CharacterProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupMode, setPopupMode] = useState<"allocateStats">("allocateStats");
 
   const tabs: Tab[] = [
     { name: "Inventory", component: InventoryScreen },
@@ -96,17 +100,35 @@ export default function Index() {
           bounces={true}
         >
           {/* Character Card */}
-          <CharacterCardInventory
-            username={profile.username}
-            level={profile.level}
-            equipment={{
-              background: require("@/assets/images/equippedItems/green.png"),
-              body: require("@/assets/images/equippedItems/male-ninja-body-greenblack.png"),
-              arms: require("@/assets/images/equippedItems/black1-male-ninja-arm-green.png"),
-              head: require("@/assets/images/equippedItems/black-head-eyepatch.png"),
-              weapon: require("@/assets/images/equippedItems/ninjastar1.png"),
+          <TouchableOpacity
+            onPress={() => {
+              setPopupMode("allocateStats");
+              setPopupVisible(true);
             }}
+          >
+            <CharacterCardInventory
+              username={profile.username}
+              level={profile.level}
+              equipment={{
+                background: require("@/assets/images/equippedItems/green.png"),
+                body: require("@/assets/images/equippedItems/male-ninja-body-greenblack.png"),
+                arms: require("@/assets/images/equippedItems/black1-male-ninja-arm-green.png"),
+                head: require("@/assets/images/equippedItems/black-head-eyepatch.png"),
+                weapon: require("@/assets/images/equippedItems/ninjastar1.png"),
+              }}
+              stats={profile.class.stats}
+              availableStatPoints={profile.pending_stat_points}
+            />
+          </TouchableOpacity>
+
+          <Popup
+            visible={popupVisible}
+            mode={popupMode}
+            onClose={() => setPopupVisible(false)}
+            currentStats={profile.class.stats}
+            availablePoints={profile.pending_stat_points}
           />
+
           <TabBar
             tabs={tabs}
             initialTab={0}
@@ -125,10 +147,6 @@ export default function Index() {
             tabBarStyle={{ margin: 0, padding: 0, borderRadius: 0 }}
             tabButtonStyle={{ borderRadius: 0 }}
           />
-          {/* Logout Button */}
-          <View style={styles.logoutContainer}>
-            <Button title="Logout" onPress={handleLogout} color="#dc3545" />
-          </View>
         </ScrollView>
       </SafeAreaView>
     </>
