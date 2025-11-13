@@ -118,10 +118,6 @@ const DetailsQuestsScreen = () => {
   // how many days until expiry
   const daysUntilExpiry = 7;
 
-  const handleCollectReward = () => {
-    console.log("Collecting reward for quest:", quest.id);
-  };
-
   const handleWorkoutPress = (workoutId: string) => {
     console.log("Navigate to workout details:", workoutId);
     //router.push({pathname: "/screens/FitnessTabs/workoutComplete", params: { id: workoutId }});
@@ -173,17 +169,6 @@ const DetailsQuestsScreen = () => {
 
           {/* progress % */}
           <Text style={styles.progressText}>{quest.progress}%</Text>
-
-          {/* collect reward (only if quest is completed) */}
-          {isCompleted && (
-            <TouchableOpacity
-              style={styles.collectButton}
-              onPress={handleCollectReward}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.collectButtonText}>Collect Reward</Text>
-            </TouchableOpacity>
-          )}
         </View>
 
         {/* contributing workouts */}
@@ -336,23 +321,6 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textAlign: "right",
     marginBottom: 16,
-  },
-
-  // collect reward button
-  collectButton: {
-    backgroundColor: "transparent",
-    borderWidth: 2,
-    borderColor: colorPallet.primary,
-    borderRadius: 12,
-    paddingVertical: 14,
-    alignItems: "center",
-    marginTop: 8,
-  },
-  collectButtonText: {
-    ...typography.body,
-    color: colorPallet.primary,
-    fontSize: 16,
-    fontWeight: "700"
   },
 
   // contributing workouts
