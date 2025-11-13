@@ -33,6 +33,16 @@ pub struct UpdateFriendsRequest {
     pub friend_ids: Vec<i32>,
 }
 
+#[derive(Serialize)]
+pub struct LeaderboardEntry {
+    pub user_id: i32,
+    pub username: String,
+    pub class: Class,
+    pub level: i32,
+    pub exp_leftover: i32,
+    pub exp_needed: i32,
+}
+
 // Returns a list of friends
 #[get("/social/friends")]
 pub async fn read_friends(
@@ -209,5 +219,42 @@ pub async fn update_friends(
             "friend_count": validated_friends.len()
         })),
         Err(_) => HttpResponse::InternalServerError().body("Failed to update friends list"),
+    }
+}
+
+// Get global leaderboard sorted by level and exp
+#[get("/social/leaderboard")]
+pub async fn read_leaderboard(
+    _user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+) -> HttpResponse {
+    let leaderboard_result = sqlx::query!(
+        r#"
+        SELECT user_id, username, class as "class: Class", level, exp_leftover
+        FROM characters
+        ORDER BY level DESC, exp_leftover DESC
+        LIMIT 100
+        "#
+    )
+    .fetch_all(pool.get_ref())
+    .await;
+
+
+    match leaderboard_result {
+        Ok(queries) => {
+            let leaderboard: Vec<LeaderboardEntry> = queries
+                .into_iter()
+                .map(|query| LeaderboardEntry {
+                    user_id: query.user_id,
+                    username: query.username,
+                    class: query.class,
+                    level: query.level,
+                    exp_leftover: query.exp_leftover,
+                    exp_needed: exp_needed_for_level(query.level + 1),
+                })
+                .collect();
+            HttpResponse::Ok().json(leaderboard)
+        }
+        Err(_) => HttpResponse::InternalServerError().body("Failed to fetch leaderboard"),
     }
 }
