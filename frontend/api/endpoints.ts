@@ -96,6 +96,7 @@ export type CharacterProfile = {
   level: number;
   exp_leftover: number;
   exp_needed: number;
+  pending_stat_points: number;
   streak: number;
   equipped: CharacterEquipment;
   inventory: CharacterInventory;

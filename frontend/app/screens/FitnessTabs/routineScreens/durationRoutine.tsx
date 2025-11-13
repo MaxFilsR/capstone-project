@@ -16,7 +16,7 @@ import {
   recordWorkout,
   WorkoutExercise,
   Exercise,
-  getMe,
+  getCharacter, // Changed from getMe to getCharacter
   getWorkoutLibrary,
 } from "@/api/endpoints";
 
@@ -71,10 +71,10 @@ export default function DurationRoutineScreen() {
     async function loadData() {
       try {
         const [profile, library] = await Promise.all([
-          getMe(),
+          getCharacter(), // Changed from getMe() to getCharacter()
           getWorkoutLibrary(),
         ]);
-        setUserStats(profile.class.stats);
+        setUserStats(profile.class.stats); // Access stats from profile.class.stats
         setExerciseLibrary(library);
       } catch (error) {
         console.error("Failed to load data:", error);

@@ -7,6 +7,9 @@ type RoutinesContextType = {
   loading: boolean;
   error: string | null;
   refreshRoutines: () => Promise<void>;
+  addRoutine: (routine: RoutineResponse) => void;
+  updateRoutine: (id: number, routine: RoutineResponse) => void;
+  removeRoutine: (id: number) => void;
 };
 
 const RoutinesContext = createContext<RoutinesContextType | undefined>(
@@ -41,9 +44,26 @@ export const RoutinesProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  // Optimistically add a routine without waiting for API
+  const addRoutine = (routine: RoutineResponse) => {
+    setRoutines((prev) => [...prev, routine]);
+  };
+
+  // Optimistically update a routine
+  const updateRoutine = (id: number, updatedRoutine: RoutineResponse) => {
+    setRoutines((prev) =>
+      prev.map((routine) => (routine.id === id ? updatedRoutine : routine))
+    );
+  };
+
+  // Optimistically remove a routine
+  const removeRoutine = (id: number) => {
+    setRoutines((prev) => prev.filter((routine) => routine.id !== id));
+  };
+
   useEffect(() => {
     fetchRoutines();
-  }, [user]); // ✅ Now refetches when user changes
+  }, [user]);
 
   return (
     <RoutinesContext.Provider
@@ -52,6 +72,9 @@ export const RoutinesProvider: React.FC<{ children: React.ReactNode }> = ({
         loading,
         error,
         refreshRoutines: fetchRoutines,
+        addRoutine,
+        updateRoutine,
+        removeRoutine,
       }}
     >
       {children}
