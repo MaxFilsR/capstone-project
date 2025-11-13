@@ -8,8 +8,8 @@ pub fn exp_needed_for_level(n: i32) -> i32 {
 }
 
 pub async fn add_exp(
-    user: AuthenticatedUser,
-    pool: web::Data<PgPool>,
+    user: &AuthenticatedUser,
+    pool: &web::Data<PgPool>,
     exp: i32,
 ) -> Result<HttpResponse, actix_web::Error> {
     let query = sqlx::query!(

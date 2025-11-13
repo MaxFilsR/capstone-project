@@ -1,12 +1,9 @@
-use chrono::{
-    NaiveDate, 
-    // NaiveTime
-};
 use serde::{Deserialize, Serialize};
 use sqlx::types::Json;
+use sqlx::types::chrono::{NaiveDate, NaiveDateTime};
 
 // Defined stats for a character
-#[derive(sqlx::Type, Debug, Serialize, Deserialize)]
+#[derive(Clone, sqlx::Type, Debug, Serialize, Deserialize)]
 #[sqlx(type_name = "stats")]
 pub struct Stats {
     pub strength: i32,
@@ -17,7 +14,7 @@ pub struct Stats {
 // Fetchimg class info from the database
 // Each class (ex: Warrior, Monk, Assassin) has its own ID, name, and base `Stats`.
 // This struct is used for queries like: `SELECT id, name, stats from classes.
-#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
+#[derive(Clone, Debug, sqlx::FromRow, Serialize, Deserialize)]
 pub struct ClassesRow {
     pub id: i32,
     pub name: String,
@@ -26,7 +23,7 @@ pub struct ClassesRow {
 
 // Represents the class composite type in PostgreSQL.
 // This is stored directly in the `user_info` table to represent a user's chosen class.
-#[derive(sqlx::Type, Debug, Serialize, Deserialize)]
+#[derive(Clone, sqlx::Type, Debug, Serialize, Deserialize)]
 #[sqlx(type_name = "class")]
 pub struct Class {
     pub name: String,
@@ -44,7 +41,7 @@ pub struct Class {
 //     pub workout_schedule: Vec<bool>,
 // }
 
-#[derive(Deserialize, Serialize, sqlx::Type, Debug)]
+#[derive(Clone, Deserialize, Serialize, sqlx::Type, Debug)]
 pub struct Exercise {
     pub id: String,
     pub sets: i32,
@@ -53,7 +50,7 @@ pub struct Exercise {
     pub distance: f32,
 }
 
-#[derive(Debug, sqlx::FromRow, Serialize, Deserialize)]
+#[derive(Clone, Debug, sqlx::FromRow, Serialize, Deserialize)]
 pub struct RoutinesRow {
     pub id: i32,
     pub user_id: i32,
@@ -61,14 +58,14 @@ pub struct RoutinesRow {
     pub exercises: Json<Vec<Exercise>>,
 }
 
-#[derive(Deserialize, Serialize, sqlx::FromRow)]
+#[derive(Clone, Deserialize, Serialize, sqlx::FromRow)]
 pub struct Routine {
     pub id: i32,
     pub name: String,
     pub exercises: Json<Vec<Exercise>>,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 struct HistoryRow {
     pub id: i32,
     pub user_id: i32,
@@ -80,12 +77,13 @@ struct HistoryRow {
     pub points: i32,
 }
 
+#[derive(Clone, Serialize, Deserialize)]
 struct HistoryRoutine {
     pub name: String,
     pub exercises: Json<Vec<Exercise>>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct History {
     pub id: i32,
     pub name: String,
@@ -96,7 +94,7 @@ pub struct History {
     pub points: i32,
 }
 
-#[derive(Serialize, Deserialize, sqlx::Type, Debug)]
+#[derive(Clone, Serialize, Deserialize, sqlx::Type, Debug)]
 pub struct Equipped {
     pub arms: i32,
     pub background: i32,
@@ -107,7 +105,7 @@ pub struct Equipped {
     pub weapon: i32,
 }
 
-#[derive(Serialize, Deserialize, sqlx::Type, Debug)]
+#[derive(Clone, Serialize, Deserialize, sqlx::Type, Debug)]
 pub struct Inventory {
     pub arms: Vec<i32>,
     pub backgrounds: Vec<i32>,
@@ -118,8 +116,7 @@ pub struct Inventory {
     pub weapons: Vec<i32>,
 }
 
-
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct CharactersRow {
     pub user_id: i32,
     pub username: String,
@@ -131,7 +128,7 @@ pub struct CharactersRow {
     pub inventory: Inventory,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct Character {
     pub username: String,
     pub class: Class,
@@ -142,17 +139,81 @@ pub struct Character {
     pub inventory: Inventory,
 }
 
-#[derive(Serialize, Deserialize, sqlx::FromRow)]
+#[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct SettingsRow {
     pub user_id: i32,
-	pub first_name: String,
-	pub last_name: String,
-	pub workout_schedule: Vec<bool>,
+    pub first_name: String,
+    pub last_name: String,
+    pub workout_schedule: Vec<bool>,
 }
 
-#[derive(Serialize, Deserialize, sqlx::Type, Debug)]
+#[derive(Clone, Serialize, Deserialize, sqlx::Type, Debug)]
 pub struct Settings {
-	pub first_name: String,
-	pub last_name: String,
-	pub workout_schedule: Vec<bool>,
+    pub first_name: String,
+    pub last_name: String,
+    pub workout_schedule: Vec<bool>,
+}
+
+#[derive(Clone, Serialize, Deserialize, sqlx::Type, strum_macros::Display, Debug, PartialEq)]
+#[sqlx(type_name = "exercise_category", rename_all = "lowercase")]
+pub enum ExerciseCategory {
+    Powerlifting,
+    Strength,
+    Stretching,
+    Cardio,
+    Olympic_Weightlifting,
+    Strongman,
+    Plyometrics,
+}
+
+#[derive(Clone, Serialize, Deserialize, sqlx::Type, strum_macros::Display, Debug, PartialEq)]
+#[sqlx(type_name = "exercise_muscle", rename_all = "lowercase")]
+pub enum ExerciseMuscle {
+    abdominals,
+    abductors,
+    adductors,
+    biceps,
+    calves,
+    chest,
+    forearms,
+    glutes,
+    hamstrings,
+    lats,
+    lower_back,
+    middle_back,
+    neck,
+    quadriceps,
+    shoulders,
+    traps,
+    tricep,
+}
+
+#[derive(Clone, Serialize, Deserialize, sqlx::Type, strum_macros::Display, Debug, PartialEq)]
+#[sqlx(type_name = "quest_dificulty", rename_all = "lowercase")]
+pub enum QuestDificulty {
+    Easy = 500,
+    Medium = 2_500,
+    Hard = 10_000,
+}
+
+#[derive(Clone, Serialize, Deserialize, sqlx::Type, strum_macros::Display, Debug, PartialEq)]
+#[sqlx(type_name = "quest_status", rename_all = "lowercase")]
+pub enum QuestStatus {
+    Incomplete,
+    Complete,
+}
+
+#[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
+pub struct QuestRow {
+    pub id: i32,
+    pub user_id: i32,
+    pub name: String,
+    pub dificulty: QuestDificulty,
+    pub status: QuestStatus,
+    pub number_of_workouts_needed: i32, // Intervals of 1, Easy: 1, Medium: 3-5, Hard: 10-15
+    pub number_of_workouts_completed: i32,
+    // possible requierments
+    pub workout_duration: Option<i32>, // Intervels of 5, Easy: 5-30, Medium: 45-60, Hard: 90-120
+    pub exercise_category: Option<ExerciseCategory>,
+    pub exercise_muscle: Option<ExerciseMuscle>,
 }

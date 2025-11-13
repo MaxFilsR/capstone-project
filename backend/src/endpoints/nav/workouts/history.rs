@@ -14,12 +14,12 @@ use sqlx::types::chrono::{
 
 #[derive(Deserialize, Serialize)]
 pub struct CreateHistoryRequest {
-    name: String,
-    exercises: Json<Vec<Exercise>>,
-    date: NaiveDate,
-    // time: NaiveTime,
-    duration: i32,
-    points: i32,
+    pub name: String,
+    pub exercises: Json<Vec<Exercise>>,
+    pub date: NaiveDate,
+    // pub time: NaiveTime,
+    pub duration: i32,
+    pub points: i32,
 }
 
 #[post("/workouts/history")]
@@ -28,7 +28,6 @@ pub async fn create_history(
     pool: web::Data<PgPool>,
     request: web::Json<CreateHistoryRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    dbg!();
     let query = sqlx::query!(
         r#"
             INSERT INTO history (user_id, name, exercises, date, duration, points)
@@ -44,9 +43,8 @@ pub async fn create_history(
     .execute(pool.get_ref())
     .await
     .unwrap();
-    dbg!();
 
-    let _ = add_exp(user, pool, request.points).await.unwrap();
+    let _ = add_exp(&user, &pool, request.points).await.unwrap();
 
     return Ok(HttpResponse::Ok().finish());
 }
