@@ -290,7 +290,8 @@ INSERT INTO
 		pending_stat_points,
 		streak,
 		equipped,
-		inventory
+		inventory,
+		friends
 	)
 VALUES
 	(

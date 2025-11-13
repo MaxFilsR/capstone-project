@@ -25,4 +25,5 @@ start:
 
 stop:
 	-docker compose down
-	-docker volume prune -af
+# remove all data from the postgres container 
+	-docker volume prune -af 
