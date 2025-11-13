@@ -239,7 +239,6 @@ pub async fn read_leaderboard(
     .fetch_all(pool.get_ref())
     .await;
 
-
     match leaderboard_result {
         Ok(queries) => {
             let leaderboard: Vec<LeaderboardEntry> = queries
@@ -256,5 +255,71 @@ pub async fn read_leaderboard(
             HttpResponse::Ok().json(leaderboard)
         }
         Err(_) => HttpResponse::InternalServerError().body("Failed to fetch leaderboard"),
+    }
+}
+
+#[get("/social/leaderboard/{id}")]
+pub async fn read_leaderboard_detail(
+    _user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+    user_id: web::Path<i32>,
+) -> HttpResponse {
+    let user_id = user_id.into_inner();
+
+
+    // Check if user is on the leaderboard (top 100)
+    let is_on_leaderboard = sqlx::query!(
+        r#"
+        SELECT EXISTS(
+            SELECT 1 FROM (
+                SELECT user_id
+                FROM characters
+                ORDER BY level DESC, exp_leftover DESC
+                LIMIT 100
+            ) AS leaderboard
+            WHERE user_id = $1
+        ) as "is_on_leaderboard!"
+        "#,
+        user_id
+    )
+    .fetch_one(pool.get_ref())
+    .await;
+
+    match is_on_leaderboard {
+        Ok(query) => {
+            if !query.is_on_leaderboard {
+                return HttpResponse::Forbidden().body("User is not on the leaderboard");
+            }
+        }
+        Err(_) => return HttpResponse::InternalServerError().body("Failed to verify leaderboard status"),
+    }
+
+    // Now fetch the user's details
+    let character_result = sqlx::query!(
+        r#"
+        SELECT username,
+               class as "class: Class", level, exp_leftover, streak, equipped as "equipped: Equipped"
+        FROM characters
+        WHERE user_id = $1
+        "#,
+        user_id
+    )
+    .fetch_one(pool.get_ref())
+    .await;
+
+    match character_result {
+        Ok(query) => {          
+            let response = FriendDetailResponse {
+                username: query.username,
+                class: query.class,
+                level: query.level,
+                exp_leftover: query.exp_leftover,
+                exp_needed: exp_needed_for_level(query.level + 1),
+                streak: query.streak,
+                equipped: query.equipped,
+            };
+            HttpResponse::Ok().json(response)
+        }
+        Err(_) => HttpResponse::NotFound().body("User not found"),
     }
 }

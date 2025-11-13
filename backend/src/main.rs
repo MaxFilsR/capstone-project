@@ -74,6 +74,7 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::nav::social::read_friend_detail)
             .service(endpoints::nav::social::update_friends)
             .service(endpoints::nav::social::read_leaderboard)
+            .service(endpoints::nav::social::read_leaderboard_detail)
     })
     .bind(format!("{actix_web_address}:{actix_web_port}"))?
     .run()
