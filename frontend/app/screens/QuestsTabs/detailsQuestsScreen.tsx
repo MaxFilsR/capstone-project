@@ -169,6 +169,14 @@ const DetailsQuestsScreen = () => {
 
           {/* progress % */}
           <Text style={styles.progressText}>{quest.progress}%</Text>
+
+          {/* cquest completed */}
+          {isCompleted && (
+            <View style={styles.completedBadge}>
+              <MaterialIcons name="check-circle" size={24} color={colorPallet.primary} />
+              <Text style={styles.completedText}>Quest Completed!</Text>
+            </View>
+          )}
         </View>
 
         {/* contributing workouts */}
@@ -321,6 +329,25 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     textAlign: "right",
     marginBottom: 16,
+  },
+
+  // quest completed
+  completedBadge: {
+    flexDirection: "row",
+    justifyContent: "center",
+    backgroundColor: colorPallet.neutral_darkest,
+    gap: 8,
+    borderWidth: 2,
+    borderColor: colorPallet.primary,
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  completedText: {
+    ...typography.body,
+    color: colorPallet.primary,
+    fontSize: 16,
+    fontWeight: "700"
   },
 
   // contributing workouts
