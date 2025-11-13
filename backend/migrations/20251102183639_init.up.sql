@@ -142,12 +142,13 @@ CREATE TABLE IF NOT EXISTS
 		user_id INTEGER PRIMARY KEY REFERENCES users (id),
 		username VARCHAR(255) NOT NULL,
 		class Class NOT NULL,
-		level INTEGER NOT NULL,
-		exp_leftover INTEGER NOT NULL,
-		pending_stat_points INTEGER NOT NULL,
-		streak INTEGER NOT NULL,
-		equipped equipped NOT NULL,
-		inventory inventory NOT NULL
+		level INT NOT NULL,
+		exp_leftover INT NOT NULL,
+		pending_stat_points INT NOT NULL,
+		streak INT NOT NULL,
+		equipped Equipped NOT NULL,
+		inventory Inventory NOT NULL,
+		friends INTEGER[] DEFAULT '{}' NOT NULL
 	);
 
 -- Table to store items
@@ -301,7 +302,8 @@ VALUES
 		0,
 		0,
 		ROW (0, 0, 0, 0, 0, 0, 0),
-		ROW ('{0}', '{0}', '{0}', '{0}', '{0}', '{0}', '{0}')
+		ROW ('{0}', '{0}', '{0}', '{0}', '{0}', '{0}', '{0}'),
+		'{}'
 	);
 
 -- \set exercises_json `cat /docker-entrypoint-initdb.d/exercises.json`;

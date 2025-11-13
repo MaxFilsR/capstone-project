@@ -27,6 +27,7 @@ pub struct ReadCharacterResponse {
     streak: i32,
     equipped: Equipped,
     inventory: Inventory,
+    friends: Vec<i32>,
 }
 
 #[get("/character")]
@@ -37,7 +38,7 @@ pub async fn read_character(
     let query: Character = sqlx::query_as!(
         Character,
         r#"
-            SELECT username, class as "class: Class", level, exp_leftover, pending_stat_points, streak, equipped as "equipped: Equipped", inventory as "inventory: Inventory"
+            SELECT username, class as "class: Class", level, exp_leftover, pending_stat_points, streak, equipped as "equipped: Equipped", inventory as "inventory: Inventory", friends
             FROM characters
             where user_id = $1
         "#,
@@ -57,6 +58,7 @@ pub async fn read_character(
         streak: query.streak,
         equipped: query.equipped,
         inventory: query.inventory,
+        friends: query.friends,
     }));
 }
 
