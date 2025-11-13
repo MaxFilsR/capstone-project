@@ -36,7 +36,7 @@ pub async fn _read_quests(user: &AuthenticatedUser, pool: &web::Data<PgPool>) ->
         QuestRow,
         r#"
             SELECT id, user_id, name,
-                difficulty as "difficulty: Questdifficulty",
+                difficulty as "difficulty: QuestDifficulty",
                 status as "status: QuestStatus",
                 number_of_workouts_needed, 
                 number_of_workouts_completed, 
@@ -132,7 +132,7 @@ pub async fn create_quest(
         "#,
         user.id,
         response.name,
-        response.difficulty as Questdifficulty,
+        response.difficulty as QuestDifficulty,
         response.status as QuestStatus,
         response.number_of_workouts_needed,
         response.number_of_workouts_completed,
