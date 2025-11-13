@@ -61,7 +61,6 @@ export default function Index() {
     await logout();
   };
   const handleSettingsPress = () => {
-    console.log("Settings pressed!");
     setPopupMode("settings");
     setPopupVisible(true);
   };

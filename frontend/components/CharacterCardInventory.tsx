@@ -89,13 +89,6 @@ export default function CharacterCardInventory({
     { name: "Pet", image: equipment.pet },
   ];
 
-  const handleAllocateStatsPress = () => {
-    console.log("Banner pressed in component!");
-    if (onAllocateStatsPress) {
-      onAllocateStatsPress();
-    }
-  };
-
   return (
     <View style={[styles.container, { borderColor }]}>
       {/* Header */}
