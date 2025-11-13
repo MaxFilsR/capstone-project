@@ -37,6 +37,7 @@ type CharacterCardInventoryProps = {
   borderColor?: string;
   accentColor?: string;
   onSettingsPress?: () => void;
+  onAllocateStatsPress?: () => void;
 };
 
 type EquipmentSlotItemProps = {
@@ -76,6 +77,7 @@ export default function CharacterCardInventory({
   borderColor = colorPallet.primary,
   accentColor = colorPallet.secondary,
   onSettingsPress,
+  onAllocateStatsPress,
 }: CharacterCardInventoryProps) {
   const equipmentSlots: EquipmentSlot[] = [
     { name: "Background", image: equipment.background },
@@ -86,6 +88,13 @@ export default function CharacterCardInventory({
     { name: "Weapon", image: equipment.weapon },
     { name: "Pet", image: equipment.pet },
   ];
+
+  const handleAllocateStatsPress = () => {
+    console.log("Banner pressed in component!");
+    if (onAllocateStatsPress) {
+      onAllocateStatsPress();
+    }
+  };
 
   return (
     <View style={[styles.container, { borderColor }]}>
@@ -268,7 +277,7 @@ export default function CharacterCardInventory({
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    backgroundColor: colorPallet.neutral_darkest,
+    backgroundColor: colorPallet.neutral_6,
   },
   headerContainer: {
     flexDirection: "row",
@@ -380,6 +389,17 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     paddingVertical: 14,
     paddingHorizontal: 12,
+    backgroundColor: colorPallet.neutral_darkest,
+  },
+  availablePointsBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 16,
+    borderTopWidth: 1,
+    borderTopColor: colorPallet.neutral_5,
+    backgroundColor: colorPallet.neutral_6,
   },
   availablePointsContainer: {
     flexDirection: "row",
@@ -390,6 +410,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: colorPallet.neutral_5,
+    paddingVertical: 8,
   },
   availablePointsText: {
     ...typography.body,

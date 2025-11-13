@@ -28,7 +28,9 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [popupVisible, setPopupVisible] = useState(false);
-  const [popupMode, setPopupMode] = useState<"allocateStats">("allocateStats");
+  const [popupMode, setPopupMode] = useState<"allocateStats" | "settings">(
+    "settings"
+  );
 
   const tabs: Tab[] = [
     { name: "Inventory", component: InventoryScreen },
@@ -57,6 +59,11 @@ export default function Index() {
 
   const handleLogout = async () => {
     await logout();
+  };
+  const handleSettingsPress = () => {
+    console.log("Settings pressed!");
+    setPopupMode("settings");
+    setPopupVisible(true);
   };
 
   if (loading) {
@@ -110,6 +117,7 @@ export default function Index() {
               username={profile.username}
               level={profile.level}
               equipment={{
+                headAccessory: require("@/assets/images/equippedItems/ninja-mask-6.png"),
                 background: require("@/assets/images/equippedItems/green.png"),
                 body: require("@/assets/images/equippedItems/male-ninja-body-greenblack.png"),
                 arms: require("@/assets/images/equippedItems/black1-male-ninja-arm-green.png"),
@@ -118,6 +126,7 @@ export default function Index() {
               }}
               stats={profile.class.stats}
               availableStatPoints={profile.pending_stat_points}
+              onSettingsPress={handleSettingsPress}
             />
           </TouchableOpacity>
 
@@ -125,8 +134,9 @@ export default function Index() {
             visible={popupVisible}
             mode={popupMode}
             onClose={() => setPopupVisible(false)}
-            currentStats={profile.class.stats}
-            availablePoints={profile.pending_stat_points}
+            onLogout={handleLogout}
+            currentStats={profile?.class.stats}
+            availablePoints={profile?.pending_stat_points}
           />
 
           <TabBar
