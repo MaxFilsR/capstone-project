@@ -1,10 +1,15 @@
-use crate::schemas::*;
-use actix_web::{
-    HttpResponse, post,
-    web::{self},
+use {
+    crate::schemas::*,
+    actix_web::{
+        HttpResponse,
+        post,
+        web::{
+            self,
+        },
+    },
+    serde::Serialize,
+    sqlx::PgPool,
 };
-use serde::Serialize;
-use sqlx::PgPool;
 
 #[derive(Serialize)]
 struct ClassesResponse {

@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS
 -- Table to store more detailed information about users
 CREATE TABLE IF NOT EXISTS
 	settings (
-		user_id INTEGER REFERENCES users (id) PRIMARY KEY,
+		user_id INTEGER PRIMARY KEY REFERENCES users (id),
 		first_name VARCHAR(255) NOT NULL,
 		last_name VARCHAR(255) NOT NULL,
 		workout_schedule BOOLEAN[7] NOT NULL
@@ -139,14 +139,15 @@ CREATE TABLE IF NOT EXISTS
 
 CREATE TABLE IF NOT EXISTS
 	characters (
-		user_id INTEGER REFERENCES users (id) PRIMARY KEY,
+		user_id INTEGER PRIMARY KEY REFERENCES users (id),
 		username VARCHAR(255) NOT NULL,
 		class Class NOT NULL,
 		level INTEGER NOT NULL,
 		exp_leftover INTEGER NOT NULL,
+		pending_stat_points INTEGER NOT NULL,
 		streak INTEGER NOT NULL,
-		equipped Equipped NOT NULL,
-		inventory Inventory NOT NULL
+		equipped equipped NOT NULL,
+		inventory inventory NOT NULL
 	);
 
 -- Table to store items
@@ -248,3 +249,102 @@ CREATE TABLE IF NOT EXISTS
 		exercise_category EXERCISE_CATEGORY,
 		exercise_muscle EXERCISE_MUSCLE
 	);
+
+-- Preseed data 
+INSERT INTO
+	classes (id, name, stats)
+VALUES
+	(1, 'Warrior', ROW (10, 7, 5)),
+	(2, 'Monk', ROW (4, 7, 10)),
+	(3, 'Assassin', ROW (5, 10, 6)),
+	(4, 'Wizard', ROW (7, 7, 7)),
+	(5, 'Gladiator', ROW (6, 5, 5));
+
+INSERT INTO
+	users (email, password, onboarding_complete)
+VALUES
+	(
+		'you@example.com',
+		crypt ('12345678', gen_salt ('md5')),
+		TRUE
+	);
+
+INSERT INTO
+	settings (user_id, first_name, last_name, workout_schedule)
+VALUES
+	(
+		1,
+		'John',
+		'Doe',
+		'{TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE}'
+	);
+
+INSERT INTO
+	characters (
+		user_id,
+		username,
+		class,
+		level,
+		exp_leftover,
+		pending_stat_points,
+		streak,
+		equipped,
+		inventory
+	)
+VALUES
+	(
+		1,
+		'JDoe',
+		ROW ('Warrior', ROW (10, 7, 5)),
+		1,
+		0,
+		0,
+		0,
+		ROW (0, 0, 0, 0, 0, 0, 0),
+		ROW ('{0}', '{0}', '{0}', '{0}', '{0}', '{0}', '{0}')
+	);
+
+-- \set exercises_json `cat /docker-entrypoint-initdb.d/exercises.json`;
+DO $$
+	DECLARE
+  		exercises_json jsonb;
+	BEGIN
+		SELECT 
+			pg_read_file('/docker-entrypoint-initdb.d/exercises.json')::jsonb INTO exercises_json;
+		INSERT INTO
+			exercises
+		SELECT
+			data ->> 'id',
+			data ->> 'name',
+			(data ->> 'force')::exercise_force,
+			(data ->> 'level')::exercise_level,
+			(data ->> 'mechanic')::exercise_mechanic,
+			(data ->> 'equipment')::exercise_equipment,
+			ARRAY (
+				SELECT
+					value::exercise_muscle
+				FROM
+					jsonb_array_elements_text(data -> 'primaryMuscles') AS value
+			),
+			ARRAY (
+				SELECT
+					value::exercise_muscle
+				FROM
+					jsonb_array_elements_text(data -> 'secondaryMuscles') AS value
+			),
+			ARRAY (
+				SELECT
+					value
+				FROM
+					jsonb_array_elements_text(data -> 'instructions') AS value
+			),
+			(data ->> 'category')::exercise_category,
+			ARRAY (
+				SELECT
+					value
+				FROM
+					jsonb_array_elements_text(data -> 'images') AS value
+			)
+		FROM
+			jsonb_array_elements(exercises_json) AS data;
+END $$;

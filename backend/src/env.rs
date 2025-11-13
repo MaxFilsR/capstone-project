@@ -7,6 +7,6 @@ pub const JWT_SECRET_KEY: &str = "JWT_SECRET_KEY";
 
 pub fn get_env_var_with_key(key: &str) -> String {
     let val = env::var(key).expect(&format!("{key} must be set"));
-    println!("env variable {key} = {val}");
+    log::info!("ENV: {key} = {val}");
     return val;
 }

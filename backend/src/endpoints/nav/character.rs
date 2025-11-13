@@ -1,17 +1,29 @@
-use crate::jwt::AuthenticatedUser;
-use crate::level::exp_needed_for_level;
-use crate::schemas::*;
-use actix_web::{HttpResponse, get, put, web};
-use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+use {
+    crate::{
+        jwt::AuthenticatedUser,
+        level::exp_needed_for_level,
+        schemas::*,
+    },
+    actix_web::{
+        HttpResponse,
+        get,
+        web,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+    sqlx::PgPool,
+};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct ReadCharacterResponse {
     username: String,
     class: Class,
     level: i32,
     exp_leftover: i32,
     exp_needed: i32,
+    pending_stat_points: i32,
     streak: i32,
     equipped: Equipped,
     inventory: Inventory,
@@ -25,7 +37,7 @@ pub async fn read_character(
     let query: Character = sqlx::query_as!(
         Character,
         r#"
-            SELECT username, class as "class: Class", level, exp_leftover, streak, equipped as "equipped: Equipped", inventory as "inventory: Inventory"
+            SELECT username, class as "class: Class", level, exp_leftover, pending_stat_points, streak, equipped as "equipped: Equipped", inventory as "inventory: Inventory"
             FROM characters
             where user_id = $1
         "#,
@@ -41,6 +53,7 @@ pub async fn read_character(
         level: query.level,
         exp_leftover: query.exp_leftover,
         exp_needed: exp_needed_for_level(query.level + 1),
+        pending_stat_points: query.pending_stat_points,
         streak: query.streak,
         equipped: query.equipped,
         inventory: query.inventory,
@@ -58,7 +71,7 @@ pub async fn read_character(
 //     todo!();
 // }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct ReadSettingsResponse {
     email: String,
     first_name: String,

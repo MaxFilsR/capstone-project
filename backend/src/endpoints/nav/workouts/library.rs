@@ -1,9 +1,20 @@
 use std::fs;
 
-use actix_web::{HttpResponse, Result, get, web};
-use serde::{Deserialize, Serialize};
+use {
+    actix_web::{
+        HttpResponse,
+        Result,
+        get,
+        web,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize, Serialize)]
+#[allow(non_snake_case)]
 pub struct Exercise {
     id: String,
     name: String,

@@ -1,15 +1,31 @@
-use crate::jwt::AuthenticatedUser;
-use crate::level::add_exp;
-use crate::schemas::Exercise;
-use crate::schemas::History;
-use actix_web::post;
-use actix_web::{HttpResponse, Result, error::ErrorBadRequest, error::ErrorNotFound, get, web};
-use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
-use sqlx::types::Json;
-use sqlx::types::chrono::{
-    NaiveDate,
-    // NaiveTime,
+use {
+    crate::{
+        endpoints::nav::quests::apply_workout_to_quests,
+        jwt::AuthenticatedUser,
+        level::add_exp,
+        schemas::{
+            Exercise,
+            History,
+        },
+    },
+    actix_web::{
+        HttpResponse,
+        Result,
+        get,
+        post,
+        web,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+    sqlx::{
+        PgPool,
+        types::{
+            Json,
+            chrono::NaiveDate,
+        },
+    },
 };
 
 #[derive(Deserialize, Serialize)]
@@ -28,7 +44,7 @@ pub async fn create_history(
     pool: web::Data<PgPool>,
     request: web::Json<CreateHistoryRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    let query = sqlx::query!(
+    let _query = sqlx::query!(
         r#"
             INSERT INTO history (user_id, name, exercises, date, duration, points)
             VALUES ($1, $2, $3, $4, $5, $6)
@@ -44,7 +60,8 @@ pub async fn create_history(
     .await
     .unwrap();
 
-    let _ = add_exp(&user, &pool, request.points).await.unwrap();
+    add_exp(&user, &pool, request.points).await.unwrap();
+    apply_workout_to_quests(user, pool, &request.0).await;
 
     return Ok(HttpResponse::Ok().finish());
 }

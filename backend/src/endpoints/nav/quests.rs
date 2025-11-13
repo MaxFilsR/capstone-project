@@ -1,12 +1,35 @@
-use super::workouts::history::CreateHistoryRequest;
-use crate::jwt::AuthenticatedUser;
-use crate::level::add_exp;
-use crate::schemas::*;
-use actix_web::post;
-use actix_web::{HttpResponse, Result, error::ErrorBadRequest, error::ErrorNotFound, get, web};
-use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
-use sqlx::types::chrono::NaiveDateTime;
+use {
+    super::workouts::history::CreateHistoryRequest,
+    crate::{
+        jwt::AuthenticatedUser,
+        level::add_exp,
+        schemas::*,
+    },
+    actix_web::{
+        self,
+        HttpResponse,
+        Result,
+        get,
+        post,
+        web,
+    },
+    rand::{
+        distr::{
+            Alphanumeric,
+            SampleString,
+        },
+        seq::{
+            IndexedRandom,
+            SliceRandom,
+        },
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+    sqlx::PgPool,
+    strum::VariantArray,
+};
 
 pub async fn _read_quests(user: &AuthenticatedUser, pool: &web::Data<PgPool>) -> Vec<QuestRow> {
     let query: Vec<QuestRow> = sqlx::query_as!(
@@ -32,7 +55,7 @@ pub async fn _read_quests(user: &AuthenticatedUser, pool: &web::Data<PgPool>) ->
     return query;
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct ReadQuestsResponse {
     pub quests: Vec<QuestRow>,
 }
@@ -44,6 +67,84 @@ pub async fn read_quests(
 ) -> Result<HttpResponse, actix_web::Error> {
     let quests = _read_quests(&user, &pool).await;
     return Ok(HttpResponse::Ok().json(ReadQuestsResponse { quests: quests }));
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct CreateQuestRequest {
+    pub dificulty: QuestDificulty,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct CreateQuestResponse {
+    pub name: String,
+    pub dificulty: QuestDificulty,
+    pub status: QuestStatus,
+    pub number_of_workouts_needed: i32, // Intervals of 1, Easy: 1, Medium: 3-5, Hard: 10-15
+    pub number_of_workouts_completed: i32,
+    // possible requierments
+    pub workout_duration: Option<i32>, // Intervels of 5, Easy: 5-30, Medium: 45-60, Hard: 90-120
+    pub exercise_category: Option<ExerciseCategory>,
+    pub exercise_muscle: Option<ExerciseMuscle>,
+}
+
+#[post("/quests")]
+pub async fn create_quest(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+    request: web::Json<CreateQuestRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let mut rng = rand::rng();
+    let mut fields = vec!["workout_duration", "exercise_category", "exercise_muscle"];
+    fields.shuffle(&mut rng);
+
+    let mut workout_duration: Option<i32> = None;
+    let mut exercise_category: Option<ExerciseCategory> = None;
+    let mut exercise_muscle: Option<ExerciseMuscle> = None;
+
+    for field in fields.into_iter().take(request.dificulty.requierments()) {
+        match field {
+            "workout_duration" => workout_duration = Some(request.dificulty.workout_duration()),
+            "exercise_category" => {
+                exercise_category = Some(*ExerciseCategory::VARIANTS.choose(&mut rng).unwrap())
+            }
+            "exercise_muscle" => {
+                exercise_muscle = Some(*ExerciseMuscle::VARIANTS.choose(&mut rng).unwrap())
+            }
+            _ => unreachable!(),
+        }
+    }
+
+    let response = CreateQuestResponse {
+        name: Alphanumeric.sample_string(&mut rng, 16),
+        dificulty: request.dificulty,
+        status: QuestStatus::Incomplete,
+        number_of_workouts_needed: request.dificulty.number_of_workouts_needed(),
+        number_of_workouts_completed: 0,
+        workout_duration: workout_duration,
+        exercise_category: exercise_category,
+        exercise_muscle: exercise_muscle,
+    };
+
+    let _query = sqlx::query!(
+        r#"
+            INSERT INTO quests (user_id, name, dificulty, status, number_of_workouts_needed, number_of_workouts_completed, workout_duration, exercise_category, exercise_muscle)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        "#,
+        user.id,
+        response.name,
+        response.dificulty as QuestDificulty,
+        response.status as QuestStatus,
+        response.number_of_workouts_needed,
+        response.number_of_workouts_completed,
+        response.workout_duration,
+        response.exercise_category as Option<ExerciseCategory>,
+        response.exercise_muscle as Option<ExerciseMuscle>,
+    )
+    .fetch_all(pool.get_ref())
+    .await
+    .unwrap();
+
+    return Ok(HttpResponse::Ok().json(response));
 }
 
 pub async fn apply_workout_to_quests(
@@ -61,7 +162,7 @@ pub async fn apply_workout_to_quests(
 
             if number_of_workouts_completed == quest.number_of_workouts_needed {
                 // Quest has been completed
-                let _ = sqlx::query!(
+                let _query = sqlx::query!(
                     r#"
                         UPDATE quests
                         SET number_of_workouts_completed = $2, status = $3
@@ -75,15 +176,13 @@ pub async fn apply_workout_to_quests(
                 .await
                 .unwrap();
 
-                let exp = quest.dificulty.clone() as i32;
-
-                add_exp(&user, &pool, exp).await.unwrap();
+                add_exp(&user, &pool, quest.dificulty.exp()).await.unwrap();
             }
         }
     }
 }
 
-pub async fn workout_applies_to_quest(
+async fn workout_applies_to_quest(
     pool: &web::Data<PgPool>,
     quest: &QuestRow,
     workout: &CreateHistoryRequest,
@@ -114,6 +213,32 @@ pub async fn workout_applies_to_quest(
 
         flag &= categories.contains(exercise_category);
     }
-    if let Some(exercise_muscle) = &quest.exercise_muscle {}
+    if let Some(exercise_muscle) = &quest.exercise_muscle {
+        let ids: Vec<String> = workout
+            .exercises
+            .0
+            .iter()
+            .map(|exercise| exercise.id.clone())
+            .collect();
+
+        let query = sqlx::query!(
+            r#"
+                SELECT primary_muscles as "primary_muscles: Vec<ExerciseMuscle>", secondary_muscles as "secondary_muscles: Vec<ExerciseMuscle>"
+                FROM exercises
+                WHERE id = ANY($1)
+            "#,
+            &ids
+        )
+        .fetch_all(pool.get_ref())
+        .await
+        .unwrap();
+
+        flag &= query
+            .iter()
+            .flat_map(|record| &record.primary_muscles)
+            .chain(query.iter().flat_map(|record| &record.secondary_muscles))
+            .collect::<Vec<&ExerciseMuscle>>()
+            .contains(&exercise_muscle);
+    }
     return flag;
 }

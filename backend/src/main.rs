@@ -1,19 +1,26 @@
-use actix_cors::Cors;
-use actix_web::{
-    App, HttpServer,
-    cookie::time::format_description::well_known::iso8601::Config,
-    middleware::Logger,
-    test,
-    web::{self, get},
+use {
+    actix_cors::Cors,
+    actix_web::{
+        App,
+        HttpServer,
+        middleware::Logger,
+        web,
+    },
+    capstone_project::{
+        endpoints,
+        env,
+    },
+    env_logger::Env,
+    sqlx::PgPool,
 };
-use capstone_project::{endpoints, env};
-use env_logger::Env;
-use sqlx::PgPool;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // dotenv().ok();
-    env_logger::init_from_env(Env::default().default_filter_or("info"));
+    env_logger::init_from_env(
+        Env::default()
+            .default_filter_or("info")
+            .default_write_style_or("auto"),
+    );
 
     let actix_web_address = env::get_env_var_with_key(env::ACTIX_WEB_ADDRESS);
     let actix_web_port = env::get_env_var_with_key(env::ACTIX_WEB_PORT);
@@ -22,11 +29,11 @@ async fn main() -> std::io::Result<()> {
     let pool = PgPool::connect(&database_url).await.unwrap();
 
     match sqlx::migrate!("./migrations").run(&pool).await {
-        Ok(_) => println!("Migrations executed successfully."),
-        Err(e) => eprintln!("Error executing migrations: {}", e),
+        Ok(_) => log::info!("Migrations executed successfully."),
+        Err(e) => log::error!("Error executing migrations: {}", e),
     };
 
-    println!("Server is running on https://localhost:{actix_web_port}");
+    log::info!("Server is running on https://localhost:{actix_web_port}");
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -57,6 +64,8 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::nav::workouts::routines::delete_rotuines)
             .service(endpoints::nav::workouts::routines::read_routines)
             .service(endpoints::nav::workouts::routines::update_rotuines)
+            // Stats
+            .service(endpoints::stats::increase_stat)
     })
     .bind(format!("{actix_web_address}:{actix_web_port}"))?
     .run()
@@ -65,21 +74,26 @@ async fn main() -> std::io::Result<()> {
     Ok(())
 }
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use actix_web::{http::StatusCode, test, App};
-//     use capstone_project::endpoints::auth::sign_up;
+#[cfg(test)]
+mod tests {
+    // use {
+    //     super::*,
+    //     actix_web::{
+    //         App,
+    //         http::StatusCode,
+    //         test,
+    //     },
+    //     capstone_project::endpoints::auth::sign_up,
+    // };
 
-//     #[actix_web::test]
-//     async fn test_signup() {
-//         let app = test::init_service(App::new().service(sign_up)).await;
+    // #[actix_web::test]
+    // async fn test_signup() {
+    //     let app = test::init_service(App::new().service(sign_up)).await;
 
-//         let request = test::TestRequest::post().uri("/auth/sign-up").to_request();
+    //     let request = test::TestRequest::post().uri("/auth/sign-up").to_request();
 
-//         let response = test::call_service(&app, request).await;
+    //     let response = test::call_service(&app, request).await;
 
-//         assert_eq!(response.status(), StatusCode::OK);
-
-//     }
-// }
+    //     assert_eq!(response.status(), StatusCode::OK);
+    // }
+}

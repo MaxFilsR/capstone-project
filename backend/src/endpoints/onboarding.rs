@@ -1,7 +1,18 @@
-use crate::{jwt::AuthenticatedUser, schemas::*};
-use actix_web::{HttpResponse, Result, error::ErrorBadRequest, post, web};
-use serde::Deserialize;
-use sqlx::PgPool;
+use {
+    crate::{
+        jwt::AuthenticatedUser,
+        schemas::*,
+    },
+    actix_web::{
+        HttpResponse,
+        Result,
+        error::ErrorBadRequest,
+        post,
+        web,
+    },
+    serde::Deserialize,
+    sqlx::PgPool,
+};
 
 #[derive(Deserialize)]
 struct OnboardingRequest {
@@ -63,15 +74,18 @@ async fn onboarding(
 
     let _query = sqlx::query!(
         r#"
-            INSERT INTO characters (user_id, username, class, level, exp_leftover, streak) 
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO characters (user_id, username, class, level, exp_leftover, pending_stat_points, streak, equipped, inventory)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         "#,
         user.id,
         &request.username,
         class as Class,
-        0,
         1,
         0,
+        0,
+        0,
+        Equipped::default() as Equipped,
+    	Inventory::default() as Inventory,
     )
     .execute(pool.get_ref())
     .await
