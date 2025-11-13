@@ -112,7 +112,7 @@ CREATE TYPE exercise_category AS ENUM(
 	'plyometrics'
 );
 
-CREATE TYPE quest_dificulty AS ENUM('easy', 'medium', 'hard');
+CREATE TYPE quest_difficulty AS ENUM('easy', 'medium', 'hard');
 
 CREATE TYPE quest_status AS ENUM('incomplete', 'complete');
 
@@ -241,11 +241,11 @@ CREATE TABLE IF NOT EXISTS
 		id SERIAL PRIMARY KEY,
 		user_id INTEGER NOT NULL REFERENCES users (id),
 		name TEXT NOT NULL,
-		dificulty quest_dificulty NOT NULL,
+		difficulty quest_difficulty NOT NULL,
 		status quest_status NOT NULL,
 		number_of_workouts_needed INTEGER NOT NULL,
 		number_of_workouts_completed INTEGER NOT NULL,
-		-- possible requierments
+		-- possible requirements
 		workout_duration INTEGER,
 		exercise_category EXERCISE_CATEGORY,
 		exercise_muscle EXERCISE_MUSCLE

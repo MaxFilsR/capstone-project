@@ -36,7 +36,7 @@ pub async fn _read_quests(user: &AuthenticatedUser, pool: &web::Data<PgPool>) ->
         QuestRow,
         r#"
             SELECT id, user_id, name,
-                dificulty as "dificulty: QuestDificulty",
+                difficulty as "difficulty: Questdifficulty",
                 status as "status: QuestStatus",
                 number_of_workouts_needed, 
                 number_of_workouts_completed, 
@@ -71,18 +71,18 @@ pub async fn read_quests(
 
 #[derive(Deserialize, Serialize)]
 pub struct CreateQuestRequest {
-    pub dificulty: QuestDificulty,
+    pub difficulty: QuestDifficulty,
 }
 
 #[derive(Deserialize, Serialize)]
 pub struct CreateQuestResponse {
     pub name: String,
-    pub dificulty: QuestDificulty,
+    pub difficulty: QuestDifficulty,
     pub status: QuestStatus,
-    pub number_of_workouts_needed: i32, // Intervals of 1, Easy: 1, Medium: 3-5, Hard: 10-15
+    pub number_of_workouts_needed: i32,
     pub number_of_workouts_completed: i32,
-    // possible requierments
-    pub workout_duration: Option<i32>, // Intervels of 5, Easy: 5-30, Medium: 45-60, Hard: 90-120
+    // possible requirements
+    pub workout_duration: Option<i32>,
     pub exercise_category: Option<ExerciseCategory>,
     pub exercise_muscle: Option<ExerciseMuscle>,
 }
@@ -101,9 +101,9 @@ pub async fn create_quest(
     let mut exercise_category: Option<ExerciseCategory> = None;
     let mut exercise_muscle: Option<ExerciseMuscle> = None;
 
-    for field in fields.into_iter().take(request.dificulty.requierments()) {
+    for field in fields.into_iter().take(request.difficulty.requirements()) {
         match field {
-            "workout_duration" => workout_duration = Some(request.dificulty.workout_duration()),
+            "workout_duration" => workout_duration = Some(request.difficulty.workout_duration()),
             "exercise_category" => {
                 exercise_category = Some(*ExerciseCategory::VARIANTS.choose(&mut rng).unwrap())
             }
@@ -116,9 +116,9 @@ pub async fn create_quest(
 
     let response = CreateQuestResponse {
         name: Alphanumeric.sample_string(&mut rng, 16),
-        dificulty: request.dificulty,
+        difficulty: request.difficulty,
         status: QuestStatus::Incomplete,
-        number_of_workouts_needed: request.dificulty.number_of_workouts_needed(),
+        number_of_workouts_needed: request.difficulty.number_of_workouts_needed(),
         number_of_workouts_completed: 0,
         workout_duration: workout_duration,
         exercise_category: exercise_category,
@@ -127,12 +127,12 @@ pub async fn create_quest(
 
     let _query = sqlx::query!(
         r#"
-            INSERT INTO quests (user_id, name, dificulty, status, number_of_workouts_needed, number_of_workouts_completed, workout_duration, exercise_category, exercise_muscle)
+            INSERT INTO quests (user_id, name, difficulty, status, number_of_workouts_needed, number_of_workouts_completed, workout_duration, exercise_category, exercise_muscle)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         "#,
         user.id,
         response.name,
-        response.dificulty as QuestDificulty,
+        response.difficulty as Questdifficulty,
         response.status as QuestStatus,
         response.number_of_workouts_needed,
         response.number_of_workouts_completed,
@@ -176,7 +176,7 @@ pub async fn apply_workout_to_quests(
                 .await
                 .unwrap();
 
-                add_exp(&user, &pool, quest.dificulty.exp()).await.unwrap();
+                add_exp(&user, &pool, quest.difficulty.exp()).await.unwrap();
             }
         }
     }

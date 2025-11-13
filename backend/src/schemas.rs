@@ -208,43 +208,43 @@ pub enum ExerciseMuscle {
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, sqlx::Type, PartialEq)]
-#[sqlx(type_name = "quest_dificulty", rename_all = "lowercase")]
-pub enum QuestDificulty {
+#[sqlx(type_name = "quest_difficulty", rename_all = "lowercase")]
+pub enum QuestDifficulty {
     Easy,
     Medium,
     Hard,
 }
 
-impl QuestDificulty {
+impl QuestDifficulty {
     pub fn exp(self) -> i32 {
         match self {
-            QuestDificulty::Easy => 500,
-            QuestDificulty::Medium => 2_500,
-            QuestDificulty::Hard => 10_000,
+            QuestDifficulty::Easy => 500,
+            QuestDifficulty::Medium => 2_500,
+            QuestDifficulty::Hard => 10_000,
         }
     }
 
     pub fn number_of_workouts_needed(self) -> i32 {
         match self {
-            QuestDificulty::Easy => 1,
-            QuestDificulty::Medium => rand::random_range(3..=5),
-            QuestDificulty::Hard => rand::random_range(10..=15),
+            QuestDifficulty::Easy => 1,
+            QuestDifficulty::Medium => rand::random_range(3..=5),
+            QuestDifficulty::Hard => rand::random_range(10..=15),
         }
     }
 
-    pub fn requierments(self) -> usize {
+    pub fn requirements(self) -> usize {
         match self {
-            QuestDificulty::Easy => 1,
-            QuestDificulty::Medium => 2,
-            QuestDificulty::Hard => 3,
+            QuestDifficulty::Easy => 1,
+            QuestDifficulty::Medium => 2,
+            QuestDifficulty::Hard => 3,
         }
     }
 
     pub fn workout_duration(self) -> i32 {
         match self {
-            QuestDificulty::Easy => rand::random_range(1..=6) * 5,
-            QuestDificulty::Medium => rand::random_range(9..=12) * 5,
-            QuestDificulty::Hard => rand::random_range(16..=24) * 5,
+            QuestDifficulty::Easy => rand::random_range(1..=6) * 5,
+            QuestDifficulty::Medium => rand::random_range(9..=12) * 5,
+            QuestDifficulty::Hard => rand::random_range(16..=24) * 5,
         }
     }
 }
@@ -261,12 +261,12 @@ pub struct QuestRow {
     pub id: i32,
     pub user_id: i32,
     pub name: String,
-    pub dificulty: QuestDificulty,
+    pub difficulty: QuestDifficulty,
     pub status: QuestStatus,
-    pub number_of_workouts_needed: i32, // Intervals of 1, Easy: 1, Medium: 3-5, Hard: 10-15
+    pub number_of_workouts_needed: i32,
     pub number_of_workouts_completed: i32,
-    // possible requierments
-    pub workout_duration: Option<i32>, // Intervels of 5, Easy: 5-30, Medium: 45-60, Hard: 90-120
+    // possible requirements
+    pub workout_duration: Option<i32>,
     pub exercise_category: Option<ExerciseCategory>,
     pub exercise_muscle: Option<ExerciseMuscle>,
 }
