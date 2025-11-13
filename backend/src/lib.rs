@@ -14,7 +14,6 @@ pub mod endpoints {
     pub mod constants;
     pub mod onboarding;
     pub mod stats;
-    pub mod stats;
 }
 
 pub mod env;
