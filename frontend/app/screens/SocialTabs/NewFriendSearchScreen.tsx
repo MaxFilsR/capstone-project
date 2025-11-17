@@ -12,13 +12,11 @@ import {
 import { tabStyles } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
-import {
-  getLeaderboard,
-  addFriend,
-  type LeaderboardEntry,
-} from "@/api/endpoints";
+import { getLeaderboard, type LeaderboardEntry } from "@/api/endpoints";
+import { useFriends } from "@/lib/friends-context";
 
 const NewFriendSearchScreen = () => {
+  const { addFriend } = useFriends();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(false);
@@ -228,7 +226,6 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: colorPallet.neutral_4,
     color: colorPallet.neutral_lightest,
-
     fontSize: 16,
   },
   searchButton: {

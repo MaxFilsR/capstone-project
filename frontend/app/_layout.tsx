@@ -11,6 +11,7 @@ import { Anton_400Regular } from "@expo-google-fonts/anton";
 import { WorkoutLibraryProvider } from "@/lib/workout-library-context";
 import { RoutinesProvider } from "@/lib/routines-context";
 import { storage } from "@/utils/storageHelper";
+import { FriendsProvider } from "@/lib/friends-context";
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
@@ -32,7 +33,9 @@ export default function RootLayout() {
     <AuthProvider>
       <WorkoutLibraryProvider>
         <RoutinesProvider>
-          <InnerStack />
+          <FriendsProvider>
+            <InnerStack />
+          </FriendsProvider>
         </RoutinesProvider>
       </WorkoutLibraryProvider>
     </AuthProvider>

@@ -10,50 +10,23 @@ import {
 import { tabStyles } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
-import { getFriends, type FriendSummary } from "@/api/endpoints";
+import { FriendSummary } from "@/api/endpoints";
+import { useFriends } from "@/lib/friends-context";
 
 const FriendsScreen = () => {
-  const [friends, setFriends] = useState<FriendSummary[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { friends } = useFriends();
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    loadFriends();
-  }, []);
-
-  const loadFriends = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const friendsData = await getFriends();
-      setFriends(friendsData);
-    } catch (err) {
-      console.error("Error loading friends:", err);
-      setError("Failed to load friends. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleFriendClick = (friend: FriendSummary) => {
     console.log("Friend card clicked:", friend);
     // Navigate to friend profile or show details
   };
 
-  if (loading) {
-    return (
-      <View style={[tabStyles.tabContent, styles.centerContainer]}>
-        <ActivityIndicator size="large" color={colorPallet.primary} />
-        <Text style={styles.loadingText}>Loading friends...</Text>
-      </View>
-    );
-  }
-
   if (error) {
     return (
       <View style={[tabStyles.tabContent, styles.centerContainer]}>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton} onPress={loadFriends}>
+        <TouchableOpacity style={styles.retryButton}>
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </View>
