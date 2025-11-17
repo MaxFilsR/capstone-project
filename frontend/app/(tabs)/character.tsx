@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { containers, typography } from "@/styles/index";
 import { useAuth } from "@/lib/auth-context";
 import { getCharacter, CharacterProfile } from "@/api/endpoints";
@@ -24,12 +25,14 @@ import Popup from "@/components/popupModals/Popup";
 
 export default function Index() {
   const { logout } = useAuth();
+  const router = useRouter();
   const [profile, setProfile] = useState<CharacterProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupMode, setPopupMode] = useState<"allocateStats" | "settings">(
-    "settings"
+   // "settings"
+   "allocateStats"
   );
 
   const tabs: Tab[] = [
@@ -60,9 +63,11 @@ export default function Index() {
   const handleLogout = async () => {
     await logout();
   };
+
   const handleSettingsPress = () => {
-    setPopupMode("settings");
-    setPopupVisible(true);
+    router.push("/screens/CharacterTabs/settingsScreen");
+  //  setPopupMode("settings");
+  //  setPopupVisible(true);
   };
 
   if (loading) {
