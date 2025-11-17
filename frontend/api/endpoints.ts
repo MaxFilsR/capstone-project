@@ -295,8 +295,8 @@ export async function recordWorkout(
   await apiClient.post("/workouts/history", payload);
 }
 
-// Friends Types
-export type Friend = {
+// Social & Friends Types and Endpoints
+export type FriendSummary = {
   user_id: number;
   username: string;
   class: {
@@ -312,7 +312,7 @@ export type Friend = {
   exp_needed: number;
 };
 
-export type FriendDetail = {
+export type FriendProfile = {
   username: string;
   class: {
     name: string;
@@ -326,31 +326,113 @@ export type FriendDetail = {
   exp_leftover: number;
   exp_needed: number;
   streak: number;
-  equipped: CharacterEquipment; 
+  equipped: CharacterEquipment;
 };
 
-export async function getFriends(): Promise<Friend[]> {
+export type UpdateFriendsRequest = {
+  friend_ids: number[];
+};
+
+export type FriendActionResponse = {
+  id: number;
+};
+
+/**
+ * Fetch list of friends
+ * GET /social/friends
+ */
+export async function getFriends(): Promise<FriendSummary[]> {
   const response = await apiClient.get("/social/friends");
   return response.data;
 }
 
-export async function getFriendDetail(id: number): Promise<FriendDetail> {
+/**
+ * Fetch a specific friend's profile by ID
+ * GET /social/friends/{id}
+ */
+export async function getFriendById(id: number): Promise<FriendProfile> {
   const response = await apiClient.get(`/social/friends/${id}`);
   return response.data;
 }
 
-export async function updateFriends(friend_ids: number[]): Promise<{ message: string; friend_id: number }> {
-  const response = await apiClient.put("/social/friends", { friend_ids });
+/**
+ * Update friends list (replace entire list)
+ * PUT /social/friends
+ */
+export async function updateFriends(
+  payload: UpdateFriendsRequest
+): Promise<void> {
+  await apiClient.put("/social/friends", payload);
+}
+
+/**
+ * Add a friend
+ * POST /social/friends
+ */
+export async function addFriend(id: number): Promise<FriendActionResponse> {
+  const response = await apiClient.post("/social/friends", { id });
   return response.data;
 }
 
-// Stats
-export type IncreaseStatRequest = {
-  stat: "strength" | "endurance" | "flexibility";
-  amount: number;
+/**
+ * Remove a friend
+ * DELETE /social/friends
+ */
+export async function removeFriend(id: number): Promise<FriendActionResponse> {
+  const response = await apiClient.delete("/social/friends", { data: { id } });
+  return response.data;
+}
+
+// Leaderboard Types and Endpoints
+export type LeaderboardEntry = {
+  user_id: number;
+  username: string;
+  class: {
+    name: string;
+    stats: {
+      strength: number;
+      endurance: number;
+      flexibility: number;
+    };
+  };
+  level: number;
+  exp_leftover: number;
+  exp_needed: number;
 };
 
-export type IncreaseStatResponse = {
-  message: string;
-  remaining: number;
+export type LeaderboardProfile = {
+  username: string;
+  class: {
+    name: string;
+    stats: {
+      strength: number;
+      endurance: number;
+      flexibility: number;
+    };
+  };
+  level: number;
+  exp_leftover: number;
+  exp_needed: number;
+  streak: number;
+  equipped: CharacterEquipment;
 };
+
+/**
+ * Fetch global leaderboard
+ * GET /social/leaderboard
+ */
+export async function getLeaderboard(): Promise<LeaderboardEntry[]> {
+  const response = await apiClient.get("/social/leaderboard");
+  return response.data;
+}
+
+/**
+ * Fetch a specific user's profile from leaderboard by ID
+ * GET /social/leaderboard/{id}
+ */
+export async function getLeaderboardUserById(
+  id: number
+): Promise<LeaderboardProfile> {
+  const response = await apiClient.get(`/social/leaderboard/${id}`);
+  return response.data;
+}

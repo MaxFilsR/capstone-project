@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   StatusBar,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { containers, typography } from "@/styles/index";
@@ -14,14 +15,29 @@ import { useAuth } from "@/lib/auth-context";
 import { getCharacter, CharacterProfile } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
 import QuickActionButton from "@/components/QuickActionButton";
-import CharacterCard from "@/components/CharacterCard";
 import warrior from "@/assets/images/warrior-male-full.png";
+import CharacterCardInventory from "@/components/CharacterCardInventory";
+import TabBar, { Tab } from "@/components/TabBar";
+import InventoryScreen from "../screens/CharacterTabs/inventoryScreen";
+import ShopScreen from "../screens/CharacterTabs/ShopScreen";
+import Popup from "@/components/popupModals/Popup";
 
 export default function Index() {
   const { logout } = useAuth();
   const [profile, setProfile] = useState<CharacterProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupMode, setPopupMode] = useState<"allocateStats" | "settings">(
+    "settings"
+  );
+
+  const tabs: Tab[] = [
+    { name: "Inventory", component: InventoryScreen },
+    { name: "Shop", component: ShopScreen },
+  ];
+
+  const handleTabChange = (index: number) => {};
 
   useEffect(() => {
     loadProfile();
@@ -43,6 +59,10 @@ export default function Index() {
 
   const handleLogout = async () => {
     await logout();
+  };
+  const handleSettingsPress = () => {
+    setPopupMode("settings");
+    setPopupVisible(true);
   };
 
   if (loading) {
@@ -85,94 +105,57 @@ export default function Index() {
           showsVerticalScrollIndicator={false}
           bounces={true}
         >
-          <Text style={[typography.header, { marginBottom: 24 }]}>
-            Character Profile
-          </Text>
-
           {/* Character Card */}
-          <CharacterCard
-            image={warrior}
-            stats={profile.class.stats}
-            username={profile.username}
-            level={profile.level}
-            currentExp={profile.exp_leftover}
-            expNeeded={profile.exp_needed}
+          <TouchableOpacity
+            onPress={() => {
+              setPopupMode("allocateStats");
+              setPopupVisible(true);
+            }}
+          >
+            <CharacterCardInventory
+              username={profile.username}
+              level={profile.level}
+              equipment={{
+                headAccessory: require("@/assets/images/equippedItems/ninja-mask-6.png"),
+                background: require("@/assets/images/equippedItems/green.png"),
+                body: require("@/assets/images/equippedItems/male-ninja-body-greenblack.png"),
+                arms: require("@/assets/images/equippedItems/black1-male-ninja-arm-green.png"),
+                head: require("@/assets/images/equippedItems/black-head-eyepatch.png"),
+                weapon: require("@/assets/images/equippedItems/ninjastar1.png"),
+              }}
+              stats={profile.class.stats}
+              availableStatPoints={profile.pending_stat_points}
+              onSettingsPress={handleSettingsPress}
+            />
+          </TouchableOpacity>
+
+          <Popup
+            visible={popupVisible}
+            mode={popupMode}
+            onClose={() => setPopupVisible(false)}
+            onLogout={handleLogout}
+            currentStats={profile?.class.stats}
+            availablePoints={profile?.pending_stat_points}
           />
 
-          {/* Character Info */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Character Info</Text>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Class:</Text>
-              <Text style={styles.classValue}>{profile.class.name}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Streak:</Text>
-              <Text style={styles.value}>{profile.streak} days 🔥</Text>
-            </View>
-            {profile.pending_stat_points > 0 && (
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Pending Stat Points:</Text>
-                <Text style={styles.highlightValue}>
-                  {profile.pending_stat_points}
-                </Text>
-              </View>
-            )}
-          </View>
-
-          {/* Equipped Items */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Equipped Items</Text>
-            <View style={styles.equippedGrid}>
-              <View style={styles.equipmentItem}>
-                <Text style={styles.equipmentLabel}>Head:</Text>
-                <Text style={styles.equipmentValue}>
-                  {profile.equipped.head}
-                </Text>
-              </View>
-              <View style={styles.equipmentItem}>
-                <Text style={styles.equipmentLabel}>Head Accessory:</Text>
-                <Text style={styles.equipmentValue}>
-                  {profile.equipped.head_accessory}
-                </Text>
-              </View>
-              <View style={styles.equipmentItem}>
-                <Text style={styles.equipmentLabel}>Body:</Text>
-                <Text style={styles.equipmentValue}>
-                  {profile.equipped.bodies}
-                </Text>
-              </View>
-              <View style={styles.equipmentItem}>
-                <Text style={styles.equipmentLabel}>Arms:</Text>
-                <Text style={styles.equipmentValue}>
-                  {profile.equipped.arms}
-                </Text>
-              </View>
-              <View style={styles.equipmentItem}>
-                <Text style={styles.equipmentLabel}>Weapon:</Text>
-                <Text style={styles.equipmentValue}>
-                  {profile.equipped.weapon}
-                </Text>
-              </View>
-              <View style={styles.equipmentItem}>
-                <Text style={styles.equipmentLabel}>Pet:</Text>
-                <Text style={styles.equipmentValue}>
-                  {profile.equipped.pet}
-                </Text>
-              </View>
-              <View style={styles.equipmentItem}>
-                <Text style={styles.equipmentLabel}>Background:</Text>
-                <Text style={styles.equipmentValue}>
-                  {profile.equipped.background}
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          {/* Logout Button */}
-          <View style={styles.logoutContainer}>
-            <Button title="Logout" onPress={handleLogout} color="#dc3545" />
-          </View>
+          <TabBar
+            tabs={tabs}
+            initialTab={0}
+            onTabChange={handleTabChange}
+            outerContainerStyle={{
+              paddingTop: 0,
+              margin: 0,
+              paddingBottom: 0,
+              justifyContent: "center",
+            }}
+            tabBarContainerStyle={{
+              paddingTop: 0,
+              paddingBottom: 0,
+              paddingHorizontal: 0,
+            }}
+            tabBarStyle={{ margin: 0, padding: 0, borderRadius: 0 }}
+            tabButtonStyle={{ borderRadius: 0 }}
+          />
         </ScrollView>
       </SafeAreaView>
     </>
@@ -182,7 +165,6 @@ export default function Index() {
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: 22,
     paddingBottom: 100,
   },
   centered: {
@@ -245,11 +227,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colorPallet.neutral_4,
   },
-  equipmentLabel: {
-    ...typography.body,
-    color: colorPallet.neutral_2,
-    fontWeight: "500",
-  },
+
   equipmentValue: {
     ...typography.body,
     color: colorPallet.secondary,

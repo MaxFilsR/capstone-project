@@ -118,10 +118,6 @@ const DetailsQuestsScreen = () => {
   // how many days until expiry
   const daysUntilExpiry = 7;
 
-  const handleCollectReward = () => {
-    console.log("Collecting reward for quest:", quest.id);
-  };
-
   const handleWorkoutPress = (workoutId: string) => {
     console.log("Navigate to workout details:", workoutId);
     //router.push({pathname: "/screens/FitnessTabs/workoutComplete", params: { id: workoutId }});
@@ -174,15 +170,12 @@ const DetailsQuestsScreen = () => {
           {/* progress % */}
           <Text style={styles.progressText}>{quest.progress}%</Text>
 
-          {/* collect reward (only if quest is completed) */}
+          {/* cquest completed */}
           {isCompleted && (
-            <TouchableOpacity
-              style={styles.collectButton}
-              onPress={handleCollectReward}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.collectButtonText}>Collect Reward</Text>
-            </TouchableOpacity>
+            <View style={styles.completedBadge}>
+              <MaterialIcons name="check-circle" size={24} color={colorPallet.primary} />
+              <Text style={styles.completedText}>Quest Completed!</Text>
+            </View>
           )}
         </View>
 
@@ -338,17 +331,19 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
 
-  // collect reward button
-  collectButton: {
-    backgroundColor: "transparent",
+  // quest completed
+  completedBadge: {
+    flexDirection: "row",
+    justifyContent: "center",
+    backgroundColor: colorPallet.neutral_darkest,
+    gap: 8,
     borderWidth: 2,
     borderColor: colorPallet.primary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
-    marginTop: 8,
   },
-  collectButtonText: {
+  completedText: {
     ...typography.body,
     color: colorPallet.primary,
     fontSize: 16,

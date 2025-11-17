@@ -6,6 +6,8 @@ import ViewExerciseModal from "./ViewExerciseModal";
 import CreateRoutineModal from "./CreateRoutineModal";
 import EditRoutineModal from "./EditRoutineModal";
 import StartRoutineModal from "./StartRoutineModal";
+import AllocateStatsModal from "./AllocateStatsModal";
+import SettingsScreen from "./SettingsScreen";
 
 import { BlurView } from "expo-blur";
 
@@ -25,11 +27,26 @@ export type Routine = {
 
 type PopupProps = {
   visible: boolean;
-  mode: "viewExercises" | "createRoutine" | "editRoutine" | "startRoutine";
+  mode:
+    | "viewExercises"
+    | "createRoutine"
+    | "editRoutine"
+    | "startRoutine"
+    | "allocateStats"
+    | "settings";
   onClose: () => void;
   exercise?: Exercise | null;
   exerciseId?: string | null;
   routine?: Routine | null;
+  // Stats allocation props
+  currentStats?: {
+    strength: number;
+    endurance: number;
+    flexibility: number;
+  };
+  availablePoints?: number;
+  // Settings props
+  onLogout?: () => void;
 };
 
 const Popup: React.FC<PopupProps> = ({
@@ -39,6 +56,9 @@ const Popup: React.FC<PopupProps> = ({
   exercise,
   exerciseId,
   routine,
+  currentStats,
+  availablePoints,
+  onLogout,
 }) => {
   return (
     <Modal
@@ -56,8 +76,10 @@ const Popup: React.FC<PopupProps> = ({
           backgroundColor: "rgba(0,0,0,0.5)",
         }} // cover full screen
       >
-        {mode === "startRoutine" ? (
-          // StartRoutine has its own layout and styling
+        {mode === "startRoutine" ||
+        mode === "allocateStats" ||
+        mode === "settings" ? (
+          // StartRoutine, AllocateStats, and Settings have their own layout and styling
           <View
             style={{
               flex: 1,
@@ -76,8 +98,19 @@ const Popup: React.FC<PopupProps> = ({
               activeOpacity={1}
               onPress={onClose}
             />
-            {/* Always render StartRoutineModal - it handles both cases (with/without routine) */}
-            <StartRoutineModal onClose={onClose} routine={routine} />
+            {mode === "startRoutine" ? (
+              <StartRoutineModal onClose={onClose} routine={routine} />
+            ) : mode === "allocateStats" &&
+              currentStats &&
+              availablePoints !== undefined ? (
+              <AllocateStatsModal
+                onClose={onClose}
+                currentStats={currentStats}
+                availablePoints={availablePoints}
+              />
+            ) : mode === "settings" && onLogout ? (
+              <SettingsScreen onClose={onClose} onLogout={onLogout} />
+            ) : null}
           </View>
         ) : (
           // Other modals use the standard popup layout
@@ -101,6 +134,14 @@ const Popup: React.FC<PopupProps> = ({
                   <CreateRoutineModal onClose={onClose} />
                 ) : mode === "editRoutine" && routine ? (
                   <EditRoutineModal onClose={onClose} routine={routine} />
+                ) : mode === "allocateStats" &&
+                  currentStats &&
+                  availablePoints !== undefined ? (
+                  <AllocateStatsModal
+                    onClose={onClose}
+                    currentStats={currentStats}
+                    availablePoints={availablePoints}
+                  />
                 ) : null}
               </View>
             </View>

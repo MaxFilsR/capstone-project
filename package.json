@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "react-native-confetti-cannon": "^1.5.2"
+  }
+}
