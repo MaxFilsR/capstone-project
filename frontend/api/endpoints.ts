@@ -333,10 +333,6 @@ export type UpdateFriendsRequest = {
   friend_ids: number[];
 };
 
-export type FriendActionResponse = {
-  id: number;
-};
-
 /**
  * Fetch list of friends
  * GET /social/friends
@@ -366,21 +362,28 @@ export async function updateFriends(
 }
 
 /**
- * Add a friend
- * POST /social/friends
+ * Helper: Add a friend by fetching current list and adding the new ID
  */
-export async function addFriend(id: number): Promise<FriendActionResponse> {
-  const response = await apiClient.post("/social/friends", { id });
-  return response.data;
+export async function addFriend(id: number): Promise<void> {
+  const currentFriends = await getFriends();
+  const friendIds = currentFriends.map((f) => f.user_id);
+
+  if (!friendIds.includes(id)) {
+    friendIds.push(id);
+    await updateFriends({ friend_ids: friendIds });
+  }
 }
 
 /**
- * Remove a friend
- * DELETE /social/friends
+ * Helper: Remove a friend by fetching current list and filtering out the ID
  */
-export async function removeFriend(id: number): Promise<FriendActionResponse> {
-  const response = await apiClient.delete("/social/friends", { data: { id } });
-  return response.data;
+export async function removeFriend(id: number): Promise<void> {
+  const currentFriends = await getFriends();
+  const friendIds = currentFriends
+    .map((f) => f.user_id)
+    .filter((friendId) => friendId !== id);
+
+  await updateFriends({ friend_ids: friendIds });
 }
 
 // Leaderboard Types and Endpoints
