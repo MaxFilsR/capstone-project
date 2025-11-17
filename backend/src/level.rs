@@ -1,6 +1,11 @@
-use crate::jwt::AuthenticatedUser;
-use actix_web::{HttpResponse, web};
-use sqlx::PgPool;
+use {
+    crate::jwt::AuthenticatedUser,
+    actix_web::{
+        HttpResponse,
+        web,
+    },
+    sqlx::PgPool,
+};
 
 pub fn exp_needed_for_level(n: i32) -> i32 {
     let exp_needed = (200.0 * (1.07 as f64).powi(n)).floor() as i32;
@@ -8,8 +13,8 @@ pub fn exp_needed_for_level(n: i32) -> i32 {
 }
 
 pub async fn add_exp(
-    user: AuthenticatedUser,
-    pool: web::Data<PgPool>,
+    user: &AuthenticatedUser,
+    pool: &web::Data<PgPool>,
     exp: i32,
 ) -> Result<HttpResponse, actix_web::Error> {
     let query = sqlx::query!(
@@ -24,9 +29,9 @@ pub async fn add_exp(
     .await
     .unwrap();
 
-    let mut current_level = query.level;    // current level
-    let mut total_exp = query.exp_leftover + exp;   // leftover + workout exp
-    let mut levels_gained = 0;  // counter
+    let mut current_level = query.level; // current level
+    let mut total_exp = query.exp_leftover + exp; // leftover + workout exp
+    let mut levels_gained = 0; // counter
 
     // Handle multiple level-ups
     loop {
@@ -59,7 +64,6 @@ pub async fn add_exp(
 
     return Ok(HttpResponse::Ok().into());
 }
-
 
 /*
 

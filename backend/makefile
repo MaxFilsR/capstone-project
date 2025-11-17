@@ -1,16 +1,23 @@
+# docker compose up
+# 	--build: rebuilds the image if there were any changes
+# 	--wait: waits for the container to be healthy before continuing
+#	--detach: sends process to the background  
+
 init:
-	docker compose -f docker-compose.noapi.yml up -d
-	sleep 5 # make it wait since it gets an error if it tries to run before the database is ready 
+	make no-api
 	cargo sqlx migrate run
 	cargo sqlx prepare
 	cargo test
 	docker compose down
 
 no-api:
-	docker compose -f docker-compose.noapi.yml up -d
+	docker compose --file docker-compose.noapi.yml up --build --wait --detach
 
 dev:
-	docker compose -f compose.yaml -f docker-compose.dev.yml up -d
+	docker compose --file compose.yaml --file docker-compose.dev.yml up --build --wait --detach
+
+psql:
+	docker exec -it gainzdb psql -U postgres -d gainzdb
 
 start:
 	make init
@@ -18,4 +25,5 @@ start:
 
 stop:
 	-docker compose down
-	-docker volume prune -af
+# remove all data from the postgres container 
+	-docker volume prune -af 

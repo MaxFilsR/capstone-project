@@ -39,7 +39,7 @@ services:
 
     #* backend container
     gainz-api:
-        image: mjaramazovic/gainz-api # change it to your docker if you update the file
+        # image: mjaramazovic/gainz-api # change it to your docker if you update the file
         container_name: gainz-api
         restart: unless-stopped
         environment:

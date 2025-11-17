@@ -1,10 +1,29 @@
-use crate::jwt::AuthenticatedUser;
-use crate::schemas::{Exercise, Routine};
-use actix_web::put;
-use actix_web::{HttpResponse, Result, delete, get, post, web};
-use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
-use sqlx::types::Json;
+use {
+    crate::{
+        jwt::AuthenticatedUser,
+        schemas::{
+            Exercise,
+            Routine,
+        },
+    },
+    actix_web::{
+        HttpResponse,
+        Result,
+        delete,
+        get,
+        post,
+        put,
+        web,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+    sqlx::{
+        PgPool,
+        types::Json,
+    },
+};
 
 #[derive(Deserialize, Serialize)]
 pub struct CreateRoutinesRequest {

@@ -1,8 +1,23 @@
-use actix_web::{HttpResponse, error::ErrorBadRequest, get, post, web};
-use email_address::EmailAddress;
-use jsonwebtoken::{DecodingKey, Validation, decode};
-use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+use {
+    actix_web::{
+        HttpResponse,
+        error::ErrorBadRequest,
+        get,
+        post,
+        web,
+    },
+    email_address::EmailAddress,
+    jsonwebtoken::{
+        DecodingKey,
+        Validation,
+        decode,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+    sqlx::PgPool,
+};
 
 use crate::jwt;
 

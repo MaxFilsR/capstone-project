@@ -1,12 +1,37 @@
-use crate::env;
-use actix_web::{Error, FromRequest, HttpRequest, dev::Payload};
-use chrono::{Duration, Utc};
-use futures_util::future::{Ready, ready};
-use jsonwebtoken::{DecodingKey, Validation, decode};
-use jsonwebtoken::{EncodingKey, Header, encode};
-use serde::{Deserialize, Serialize};
+use {
+    crate::env,
+    actix_web::{
+        Error,
+        FromRequest,
+        HttpRequest,
+        dev::Payload,
+    },
+    chrono::{
+        Duration,
+        Utc,
+    },
+    futures_util::future::{
+        Ready,
+        ready,
+    },
+    jsonwebtoken::{
+        DecodingKey,
+        EncodingKey,
+        Header,
+        Validation,
+        decode,
+        encode,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+};
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+static JWT_SECRET_KEY: std::sync::LazyLock<String> =
+    std::sync::LazyLock::new(|| env::get_env_var_with_key(env::JWT_SECRET_KEY));
+
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]
 pub struct Claims {
     pub sub: i32,   // user ID
@@ -14,15 +39,13 @@ pub struct Claims {
     pub token_type: TokenType,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 pub enum TokenType {
     Access,
     Refresh,
 }
 
 pub fn generate_jwt(user_id: i32, token_type: TokenType) -> String {
-    let jwt_secret_key = env::get_env_var_with_key(env::JWT_SECRET_KEY);
-
     // Set expiration to 30 days for both Access and Refresh tokens
     let expiration = match token_type {
         TokenType::Access => Utc::now() + Duration::days(30), // Set access token to 30 days
@@ -38,7 +61,7 @@ pub fn generate_jwt(user_id: i32, token_type: TokenType) -> String {
     encode(
         &Header::default(),
         &claims,
-        &EncodingKey::from_secret(jwt_secret_key.as_bytes()),
+        &EncodingKey::from_secret(JWT_SECRET_KEY.as_bytes()),
     )
     .expect("Failed to create token")
 }
@@ -52,8 +75,6 @@ impl FromRequest for AuthenticatedUser {
     type Future = Ready<Result<Self, Self::Error>>;
 
     fn from_request(req: &HttpRequest, _: &mut Payload) -> Self::Future {
-        let jwt_secret_key = env::get_env_var_with_key(env::JWT_SECRET_KEY);
-
         let token = req
             .headers()
             .get("Authorization")
@@ -63,11 +84,9 @@ impl FromRequest for AuthenticatedUser {
 
         match token {
             Some(token) => {
-                dbg!(token);
-
                 match decode::<super::jwt::Claims>(
                     &token,
-                    &DecodingKey::from_secret(jwt_secret_key.as_bytes()),
+                    &DecodingKey::from_secret(JWT_SECRET_KEY.as_bytes()),
                     &Validation::default(),
                 ) {
                     Ok(data) => ready(Ok(AuthenticatedUser {

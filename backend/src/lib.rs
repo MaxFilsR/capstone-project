@@ -20,4 +20,3 @@ pub mod env;
 pub mod jwt;
 pub mod level;
 pub mod schemas;
-
