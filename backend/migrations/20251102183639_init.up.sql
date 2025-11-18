@@ -146,6 +146,7 @@ CREATE TABLE IF NOT EXISTS
 		exp_leftover INT NOT NULL,
 		pending_stat_points INT NOT NULL,
 		streak INT NOT NULL,
+		coins INT NOT NULL DEFAULT 1000,
 		equipped Equipped NOT NULL,
 		inventory Inventory NOT NULL,
 		friends INTEGER[] DEFAULT '{}' NOT NULL
@@ -233,7 +234,8 @@ CREATE TABLE IF NOT EXISTS
 		date DATE NOT NULL,
 		-- time TIME NOT NULL,         			
 		duration INTEGER NOT NULL,
-		points INTEGER NOT NULL
+		points INTEGER NOT NULL,
+		coins INTEGER NOT NULL
 	);
 
 CREATE TABLE IF NOT EXISTS
@@ -289,6 +291,7 @@ INSERT INTO
 		exp_leftover,
 		pending_stat_points,
 		streak,
+		coins,
 		equipped,
 		inventory,
 		friends
@@ -302,6 +305,7 @@ VALUES
 		0,
 		0,
 		0,
+		1000,
 		ROW (0, 0, 0, 0, 0, 0, 0),
 		ROW ('{0}', '{0}', '{0}', '{0}', '{0}', '{0}', '{0}'),
 		'{}'

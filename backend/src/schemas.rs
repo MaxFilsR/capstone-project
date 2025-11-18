@@ -82,6 +82,7 @@ struct HistoryRow {
     // pub time: NaiveTime,
     pub duration: i32,
     pub points: i32,
+    pub coins: i32,
 }
 
 #[derive(Clone, Deserialize, Serialize)]
@@ -99,6 +100,7 @@ pub struct History {
     // pub time: NaiveTime,
     pub duration: i32,
     pub points: i32,
+    pub coins: i32,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize, sqlx::Type)]
@@ -134,6 +136,7 @@ pub struct CharactersRow {
     pub exp_leftover: i32,
     pub pending_stat_points: i32,
     pub streak: i32,
+    pub coins: i32,
     pub equipped: Equipped,
     pub inventory: Inventory,
     pub friends: Vec<i32>,
@@ -147,6 +150,7 @@ pub struct Character {
     pub exp_leftover: i32,
     pub pending_stat_points: i32,
     pub streak: i32,
+    pub coins: i32,
     pub equipped: Equipped,
     pub inventory: Inventory,
     pub friends: Vec<i32>,
@@ -221,6 +225,14 @@ impl QuestDifficulty {
             QuestDifficulty::Easy => 500,
             QuestDifficulty::Medium => 2_500,
             QuestDifficulty::Hard => 10_000,
+        }
+    }
+
+    pub fn coins(&self) -> i32 {
+        match self {
+            QuestDifficulty::Easy => 100,
+            QuestDifficulty::Medium => 300,
+            QuestDifficulty::Hard => 500,
         }
     }
 

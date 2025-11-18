@@ -3,6 +3,7 @@ use {
         endpoints::nav::quests::apply_workout_to_quests,
         jwt::AuthenticatedUser,
         level::add_exp,
+        coins::add_coins,
         schemas::{
             Exercise,
             History,
@@ -35,7 +36,8 @@ pub struct CreateHistoryRequest {
     pub date: NaiveDate,
     // pub time: NaiveTime,
     pub duration: i32,
-    pub points: i32,
+    pub points: i32, // exp
+    pub coins: i32,
 }
 
 #[post("/workouts/history")]
@@ -46,8 +48,8 @@ pub async fn create_history(
 ) -> Result<HttpResponse, actix_web::Error> {
     let _query = sqlx::query!(
         r#"
-            INSERT INTO history (user_id, name, exercises, date, duration, points)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO history (user_id, name, exercises, date, duration, points, coins)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
         "#,
         user.id,
         request.name,
@@ -55,12 +57,14 @@ pub async fn create_history(
         request.date,
         request.duration,
         request.points,
+        request.coins,
     )
     .execute(pool.get_ref())
     .await
     .unwrap();
 
     add_exp(&user, &pool, request.points).await.unwrap();
+    add_coins(&user, &pool, request.coins).await.unwrap();
     apply_workout_to_quests(user, pool, &request.0).await;
 
     return Ok(HttpResponse::Ok().finish());
@@ -79,7 +83,7 @@ pub async fn read_history(
     let history: Vec<History> = sqlx::query_as!(
         History,
         r#"
-            SELECT id, name, exercises as "exercises: Json<Vec<Exercise>>", date, duration, points
+            SELECT id, name, exercises as "exercises: Json<Vec<Exercise>>", date, duration, points, coins
             FROM history
             WHERE user_id = $1
             ORDER BY date DESC

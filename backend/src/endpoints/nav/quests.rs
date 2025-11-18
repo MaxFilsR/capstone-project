@@ -3,6 +3,7 @@ use {
     crate::{
         jwt::AuthenticatedUser,
         level::add_exp,
+        coins::add_coins,
         schemas::*,
     },
     actix_web::{
@@ -177,6 +178,7 @@ pub async fn apply_workout_to_quests(
                 .unwrap();
 
                 add_exp(&user, &pool, quest.difficulty.exp()).await.unwrap();
+                add_coins(&user, &pool, quest.difficulty.coins()).await.unwrap();
             }
         }
     }
