@@ -96,5 +96,19 @@
     "rarity": "common",
     "price": 0,
     "path": "./default_items/bodies/default-white-male-body.png"
+  },
+  {
+    "name": "Hair V1",
+    "category": "body",
+    "rarity": "common",
+    "price": 0,
+    "path": "./default_items/head_accessories/default-hair1.png"
+  },
+  {
+    "name": "Hair V2",
+    "category": "body",
+    "rarity": "common",
+    "price": 0,
+    "path": "./default_items/head_accessories/default-hair2.png"
   }
 ]
