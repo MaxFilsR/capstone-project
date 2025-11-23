@@ -173,5 +173,41 @@
     "category": "weapon",
     "rarity": "mystical",
     "path": "./items/weapons/staff5.png"
+  },
+  {
+    "name": "Skullbreaker",
+    "category": "weapon",
+    "rarity": "common",
+    "path": "./items/weapons/Warrior-hammer.png"
+  },
+  {
+    "name": "Spellweaver Wand",
+    "category": "weapon",
+    "rarity": "common",
+    "path": "./items/weapons/wizard-wand1.png"
+  },
+  {
+    "name": "Runechannel Wand",
+    "category": "weapon",
+    "rarity": "uncommon",
+    "path": "./items/weapons/wizard-wand2.png"
+  },
+  {
+    "name": "Etherflare Rod",
+    "category": "weapon",
+    "rarity": "rare",
+    "path": "./items/weapons/wizard-wand3.png"
+  },
+  {
+    "name": "Stormbloom Wand",
+    "category": "weapon",
+    "rarity": "ultra rare",
+    "path": "./items/weapons/wizard-wand4.png"
+  },
+  {
+    "name": "Mystic Emberwand",
+    "category": "weapon",
+    "rarity": "mystical",
+    "path": "./items/weapons/wizard-wand5.png"
   }
 ]
