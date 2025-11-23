@@ -719,5 +719,299 @@
     "category": "head_accessory",
     "rarity": "epic",
     "path": "./items/head_accessories/wizard-hat-red.png"
+  },
+  {
+    "name": "Ebon Hair",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/black-body-hair.png"
+  },
+  {
+    "name": "Ebon Bald",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/black-body-nohair.png"
+  },
+  {
+    "name": "Ebon Bikini",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/black-female-black-bikini.png"
+  },
+  {
+    "name": "Azure Bikini",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/black-female-blue-bikini.png"
+  },
+  {
+    "name": "Rose Bikini",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/black-female-darkpink-bikini.png"
+  },
+  {
+    "name": "Blush Bikini",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/black-female-lightpink-bikini.png"
+  },
+  {
+    "name": "Amber Bikini",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/black-female-orange-bikini.png"
+  },
+  {
+    "name": "Violet Bikini",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/black-female-purple-bikini.png"
+  },
+  {
+    "name": "Sunshine Bikini",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/black-female-yellow-bikini.png"
+  },
+  {
+    "name": "Ebon Gladiator",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/black-gladiator-body.png"
+  },
+  {
+    "name": "Ebon Warrior",
+    "category": "body",
+    "rarity": "uncommon",
+    "path": "./items/bodies/black-warrior-body.png"
+  },
+  {
+    "name": "Chestnut Bikini",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/brown-female-black-bikini.png"
+  },
+  {
+    "name": "Sky Bikini",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/brown-female-blue-bikini.png"
+  },
+  {
+    "name": "Deep Rose Bikini",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/brown-female-darkpink-bikini.png"
+  },
+  {
+    "name": "Light Blush",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/brown-female-lightpink-bikini.png"
+  },
+  {
+    "name": "Tangerine Bikini",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/brown-female-orange-bikini.png.png"
+  },
+  {
+    "name": "Royal Purple",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/brown-female-purple-bikini.png"
+  },
+  {
+    "name": "Gold Bikini",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/brown-female-yellow-bikini.png"
+  },
+  {
+    "name": "Chestnut Gladiator",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/brown-gladiator-open.png"
+  },
+  {
+    "name": "Chestnut Male",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/brown-male-body.png"
+  },
+  {
+    "name": "Chestnut Warrior",
+    "category": "body",
+    "rarity": "uncommon",
+    "path": "./items/bodies/brown-warrior-body.png"
+  },
+  {
+    "name": "Shadow Ninja",
+    "category": "body",
+    "rarity": "uncommon",
+    "path": "./items/bodies/male-ninja-body-blackblue.png"
+  },
+  {
+    "name": "Forest Ninja",
+    "category": "body",
+    "rarity": "uncommon",
+    "path": "./items/bodies/male-ninja-body-blackgreen.png"
+  },
+  {
+    "name": "Ember Ninja",
+    "category": "body",
+    "rarity": "uncommon",
+    "path": "./items/bodies/male-ninja-body-blackorange.png"
+  },
+  {
+    "name": "Rose Ninja",
+    "category": "body",
+    "rarity": "uncommon",
+    "path": "./items/bodies/male-ninja-body-blackpink.png"
+  },
+  {
+    "name": "Crimson Ninja",
+    "category": "body",
+    "rarity": "uncommon",
+    "path": "./items/bodies/male-ninja-body-blackred.png"
+  },
+  {
+    "name": "Jungle Ninja",
+    "category": "body",
+    "rarity": "uncommon",
+    "path": "./items/bodies/male-ninja-body-greenblack.png"
+  },
+  {
+    "name": "Emerald Monk",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/monk-body-blackgreen.png"
+  },
+  {
+    "name": "Chestnut Monk",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/monk-body-brown.png"
+  },
+  {
+    "name": "Forest Monk",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/monk-body-green.png"
+  },
+  {
+    "name": "Crimson Monk",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/monk-body-red.png"
+  },
+  {
+    "name": "Ivory Monk",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/monk-body-whitepurple.png"
+  },
+  {
+    "name": "Amethyst Body",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/purple-body.png"
+  },
+  {
+    "name": "Ivory Hair",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/white-body-hair.png"
+  },
+  {
+    "name": "Ivory Bald",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/white-body-nohair.png"
+  },
+  {
+    "name": "Ivory Bikini",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/white-female-black-bikini.png"
+  },
+  {
+    "name": "Sapphire Bikini",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/white-female-blue-bikini.png"
+  },
+  {
+    "name": "Rose Blush",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/white-female-darkpink-bikini.png"
+  },
+  {
+    "name": "Soft Pink",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/white-female-lightpink-bikini.png"
+  },
+  {
+    "name": "Coral Bikini",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/white-female-orange-bikini.png"
+  },
+  {
+    "name": "Lavender Bikini",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/white-female-purple-bikini.png"
+  },
+  {
+    "name": "Lemon Bikini",
+    "category": "body",
+    "rarity": "common",
+    "path": "./items/bodies/white-female-yellow-bikini.png"
+  },
+  {
+    "name": "Ivory Gladiator",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/white-gladiator-body.png"
+  },
+  {
+    "name": "Ivory Warrior",
+    "category": "body",
+    "rarity": "uncommon",
+    "path": "./items/bodies/white-warrior-body.png"
+  },
+  {
+    "name": "Arcane One",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/Wizard-body1.png"
+  },
+  {
+    "name": "Arcane Two",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/Wizard-body2.png"
+  },
+  {
+    "name": "Arcane Three",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/Wizard-body3.png"
+  },
+  {
+    "name": "Arcane Four",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/Wizard-body4.png"
+  },
+  {
+    "name": "Arcane Five",
+    "category": "body",
+    "rarity": "rare",
+    "path": "./items/bodies/Wizard-body5.png"
   }
 ]
