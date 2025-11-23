@@ -99,16 +99,37 @@
   },
   {
     "name": "Hair V1",
-    "category": "body",
+    "category": "head_accessory",
     "rarity": "common",
     "price": 0,
     "path": "./default_items/head_accessories/default-hair1.png"
   },
   {
     "name": "Hair V2",
-    "category": "body",
+    "category": "head_accessory",
     "rarity": "common",
     "price": 0,
     "path": "./default_items/head_accessories/default-hair2.png"
+  },
+  {
+    "name": "Head V1",
+    "category": "head",
+    "rarity": "common",
+    "price": 0,
+    "path": "./default_items/heads/black-head.png"
+  },
+  {
+    "name": "Head V2",
+    "category": "head",
+    "rarity": "common",
+    "price": 0,
+    "path": "./default_items/heads/brown-head.png"
+  },
+  {
+    "name": "Head V3",
+    "category": "head",
+    "rarity": "common",
+    "price": 0,
+    "path": "./default_items/heads/white-head.png"
   }
 ]
