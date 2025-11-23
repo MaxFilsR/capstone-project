@@ -123,25 +123,55 @@
   {
     "name": "Crimson Fang",
     "category": "weapon",
-    "rarity": "common",
+    "rarity": "uncommon",
     "path": "./items/weapons/ninja-star2.png"
   },
   {
     "name": "Ember Fang",
     "category": "weapon",
-    "rarity": "common",
+    "rarity": "rare",
     "path": "./items/weapons/ninja-star3.png"
   },
   {
     "name": "Verdant Fang",
     "category": "weapon",
-    "rarity": "common",
+    "rarity": "ultra rare",
     "path": "./items/weapons/ninja-star4.png"
   },
   {
     "name": "Shadow Fang",
     "category": "weapon",
-    "rarity": "common",
+    "rarity": "mystical",
     "path": "./items/weapons/ninja-star5.png"
+  },
+  {
+    "name": "Obsidian Mountainbreakers",
+    "category": "weapon",
+    "rarity": "common",
+    "path": "./items/weapons/staff1.png"
+  },
+  {
+    "name": "Amethyst Mountainbreaker",
+    "category": "weapon",
+    "rarity": "uncommon",
+    "path": "./items/weapons/staff2.png"
+  },
+  {
+    "name": "Jade Mountainbreaker",
+    "category": "weapon",
+    "rarity": "rare",
+    "path": "./items/weapons/staff3.png"
+  },
+  {
+    "name": "Earthroot Mountainbreaker",
+    "category": "weapon",
+    "rarity": "ultra rare",
+    "path": "./items/weapons/staff4.png"
+  },
+  {
+    "name": "Ivory Mountainbreaker",
+    "category": "weapon",
+    "rarity": "mystical",
+    "path": "./items/weapons/staff5.png"
   }
 ]
