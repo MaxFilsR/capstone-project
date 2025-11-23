@@ -1,10 +1,37 @@
 [
-    {
-        "name": "",
-        "category": "",
-        "rarity": "",
-        "price": 0,
-        "path": ""
-    },
-    {}
+  {
+    "name": "Blue",
+    "category": "background",
+    "rarity": "common",
+    "price": 0,
+    "path": "./backgrounds/blue"
+  },
+  {
+    "name": "Green",
+    "category": "background",
+    "rarity": "common",
+    "price": 0,
+    "path": "./backgrounds/green"
+  },
+  {
+    "name": "Pink",
+    "category": "background",
+    "rarity": "common",
+    "price": 0,
+    "path": "./backgrounds/pink"
+  },
+  {
+    "name": "Purple",
+    "category": "background",
+    "rarity": "common",
+    "price": 0,
+    "path": "./backgrounds/purple"
+  },
+  {
+    "name": "Red",
+    "category": "background",
+    "rarity": "common",
+    "price": 0,
+    "path": "./backgrounds/red"
+  }
 ]
