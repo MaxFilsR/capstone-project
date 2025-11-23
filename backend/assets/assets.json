@@ -209,5 +209,245 @@
     "category": "weapon",
     "rarity": "mystical",
     "path": "./items/weapons/wizard-wand5.png"
+  },
+  {
+    "name": "Ebon Flow",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/black-female-black-open.png"
+  },
+  {
+    "name": "Ebon Tied",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/black-female-black-tied.png"
+  },
+  {
+    "name": "Ebon Blonde",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/black-female-blonde-open.png"
+  },
+  {
+    "name": "Ebon Braided",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/black-female-blonde-tied.png"
+  },
+  {
+    "name": "Ebon Brown",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/black-female-brown-open.png"
+  },
+  {
+    "name": "Ebon Bound",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/black-female-brown-tie.png"
+  },
+  {
+    "name": "Ebon Ember",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/black-female-orange-open.png"
+  },
+  {
+    "name": "Ebon Flame",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/black-female-orange-tied.png"
+  },
+  {
+    "name": "Ebon Patch",
+    "category": "head",
+    "rarity": "epic",
+    "path": "./items/heads/black-head-eyepatch.png"
+  },
+  {
+    "name": "Ebon Shaved",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/black-head-no-hair.png"
+  },
+  {
+    "name": "Ebon Smirk",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/black-head-smirk.png"
+  },
+  {
+    "name": "Ebon Goatee",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/black-male-goatee.png"
+  },
+  {
+    "name": "Ebon Standard",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/black-male.png"
+  },
+  {
+    "name": "Umber Flow",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/brown-female-black-open.png"
+  },
+  {
+    "name": "Umber Tied",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/brown-female-black-tied.png"
+  },
+  {
+    "name": "Umber Blonde",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/brown-female-blonde-open.png"
+  },
+  {
+    "name": "Umber Braided",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/brown-female-blonde-tied.png"
+  },
+  {
+    "name": "Umber Brown",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/brown-female-brown-open.png"
+  },
+  {
+    "name": "Umber Bound",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/brown-female-brown-tied.png"
+  },
+  {
+    "name": "Umber Ember",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/brown-female-orange-open.png"
+  },
+  {
+    "name": "Umber Flame",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/brown-female-orange-tied.png"
+  },
+  {
+    "name": "Umber Shaved",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/brown-head-no-hair.png"
+  },
+  {
+    "name": "Gladiator Female",
+    "category": "head",
+    "rarity": "epic",
+    "path": "./items/heads/Gladiator-head-female.png"
+  },
+  {
+    "name": "Gladiator Male",
+    "category": "head",
+    "rarity": "epic",
+    "path": "./items/heads/Gladiator-head-male.png"
+  },
+  {
+    "name": "Arcane Wanderer",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/purple-male.png"
+  },
+  {
+    "name": "Warrior Female",
+    "category": "head",
+    "rarity": "epic",
+    "path": "./items/heads/Warrior-head-female.png"
+  },
+  {
+    "name": "Warrior Male",
+    "category": "head",
+    "rarity": "epic",
+    "path": "./items/heads/Warrior-male-male.png"
+  },
+  {
+    "name": "Ivory Flow",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/white-female-black-open.png"
+  },
+  {
+    "name": "Ivory Tied",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/white-female-black-tied.png"
+  },
+  {
+    "name": "Ivory Blonde",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/white-female-blonde-open.png"
+  },
+  {
+    "name": "Ivory Braided",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/white-female-blonde-tied.png"
+  },
+  {
+    "name": "Ivory Brown",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/white-female-brown-open.png"
+  },
+  {
+    "name": "Ivory Bound",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/white-female-brown-tied.png"
+  },
+  {
+    "name": "Ivory Ember",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/white-female-orange-open.png"
+  },
+  {
+    "name": "Ivory Flame",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/white-female-orange-tied.png"
+  },
+  {
+    "name": "Ivory Patch",
+    "category": "head",
+    "rarity": "epic",
+    "path": "./items/heads/white-head-eyepatch.png"
+  },
+  {
+    "name": "Ivory Shaved",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/white-head-no-hair.png"
+  },
+  {
+    "name": "Ivory Smirk",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/white-head-smirk.png"
+  },
+  {
+    "name": "Ivory Goatee",
+    "category": "head",
+    "rarity": "rare",
+    "path": "./items/heads/white-male-goatee.png"
+  },
+  {
+    "name": "Ivory Standard",
+    "category": "head",
+    "rarity": "common",
+    "path": "./items/heads/white-male.png"
   }
 ]
