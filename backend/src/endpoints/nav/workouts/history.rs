@@ -94,5 +94,5 @@ pub async fn read_history(
     .await
     .unwrap();
 
-    return Ok(HttpResponse::Ok().json(ReadHistoryResponse { history: history }));
+    return Ok(HttpResponse::Ok().json(ReadHistoryResponse { history }));
 }

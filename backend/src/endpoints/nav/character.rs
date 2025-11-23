@@ -114,7 +114,7 @@ pub async fn read_settings(
     .unwrap();
 
     return Ok(HttpResponse::Ok().json(ReadSettingsResponse {
-        email: email,
+        email,
         first_name: query.first_name,
         last_name: query.last_name,
         workout_schedule: query.workout_schedule,

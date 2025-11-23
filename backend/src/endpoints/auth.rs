@@ -67,8 +67,8 @@ async fn sign_up(
             let refresh_token = jwt::generate_jwt(user_id, jwt::TokenType::Refresh);
 
             return Ok(HttpResponse::Ok().json(RegisterResponse {
-                access_token: access_token,
-                refresh_token: refresh_token,
+                access_token,
+                refresh_token,
             }));
         }
         None => {
@@ -127,8 +127,8 @@ pub async fn login(
             let refresh_token = jwt::generate_jwt(user_id, jwt::TokenType::Refresh);
 
             return Ok(HttpResponse::Ok().json(LoginResponse {
-                access_token: access_token,
-                refresh_token: refresh_token,
+                access_token,
+                refresh_token,
                 onboarding_complete: query.onboarding_complete,
             }));
         }
@@ -163,7 +163,7 @@ pub async fn refresh(request: web::Json<RefreshRequest>) -> Result<HttpResponse,
             let user_id = data.claims.sub;
             let access_token = jwt::generate_jwt(user_id, jwt::TokenType::Access);
             return Ok(HttpResponse::Ok().json(RefreshResponse {
-                access_token: access_token,
+                access_token,
             }));
         }
         Err(_) => return Err(ErrorBadRequest("Token is invalid or expired")),

@@ -30,5 +30,5 @@ async fn classes(pool: web::Data<PgPool>) -> Result<HttpResponse, actix_web::Err
     .await
     .unwrap();
 
-    return Ok(HttpResponse::Ok().json(ClassesResponse { classes: classes }));
+    return Ok(HttpResponse::Ok().json(ClassesResponse { classes }));
 }

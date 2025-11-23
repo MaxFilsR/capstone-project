@@ -1,7 +1,6 @@
 use {
     actix_web::{
         HttpResponse,
-        error::ErrorBadRequest,
         get,
         web,
     },
@@ -52,5 +51,5 @@ pub async fn item(
         )
     }));
 
-    return Ok(HttpResponse::Ok().json(ItemsResponse { items: items }));
+    return Ok(HttpResponse::Ok().json(ItemsResponse { items }));
 }
