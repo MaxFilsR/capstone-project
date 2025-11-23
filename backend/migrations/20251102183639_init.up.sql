@@ -35,7 +35,7 @@ CREATE TYPE equipped AS (
 
 CREATE TYPE inventory AS (
 	arms INTEGER[],
-	backgrounds INTEGER[],
+	background INTEGER[],
 	bodies INTEGER[],
 	heads INTEGER[],
 	head_accessories INTEGER[],
@@ -46,13 +46,13 @@ CREATE TYPE inventory AS (
 -- Defines item rarity
 
 CREATE TYPE item_category AS ENUM(
-	'arms',
-	'backgrounds',
-	'bodies',
-	'heads',
-	'head_accessories'
-	'pets',
-	'weapons'
+	'arm',
+	'background',
+	'body',
+	'head',
+	'head_accessory',
+	'pet',
+	'weapon'
 );
 
 CREATE TYPE item_rarity AS ENUM(
@@ -170,8 +170,7 @@ CREATE TABLE IF NOT EXISTS
 		name VARCHAR(100) NOT NULL,
 		category item_category NOT NULL,
 		rarity item_rarity NOT NULL,
-		price INTEGER NOT NULL,
-		path TEXT
+		path TEXT NOT NULL
 	);
 
 -- Table to store item related info of users
@@ -374,12 +373,11 @@ DO $$
 		SELECT 
 			pg_read_file('/docker-entrypoint-initdb.d/assets.json')::jsonb INTO assets_json;
 		INSERT INTO
-			items
+			items (name, category, rarity, path)
 		SELECT
 			data ->> 'name',
 			(data ->> 'category')::item_category,
 			(data ->> 'rarity')::item_rarity,
-			data ->> 'price',
 			data ->> 'path'
 		FROM
 			jsonb_array_elements(assets_json) AS data;

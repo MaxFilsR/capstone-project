@@ -120,3 +120,4 @@ pub async fn read_settings(
         workout_schedule: query.workout_schedule,
     }));
 }
+

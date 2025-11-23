@@ -16,8 +16,9 @@ pub mod endpoints {
     pub mod stats;
 }
 
+pub mod coins;
 pub mod env;
+pub mod items;
 pub mod jwt;
 pub mod level;
 pub mod schemas;
-pub mod coins;

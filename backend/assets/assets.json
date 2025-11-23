@@ -1,135 +1,116 @@
 [
-  {
-    "name": "Blue",
-    "category": "background",
-    "rarity": "common",
-    "price": 0,
-    "path": "./backgrounds/blue"
-  },
-  {
-    "name": "Green",
-    "category": "background",
-    "rarity": "common",
-    "price": 0,
-    "path": "./backgrounds/green"
-  },
-  {
-    "name": "Pink",
-    "category": "background",
-    "rarity": "common",
-    "price": 0,
-    "path": "./backgrounds/pink"
-  },
-  {
-    "name": "Purple",
-    "category": "background",
-    "rarity": "common",
-    "price": 0,
-    "path": "./backgrounds/purple"
-  },
-  {
-    "name": "Red",
-    "category": "background",
-    "rarity": "common",
-    "price": 0,
-    "path": "./backgrounds/red"
-  },
-  {
-    "name": "Arm V1",
-    "category": "arm",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/arms/default-black-arm.png"
-  },
-  {
-    "name": "Arm V2",
-    "category": "arm",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/arms/default-brown-arm.png"
-  },
-  {
-    "name": "Arm V3",
-    "category": "arm",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/arms/default-white-arm.png"
-  },
-  {
-    "name": "Female V1",
-    "category": "body",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/bodies/default-black-female-body.png"
-  },
-  {
-    "name": "Male V1",
-    "category": "body",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/bodies/default-black-male-body.png"
-  },
-  {
-    "name": "Female V2",
-    "category": "body",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/bodies/default-brown-female-body.png"
-  },
-  {
-    "name": "Male V2",
-    "category": "body",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/bodies/default-brown-male-body.png"
-  },
-  {
-    "name": "Female V3",
-    "category": "body",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/bodies/default-white-female-body.png"
-  },
-  {
-    "name": "Male V3",
-    "category": "body",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/bodies/default-white-male-body.png"
-  },
-  {
-    "name": "Hair V1",
-    "category": "head_accessory",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/head_accessories/default-hair1.png"
-  },
-  {
-    "name": "Hair V2",
-    "category": "head_accessory",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/head_accessories/default-hair2.png"
-  },
-  {
-    "name": "Head V1",
-    "category": "head",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/heads/black-head.png"
-  },
-  {
-    "name": "Head V2",
-    "category": "head",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/heads/brown-head.png"
-  },
-  {
-    "name": "Head V3",
-    "category": "head",
-    "rarity": "common",
-    "price": 0,
-    "path": "./default_items/heads/white-head.png"
-  }
+    {
+        "name": "Blue",
+        "category": "background",
+        "rarity": "common",
+        "path": "./backgrounds/blue"
+    },
+    {
+        "name": "Green",
+        "category": "background",
+        "rarity": "common",
+        "path": "./backgrounds/green"
+    },
+    {
+        "name": "Pink",
+        "category": "background",
+        "rarity": "common",
+        "path": "./backgrounds/pink"
+    },
+    {
+        "name": "Purple",
+        "category": "background",
+        "rarity": "common",
+        "path": "./backgrounds/purple"
+    },
+    {
+        "name": "Red",
+        "category": "background",
+        "rarity": "common",
+        "path": "./backgrounds/red"
+    },
+    {
+        "name": "Arm V1",
+        "category": "arm",
+        "rarity": "common",
+        "path": "./default_items/arms/default-black-arm.png"
+    },
+    {
+        "name": "Arm V2",
+        "category": "arm",
+        "rarity": "common",
+        "path": "./default_items/arms/default-brown-arm.png"
+    },
+    {
+        "name": "Arm V3",
+        "category": "arm",
+        "rarity": "common",
+        "path": "./default_items/arms/default-white-arm.png"
+    },
+    {
+        "name": "Female V1",
+        "category": "body",
+        "rarity": "common",
+        "path": "./default_items/bodies/default-black-female-body.png"
+    },
+    {
+        "name": "Male V1",
+        "category": "body",
+        "rarity": "common",
+        "path": "./default_items/bodies/default-black-male-body.png"
+    },
+    {
+        "name": "Female V2",
+        "category": "body",
+        "rarity": "common",
+        "path": "./default_items/bodies/default-brown-female-body.png"
+    },
+    {
+        "name": "Male V2",
+        "category": "body",
+        "rarity": "common",
+        "path": "./default_items/bodies/default-brown-male-body.png"
+    },
+    {
+        "name": "Female V3",
+        "category": "body",
+        "rarity": "common",
+        "path": "./default_items/bodies/default-white-female-body.png"
+    },
+    {
+        "name": "Male V3",
+        "category": "body",
+        "rarity": "common",
+        "path": "./default_items/bodies/default-white-male-body.png"
+    },
+    {
+        "name": "Hair V1",
+        "category": "head_accessory",
+        "rarity": "common",
+        "path": "./default_items/head_accessories/default-hair1.png"
+    },
+    {
+        "name": "Hair V2",
+        "category": "head_accessory",
+        "rarity": "common",
+        "path": "./default_items/head_accessories/default-hair2.png"
+    },
+    {
+        "name": "Head V1",
+        "category": "head",
+        "rarity": "common",
+        "path": "./default_items/heads/black-head.png"
+    },
+    {
+        "name": "Head V2",
+        "category": "head",
+        "rarity": "common",
+        "path": "./default_items/heads/brown-head.png"
+    },
+    {
+        "name": "Head V3",
+        "category": "head",
+        "rarity": "common",
+        "path": "./default_items/heads/white-head.png"
+    }
 ]
