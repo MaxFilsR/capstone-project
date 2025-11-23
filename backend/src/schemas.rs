@@ -230,9 +230,9 @@ impl QuestDifficulty {
 
     pub fn coins(&self) -> i32 {
         match self {
-            QuestDifficulty::Easy => 100,
-            QuestDifficulty::Medium => 300,
-            QuestDifficulty::Hard => 500,
+            QuestDifficulty::Easy => 250,
+            QuestDifficulty::Medium => 500,
+            QuestDifficulty::Hard => 2000,
         }
     }
 
