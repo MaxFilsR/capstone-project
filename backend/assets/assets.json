@@ -449,5 +449,275 @@
     "category": "head",
     "rarity": "common",
     "path": "./items/heads/white-male.png"
+  },
+  {
+    "name": "Afro Puff",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/afro.png"
+  },
+  {
+    "name": "Ebon Loose",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/black-hair-open.png"
+  },
+  {
+    "name": "Ebon Tied",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/black-hair-tied.png"
+  },
+  {
+    "name": "Golden Loose",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/blonde-hair-open.png"
+  },
+  {
+    "name": "Golden Tied",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/blonde-hair-tied.png"
+  },
+  {
+    "name": "Chestnut Loose",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/brown-hair-open.png"
+  },
+  {
+    "name": "Chestnut Tied",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/brown-hair-tied.png"
+  },
+  {
+    "name": "Brown Shaved",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/brown-head-no-hair17.png"
+  },
+  {
+    "name": "Brunette Bald",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/brown-head-no-hair18.png"
+  },
+  {
+    "name": "Indigo Band",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/darkblue-headband.png"
+  },
+  {
+    "name": "Flat Top",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/flattop.png"
+  },
+  {
+    "name": "Forest Band",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/green-headband.png"
+  },
+  {
+    "name": "Blond Afro",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/hair-afro-blond.png"
+  },
+  {
+    "name": "Brunette Afro",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/hair-afro-brunette.png"
+  },
+  {
+    "name": "Blond Base",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/hair-base-blond.png"
+  },
+  {
+    "name": "Brunette Base",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/hair-base-brunette.png"
+  },
+  {
+    "name": "Basic Base",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/hair-base.png"
+  },
+  {
+    "name": "Blond Flat",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/hair-flattop-blond.png"
+  },
+  {
+    "name": "Brunette Flat",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/hair-flattop-brunette.png"
+  },
+  {
+    "name": "Blond Messy",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/hair-messy-blond.png"
+  },
+  {
+    "name": "Brunette Messy",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/hair-messy-brunette.png"
+  },
+  {
+    "name": "Shadow Hood",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/hood-black.png"
+  },
+  {
+    "name": "Earth Hood",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/hood-brown.png"
+  },
+  {
+    "name": "Forest Hood",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/hood-green.png"
+  },
+  {
+    "name": "Flame Hood",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/hood-red.png"
+  },
+  {
+    "name": "Frost Hood",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/hood-white.png"
+  },
+  {
+    "name": "Sky Band",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/lightblue-hairband.png"
+  },
+  {
+    "name": "Messy Hair",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/messy-hair.png"
+  },
+  {
+    "name": "Silent Mask",
+    "category": "head_accessory",
+    "rarity": "epic",
+    "path": "./items/head_accessories/ninja-mask-1.png"
+  },
+  {
+    "name": "Swift Mask",
+    "category": "head_accessory",
+    "rarity": "epic",
+    "path": "./items/head_accessories/ninja-mask-2.png"
+  },
+  {
+    "name": "Phantom Mask",
+    "category": "head_accessory",
+    "rarity": "epic",
+    "path": "./items/head_accessories/ninja-mask-3.png"
+  },
+  {
+    "name": "Shadow Mask",
+    "category": "head_accessory",
+    "rarity": "epic",
+    "path": "./items/head_accessories/ninja-mask-4.png"
+  },
+  {
+    "name": "Ghost Mask",
+    "category": "head_accessory",
+    "rarity": "epic",
+    "path": "./items/head_accessories/ninja-mask-5.png"
+  },
+  {
+    "name": "Night Mask",
+    "category": "head_accessory",
+    "rarity": "epic",
+    "path": "./items/head_accessories/ninja-mask-6.png"
+  },
+  {
+    "name": "Orange Loose",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/orange-hair-open.png"
+  },
+  {
+    "name": "Orange Tied",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/orange-hair-tied.png"
+  },
+  {
+    "name": "Sun Band",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/orange-headband.png"
+  },
+  {
+    "name": "Rose Band",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/pink-hairband.png"
+  },
+  {
+    "name": "Violet Band",
+    "category": "head_accessory",
+    "rarity": "common",
+    "path": "./items/head_accessories/purple-headband.png"
+  },
+  {
+    "name": "Royal Band",
+    "category": "head_accessory",
+    "rarity": "rare",
+    "path": "./items/head_accessories/sweatband-purple.png"
+  },
+  {
+    "name": "Obsidian Hat",
+    "category": "head_accessory",
+    "rarity": "epic",
+    "path": "./items/head_accessories/wizard-hat-black.png"
+  },
+  {
+    "name": "Azure Hat",
+    "category": "head_accessory",
+    "rarity": "epic",
+    "path": "./items/head_accessories/wizard-hat-blue.png"
+  },
+  {
+    "name": "Emerald Hat",
+    "category": "head_accessory",
+    "rarity": "epic",
+    "path": "./items/head_accessories/wizard-hat-green.png"
+  },
+  {
+    "name": "Rosewood Hat",
+    "category": "head_accessory",
+    "rarity": "epic",
+    "path": "./items/head_accessories/wizard-hat-pink.png"
+  },
+  {
+    "name": "Crimson Hat",
+    "category": "head_accessory",
+    "rarity": "epic",
+    "path": "./items/head_accessories/wizard-hat-red.png"
   }
 ]
