@@ -211,6 +211,12 @@
     "path": "./items/weapons/wizard-wand5.png"
   },
   {
+    "name": "Gladiator Weapons",
+    "category": "weapon",
+    "rarity": "mystical",
+    "path": "./items/weapons/gladiator-weapons.png"
+  },
+  {
     "name": "Ebon Flow",
     "category": "head",
     "rarity": "common",
