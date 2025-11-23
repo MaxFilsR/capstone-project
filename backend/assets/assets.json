@@ -1013,5 +1013,296 @@
     "category": "body",
     "rarity": "rare",
     "path": "./items/bodies/Wizard-body5.png"
+  },
+  {
+    "name": "Arms Lifted V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black-arms-lifted.png"
+  },
+  {
+    "name": "Arms Normal V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black-arms-normal.png"
+  },
+  {
+    "name": "Arms Sweatbands V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black-arms-sweatbands.png"
+  },
+  {
+    "name": "Arms V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black-arms.png"
+  },
+  {
+    "name": "Arm1 V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black1-male-arm.png"
+  },
+  {
+    "name": "Male Arm2 V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black1-male-arm2.png"
+  },
+  {
+    "name": "Monk Arm BlackGreen V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black1-male-monk-arm-blackgreen.png"
+  },
+  {
+    "name": "Monk Arm Brown V2",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black1-male-monk-arm-brown.png"
+  },
+  {
+    "name": "Monk Arm Green V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black1-male-monk-arm-green.png"
+  },
+  {
+    "name": "Monk Arm Red V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black1-male-monk-arm-red.png"
+  },
+  {
+    "name": "Monk Arm White V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black1-male-monk-arm-white.png"
+  },
+  {
+    "name": "Ninja Arm BlackBlue V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black1-male-ninja-arm-blackblue.png"
+  },
+  {
+    "name": "Ninja Arm BlackGreen V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black1-male-ninja-arm-blackgreen.png"
+  },
+  {
+    "name": "Ninja Arm BlackOrange V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black1-male-ninja-arm-blackorange.png"
+  },
+  {
+    "name": "Ninja Arm BlackPink V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black1-male-ninja-arm-blackpink.png"
+  },
+  {
+    "name": "Ninja Arm BlackRed V1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/black1-male-ninja-arm-blackred.png"
+  },
+
+  {
+    "name": "Arms Lifted V2",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/brown-arms-lifted.png"
+  },
+  {
+    "name": "Arms Normal V2",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/brown-arms-normal.png"
+  },
+
+  {
+    "name": "Purple Arms",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/purple-arms.png"
+  },
+
+  {
+    "name": "Arms Lifted V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white-arms-lifted.png"
+  },
+  {
+    "name": "Arms Normal V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white-arms-normal.png"
+  },
+  {
+    "name": "Arms Sweatbands V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white-arms-sweatbands.png"
+  },
+  {
+    "name": "Arms V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white-arms.png"
+  },
+  {
+    "name": "Male Arm V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white1-male-arm.png"
+  },
+  {
+    "name": "Male Arm2 V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white1-male-arm2.png"
+  },
+  {
+    "name": "Monk Arm BlackGreen V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white1-male-monk-arm-blackgreen.png"
+  },
+  {
+    "name": "Monk Arm Brown V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white1-male-monk-arm-brown.png"
+  },
+  {
+    "name": "Monk Arm Green V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white1-male-monk-arm-green.png"
+  },
+  {
+    "name": "Monk Arm Red V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white1-male-monk-arm-red.png"
+  },
+  {
+    "name": "Monk Arm White V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white1-male-monk-arm-white.png"
+  },
+  {
+    "name": "Ninja Arm BlackBlue V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white1-male-ninja-arm-blackblue.png"
+  },
+  {
+    "name": "Ninja Arm BlackGreen V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white1-male-ninja-arm-blackgreen.png"
+  },
+  {
+    "name": "Ninja Arm BlackOrange V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white1-male-ninja-arm-blackorange.png"
+  },
+  {
+    "name": "Ninja Arm BlackPink V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white1-male-ninja-arm-blackpink.png"
+  },
+  {
+    "name": "Ninja Arm BlackRed V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white1-male-ninja-arm-blackred.png"
+  },
+  {
+    "name": "Ninja Arm Green V3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/white1-male-ninja-arm-green.png"
+  },
+
+  {
+    "name": "Wizard Arm 1",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/Wizard-arm1.png"
+  },
+  {
+    "name": "Wizard Arm 2",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/Wizard-arm2.png"
+  },
+  {
+    "name": "Wizard Arm 3",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/Wizard-arm3.png"
+  },
+  {
+    "name": "Wizard Arm 4",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/Wizard-arm4.png"
+  },
+  {
+    "name": "Wizard Arm 5",
+    "category": "arm",
+    "rarity": "common",
+    "price": 0,
+    "path": "./items/arms/Wizard-arm5.png"
   }
 ]
