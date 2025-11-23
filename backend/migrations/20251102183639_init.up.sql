@@ -160,7 +160,7 @@ CREATE TABLE IF NOT EXISTS
 		category VARCHAR(50) NOT NULL,
 		rarity item_rarity NOT NULL,
 		price INTEGER NOT NULL,
-		asset_url TEXT
+		path TEXT
 	);
 
 -- Table to store item related info of users
