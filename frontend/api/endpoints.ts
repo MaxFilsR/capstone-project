@@ -101,7 +101,6 @@ export type CharacterProfile = {
   coins: number;
   equipped: CharacterEquipment;
   inventory: CharacterInventory;
-  coins: number;
 };
 
 /**

@@ -36,10 +36,7 @@ export const QuestProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true);
       setError(null);
-      console.log("🔄 Fetching quests...");
       const data = await getQuests();
-      console.log("✅ Quests fetched:", data);
-      console.log("📊 Number of quests:", data?.length);
       setQuests(data);
     } catch (err) {
       console.error("❌ Failed to load quests:", err);
@@ -79,7 +76,7 @@ export const QuestProvider = ({ children }: { children: ReactNode }) => {
   // Helper: Get completed quests
   const getCompletedQuests = useCallback(() => {
     const completed = quests.filter((quest) => quest.status === "Complete");
-    console.log("✅ Completed quests:", completed.length, completed);
+
     return completed;
   }, [quests]);
 

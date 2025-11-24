@@ -49,12 +49,6 @@ const QuestScreen = () => {
       ? getInProgressQuests()
       : getCompletedQuests();
 
-  console.log("🎮 QuestScreen render:");
-  console.log("  - Selected filter:", selectedFilter);
-  console.log("  - Filtered quests count:", filteredQuests.length);
-  console.log("  - Loading:", loading);
-  console.log("  - Error:", error);
-
   const handleQuestPress = (questId: number) => {
     router.push({
       pathname: "/screens/QuestsTabs/detailsQuestsScreen",
