@@ -1,16 +1,33 @@
 use {
     crate::{
         endpoints::nav::quests::apply_workout_to_quests,
-        utils::coins::add_coins,
-        utils::jwt::AuthenticatedUser,
-        utils::level::add_exp,
-        utils::schemas::{Exercise, History},
+        utils::{
+            coins::add_coins,
+            jwt::AuthenticatedUser,
+            level::add_exp,
+            schemas::{
+                Exercise,
+                History,
+            },
+        },
     },
-    actix_web::{HttpResponse, Result, get, post, web},
-    serde::{Deserialize, Serialize},
+    actix_web::{
+        HttpResponse,
+        Result,
+        get,
+        post,
+        web,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
     sqlx::{
         PgPool,
-        types::{Json, chrono::NaiveDate},
+        types::{
+            Json,
+            chrono::NaiveDate,
+        },
     },
 };
 

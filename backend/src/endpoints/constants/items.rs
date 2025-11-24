@@ -1,6 +1,13 @@
 use {
-    actix_web::{HttpResponse, get, web},
-    serde::{Deserialize, Serialize},
+    actix_web::{
+        HttpResponse,
+        get,
+        web,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
     sqlx::PgPool,
     std::collections::HashMap,
 };

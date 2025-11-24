@@ -1,8 +1,21 @@
 use {
-    actix_web::{HttpResponse, error::ErrorBadRequest, get, post, web},
+    actix_web::{
+        HttpResponse,
+        error::ErrorBadRequest,
+        get,
+        post,
+        web,
+    },
     email_address::EmailAddress,
-    jsonwebtoken::{DecodingKey, Validation, decode},
-    serde::{Deserialize, Serialize},
+    jsonwebtoken::{
+        DecodingKey,
+        Validation,
+        decode,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
     sqlx::PgPool,
 };
 

@@ -1,11 +1,24 @@
-use crate::{
-    utils::jwt::AuthenticatedUser,
-    utils::level::exp_needed_for_level,
-    utils::schemas::{Class, Equipped},
+use {
+    crate::utils::{
+        jwt::AuthenticatedUser,
+        level::exp_needed_for_level,
+        schemas::{
+            Class,
+            Equipped,
+        },
+    },
+    actix_web::{
+        HttpResponse,
+        get,
+        put,
+        web,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+    sqlx::PgPool,
 };
-use actix_web::{HttpResponse, get, put, web};
-use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
 
 #[derive(Serialize)]
 pub struct FriendList {

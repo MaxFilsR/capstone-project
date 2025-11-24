@@ -1,15 +1,33 @@
 use {
     super::workouts::history::CreateHistoryRequest,
-    crate::{
-        utils::coins::add_coins, utils::jwt::AuthenticatedUser, utils::level::add_exp,
-        utils::schemas::*,
+    crate::utils::{
+        coins::add_coins,
+        jwt::AuthenticatedUser,
+        level::add_exp,
+        schemas::*,
     },
-    actix_web::{self, HttpResponse, Result, get, post, web},
+    actix_web::{
+        self,
+        HttpResponse,
+        Result,
+        get,
+        post,
+        web,
+    },
     rand::{
-        distr::{Alphanumeric, SampleString},
-        seq::{IndexedRandom, SliceRandom},
+        distr::{
+            Alphanumeric,
+            SampleString,
+        },
+        seq::{
+            IndexedRandom,
+            SliceRandom,
+        },
     },
-    serde::{Deserialize, Serialize},
+    serde::{
+        Deserialize,
+        Serialize,
+    },
     sqlx::PgPool,
     strum::VariantArray,
 };

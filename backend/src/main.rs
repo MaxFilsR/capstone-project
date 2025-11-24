@@ -1,8 +1,15 @@
 use {
     actix_cors::Cors,
-    actix_web::{App, HttpServer, middleware::Logger, web},
-    capstone_project::endpoints,
-    capstone_project::utils::env,
+    actix_web::{
+        App,
+        HttpServer,
+        middleware::Logger,
+        web,
+    },
+    capstone_project::{
+        endpoints,
+        utils::env,
+    },
     env_logger::Env,
     sqlx::PgPool,
 };

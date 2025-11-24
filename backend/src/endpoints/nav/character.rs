@@ -2,10 +2,23 @@ use {
     crate::utils::{
         jwt::AuthenticatedUser,
         level::exp_needed_for_level,
-        schemas::{Character, Class, Equipped, Inventory, Settings},
+        schemas::{
+            Character,
+            Class,
+            Equipped,
+            Inventory,
+            Settings,
+        },
     },
-    actix_web::{HttpResponse, get, web},
-    serde::{Deserialize, Serialize},
+    actix_web::{
+        HttpResponse,
+        get,
+        web,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
     sqlx::PgPool,
 };
 

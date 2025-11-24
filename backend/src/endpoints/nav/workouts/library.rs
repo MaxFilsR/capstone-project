@@ -37,8 +37,8 @@ async fn library() -> Result<HttpResponse, actix_web::Error> {
         .await?
         .map_err(actix_web::error::ErrorInternalServerError)?;
 
-    let exercises: Vec<Exercise> = serde_json::from_str(&file_content)
-        .map_err(actix_web::error::ErrorInternalServerError)?;
+    let exercises: Vec<Exercise> =
+        serde_json::from_str(&file_content).map_err(actix_web::error::ErrorInternalServerError)?;
 
     return Ok(HttpResponse::Ok().json(exercises));
 }

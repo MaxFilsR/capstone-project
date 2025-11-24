@@ -1,8 +1,11 @@
 use {
     crate::utils::schemas::*,
     actix_web::{
-        HttpResponse, post,
-        web::{self},
+        HttpResponse,
+        post,
+        web::{
+            self,
+        },
     },
     serde::Serialize,
     sqlx::PgPool,

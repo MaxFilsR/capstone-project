@@ -1,11 +1,28 @@
 use {
-    crate::{
-        utils::jwt::AuthenticatedUser,
-        utils::schemas::{Exercise, Routine},
+    crate::utils::{
+        jwt::AuthenticatedUser,
+        schemas::{
+            Exercise,
+            Routine,
+        },
     },
-    actix_web::{HttpResponse, Result, delete, get, post, put, web},
-    serde::{Deserialize, Serialize},
-    sqlx::{PgPool, types::Json},
+    actix_web::{
+        HttpResponse,
+        Result,
+        delete,
+        get,
+        post,
+        put,
+        web,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+    sqlx::{
+        PgPool,
+        types::Json,
+    },
 };
 
 #[derive(Deserialize, Serialize)]
