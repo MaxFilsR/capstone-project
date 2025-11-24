@@ -31,13 +31,12 @@ export default function Index() {
   const [error, setError] = useState<string | null>(null);
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupMode, setPopupMode] = useState<"allocateStats" | "settings">(
-   // "settings"
    "allocateStats"
   );
 
   const tabs: Tab[] = [
     { name: "Inventory", component: InventoryScreen },
-    { name: "Shop", component: ShopScreen },
+    { name: "Shop", component: () => <ShopScreen coins={profile?.coins ?? 0} /> },
   ];
 
   const handleTabChange = (index: number) => {};
@@ -66,8 +65,6 @@ export default function Index() {
 
   const handleSettingsPress = () => {
     router.push("/screens/CharacterTabs/settingsScreen");
-  //  setPopupMode("settings");
-  //  setPopupVisible(true);
   };
 
   if (loading) {
