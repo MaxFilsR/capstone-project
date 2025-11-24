@@ -31,12 +31,15 @@ export default function Index() {
   const [error, setError] = useState<string | null>(null);
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupMode, setPopupMode] = useState<"allocateStats" | "settings">(
-   "allocateStats"
+    "allocateStats"
   );
 
   const tabs: Tab[] = [
     { name: "Inventory", component: InventoryScreen },
-    { name: "Shop", component: () => <ShopScreen coins={profile?.coins ?? 0} /> },
+    {
+      name: "Shop",
+      component: () => <ShopScreen coins={profile?.coins ?? 0} />,
+    },
   ];
 
   const handleTabChange = (index: number) => {};
@@ -87,6 +90,8 @@ export default function Index() {
       </View>
     );
   }
+
+  console.log(profile?.inventory);
 
   return (
     <>

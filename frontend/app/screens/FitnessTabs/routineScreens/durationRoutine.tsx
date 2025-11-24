@@ -215,6 +215,12 @@ export default function DurationRoutineScreen() {
     return points;
   }
 
+  function calculateCoins(durationMinutes: number): number {
+    const coins = Math.round(25 + durationMinutes / 2);
+
+    return coins;
+  }
+
   async function onEndWorkout() {
     if (isLoadingData) {
       setAlert({
@@ -264,6 +270,7 @@ export default function DurationRoutineScreen() {
     }
 
     const points = calculatePoints(exercises, durationMinutes);
+    const coins = calculateCoins(durationMinutes);
 
     const workoutData = {
       name: params.routineName || "Workout Session",
@@ -277,6 +284,7 @@ export default function DurationRoutineScreen() {
       date: new Date().toISOString().split("T")[0],
       duration: durationMinutes,
       points: points,
+      coins: coins,
     };
 
     setIsSubmitting(true);

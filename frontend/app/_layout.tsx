@@ -12,6 +12,7 @@ import { WorkoutLibraryProvider } from "@/lib/workout-library-context";
 import { RoutinesProvider } from "@/lib/routines-context";
 import { storage } from "@/utils/storageHelper";
 import { FriendsProvider } from "@/lib/friends-context";
+import { QuestProvider } from "@/lib/quest-context";
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
@@ -34,7 +35,9 @@ export default function RootLayout() {
       <WorkoutLibraryProvider>
         <RoutinesProvider>
           <FriendsProvider>
-            <InnerStack />
+            <QuestProvider>
+              <InnerStack />
+            </QuestProvider>
           </FriendsProvider>
         </RoutinesProvider>
       </WorkoutLibraryProvider>

@@ -466,16 +466,14 @@ export type GetQuestsRepsonse = {
  */
 
 export async function getQuests(): Promise<Quest[]> {
-  const response = await apiClient.get<GetQuestsRepsonse>(
-    "/quests"
-  );
+  const response = await apiClient.get<GetQuestsRepsonse>("/quests");
+
   return response.data.quests;
 }
 
-
 export type CreateQuestRequest = {
   difficulty: string;
-}
+};
 
 export type CreateQuestResponse = {
   name: string;
@@ -497,26 +495,9 @@ export type CreateQuestResponse = {
 export async function createQuest(
   payload: CreateQuestRequest
 ): Promise<CreateQuestResponse> {
-  const response = await apiClient.post<CreateQuestResponse>("/quests", payload);
+  const response = await apiClient.post<CreateQuestResponse>(
+    "/quests",
+    payload
+  );
   return response.data;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

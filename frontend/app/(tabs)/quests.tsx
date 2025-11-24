@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { router } from "expo-router";
 import {
   View,
@@ -13,83 +13,47 @@ import {
 import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getQuests, Quest, createQuest } from "@/api/endpoints";
+import { Quest } from "@/api/endpoints";
+import { useQuests } from "@/lib/quest-context";
+import QuickActionButton from "@/components/QuickActionButton";
 
-type FilterType = "active" | "inactive" | "completed";
+type FilterType = "inprogress" | "completed";
 
-const DailyQuestsScreen = () => {
-  const [quests, setQuests] = useState<Quest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState<FilterType>("active");
-  const [creating, setCreating] = useState(false);
+const QuestScreen = () => {
+  const {
+    loading,
+    error,
+    creating,
+    createNewQuest,
+    refreshQuests,
+    getInProgressQuests,
+    getCompletedQuests,
+    calculateProgress,
+    getQuestDescription,
+  } = useQuests();
 
-  useEffect(() => {
-    loadQuests();
-  }, []);
-
-  const loadQuests = async () => {
-    try {
-      setLoading(true);
-      const data = await getQuests();
-      setQuests(data);
-      setError(null);
-    } catch (err) {
-      console.error("Failed to load quests:", err);
-      setError("Failed to load quests");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [selectedFilter, setSelectedFilter] =
+    useState<FilterType>("inprogress");
 
   const handleCreateQuest = async (difficulty: "Easy" | "Medium" | "Hard") => {
     try {
-      setCreating(true);
-      setError(null);
-      await createQuest({ difficulty });
-      await loadQuests();
+      await createNewQuest(difficulty);
     } catch (err) {
-      console.error("Failed to create quest:", err);
-      setError("Failed to create quest");
-    } finally {
-      setCreating(false);
+      // Error is already handled in context
     }
   };
 
-  // calculate progress percentage
-  const calculateProgress = (quest: Quest): number => {
-    if (quest.number_of_workouts_needed === 0) return 0;
-    const progress =
-      (quest.number_of_workouts_completed / quest.number_of_workouts_needed) *
-      100;
-    return Math.min(progress, 100);
-  };
+  // Get filtered quests based on selected filter
+  const filteredQuests =
+    selectedFilter === "inprogress"
+      ? getInProgressQuests()
+      : getCompletedQuests();
 
-  // filter quest
-  const filteredQuests = quests.filter((quest) => {
-    return quest.status === selectedFilter;
-  });
-
-  // format quest description based on requitements
-  const getQuestDescription = (quest: Quest): string => {
-    let description = `Complete ${quest.number_of_workouts_needed} workout${
-      quest.number_of_workouts_needed > 1 ? "s" : ""
-    }`;
-
-    if (quest.workout_duration) {
-      description += ` of at least ${quest.workout_duration} minutes`;
-    }
-
-    if (quest.exercise_category) {
-      description += ` that include ${quest.exercise_category}`;
-    }
-
-    if (quest.exercise_muscle) {
-      description += ` targeting ${quest.exercise_muscle}`;
-    }
-
-    return description;
-  };
+  console.log("🎮 QuestScreen render:");
+  console.log("  - Selected filter:", selectedFilter);
+  console.log("  - Filtered quests count:", filteredQuests.length);
+  console.log("  - Loading:", loading);
+  console.log("  - Error:", error);
 
   const handleQuestPress = (questId: number) => {
     router.push({
@@ -113,7 +77,7 @@ const DailyQuestsScreen = () => {
     return (
       <View style={styles.centered}>
         <Text style={styles.errorText}>{error}</Text>
-        <Button title="Retry" onPress={loadQuests} />
+        <Button title="Retry" onPress={refreshQuests} />
       </View>
     );
   }
@@ -182,14 +146,9 @@ const DailyQuestsScreen = () => {
         contentContainerStyle={styles.filterContent}
       >
         <FilterButton
-          label="Active"
-          isActive={selectedFilter === "active"}
-          onPress={() => setSelectedFilter("active")}
-        />
-        <FilterButton
-          label="Inactive"
-          isActive={selectedFilter === "inactive"}
-          onPress={() => setSelectedFilter("inactive")}
+          label="In Progress"
+          isActive={selectedFilter === "inprogress"}
+          onPress={() => setSelectedFilter("inprogress")}
         />
         <FilterButton
           label="Completed"
@@ -227,6 +186,7 @@ const DailyQuestsScreen = () => {
           </View>
         )}
       </ScrollView>
+      <QuickActionButton />
     </View>
   );
 };
@@ -523,4 +483,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DailyQuestsScreen;
+export default QuestScreen;
