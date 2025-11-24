@@ -39,6 +39,9 @@ RUN --mount=type=bind,source=src,target=src \
 FROM alpine:3.18 AS final
 
 # Create a non-privileged user that the app will run under.
+
+COPY /assets/items/ /srv/items/
+
 ARG UID=10001
 RUN adduser \
     --disabled-password \
@@ -49,8 +52,6 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
-# Copy the exercises.json file BEFORE switching to appuser
-# COPY /exercises.json /app/exercises.json
 
 USER appuser
 

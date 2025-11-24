@@ -1,4 +1,9 @@
 use {
+    crate::utils::schemas::{
+        ItemCategory,
+        ItemRarity,
+        ItemRow,
+    },
     actix_web::{
         HttpResponse,
         get,
@@ -9,8 +14,17 @@ use {
         Serialize,
     },
     sqlx::PgPool,
-    std::collections::HashMap,
+    std::path::Path,
 };
+
+#[derive(Deserialize, Serialize)]
+pub struct Item {
+    pub id: i32,
+    pub name: String,
+    pub category: ItemCategory,
+    pub rarity: ItemRarity,
+    pub bytes: Vec<u8>,
+}
 
 #[derive(Deserialize, Serialize)]
 pub struct ItemsRequest {
@@ -19,7 +33,7 @@ pub struct ItemsRequest {
 
 #[derive(Deserialize, Serialize)]
 pub struct ItemsResponse {
-    items: HashMap<i32, Vec<u8>>,
+    items: Vec<Item>,
 }
 
 #[get("/constants/items")]
@@ -27,9 +41,10 @@ pub async fn items(
     pool: web::Data<PgPool>,
     request: web::Json<ItemsRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    let query = sqlx::query!(
+    let query: Vec<ItemRow> = sqlx::query_as!(
+        ItemRow,
         r#"
-            SELECT id, path
+            SELECT id, name, category as "category: ItemCategory", rarity as "rarity: ItemRarity", path
             FROM items
             WHERE id = ANY($1) 
         "#,
@@ -39,17 +54,25 @@ pub async fn items(
     .await
     .unwrap();
 
-    let items: HashMap<i32, Vec<u8>> = HashMap::from_iter(query.into_iter().map(|row| {
-        (
-            row.id,
-            std::fs::read(&row.path).unwrap_or_else(|_| {
-                panic!(
-                    "Failed to read asset with id = {} and path = {}",
-                    row.id, &row.path
-                )
-            }),
-        )
-    }));
+    let items: Vec<Item> = query
+        .into_iter()
+        .map(|row| Item {
+            id: row.id,
+            name: row.name,
+            category: row.category,
+            rarity: row.rarity,
+            bytes: {
+                let path = Path::new("/srv/items").join(&row.path);
+                std::fs::read(&path).unwrap_or_else(|_| {
+                    panic!(
+                        "Failed to read asset with id = {} and path = {}",
+                        row.id,
+                        &path.display()
+                    )
+                })
+            },
+        })
+        .collect();
 
     return Ok(HttpResponse::Ok().json(ItemsResponse { items }));
 }

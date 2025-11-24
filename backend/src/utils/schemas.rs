@@ -282,3 +282,35 @@ pub struct QuestRow {
     pub exercise_category: Option<ExerciseCategory>,
     pub exercise_muscle: Option<ExerciseMuscle>,
 }
+
+#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type, Debug, PartialEq)]
+#[sqlx(type_name = "item_rarity", rename_all = "lowercase")]
+pub enum ItemRarity {
+    Common,
+    Uncommon,
+    Rare,
+    Epic,
+    Legendary,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type, Debug, PartialEq)]
+#[sqlx(type_name = "item_category", rename_all = "lowercase")]
+pub enum ItemCategory {
+    Arm,
+    Background,
+    Body,
+    Head,
+    #[serde(rename = "head_accessory")]
+    HeadAccessory,
+    Pet,
+    Weapon,
+}
+
+#[derive(Clone, Deserialize, sqlx::FromRow, Serialize)]
+pub struct ItemRow {
+    pub id: i32,
+    pub name: String,
+    pub category: ItemCategory,
+    pub rarity: ItemRarity,
+    pub path: String,
+}

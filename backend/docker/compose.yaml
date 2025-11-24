@@ -27,8 +27,10 @@ services:
             POSTGRES_DB: ${POSTGRES_DB}
         volumes:
             - postgres_data:/var/lib/postgresql #persistent data
+            # - ./seed.pgsql:/docker-entrypoint-initdb.d/seed.sql
             - ../assets/exercises.json:/docker-entrypoint-initdb.d/exercises.json #library of exercises for database to read from
-            - ../assets/items/items.json:/docker-entrypoint-initdb.d/items.json #library of exercises for database to read from
+            - ../assets/items:/docker-entrypoint-initdb.d/items #library of assets for database to read from
+            - ../assets/items.json:/docker-entrypoint-initdb.d/items.json #library of items for database to read from
         healthcheck:
             test:
                 ["CMD", "pg_isready", "-h", "gainzdb", "-U", "${POSTGRES_USER}"]

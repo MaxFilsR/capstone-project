@@ -59,8 +59,8 @@ CREATE TYPE item_rarity AS ENUM(
 	'common',
 	'uncommon',
 	'rare',
-	'ultra rare',
-	'mythical'
+	'epic',
+	'legendary'
 );
 
 --
