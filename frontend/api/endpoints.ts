@@ -100,6 +100,7 @@ export type CharacterProfile = {
   streak: number;
   equipped: CharacterEquipment;
   inventory: CharacterInventory;
+  coins: number;
 };
 
 /**
@@ -295,7 +296,6 @@ export async function recordWorkout(
   await apiClient.post("/workouts/history", payload);
 }
 
-<<<<<<< HEAD
 // Social & Friends Types and Endpoints
 export type FriendSummary = {
   user_id: number;
@@ -439,7 +439,7 @@ export async function getLeaderboardUserById(
 ): Promise<LeaderboardProfile> {
   const response = await apiClient.get(`/social/leaderboard/${id}`);
   return response.data;
-=======
+}
 
 // Quests
 export type Quest = {
@@ -459,7 +459,20 @@ export type GetQuestsRepsonse = {
   quests: Quest[];
 };
 
-/*
+/**
+ * Fetch all quests the authenticated user
+ * GET /quests
+ * Returns: { quests: Quest[] }
+ */
+
+export async function getQuests(): Promise<Quest[]> {
+  const response = await apiClient.get<GetQuestsRepsonse>(
+    "/quests"
+  );
+  return response.data.quests;
+}
+
+
 export type CreateQuestRequest = {
   difficulty: string;
 }
@@ -474,18 +487,36 @@ export type CreateQuestResponse = {
   exercise_category?: string;
   exercise_muscle?: string;
 };
-*/
 
 /**
- * Fetch all quests the authenticated user
- * GET /quests
- * Returns: { quests: Quest[] }
+ * Create a new quest
+ * POST /quests
+ * Request: { difficulty: string }
+ * Returns: CreateQuestResponse with quest details
  */
-
-export async function getQuests(): Promise<Quest[]> {
-  const response = await apiClient.get<GetQuestsRepsonse>(
-    "/quests"
-  );
-  return response.data.quests;
->>>>>>> 7c11570 (WIP: local frontend changes (quests, character, settings, endpoints))
+export async function createQuest(
+  payload: CreateQuestRequest
+): Promise<CreateQuestResponse> {
+  const response = await apiClient.post<CreateQuestResponse>("/quests", payload);
+  return response.data;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
