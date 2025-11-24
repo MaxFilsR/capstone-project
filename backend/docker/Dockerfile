@@ -38,10 +38,10 @@ RUN --mount=type=bind,source=src,target=src \
 
 FROM alpine:3.18 AS final
 
-# Create a non-privileged user that the app will run under.
-
+# move items into docker container
 COPY /assets/items/ /srv/items/
 
+# Create a non-privileged user that the app will run under.
 ARG UID=10001
 RUN adduser \
     --disabled-password \
