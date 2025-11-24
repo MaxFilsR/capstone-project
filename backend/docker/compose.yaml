@@ -49,8 +49,8 @@ services:
             ACTIX_WEB_PORT: ${ACTIX_WEB_PORT}
             JWT_SECRET_KEY: ${JWT_SECRET_KEY}
         build:
-            context: .
-            dockerfile: Dockerfile
+            context: .. # to allow bind mounts to access all necessary files
+            dockerfile: ./docker/Dockerfile # since context is set to .. we need to specify the path to dockerfile
             network: host # Daniel Yentin: Container fails to fetch alpine packages without this line
         networks:
             - gainz_net

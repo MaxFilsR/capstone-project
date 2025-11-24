@@ -1,13 +1,6 @@
 use {
-    actix_web::{
-        HttpResponse,
-        get,
-        web,
-    },
-    serde::{
-        Deserialize,
-        Serialize,
-    },
+    actix_web::{HttpResponse, get, web},
+    serde::{Deserialize, Serialize},
     sqlx::PgPool,
     std::collections::HashMap,
 };
@@ -22,8 +15,8 @@ pub struct ItemsResponse {
     items: HashMap<i32, Vec<u8>>,
 }
 
-#[get("/items")]
-pub async fn item(
+#[get("/constants/items")]
+pub async fn items(
     pool: web::Data<PgPool>,
     request: web::Json<ItemsRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {

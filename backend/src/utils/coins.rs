@@ -1,9 +1,6 @@
 use {
-    crate::jwt::AuthenticatedUser,
-    actix_web::{
-        HttpResponse,
-        web,
-    },
+    crate::utils::jwt::AuthenticatedUser,
+    actix_web::{HttpResponse, web},
     sqlx::PgPool,
 };
 

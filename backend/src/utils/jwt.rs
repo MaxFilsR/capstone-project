@@ -1,31 +1,10 @@
 use {
-    crate::env,
-    actix_web::{
-        Error,
-        FromRequest,
-        HttpRequest,
-        dev::Payload,
-    },
-    chrono::{
-        Duration,
-        Utc,
-    },
-    futures_util::future::{
-        Ready,
-        ready,
-    },
-    jsonwebtoken::{
-        DecodingKey,
-        EncodingKey,
-        Header,
-        Validation,
-        decode,
-        encode,
-    },
-    serde::{
-        Deserialize,
-        Serialize,
-    },
+    crate::utils::env,
+    actix_web::{Error, FromRequest, HttpRequest, dev::Payload},
+    chrono::{Duration, Utc},
+    futures_util::future::{Ready, ready},
+    jsonwebtoken::{DecodingKey, EncodingKey, Header, Validation, decode, encode},
+    serde::{Deserialize, Serialize},
 };
 
 static JWT_SECRET_KEY: std::sync::LazyLock<String> =

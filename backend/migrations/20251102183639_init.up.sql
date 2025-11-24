@@ -273,55 +273,6 @@ VALUES
 	(4, 'Wizard', ROW (7, 7, 7)),
 	(5, 'Gladiator', ROW (6, 5, 5));
 
-INSERT INTO
-	users (email, password, onboarding_complete)
-VALUES
-	(
-		'you@example.com',
-		crypt ('12345678', gen_salt ('md5')),
-		TRUE
-	);
-
-INSERT INTO
-	settings (user_id, first_name, last_name, workout_schedule)
-VALUES
-	(
-		1,
-		'John',
-		'Doe',
-		'{TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE}'
-	);
-
-INSERT INTO
-	characters (
-		user_id,
-		username,
-		class,
-		level,
-		exp_leftover,
-		pending_stat_points,
-		streak,
-		coins,
-		equipped,
-		inventory,
-		friends
-	)
-VALUES
-	(
-		1,
-		'JDoe',
-		ROW ('Warrior', ROW (10, 7, 5)),
-		1,
-		0,
-		0,
-		0,
-		1000,
-		ROW (0, 0, 0, 0, 0, 0, 0),
-		ROW ('{0}', '{0}', '{0}', '{0}', '{0}', '{0}', '{0}'),
-		'{}'
-	);
-
--- \set exercises_json `cat /docker-entrypoint-initdb.d/exercises.json`;
 DO $$
 	DECLARE
   		exercises_json jsonb;
@@ -371,7 +322,7 @@ DO $$
   		assets_json jsonb;
 	BEGIN
 		SELECT 
-			pg_read_file('/docker-entrypoint-initdb.d/assets.json')::jsonb INTO assets_json;
+			pg_read_file('/docker-entrypoint-initdb.d/items.json')::jsonb INTO assets_json;
 		INSERT INTO
 			items (name, category, rarity, path)
 		SELECT
@@ -382,3 +333,51 @@ DO $$
 		FROM
 			jsonb_array_elements(assets_json) AS data;
 END $$;
+
+INSERT INTO
+	users (email, password, onboarding_complete)
+VALUES
+	(
+		'you@example.com',
+		crypt ('12345678', gen_salt ('md5')),
+		TRUE
+	);
+
+INSERT INTO
+	settings (user_id, first_name, last_name, workout_schedule)
+VALUES
+	(
+		1,
+		'John',
+		'Doe',
+		'{TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE}'
+	);
+
+INSERT INTO
+	characters (
+		user_id,
+		username,
+		class,
+		level,
+		exp_leftover,
+		pending_stat_points,
+		streak,
+		coins,
+		equipped,
+		inventory,
+		friends
+	)
+VALUES
+	(
+		1,
+		'JDoe',
+		ROW ('Warrior', ROW (10, 7, 5)),
+		1,
+		0,
+		0,
+		0,
+		1000,
+		ROW (0, 0, 0, 0, 0, 0, 0),
+		ROW ('{0}', '{0}', '{0}', '{0}', '{0}', '{0}', '{0}'),
+		'{}'
+	);

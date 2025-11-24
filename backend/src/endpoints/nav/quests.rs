@@ -1,33 +1,15 @@
 use {
     super::workouts::history::CreateHistoryRequest,
     crate::{
-        jwt::AuthenticatedUser,
-        level::add_exp,
-        coins::add_coins,
-        schemas::*,
+        utils::coins::add_coins, utils::jwt::AuthenticatedUser, utils::level::add_exp,
+        utils::schemas::*,
     },
-    actix_web::{
-        self,
-        HttpResponse,
-        Result,
-        get,
-        post,
-        web,
-    },
+    actix_web::{self, HttpResponse, Result, get, post, web},
     rand::{
-        distr::{
-            Alphanumeric,
-            SampleString,
-        },
-        seq::{
-            IndexedRandom,
-            SliceRandom,
-        },
+        distr::{Alphanumeric, SampleString},
+        seq::{IndexedRandom, SliceRandom},
     },
-    serde::{
-        Deserialize,
-        Serialize,
-    },
+    serde::{Deserialize, Serialize},
     sqlx::PgPool,
     strum::VariantArray,
 };
@@ -178,7 +160,9 @@ pub async fn apply_workout_to_quests(
                 .unwrap();
 
                 add_exp(&user, &pool, quest.difficulty.exp()).await.unwrap();
-                add_coins(&user, &pool, quest.difficulty.coins()).await.unwrap();
+                add_coins(&user, &pool, quest.difficulty.coins())
+                    .await
+                    .unwrap();
             }
         }
     }

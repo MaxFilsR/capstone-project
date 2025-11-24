@@ -1,15 +1,8 @@
 use {
     actix_cors::Cors,
-    actix_web::{
-        App,
-        HttpServer,
-        middleware::Logger,
-        web,
-    },
-    capstone_project::{
-        endpoints,
-        env,
-    },
+    actix_web::{App, HttpServer, middleware::Logger, web},
+    capstone_project::endpoints,
+    capstone_project::utils::env,
     env_logger::Env,
     sqlx::PgPool,
 };
@@ -46,7 +39,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .app_data(web::Data::new(pool.clone()))
             // Constants
-            .service(endpoints::constants::classes)
+            .service(endpoints::constants::classes::classes)
+            .service(endpoints::constants::items::items)
             // Auth
             .service(endpoints::auth::sign_up)
             .service(endpoints::auth::login)

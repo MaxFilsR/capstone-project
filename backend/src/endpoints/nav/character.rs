@@ -1,18 +1,11 @@
 use {
-    crate::{
+    crate::utils::{
         jwt::AuthenticatedUser,
         level::exp_needed_for_level,
-        schemas::*,
+        schemas::{Character, Class, Equipped, Inventory, Settings},
     },
-    actix_web::{
-        HttpResponse,
-        get,
-        web,
-    },
-    serde::{
-        Deserialize,
-        Serialize,
-    },
+    actix_web::{HttpResponse, get, web},
+    serde::{Deserialize, Serialize},
     sqlx::PgPool,
 };
 
@@ -120,4 +113,3 @@ pub async fn read_settings(
         workout_schedule: query.workout_schedule,
     }));
 }
-

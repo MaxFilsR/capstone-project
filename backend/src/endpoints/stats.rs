@@ -1,13 +1,6 @@
 use {
-    crate::{
-        jwt::AuthenticatedUser,
-        schemas::Class,
-    },
-    actix_web::{
-        HttpResponse,
-        post,
-        web,
-    },
+    crate::{utils::jwt::AuthenticatedUser, utils::schemas::Class},
+    actix_web::{HttpResponse, post, web},
     serde::Deserialize,
     sqlx::PgPool,
 };

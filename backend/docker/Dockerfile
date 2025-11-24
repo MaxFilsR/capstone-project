@@ -50,7 +50,7 @@ RUN adduser \
     appuser
 
 # Copy the exercises.json file BEFORE switching to appuser
-COPY /exercises.json /app/exercises.json
+# COPY /exercises.json /app/exercises.json
 
 USER appuser
 
