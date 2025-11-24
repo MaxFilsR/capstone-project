@@ -103,111 +103,6 @@ const DailyQuestsScreen = () => {
     );
   }
 
-
-/*
-type Quest = {
-  id: string;
-  title: string;
-  description: string;
-  reward: {
-    xp: number;
-  };
-  progress: number; // 0-100
-  status: QuestStatus;
-  expiresAt?: string;
-};
-*/
-// sample quests
-/*
-const sampleQuests: Quest[] = [
-  {
-    id: "1",
-    title: "The Iron Trial",
-    description: "Complete 4 strength workouts",
-    reward: {
-      xp: 200,
-    },
-    progress: 75,
-    status: "active",
-    expiresAt: "December 12th",
-  },
-  {
-    id: "2",
-    title: "The Early Bird",
-    description: "Log a workout before 9 AM",
-    reward: {
-      xp: 400,
-    },
-    progress: 100,
-    status: "active",
-    expiresAt: "January 1st",
-  },
-  {
-    id: "3",
-    title: "Path of the Unknown",
-    description: "Log a new type of workout",
-    reward: {
-      xp: 100,
-    },
-    progress: 40,
-    status: "active",
-    expiresAt: "December 3rd",
-  },
-  {
-    id: "4",
-    title: "The Mountain of Endurance",
-    description: "Complete 3 cardio sessions this week",
-    reward: {
-      xp: 200,
-    },
-    progress: 50,
-    status: "active",
-    expiresAt: "December 18th",
-  },
-  {
-    id: "5",
-    title: "The Zen Mind",
-    description: "Log atleast 3 hours yoga, pilates or stretching",
-    reward: {
-      xp: 200,
-    },
-    progress: 45,
-    status: "active",
-    expiresAt: "November 21st",
-  },
-  {
-    id: "6",
-    title: "Marathon of Heroes",
-    description: "Do atleast 240 minutes of cardio in a week",
-    reward: {
-      xp: 200,
-    },
-    progress: 45,
-    status: "active",
-    expiresAt: "November 10st",
-  },
-];
-*/
-
-/*
-
-const DailyQuestsScreen = () => {
-  const [selectedFilter, setSelectedFilter] = useState<FilterType>("active");
-
-  // filter quests based on selected filter
-  const filteredQuests = sampleQuests.filter((quest) => {
-    if (selectedFilter === "all") return true;
-    return quest.status === selectedFilter;
-  });
-
-  const handleQuestPress = (questId: string) => {
-    // go to quest detail page
-    router.push({
-      pathname: "/screens/QuestsTabs/detailsQuestsScreen",
-      params: { questId },
-    });
-  };
-*/
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
@@ -330,17 +225,6 @@ function QuestCard({
     if (progress >= 50) return colorPallet.primary;
     return colorPallet.secondary;
   };
-
-
-/*
-// quest card component
-function QuestCard({ quest, onPress }: { quest: Quest; onPress: () => void }) {
-  // progress bar color based on status
-  const getProgressColor = () => {
-    if (quest.status === "completed") return colorPallet.primary;
-    if (quest.progress >= 50) return colorPallet.primary;
-    return colorPallet.secondary;
-  };*/
 
   return (
     <Pressable style={styles.questCard} onPress={onPress}>
@@ -515,14 +399,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 2,
   },
-
-  /*questReward: {
-    ...typography.body,
-    color: colorPallet.neutral_3,
-    fontSize: 12,
-    marginTop: 2,
-  },
-  */
 
   // progress bar
   progressBarContainer: {
