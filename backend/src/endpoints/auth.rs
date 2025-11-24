@@ -1,4 +1,5 @@
 use {
+    crate::utils::jwt,
     actix_web::{
         HttpResponse,
         error::ErrorBadRequest,
@@ -18,8 +19,6 @@ use {
     },
     sqlx::PgPool,
 };
-
-use crate::utils::jwt;
 
 /*
  *  POST /onboarding/personal-info

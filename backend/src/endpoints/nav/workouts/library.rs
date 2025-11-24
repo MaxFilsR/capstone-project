@@ -1,5 +1,3 @@
-use std::fs;
-
 use {
     actix_web::{
         HttpResponse,
@@ -11,6 +9,7 @@ use {
         Deserialize,
         Serialize,
     },
+    std::fs,
 };
 
 #[derive(Deserialize, Serialize)]
