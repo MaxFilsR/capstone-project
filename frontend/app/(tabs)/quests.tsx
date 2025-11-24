@@ -13,7 +13,7 @@ import {
 import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { MaterialIcons } from "@expo/vector-icons";
-import { getQuests, Quest } from "@/api/endpoints";
+import { getQuests, Quest, createQuest } from "@/api/endpoints";
 
 type FilterType = "active" | "inactive" | "completed";
 
@@ -22,6 +22,7 @@ const DailyQuestsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<FilterType>("active");
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     loadQuests();
@@ -38,6 +39,20 @@ const DailyQuestsScreen = () => {
       setError("Failed to load quests");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleCreateQuest = async (difficulty: "easy" | "medium" | "hard") => {
+    try {
+      setCreating(true);
+      setError(null);
+      await createQuest({ difficulty });
+      await loadQuests();
+    } catch (err) {
+      console.error("Failed to create quest:", err);
+      setError("Failed to create quest");
+    } finally {
+      setCreating(false);
     }
   };
 
@@ -107,6 +122,47 @@ const DailyQuestsScreen = () => {
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Quests</Text>
+      </View>
+
+      <View style={styles.createButtonsContainer}>
+        <TouchableOpacity
+          style={[styles.createButton, styles.easyButton]}
+          onPress={() => handleCreateQuest("easy")}
+          disabled={creating}
+          activeOpacity={0.7}
+        >
+          {creating ? (
+            <ActivityIndicator size="small" color={colorPallet.neutral_darkest} />
+          ) : (
+            <Text style={styles.createButtonText}>Easy Quest</Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.createButton, styles.mediumButton]}
+          onPress={() => handleCreateQuest("medium")}
+          disabled={creating}
+          activeOpacity={0.7}
+        >
+          {creating ? (
+            <ActivityIndicator size="small" color={colorPallet.neutral_darkest} />
+          ) : (
+            <Text style={styles.createButtonText}>Medium Quest</Text>
+          )}
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.createButton, styles.hardButton]}
+          onPress={() => handleCreateQuest("hard")}
+          disabled={creating}
+          activeOpacity={0.7}
+        >
+          {creating ? (
+            <ActivityIndicator size="small" color={colorPallet.neutral_darkest} />
+          ) : (
+            <Text style={styles.createButtonText}>Hard Quest</Text>
+          )}
+        </TouchableOpacity>
       </View>
 
       {/* filters */}
@@ -305,6 +361,36 @@ const styles = StyleSheet.create({
     color: colorPallet.primary,
     fontSize: 32,
     fontWeight: "800",
+  },
+
+  // create quest button
+  createButtonsContainer: {
+    flexDirection: "row",
+    paddingHorizontal: 20,
+    gap: 8,
+    marginBottom: 16,
+  },
+  createButton: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: 44,
+  },
+  easyButton: {
+    backgroundColor: colorPallet.primary,
+  },
+  mediumButton: {
+    backgroundColor: colorPallet.secondary,
+  },
+  hardButton: {
+    backgroundColor: colorPallet.critical,
+  },
+  createButtonText: {
+    color: colorPallet.neutral_darkest,
+    fontSize: 14,
+    fontWeight: "500",
   },
 
   // filter button
