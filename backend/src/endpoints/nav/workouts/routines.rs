@@ -1,5 +1,5 @@
 use {
-    crate::{
+    crate::utils::{
         jwt::AuthenticatedUser,
         schemas::{
             Exercise,
@@ -77,7 +77,7 @@ async fn read_routines(
     .await
     .unwrap();
 
-    return Ok(HttpResponse::Ok().json(ReadRoutinesResponse { routines: routines }));
+    return Ok(HttpResponse::Ok().json(ReadRoutinesResponse { routines }));
 }
 
 #[derive(Deserialize, Serialize)]

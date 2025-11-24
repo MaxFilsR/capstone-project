@@ -10,13 +10,18 @@ pub mod endpoints {
             pub mod routines;
         }
     }
+    pub mod constants {
+        pub mod classes;
+        pub mod items;
+    }
     pub mod auth;
-    pub mod constants;
     pub mod onboarding;
     pub mod stats;
 }
-
-pub mod env;
-pub mod jwt;
-pub mod level;
-pub mod schemas;
+pub mod utils {
+    pub mod coins;
+    pub mod env;
+    pub mod jwt;
+    pub mod level;
+    pub mod schemas;
+}

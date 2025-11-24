@@ -1,5 +1,5 @@
 use {
-    crate::{
+    crate::utils::{
         jwt::AuthenticatedUser,
         schemas::Class,
     },

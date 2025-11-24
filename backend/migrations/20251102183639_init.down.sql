@@ -46,6 +46,8 @@ DROP TYPE IF EXISTS inventory;
 
 DROP TYPE IF EXISTS item_rarity;
 
+DROP TYPE IF EXISTS item_category;
+
 DROP TYPE IF EXISTS exercies_force;
 
 DROP TYPE IF EXISTS exercies_level;

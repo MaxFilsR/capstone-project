@@ -1,17 +1,30 @@
-use crate::{
-    jwt::AuthenticatedUser,
-    schemas::{Class, Equipped},
-    level::exp_needed_for_level,
+use {
+    crate::utils::{
+        jwt::AuthenticatedUser,
+        level::exp_needed_for_level,
+        schemas::{
+            Class,
+            Equipped,
+        },
+    },
+    actix_web::{
+        HttpResponse,
+        get,
+        put,
+        web,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+    sqlx::PgPool,
 };
-use actix_web::{HttpResponse, web, get, put};
-use sqlx::PgPool;
-use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
 pub struct FriendList {
     pub user_id: i32,
     pub username: String,
-    pub class: Class, 
+    pub class: Class,
     pub level: i32,
     pub exp_leftover: i32,
     pub exp_needed: i32,
@@ -20,12 +33,12 @@ pub struct FriendList {
 #[derive(Serialize)]
 pub struct FriendDetailResponse {
     pub username: String,
-    pub class: Class, 
+    pub class: Class,
     pub level: i32,
     pub exp_leftover: i32,
     pub exp_needed: i32,
     pub streak: i32,
-    pub equipped: Equipped, 
+    pub equipped: Equipped,
 }
 
 #[derive(Deserialize)]
@@ -45,10 +58,7 @@ pub struct LeaderboardEntry {
 
 // Returns a list of friends
 #[get("/social/friends")]
-pub async fn read_friends(
-    user: AuthenticatedUser,
-    pool: web::Data<PgPool>,
-) -> HttpResponse {
+pub async fn read_friends(user: AuthenticatedUser, pool: web::Data<PgPool>) -> HttpResponse {
     let friends_result = sqlx::query!(
         r#"
         SELECT friends
@@ -100,7 +110,7 @@ pub async fn read_friends(
     }
 }
 
-// Get specific friend's full character details 
+// Get specific friend's full character details
 #[get("/social/friends/{id}")]
 pub async fn read_friend_detail(
     user: AuthenticatedUser,
@@ -146,7 +156,7 @@ pub async fn read_friend_detail(
     .await;
 
     match character_result {
-        Ok(query) => {          
+        Ok(query) => {
             let response = FriendDetailResponse {
                 username: query.username,
                 class: query.class,
@@ -169,7 +179,7 @@ pub async fn update_friends(
     pool: web::Data<PgPool>,
     req: web::Json<UpdateFriendsRequest>,
 ) -> HttpResponse {
-    // Validate that all provided friend IDs exist 
+    // Validate that all provided friend IDs exist
     let mut validated_friends = req.friend_ids.clone();
 
     // Make sure you can't add yourself as a friend
@@ -196,7 +206,7 @@ pub async fn update_friends(
                 }
             }
             Err(_) => {
-                return HttpResponse::InternalServerError().body("Failed to validate user IDs")
+                return HttpResponse::InternalServerError().body("Failed to validate user IDs");
             }
         }
     }
@@ -224,10 +234,7 @@ pub async fn update_friends(
 
 // Get global leaderboard sorted by level and exp
 #[get("/social/leaderboard")]
-pub async fn read_leaderboard(
-    _user: AuthenticatedUser,
-    pool: web::Data<PgPool>,
-) -> HttpResponse {
+pub async fn read_leaderboard(_user: AuthenticatedUser, pool: web::Data<PgPool>) -> HttpResponse {
     let leaderboard_result = sqlx::query!(
         r#"
         SELECT user_id, username, class as "class: Class", level, exp_leftover
@@ -266,7 +273,6 @@ pub async fn read_leaderboard_detail(
 ) -> HttpResponse {
     let user_id = user_id.into_inner();
 
-
     // Check if user is on the leaderboard (top 100)
     let is_on_leaderboard = sqlx::query!(
         r#"
@@ -291,7 +297,9 @@ pub async fn read_leaderboard_detail(
                 return HttpResponse::Forbidden().body("User is not on the leaderboard");
             }
         }
-        Err(_) => return HttpResponse::InternalServerError().body("Failed to verify leaderboard status"),
+        Err(_) => {
+            return HttpResponse::InternalServerError().body("Failed to verify leaderboard status");
+        }
     }
 
     // Now fetch the user's details
@@ -308,7 +316,7 @@ pub async fn read_leaderboard_detail(
     .await;
 
     match character_result {
-        Ok(query) => {          
+        Ok(query) => {
             let response = FriendDetailResponse {
                 username: query.username,
                 class: query.class,

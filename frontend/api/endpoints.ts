@@ -98,6 +98,7 @@ export type CharacterProfile = {
   exp_needed: number;
   pending_stat_points: number;
   streak: number;
+  coins: number;
   equipped: CharacterEquipment;
   inventory: CharacterInventory;
   coins: number;
@@ -259,6 +260,7 @@ export type WorkoutSession = {
   date: string; // ISO 8601
   duration: number;
   points: number;
+  coins: number;
 };
 
 export type RecordWorkoutRequest = {
@@ -267,6 +269,7 @@ export type RecordWorkoutRequest = {
   date: string; // ISO 8601
   duration: number;
   points: number;
+  coins: number; // New field for coins earned from the workout
 };
 
 export type GetWorkoutHistoryResponse = {

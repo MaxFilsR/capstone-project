@@ -1,6 +1,7 @@
 use {
     super::workouts::history::CreateHistoryRequest,
-    crate::{
+    crate::utils::{
+        coins::add_coins,
         jwt::AuthenticatedUser,
         level::add_exp,
         schemas::*,
@@ -66,7 +67,7 @@ pub async fn read_quests(
     pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let quests = _read_quests(&user, &pool).await;
-    return Ok(HttpResponse::Ok().json(ReadQuestsResponse { quests: quests }));
+    return Ok(HttpResponse::Ok().json(ReadQuestsResponse { quests }));
 }
 
 #[derive(Deserialize, Serialize)]
@@ -120,9 +121,9 @@ pub async fn create_quest(
         status: QuestStatus::Incomplete,
         number_of_workouts_needed: request.difficulty.number_of_workouts_needed(),
         number_of_workouts_completed: 0,
-        workout_duration: workout_duration,
-        exercise_category: exercise_category,
-        exercise_muscle: exercise_muscle,
+        workout_duration,
+        exercise_category,
+        exercise_muscle,
     };
 
     let _query = sqlx::query!(
@@ -157,7 +158,7 @@ pub async fn apply_workout_to_quests(
         .iter()
         .filter(|quest| quest.status != QuestStatus::Complete)
     {
-        if workout_applies_to_quest(&pool, &quest, workout).await {
+        if workout_applies_to_quest(&pool, quest, workout).await {
             let number_of_workouts_completed = quest.number_of_workouts_completed + 1;
 
             if number_of_workouts_completed == quest.number_of_workouts_needed {
@@ -177,6 +178,9 @@ pub async fn apply_workout_to_quests(
                 .unwrap();
 
                 add_exp(&user, &pool, quest.difficulty.exp()).await.unwrap();
+                add_coins(&user, &pool, quest.difficulty.coins())
+                    .await
+                    .unwrap();
             }
         }
     }

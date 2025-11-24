@@ -8,7 +8,7 @@ use {
     },
     capstone_project::{
         endpoints,
-        env,
+        utils::env,
     },
     env_logger::Env,
     sqlx::PgPool,
@@ -46,7 +46,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .app_data(web::Data::new(pool.clone()))
             // Constants
-            .service(endpoints::constants::classes)
+            .service(endpoints::constants::classes::classes)
+            .service(endpoints::constants::items::items)
             // Auth
             .service(endpoints::auth::sign_up)
             .service(endpoints::auth::login)

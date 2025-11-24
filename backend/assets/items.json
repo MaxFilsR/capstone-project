@@ -1,0 +1,1483 @@
+[
+    {
+        "name": "Blue",
+        "category": "background",
+        "rarity": "common",
+        "default": false,
+        "path": "./backgrounds/blue.png"
+    },
+    {
+        "name": "Green",
+        "category": "background",
+        "rarity": "common",
+        "default": false,
+        "path": "./backgrounds/green.png"
+    },
+    {
+        "name": "Pink",
+        "category": "background",
+        "rarity": "common",
+        "default": false,
+        "path": "./backgrounds/pink.png"
+    },
+    {
+        "name": "Purple",
+        "category": "background",
+        "rarity": "common",
+        "default": false,
+        "path": "./backgrounds/purple.png"
+    },
+    {
+        "name": "Red",
+        "category": "background",
+        "rarity": "common",
+        "default": false,
+        "path": "./backgrounds/red.png"
+    },
+    {
+        "name": "Arm V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": true,
+        "path": "./arms/default-black-arm.png.png"
+    },
+    {
+        "name": "Arm V2",
+        "category": "arm",
+        "rarity": "common",
+        "default": true,
+        "path": "./arms/default-brown-arm.png.png"
+    },
+    {
+        "name": "Arm V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": true,
+        "path": "./arms/default-white-arm.png.png"
+    },
+    {
+        "name": "Female V1",
+        "category": "body",
+        "rarity": "common",
+        "default": true,
+        "path": "./bodies/default-black-female-body.png.png"
+    },
+    {
+        "name": "Male V1",
+        "category": "body",
+        "rarity": "common",
+        "default": true,
+        "path": "./bodies/default-black-male-body.png.png"
+    },
+    {
+        "name": "Female V2",
+        "category": "body",
+        "rarity": "common",
+        "default": true,
+        "path": "./bodies/default-brown-female-body.png.png"
+    },
+    {
+        "name": "Male V2",
+        "category": "body",
+        "rarity": "common",
+        "default": true,
+        "path": "./bodies/default-brown-male-body.png.png"
+    },
+    {
+        "name": "Female V3",
+        "category": "body",
+        "rarity": "common",
+        "default": true,
+        "path": "./bodies/default-white-female-body.png.png"
+    },
+    {
+        "name": "Male V3",
+        "category": "body",
+        "rarity": "common",
+        "default": true,
+        "path": "./bodies/default-white-male-body.png.png"
+    },
+    {
+        "name": "Hair V1",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": true,
+        "path": "./head_accessories/default-hair1.png.png"
+    },
+    {
+        "name": "Hair V2",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": true,
+        "path": "./head_accessories/default-hair2.png.png"
+    },
+    {
+        "name": "Head V1",
+        "category": "head",
+        "rarity": "common",
+        "default": true,
+        "path": "./heads/black-head.png.png"
+    },
+    {
+        "name": "Head V2",
+        "category": "head",
+        "rarity": "common",
+        "default": true,
+        "path": "./heads/brown-head.png.png"
+    },
+    {
+        "name": "Head V3",
+        "category": "head",
+        "rarity": "common",
+        "default": true,
+        "path": "./heads/white-head.png.png"
+    },
+    {
+        "name": "Silent Fang",
+        "category": "weapon",
+        "rarity": "common",
+        "default": false,
+        "path": "./weapons/ninja-star1.png.png"
+    },
+    {
+        "name": "Crimson Fang",
+        "category": "weapon",
+        "rarity": "uncommon",
+        "default": false,
+        "path": "./weapons/ninja-star2.png.png"
+    },
+    {
+        "name": "Ember Fang",
+        "category": "weapon",
+        "rarity": "rare",
+        "default": false,
+        "path": "./weapons/ninja-star3.png.png"
+    },
+    {
+        "name": "Verdant Fang",
+        "category": "weapon",
+        "rarity": "epic",
+        "default": false,
+        "path": "./weapons/ninja-star4.png.png"
+    },
+    {
+        "name": "Shadow Fang",
+        "category": "weapon",
+        "rarity": "legendary",
+        "default": false,
+        "path": "./weapons/ninja-star5.png.png"
+    },
+    {
+        "name": "Obsidian Mountainbreakers",
+        "category": "weapon",
+        "rarity": "common",
+        "default": false,
+        "path": "./weapons/staff1.png.png"
+    },
+    {
+        "name": "Amethyst Mountainbreaker",
+        "category": "weapon",
+        "rarity": "uncommon",
+        "default": false,
+        "path": "./weapons/staff2.png.png"
+    },
+    {
+        "name": "Jade Mountainbreaker",
+        "category": "weapon",
+        "rarity": "rare",
+        "default": false,
+        "path": "./weapons/staff3.png.png"
+    },
+    {
+        "name": "Earthroot Mountainbreaker",
+        "category": "weapon",
+        "rarity": "epic",
+        "default": false,
+        "path": "./weapons/staff4.png.png"
+    },
+    {
+        "name": "Ivory Mountainbreaker",
+        "category": "weapon",
+        "rarity": "legendary",
+        "default": false,
+        "path": "./weapons/staff5.png.png"
+    },
+    {
+        "name": "Skullbreaker",
+        "category": "weapon",
+        "rarity": "common",
+        "default": false,
+        "path": "./weapons/Warrior-hammer.png.png"
+    },
+    {
+        "name": "Spellweaver Wand",
+        "category": "weapon",
+        "rarity": "common",
+        "default": false,
+        "path": "./weapons/wizard-wand1.png.png"
+    },
+    {
+        "name": "Runechannel Wand",
+        "category": "weapon",
+        "rarity": "uncommon",
+        "default": false,
+        "path": "./weapons/wizard-wand2.png.png"
+    },
+    {
+        "name": "Etherflare Rod",
+        "category": "weapon",
+        "rarity": "rare",
+        "default": false,
+        "path": "./weapons/wizard-wand3.png.png"
+    },
+    {
+        "name": "Stormbloom Wand",
+        "category": "weapon",
+        "rarity": "epic",
+        "default": false,
+        "path": "./weapons/wizard-wand4.png.png"
+    },
+    {
+        "name": "Mystic Emberwand",
+        "category": "weapon",
+        "rarity": "legendary",
+        "default": false,
+        "path": "./weapons/wizard-wand5.png.png"
+    },
+    {
+        "name": "Gladiator Weapons",
+        "category": "weapon",
+        "rarity": "legendary",
+        "default": false,
+        "path": "./weapons/gladiator-weapons.png.png"
+    },
+    {
+        "name": "Ebon Flow",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/black-female-black-open.png.png"
+    },
+    {
+        "name": "Ebon Tied",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/black-female-black-tied.png.png"
+    },
+    {
+        "name": "Ebon Blonde",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/black-female-blonde-open.png.png"
+    },
+    {
+        "name": "Ebon Braided",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/black-female-blonde-tied.png.png"
+    },
+    {
+        "name": "Ebon Brown",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/black-female-brown-open.png.png"
+    },
+    {
+        "name": "Ebon Bound",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/black-female-brown-tie.png.png"
+    },
+    {
+        "name": "Ebon Ember",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/black-female-orange-open.png.png"
+    },
+    {
+        "name": "Ebon Flame",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/black-female-orange-tied.png.png"
+    },
+    {
+        "name": "Ebon Patch",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/black-head-eyepatch.png.png"
+    },
+    {
+        "name": "Ebon Shaved",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/black-head-no-hair.png.png"
+    },
+    {
+        "name": "Ebon Smirk",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/black-head-smirk.png.png"
+    },
+    {
+        "name": "Ebon Goatee",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/black-male-goatee.png.png"
+    },
+    {
+        "name": "Ebon Standard",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/black-male.png.png"
+    },
+    {
+        "name": "Umber Flow",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/brown-female-black-open.png.png"
+    },
+    {
+        "name": "Umber Tied",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/brown-female-black-tied.png.png"
+    },
+    {
+        "name": "Umber Blonde",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/brown-female-blonde-open.png.png"
+    },
+    {
+        "name": "Umber Braided",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/brown-female-blonde-tied.png.png"
+    },
+    {
+        "name": "Umber Brown",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/brown-female-brown-open.png.png"
+    },
+    {
+        "name": "Umber Bound",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/brown-female-brown-tied.png.png"
+    },
+    {
+        "name": "Umber Ember",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/brown-female-orange-open.png.png"
+    },
+    {
+        "name": "Umber Flame",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/brown-female-orange-tied.png.png"
+    },
+    {
+        "name": "Umber Shaved",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/brown-head-no-hair.png.png"
+    },
+    {
+        "name": "Gladiator Female",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/Gladiator-head-female.png.png"
+    },
+    {
+        "name": "Gladiator Male",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/Gladiator-head-male.png.png"
+    },
+    {
+        "name": "Arcane Wanderer",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/purple-male.png.png"
+    },
+    {
+        "name": "Warrior Female",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/Warrior-head-female.png.png"
+    },
+    {
+        "name": "Warrior Male",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/Warrior-male-male.png.png"
+    },
+    {
+        "name": "Ivory Flow",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/white-female-black-open.png.png"
+    },
+    {
+        "name": "Ivory Tied",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/white-female-black-tied.png.png"
+    },
+    {
+        "name": "Ivory Blonde",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/white-female-blonde-open.png.png"
+    },
+    {
+        "name": "Ivory Braided",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/white-female-blonde-tied.png.png"
+    },
+    {
+        "name": "Ivory Brown",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/white-female-brown-open.png.png"
+    },
+    {
+        "name": "Ivory Bound",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/white-female-brown-tied.png.png"
+    },
+    {
+        "name": "Ivory Ember",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/white-female-orange-open.png.png"
+    },
+    {
+        "name": "Ivory Flame",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/white-female-orange-tied.png.png"
+    },
+    {
+        "name": "Ivory Patch",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/white-head-eyepatch.png.png"
+    },
+    {
+        "name": "Ivory Shaved",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/white-head-no-hair.png.png"
+    },
+    {
+        "name": "Ivory Smirk",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/white-head-smirk.png.png"
+    },
+    {
+        "name": "Ivory Goatee",
+        "category": "head",
+        "rarity": "rare",
+        "default": false,
+        "path": "./heads/white-male-goatee.png.png"
+    },
+    {
+        "name": "Ivory Standard",
+        "category": "head",
+        "rarity": "common",
+        "default": false,
+        "path": "./heads/white-male.png.png"
+    },
+    {
+        "name": "Afro Puff",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/afro.png.png"
+    },
+    {
+        "name": "Ebon Loose",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/black-hair-open.png.png"
+    },
+    {
+        "name": "Ebon Tied",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/black-hair-tied.png.png"
+    },
+    {
+        "name": "Golden Loose",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/blonde-hair-open.png.png"
+    },
+    {
+        "name": "Golden Tied",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/blonde-hair-tied.png.png"
+    },
+    {
+        "name": "Chestnut Loose",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/brown-hair-open.png.png"
+    },
+    {
+        "name": "Chestnut Tied",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/brown-hair-tied.png.png"
+    },
+    {
+        "name": "Brown Shaved",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/brown-head-no-hair17.png.png"
+    },
+    {
+        "name": "Brunette Bald",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/brown-head-no-hair18.png.png"
+    },
+    {
+        "name": "Indigo Band",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/darkblue-headband.png.png"
+    },
+    {
+        "name": "Flat Top",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/flattop.png.png"
+    },
+    {
+        "name": "Forest Band",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/green-headband.png.png"
+    },
+    {
+        "name": "Blond Afro",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/hair-afro-blond.png.png"
+    },
+    {
+        "name": "Brunette Afro",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/hair-afro-brunette.png.png"
+    },
+    {
+        "name": "Blond Base",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/hair-base-blond.png.png"
+    },
+    {
+        "name": "Brunette Base",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/hair-base-brunette.png.png"
+    },
+    {
+        "name": "Basic Base",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/hair-base.png.png"
+    },
+    {
+        "name": "Blond Flat",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/hair-flattop-blond.png.png"
+    },
+    {
+        "name": "Brunette Flat",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/hair-flattop-brunette.png.png"
+    },
+    {
+        "name": "Blond Messy",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/hair-messy-blond.png.png"
+    },
+    {
+        "name": "Brunette Messy",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/hair-messy-brunette.png.png"
+    },
+    {
+        "name": "Shadow Hood",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/hood-black.png.png"
+    },
+    {
+        "name": "Earth Hood",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/hood-brown.png.png"
+    },
+    {
+        "name": "Forest Hood",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/hood-green.png.png"
+    },
+    {
+        "name": "Flame Hood",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/hood-red.png.png"
+    },
+    {
+        "name": "Frost Hood",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/hood-white.png.png"
+    },
+    {
+        "name": "Sky Band",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/lightblue-hairband.png.png"
+    },
+    {
+        "name": "Messy Hair",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/messy-hair.png.png"
+    },
+    {
+        "name": "Silent Mask",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/ninja-mask-1.png.png"
+    },
+    {
+        "name": "Swift Mask",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/ninja-mask-2.png.png"
+    },
+    {
+        "name": "Phantom Mask",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/ninja-mask-3.png.png"
+    },
+    {
+        "name": "Shadow Mask",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/ninja-mask-4.png.png"
+    },
+    {
+        "name": "Ghost Mask",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/ninja-mask-5.png.png"
+    },
+    {
+        "name": "Night Mask",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/ninja-mask-6.png.png"
+    },
+    {
+        "name": "Orange Loose",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/orange-hair-open.png.png"
+    },
+    {
+        "name": "Orange Tied",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/orange-hair-tied.png.png"
+    },
+    {
+        "name": "Sun Band",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/orange-headband.png.png"
+    },
+    {
+        "name": "Rose Band",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/pink-hairband.png.png"
+    },
+    {
+        "name": "Violet Band",
+        "category": "head_accessory",
+        "rarity": "common",
+        "default": false,
+        "path": "./head_accessories/purple-headband.png.png"
+    },
+    {
+        "name": "Royal Band",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/sweatband-purple.png.png"
+    },
+    {
+        "name": "Obsidian Hat",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/wizard-hat-black.png.png"
+    },
+    {
+        "name": "Azure Hat",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/wizard-hat-blue.png.png"
+    },
+    {
+        "name": "Emerald Hat",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/wizard-hat-green.png.png"
+    },
+    {
+        "name": "Rosewood Hat",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/wizard-hat-pink.png.png"
+    },
+    {
+        "name": "Crimson Hat",
+        "category": "head_accessory",
+        "rarity": "rare",
+        "default": false,
+        "path": "./head_accessories/wizard-hat-red.png.png"
+    },
+    {
+        "name": "Ebon Hair",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/black-body-hair.png.png"
+    },
+    {
+        "name": "Ebon Bald",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/black-body-nohair.png.png"
+    },
+    {
+        "name": "Ebon Bikini",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/black-female-black-bikini.png.png"
+    },
+    {
+        "name": "Azure Bikini",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/black-female-blue-bikini.png.png"
+    },
+    {
+        "name": "Rose Bikini",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/black-female-darkpink-bikini.png.png"
+    },
+    {
+        "name": "Blush Bikini",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/black-female-lightpink-bikini.png.png"
+    },
+    {
+        "name": "Amber Bikini",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/black-female-orange-bikini.png.png"
+    },
+    {
+        "name": "Violet Bikini",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/black-female-purple-bikini.png.png"
+    },
+    {
+        "name": "Sunshine Bikini",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/black-female-yellow-bikini.png.png"
+    },
+    {
+        "name": "Ebon Gladiator",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/black-gladiator-body.png.png"
+    },
+    {
+        "name": "Ebon Warrior",
+        "category": "body",
+        "rarity": "uncommon",
+        "default": false,
+        "path": "./bodies/black-warrior-body.png.png"
+    },
+    {
+        "name": "Chestnut Bikini",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/brown-female-black-bikini.png.png"
+    },
+    {
+        "name": "Sky Bikini",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/brown-female-blue-bikini.png.png"
+    },
+    {
+        "name": "Deep Rose Bikini",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/brown-female-darkpink-bikini.png.png"
+    },
+    {
+        "name": "Light Blush",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/brown-female-lightpink-bikini.png.png"
+    },
+    {
+        "name": "Tangerine Bikini",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/brown-female-orange-bikini.png.png.png"
+    },
+    {
+        "name": "Royal Purple",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/brown-female-purple-bikini.png.png"
+    },
+    {
+        "name": "Gold Bikini",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/brown-female-yellow-bikini.png.png"
+    },
+    {
+        "name": "Chestnut Gladiator",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/brown-gladiator-open.png.png"
+    },
+    {
+        "name": "Chestnut Male",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/brown-male-body.png.png"
+    },
+    {
+        "name": "Chestnut Warrior",
+        "category": "body",
+        "rarity": "uncommon",
+        "default": false,
+        "path": "./bodies/brown-warrior-body.png.png"
+    },
+    {
+        "name": "Shadow Ninja",
+        "category": "body",
+        "rarity": "uncommon",
+        "default": false,
+        "path": "./bodies/male-ninja-body-blackblue.png.png"
+    },
+    {
+        "name": "Forest Ninja",
+        "category": "body",
+        "rarity": "uncommon",
+        "default": false,
+        "path": "./bodies/male-ninja-body-blackgreen.png.png"
+    },
+    {
+        "name": "Ember Ninja",
+        "category": "body",
+        "rarity": "uncommon",
+        "default": false,
+        "path": "./bodies/male-ninja-body-blackorange.png.png"
+    },
+    {
+        "name": "Rose Ninja",
+        "category": "body",
+        "rarity": "uncommon",
+        "default": false,
+        "path": "./bodies/male-ninja-body-blackpink.png.png"
+    },
+    {
+        "name": "Crimson Ninja",
+        "category": "body",
+        "rarity": "uncommon",
+        "default": false,
+        "path": "./bodies/male-ninja-body-blackred.png.png"
+    },
+    {
+        "name": "Jungle Ninja",
+        "category": "body",
+        "rarity": "uncommon",
+        "default": false,
+        "path": "./bodies/male-ninja-body-greenblack.png.png"
+    },
+    {
+        "name": "Emerald Monk",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/monk-body-blackgreen.png.png"
+    },
+    {
+        "name": "Chestnut Monk",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/monk-body-brown.png.png"
+    },
+    {
+        "name": "Forest Monk",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/monk-body-green.png.png"
+    },
+    {
+        "name": "Crimson Monk",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/monk-body-red.png.png"
+    },
+    {
+        "name": "Ivory Monk",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/monk-body-whitepurple.png.png"
+    },
+    {
+        "name": "Amethyst Body",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/purple-body.png.png"
+    },
+    {
+        "name": "Ivory Hair",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/white-body-hair.png.png"
+    },
+    {
+        "name": "Ivory Bald",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/white-body-nohair.png.png"
+    },
+    {
+        "name": "Ivory Bikini",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/white-female-black-bikini.png.png"
+    },
+    {
+        "name": "Sapphire Bikini",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/white-female-blue-bikini.png.png"
+    },
+    {
+        "name": "Rose Blush",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/white-female-darkpink-bikini.png.png"
+    },
+    {
+        "name": "Soft Pink",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/white-female-lightpink-bikini.png.png"
+    },
+    {
+        "name": "Coral Bikini",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/white-female-orange-bikini.png.png"
+    },
+    {
+        "name": "Lavender Bikini",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/white-female-purple-bikini.png.png"
+    },
+    {
+        "name": "Lemon Bikini",
+        "category": "body",
+        "rarity": "common",
+        "default": false,
+        "path": "./bodies/white-female-yellow-bikini.png.png"
+    },
+    {
+        "name": "Ivory Gladiator",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/white-gladiator-body.png.png"
+    },
+    {
+        "name": "Ivory Warrior",
+        "category": "body",
+        "rarity": "uncommon",
+        "default": false,
+        "path": "./bodies/white-warrior-body.png.png"
+    },
+    {
+        "name": "Arcane One",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/Wizard-body1.png.png"
+    },
+    {
+        "name": "Arcane Two",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/Wizard-body2.png.png"
+    },
+    {
+        "name": "Arcane Three",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/Wizard-body3.png.png"
+    },
+    {
+        "name": "Arcane Four",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/Wizard-body4.png.png"
+    },
+    {
+        "name": "Arcane Five",
+        "category": "body",
+        "rarity": "rare",
+        "default": false,
+        "path": "./bodies/Wizard-body5.png.png"
+    },
+    {
+        "name": "Arms Lifted V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black-arms-lifted.png.png"
+    },
+    {
+        "name": "Arms Normal V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black-arms-normal.png.png"
+    },
+    {
+        "name": "Arms Sweatbands V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black-arms-sweatbands.png.png"
+    },
+    {
+        "name": "Arms V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black-arms.png.png"
+    },
+    {
+        "name": "Arm1 V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black1-male-arm.png.png"
+    },
+    {
+        "name": "Male Arm2 V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black1-male-arm2.png.png"
+    },
+    {
+        "name": "Monk Arm BlackGreen V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black1-male-monk-arm-blackgreen.png.png"
+    },
+    {
+        "name": "Monk Arm Brown V2",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black1-male-monk-arm-brown.png.png"
+    },
+    {
+        "name": "Monk Arm Green V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black1-male-monk-arm-green.png.png"
+    },
+    {
+        "name": "Monk Arm Red V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black1-male-monk-arm-red.png.png"
+    },
+    {
+        "name": "Monk Arm White V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black1-male-monk-arm-white.png.png"
+    },
+    {
+        "name": "Ninja Arm BlackBlue V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black1-male-ninja-arm-blackblue.png.png"
+    },
+    {
+        "name": "Ninja Arm BlackGreen V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black1-male-ninja-arm-blackgreen.png.png"
+    },
+    {
+        "name": "Ninja Arm BlackOrange V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black1-male-ninja-arm-blackorange.png.png"
+    },
+    {
+        "name": "Ninja Arm BlackPink V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black1-male-ninja-arm-blackpink.png.png"
+    },
+    {
+        "name": "Ninja Arm BlackRed V1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/black1-male-ninja-arm-blackred.png.png"
+    },
+
+    {
+        "name": "Arms Lifted V2",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/brown-arms-lifted.png.png"
+    },
+    {
+        "name": "Arms Normal V2",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/brown-arms-normal.png.png"
+    },
+
+    {
+        "name": "Purple Arms",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/purple-arms.png.png"
+    },
+
+    {
+        "name": "Arms Lifted V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white-arms-lifted.png.png"
+    },
+    {
+        "name": "Arms Normal V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white-arms-normal.png.png"
+    },
+    {
+        "name": "Arms Sweatbands V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white-arms-sweatbands.png.png"
+    },
+    {
+        "name": "Arms V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white-arms.png.png"
+    },
+    {
+        "name": "Male Arm V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white1-male-arm.png.png"
+    },
+    {
+        "name": "Male Arm2 V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white1-male-arm2.png.png"
+    },
+    {
+        "name": "Monk Arm BlackGreen V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white1-male-monk-arm-blackgreen.png.png"
+    },
+    {
+        "name": "Monk Arm Brown V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white1-male-monk-arm-brown.png.png"
+    },
+    {
+        "name": "Monk Arm Green V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white1-male-monk-arm-green.png.png"
+    },
+    {
+        "name": "Monk Arm Red V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white1-male-monk-arm-red.png.png"
+    },
+    {
+        "name": "Monk Arm White V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white1-male-monk-arm-white.png.png"
+    },
+    {
+        "name": "Ninja Arm BlackBlue V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white1-male-ninja-arm-blackblue.png.png"
+    },
+    {
+        "name": "Ninja Arm BlackGreen V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white1-male-ninja-arm-blackgreen.png.png"
+    },
+    {
+        "name": "Ninja Arm BlackOrange V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white1-male-ninja-arm-blackorange.png.png"
+    },
+    {
+        "name": "Ninja Arm BlackPink V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white1-male-ninja-arm-blackpink.png.png"
+    },
+    {
+        "name": "Ninja Arm BlackRed V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white1-male-ninja-arm-blackred.png.png"
+    },
+    {
+        "name": "Ninja Arm Green V3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/white1-male-ninja-arm-green.png.png"
+    },
+
+    {
+        "name": "Wizard Arm 1",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/Wizard-arm1.png.png"
+    },
+    {
+        "name": "Wizard Arm 2",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/Wizard-arm2.png.png"
+    },
+    {
+        "name": "Wizard Arm 3",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/Wizard-arm3.png.png"
+    },
+    {
+        "name": "Wizard Arm 4",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/Wizard-arm4.png.png"
+    },
+    {
+        "name": "Wizard Arm 5",
+        "category": "arm",
+        "rarity": "common",
+        "default": false,
+        "path": "./arms/Wizard-arm5.png.png"
+    }
+]

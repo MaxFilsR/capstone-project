@@ -1,8 +1,14 @@
 use {
-    crate::{
+    crate::utils::{
         jwt::AuthenticatedUser,
         level::exp_needed_for_level,
-        schemas::*,
+        schemas::{
+            Character,
+            Class,
+            Equipped,
+            Inventory,
+            Settings,
+        },
     },
     actix_web::{
         HttpResponse,
@@ -25,6 +31,7 @@ pub struct ReadCharacterResponse {
     exp_needed: i32,
     pending_stat_points: i32,
     streak: i32,
+    coins: i32,
     equipped: Equipped,
     inventory: Inventory,
     friends: Vec<i32>,
@@ -38,7 +45,7 @@ pub async fn read_character(
     let query: Character = sqlx::query_as!(
         Character,
         r#"
-            SELECT username, class as "class: Class", level, exp_leftover, pending_stat_points, streak, equipped as "equipped: Equipped", inventory as "inventory: Inventory", friends
+            SELECT username, class as "class: Class", level, exp_leftover, pending_stat_points, streak, coins, equipped as "equipped: Equipped", inventory as "inventory: Inventory", friends
             FROM characters
             where user_id = $1
         "#,
@@ -56,6 +63,7 @@ pub async fn read_character(
         exp_needed: exp_needed_for_level(query.level + 1),
         pending_stat_points: query.pending_stat_points,
         streak: query.streak,
+        coins: query.coins,
         equipped: query.equipped,
         inventory: query.inventory,
         friends: query.friends,
@@ -112,7 +120,7 @@ pub async fn read_settings(
     .unwrap();
 
     return Ok(HttpResponse::Ok().json(ReadSettingsResponse {
-        email: email,
+        email,
         first_name: query.first_name,
         last_name: query.last_name,
         workout_schedule: query.workout_schedule,

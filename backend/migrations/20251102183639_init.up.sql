@@ -35,7 +35,7 @@ CREATE TYPE equipped AS (
 
 CREATE TYPE inventory AS (
 	arms INTEGER[],
-	backgrounds INTEGER[],
+	background INTEGER[],
 	bodies INTEGER[],
 	heads INTEGER[],
 	head_accessories INTEGER[],
@@ -44,12 +44,23 @@ CREATE TYPE inventory AS (
 );
 
 -- Defines item rarity
+
+CREATE TYPE item_category AS ENUM(
+	'arm',
+	'background',
+	'body',
+	'head',
+	'head_accessory',
+	'pet',
+	'weapon'
+);
+
 CREATE TYPE item_rarity AS ENUM(
 	'common',
 	'uncommon',
 	'rare',
-	'ultra rare',
-	'mythical'
+	'epic',
+	'legendary'
 );
 
 --
@@ -146,6 +157,7 @@ CREATE TABLE IF NOT EXISTS
 		exp_leftover INT NOT NULL,
 		pending_stat_points INT NOT NULL,
 		streak INT NOT NULL,
+		coins INT NOT NULL DEFAULT 1000,
 		equipped Equipped NOT NULL,
 		inventory Inventory NOT NULL,
 		friends INTEGER[] DEFAULT '{}' NOT NULL
@@ -156,10 +168,9 @@ CREATE TABLE IF NOT EXISTS
 	items (
 		id SERIAL PRIMARY KEY,
 		name VARCHAR(100) NOT NULL,
-		category VARCHAR(50) NOT NULL,
+		category item_category NOT NULL,
 		rarity item_rarity NOT NULL,
-		price INTEGER NOT NULL,
-		asset_url TEXT
+		path TEXT NOT NULL
 	);
 
 -- Table to store item related info of users
@@ -233,7 +244,8 @@ CREATE TABLE IF NOT EXISTS
 		date DATE NOT NULL,
 		-- time TIME NOT NULL,         			
 		duration INTEGER NOT NULL,
-		points INTEGER NOT NULL
+		points INTEGER NOT NULL,
+		coins INTEGER NOT NULL
 	);
 
 CREATE TABLE IF NOT EXISTS
@@ -261,53 +273,6 @@ VALUES
 	(4, 'Wizard', ROW (7, 7, 7)),
 	(5, 'Gladiator', ROW (6, 5, 5));
 
-INSERT INTO
-	users (email, password, onboarding_complete)
-VALUES
-	(
-		'you@example.com',
-		crypt ('12345678', gen_salt ('md5')),
-		TRUE
-	);
-
-INSERT INTO
-	settings (user_id, first_name, last_name, workout_schedule)
-VALUES
-	(
-		1,
-		'John',
-		'Doe',
-		'{TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE}'
-	);
-
-INSERT INTO
-	characters (
-		user_id,
-		username,
-		class,
-		level,
-		exp_leftover,
-		pending_stat_points,
-		streak,
-		equipped,
-		inventory,
-		friends
-	)
-VALUES
-	(
-		1,
-		'JDoe',
-		ROW ('Warrior', ROW (10, 7, 5)),
-		1,
-		0,
-		0,
-		0,
-		ROW (0, 0, 0, 0, 0, 0, 0),
-		ROW ('{0}', '{0}', '{0}', '{0}', '{0}', '{0}', '{0}'),
-		'{}'
-	);
-
--- \set exercises_json `cat /docker-entrypoint-initdb.d/exercises.json`;
 DO $$
 	DECLARE
   		exercises_json jsonb;
@@ -351,3 +316,68 @@ DO $$
 		FROM
 			jsonb_array_elements(exercises_json) AS data;
 END $$;
+
+DO $$
+	DECLARE
+  		assets_json jsonb;
+	BEGIN
+		SELECT 
+			pg_read_file('/docker-entrypoint-initdb.d/items.json')::jsonb INTO assets_json;
+		INSERT INTO
+			items (name, category, rarity, path)
+		SELECT
+			data ->> 'name',
+			(data ->> 'category')::item_category,
+			(data ->> 'rarity')::item_rarity,
+			data ->> 'path'
+		FROM
+			jsonb_array_elements(assets_json) AS data;
+END $$;
+
+INSERT INTO
+	users (email, password, onboarding_complete)
+VALUES
+	(
+		'you@example.com',
+		crypt ('12345678', gen_salt ('md5')),
+		TRUE
+	);
+
+INSERT INTO
+	settings (user_id, first_name, last_name, workout_schedule)
+VALUES
+	(
+		1,
+		'John',
+		'Doe',
+		'{TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE}'
+	);
+
+INSERT INTO
+	characters (
+		user_id,
+		username,
+		class,
+		level,
+		exp_leftover,
+		pending_stat_points,
+		streak,
+		coins,
+		equipped,
+		inventory,
+		friends
+	)
+VALUES
+	(
+		1,
+		'JDoe',
+		ROW ('Warrior', ROW (10, 7, 5)),
+		1,
+		0,
+		0,
+		0,
+		1000,
+		ROW (0, 0, 0, 0, 0, 0, 0),
+		ROW ('{0}', '{0}', '{0}', '{0}', '{0}', '{0}', '{0}'),
+		'{}'
+	);

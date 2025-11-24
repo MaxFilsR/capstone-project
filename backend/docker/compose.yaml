@@ -1,0 +1,91 @@
+# Maximilian Jaramazovic
+#* This Docker compose file is responsible to create the necessary infrastructure for the gains app.
+#* In order to develop and test use in cli: docker compose up
+#* When you are done: docker compose down
+#*
+#! when connecting pgadmin use the container name, not address
+#! in production best practice would be to change uname and pass and have them hidden too :D
+# Maximilian Jaramazovic
+
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker Compose reference guide at
+# https://docs.docker.com/go/compose-spec-reference/
+
+# Here the instructions define your application as a service called "server".
+# This service is built from the Dockerfile in the current directory.
+# You can add other services your application may depend on here, such as a
+# database or a cache. For examples, see the Awesome Compose repository:
+# https://github.com/docker/awesome-compose
+services:
+    #* postgres container
+    gainzdb:
+        image: postgres:18.0
+        container_name: gainzdb
+        environment:
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+            POSTGRES_DB: ${POSTGRES_DB}
+        volumes:
+            - postgres_data:/var/lib/postgresql #persistent data
+            # - ./seed.pgsql:/docker-entrypoint-initdb.d/seed.sql
+            - ../assets/exercises.json:/docker-entrypoint-initdb.d/exercises.json #library of exercises for database to read from
+            - ../assets/items.json:/docker-entrypoint-initdb.d/items.json #library of items for database to read from
+        healthcheck:
+            test:
+                ["CMD", "pg_isready", "-h", "gainzdb", "-U", "${POSTGRES_USER}"]
+            interval: 5s
+            timeout: 5s
+            retries: 5
+        networks:
+            - gainz_net
+
+    #* backend container
+    gainz-api:
+        # image: mjaramazovic/gainz-api # change it to your docker if you update the file
+        container_name: gainz-api
+        restart: unless-stopped
+        environment:
+            DATABASE_URL: ${DATABASE_URL}
+            ACTIX_WEB_ADDRESS: ${ACTIX_WEB_ADDRESS}
+            ACTIX_WEB_PORT: ${ACTIX_WEB_PORT}
+            JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+        build:
+            context: .. # to allow bind mounts to access all necessary files
+            dockerfile: ./docker/Dockerfile # since context is set to .. we need to specify the path to dockerfile
+            network: host # Daniel Yentin: Container fails to fetch alpine packages without this line
+        networks:
+            - gainz_net
+
+    # * pgadmin container
+    # pgadmin:
+    #     image: dpage/pgadmin4
+    #     container_name: pgadmin4
+    #     environment:
+    #         PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+    #         PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    #         PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT}
+    #     restart: always
+    #     volumes:
+    #         - pgadmin-data:/var/lib/pgadmin
+    #     depends_on:
+    #         - gainzdb
+    #     healthcheck:
+    #         test: ["CMD", "pg_isready", "-U", "postgres", "-d", "gainzdb"]
+    #         interval: 1m30s
+    #         timeout: 30s
+    #         retries: 5
+    #         start_period: 30s
+    #     networks:
+    #         - gainz_net
+
+volumes:
+    postgres_data:
+        driver: local
+    pgadmin-data:
+
+networks:
+    gainz_net:
+# secrets:
+#   db-password:
+#     file: ./db/password.txt
+
