@@ -42,7 +42,7 @@ const DailyQuestsScreen = () => {
     }
   };
 
-  const handleCreateQuest = async (difficulty: "easy" | "medium" | "hard") => {
+  const handleCreateQuest = async (difficulty: "Easy" | "Medium" | "Hard") => {
     try {
       setCreating(true);
       setError(null);
@@ -127,12 +127,15 @@ const DailyQuestsScreen = () => {
       <View style={styles.createButtonsContainer}>
         <TouchableOpacity
           style={[styles.createButton, styles.easyButton]}
-          onPress={() => handleCreateQuest("easy")}
+          onPress={() => handleCreateQuest("Easy")}
           disabled={creating}
           activeOpacity={0.7}
         >
           {creating ? (
-            <ActivityIndicator size="small" color={colorPallet.neutral_darkest} />
+            <ActivityIndicator
+              size="small"
+              color={colorPallet.neutral_darkest}
+            />
           ) : (
             <Text style={styles.createButtonText}>Easy Quest</Text>
           )}
@@ -140,12 +143,15 @@ const DailyQuestsScreen = () => {
 
         <TouchableOpacity
           style={[styles.createButton, styles.mediumButton]}
-          onPress={() => handleCreateQuest("medium")}
+          onPress={() => handleCreateQuest("Medium")}
           disabled={creating}
           activeOpacity={0.7}
         >
           {creating ? (
-            <ActivityIndicator size="small" color={colorPallet.neutral_darkest} />
+            <ActivityIndicator
+              size="small"
+              color={colorPallet.neutral_darkest}
+            />
           ) : (
             <Text style={styles.createButtonText}>Medium Quest</Text>
           )}
@@ -153,12 +159,15 @@ const DailyQuestsScreen = () => {
 
         <TouchableOpacity
           style={[styles.createButton, styles.hardButton]}
-          onPress={() => handleCreateQuest("hard")}
+          onPress={() => handleCreateQuest("Hard")}
           disabled={creating}
           activeOpacity={0.7}
         >
           {creating ? (
-            <ActivityIndicator size="small" color={colorPallet.neutral_darkest} />
+            <ActivityIndicator
+              size="small"
+              color={colorPallet.neutral_darkest}
+            />
           ) : (
             <Text style={styles.createButtonText}>Hard Quest</Text>
           )}
@@ -285,7 +294,7 @@ function QuestCard({
   return (
     <Pressable style={styles.questCard} onPress={onPress}>
       <View style={styles.questCardContent}>
-        { /* difficulty */}
+        {/* difficulty */}
         <View style={styles.difficultyBadge}>
           <Text style={styles.difficultyText}>
             {quest.difficulty.toUpperCase()}
