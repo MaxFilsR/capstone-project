@@ -1,6 +1,7 @@
 services:
     gainzdb:
         image: postgres:18.0
+        container_name: gainzdb
         environment:
             POSTGRES_USER: ${POSTGRES_USER}
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -10,8 +11,8 @@ services:
         volumes:
             - postgres_data:/var/lib/postgresql #persistent data
             # - ./seed.pgsql:/docker-entrypoint-initdb.d/seed.sql
-            - ./exercises.json:/docker-entrypoint-initdb.d/exercises.json #library of exercises for database to read from
-            - ./assets/assets.json:/docker-entrypoint-initdb.d/assets.json #library of assets for database to read from
+            - ../assets/exercises.json:/docker-entrypoint-initdb.d/exercises.json #library of exercises for database to read from
+            - ../assets/items/items.json:/docker-entrypoint-initdb.d/items.json #library of assets for database to read from
         healthcheck:
             test:
                 ["CMD", "pg_isready", "-h", "gainzdb", "-U", "${POSTGRES_USER}"]
