@@ -1,127 +1,123 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { router, useLocalSearchParams } from "expo-router";
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Pressable, } from "react-native";
+import { View, Text, ScrollView, StyleSheet, ActivityIndicator, Button } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { BackButton } from "@/components";
-
-
-type ContributingWorkout = {
-  id: string;
-  name: string;
-  pointsScored: number;
-  date: string;
-};
-
-type Quest = {
-  id: string;
-  title: string;
-  description: string;
-  reward: {
-    xp: number;
-  };
-  progress: number; // 0-100
-  status: "active" | "inactive" | "completed"
-  expiresAt?: string;
-  contributingWorkouts: ContributingWorkout[];
-};
-
-
-// sample quests
-const sampleQuests: Quest[] = [
-  {
-    id: "1",
-    title: "The Iron Trial",
-    description: "Complete 4 strength workouts",
-    reward: {
-      xp: 200,
-    },
-    progress: 75,
-    status: "active",
-    expiresAt: "December 12th",
-    contributingWorkouts: [
-      {
-        id: "w1",
-        name: "Hamstring workout",
-        pointsScored: 25,
-        date: "10-28-2025",
-      },
-      {
-        id: "w2",
-        name: "Quad workout",
-        pointsScored: 30,
-        date: "10-24-2025",
-      },
-      {
-        id: "w3",
-        name: "Push day",
-        pointsScored: 20,
-        date: "10-14-2025",
-      },
-    ],
-  },
-  {
-    id: "2",
-    title: "The Early Bird",
-    description: "Log a workout before 9 AM on 3 different days",
-    reward: {
-      xp: 400,
-    },
-    progress: 100,
-    status: "active",
-    expiresAt: "January 1st",
-    contributingWorkouts: [
-      {
-        id: "w4",
-        name: "Morning run",
-        pointsScored: 35,
-        date: "10-28-2025",
-      },
-      {
-        id: "w5",
-        name: "Glute day",
-        pointsScored: 20,
-        date: "10-28-2025",
-      },
-      {
-        id: "w6",
-        name: "Back and Biceps",
-        pointsScored: 25,
-        date: "10-28-2025",
-      },
-    ],
-  },
-];
+import { getQuests, Quest } from "@/api/endpoints";
 
 
 const DetailsQuestsScreen = () => {
-  const params = useLocalSearchParams()
-  const questId = params.questId;
+  const params = useLocalSearchParams();
+  const questId = params.questId as string;
 
-  const quest = sampleQuests.find((q) => q.id === questId);
+  const [quest, setQuest] = useState<Quest | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!quest) {
+  useEffect(() => {
+    loadQuestDetails();
+  }, [questId]);
+
+  const loadQuestDetails = async () => {
+    try {
+      setLoading(true);
+      // Fetch all quests and find the one matching this ID
+      const allQuests = await getQuests();
+      const foundQuest = allQuests.find((q) => q.id === parseInt(questId));
+
+      if (foundQuest) {
+        setQuest(foundQuest);
+        setError(null);
+      } else {
+        setError("Quest not found");
+      }
+    } catch (err) {
+      console.error("Failed to load quest details:", err);
+      setError("Failed to load quest details");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //calculate progress percentage
+  const calculateProgress = (): number => {
+    if (!quest || quest.number_of_workouts_needed === 0) return 0;
+    const progress =
+      (quest.number_of_workouts_completed / quest.number_of_workouts_needed) *
+      100;
+    return Math.min(progress, 100);
+  };
+
+  // calculate reward base don what difficulty is
+  const getReward = (): number => {
+    if (!quest) return 0;
+    switch (quest.difficulty.toLowerCase()) {
+      case "easy":
+        return 100;
+      case "medium":
+        return 500;
+      case "hard":
+        return 1500;
+      default:
+        return 100;
+    }
+  };
+
+  const getQuestDescription = (): string => {
+    if (!quest) return "";
+
+    let description = `Complete ${quest.number_of_workouts_needed} workout${
+      quest.number_of_workouts_needed > 1 ? "s" : ""
+    }`;
+
+    if (quest.workout_duration) {
+      description += ` of at least ${quest.workout_duration} minutes`;
+    }
+
+    if (quest.exercise_category) {
+      description += ` that include ${quest.exercise_category}`;
+    }
+
+    if (quest.exercise_muscle) {
+      description += ` targeting ${quest.exercise_muscle}`;
+    }
+
+    return description;
+  };
+
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <BackButton />
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={colorPallet.primary} />
+          <Text style={[typography.body, { marginTop: 12, color: colorPallet.neutral_3 }]}>
+            Loading quest details...
+          </Text>
+        </View>
+      </View>
+    );
+  }
+
+  if (error || !quest) {
     return (
       <View style={styles.container}>
         <BackButton />
         <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Details Not Found</Text>
+          <MaterialIcons name="error-outline" size={64} color={colorPallet.critical} />
+          <Text style={styles.errorText}>{error || "Quest not found"}</Text>
+          <Button title="Go Back" onPress={() => router.back()} />
         </View>
       </View>
     );
   }
 
   // check if quest completed
-  const isCompleted = quest.status === "completed" || quest.progress === 100;
-
-  // how many days until expiry
-  const daysUntilExpiry = 7;
-
-  const handleWorkoutPress = (workoutId: string) => {
-    console.log("Navigate to workout details:", workoutId);
-    //router.push({pathname: "/screens/FitnessTabs/workoutComplete", params: { id: workoutId }});
-  };
+  const progress = calculateProgress();
+  const isCompleted = quest.status === "completed" || progress === 100;
 
   return (
     <View style={styles.container}>
@@ -134,22 +130,50 @@ const DetailsQuestsScreen = () => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.questInfoSection}>
+          {/* difficulty badge */}
+          <View style={styles.difficultyBadge}>
+            <Text style={styles.difficultyText}>
+              {quest.difficulty.toUpperCase()}
+            </Text>
+          </View>
+
           {/* quest title */}
-          <Text style={styles.questTitle}>{quest.title}</Text>
+          <Text style={styles.questTitle}>{quest.name}</Text>
 
           {/* quest description */}
-          <Text style={styles.questDescription}>{quest.description}</Text>
+          <Text style={styles.questDescription}>{getQuestDescription()}</Text>
 
-          {/* expiry date */}
-          {quest.expiresAt && (
-            <Text style={styles.expiryText}>
-              Expires in: {daysUntilExpiry} Days
+          {/* Status badge */}
+          <View style={styles.statusBadge}>
+            <MaterialIcons
+              name={
+                quest.status === "completed"
+                  ? "check-circle"
+                  : quest.status === "active"
+                  ? "radio-button-checked"
+                  : "radio-button-unchecked"
+              }
+              size={16}
+              color={
+                quest.status === "completed"
+                  ? colorPallet.primary
+                  : quest.status === "active"
+                  ? colorPallet.secondary
+                  : colorPallet.neutral_4
+              }
+            />
+            <Text style={styles.statusText}>
+              Status: {quest.status.charAt(0).toUpperCase() + quest.status.slice(1)}
             </Text>
-          )}
+          </View>
 
           {/* reward info */}
-          <Text style={styles.rewardText}>
-            Reward: +{quest.reward.xp} XP
+          <Text style={styles.rewardText}>Reward: +{getReward()} XP</Text>
+
+          {/* progress text */}
+          <Text style={styles.progressCountText}>
+            {quest.number_of_workouts_completed} / {quest.number_of_workouts_needed}{" "}
+            workouts completed
           </Text>
 
           {/* progress bar */}
@@ -158,7 +182,7 @@ const DetailsQuestsScreen = () => {
               style={[
                 styles.progressBarFill,
                 {
-                  width: `${quest.progress}%`,
+                  width: `${progress}%`,
                   backgroundColor: isCompleted
                     ? colorPallet.primary
                     : colorPallet.secondary,
@@ -167,10 +191,10 @@ const DetailsQuestsScreen = () => {
             />
           </View>
 
-          {/* progress % */}
-          <Text style={styles.progressText}>{quest.progress}%</Text>
+          {/* progress percentage */}
+          <Text style={styles.progressText}>{Math.round(progress)}%</Text>
 
-          {/* cquest completed */}
+          {/* quest completed badge */}
           {isCompleted && (
             <View style={styles.completedBadge}>
               <MaterialIcons name="check-circle" size={24} color={colorPallet.primary} />
@@ -179,71 +203,92 @@ const DetailsQuestsScreen = () => {
           )}
         </View>
 
-        {/* contributing workouts */}
-        <View style={styles.workoutsSection}>
-          {/* header */}
-          <View style={styles.workoutHeader}>
-            <Text style={styles.workoutHeaderText}>Contributing Workouts</Text>
+        {/* requirements section */}
+        <View style={styles.requirementsSection}>
+          <Text style={styles.sectionTitle}>Requirements</Text>
+
+          <View style={styles.requirementCard}>
+            <MaterialIcons
+              name="fitness-center"
+              size={24}
+              color={colorPallet.secondary}
+            />
+            <View style={styles.requirementInfo}>
+              <Text style={styles.requirementLabel}>Workouts Needed</Text>
+              <Text style={styles.requirementValue}>
+                {quest.number_of_workouts_needed}
+              </Text>
+            </View>
           </View>
 
-          {/* workouts list */}
-          {quest.contributingWorkouts.map((workout) => (
-            <WorkoutCard
-              key={workout.id}
-              workout={workout}
-              onPress={() => handleWorkoutPress(workout.id)}
-            />
-          ))}
-
-          {/* if no workouts yet */}
-          {quest.contributingWorkouts.length === 0 && (
-            <Text style={styles.noWorkoutsText}> No workouts completed yet</Text>
+          {quest.workout_duration && (
+            <View style={styles.requirementCard}>
+              <MaterialIcons name="timer" size={24} color={colorPallet.secondary} />
+              <View style={styles.requirementInfo}>
+                <Text style={styles.requirementLabel}>Minimum Duration</Text>
+                <Text style={styles.requirementValue}>
+                  {quest.workout_duration} minutes
+                </Text>
+              </View>
+            </View>
           )}
+
+          {quest.exercise_category && (
+            <View style={styles.requirementCard}>
+              <MaterialIcons name="category" size={24} color={colorPallet.secondary} />
+              <View style={styles.requirementInfo}>
+                <Text style={styles.requirementLabel}>Exercise Category</Text>
+                <Text style={styles.requirementValue}>
+                  {quest.exercise_category}
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {quest.exercise_muscle && (
+            <View style={styles.requirementCard}>
+              <MaterialIcons
+                name="accessibility"
+                size={24}
+                color={colorPallet.secondary}
+              />
+              <View style={styles.requirementInfo}>
+                <Text style={styles.requirementLabel}>Target Muscle</Text>
+                <Text style={styles.requirementValue}>
+                  {quest.exercise_muscle}
+                </Text>
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* info box */}
+        <View style={styles.infoBox}>
+          <MaterialIcons
+            name="info-outline"
+            size={20}
+            color={colorPallet.primary}
+          />
+          <Text style={styles.infoText}>
+            Complete workouts that meet the requirements. Your progress updates
+            automatically!
+          </Text>
         </View>
       </ScrollView>
     </View>
   );
 };
 
-type WorkoutCardProps = {
-  workout: ContributingWorkout;
-  onPress: () => void;
-};
-
-// workout card component
-function WorkoutCard({ workout, onPress }: WorkoutCardProps) {
-  return (
-    <Pressable style={styles.workoutCard} onPress={onPress}>
-      {/* running icon */}
-      <View style={styles.workoutIconContainer}>
-        <MaterialIcons
-          //name="directions-run"
-          name="fitness-center"
-          size={32}
-          color={colorPallet.secondary}
-        />
-      </View>
-
-      {/* workout info */}
-      <View style={styles.workoutInfo}>
-        <Text style={styles.workoutName}>{workout.name}</Text>
-        <Text style={styles.workoutPoints}> {workout.pointsScored} points</Text>
-      </View>
-
-      <MaterialIcons
-          name="chevron-right"
-          size={24}
-          color={colorPallet.neutral_3}
-      />
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colorPallet.neutral_darkest,
     paddingTop: 50,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   scrollView: {
     flex: 1,
@@ -258,12 +303,14 @@ const styles = StyleSheet.create({
   errorContainer: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    gap: 16,
   },
   errorText: {
     ...typography.body,
     color: colorPallet.critical,
     fontSize: 16,
+    textAlign: "center",
   },
 
   // quest section
@@ -271,10 +318,24 @@ const styles = StyleSheet.create({
     backgroundColor: colorPallet.neutral_6,
     borderRadius: 12,
     padding: 20,
-    marginTop: 20,
-    marginBottom: 15,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: colorPallet.neutral_5,
+  },
+  difficultyBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: colorPallet.secondary,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 4,
+    marginBottom: 12,
+  },
+  difficultyText: {
+    ...typography.body,
+    color: colorPallet.neutral_darkest,
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 0.5,
   },
   questTitle: {
     ...typography.h1,
@@ -290,12 +351,17 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     marginBottom: 12,
   },
-  expiryText: {
+  statusBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginBottom: 8,
+  },
+  statusText: {
     ...typography.body,
     color: colorPallet.neutral_3,
-    fontSize: 13,
-    fontStyle: "italic",
-    marginBottom: 8,
+    fontSize: 14,
+    fontWeight: "600",
   },
   rewardText: {
     ...typography.body,
@@ -303,11 +369,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 16,
   },
-
-  // progress bar
-  questsContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 80,
+  progressCountText: {
+    ...typography.body,
+    color: colorPallet.neutral_3,
+    fontSize: 14,
+    marginBottom: 12,
   },
 
   // progress bar
@@ -342,6 +408,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: "center",
+    marginTop: 4,
   },
   completedText: {
     ...typography.body,
@@ -350,26 +417,18 @@ const styles = StyleSheet.create({
     fontWeight: "700"
   },
 
-  // contributing workouts
-  workoutsSection: {
-    marginBottom: 20,
+  // requirements section
+  requirementsSection: {
+    marginBottom: 16,
   },
-  workoutHeader: {
-    backgroundColor: colorPallet.neutral_6,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  workoutHeaderText: {
+  sectionTitle: {
     ...typography.h2,
     color: colorPallet.primary,
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: "700",
+    marginBottom: 12,
   },
-
-  // workout card
-  workoutCard: {
+  requirementCard: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: colorPallet.neutral_6,
@@ -379,39 +438,42 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colorPallet.neutral_5,
   },
-  workoutIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colorPallet.neutral_darkest,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16
-  },
-  workoutInfo: {
+  requirementInfo: {
+    marginLeft: 16,
     flex: 1,
   },
-  workoutName: {
-    ...typography.body,
-    color: colorPallet.secondary,
-    fontSize: 16,
-    fontWeight: "700",
-    marginBottom: 4,
-  },
-  workoutPoints: {
+  requirementLabel: {
     ...typography.body,
     color: colorPallet.neutral_3,
     fontSize: 13,
+    marginBottom: 4,
+  },
+  requirementValue: {
+    ...typography.body,
+    color: colorPallet.neutral_lightest,
+    fontSize: 16,
+    fontWeight: "700",
   },
 
-  // no workouts
-  noWorkoutsText: {
+  // info box
+  infoBox: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    backgroundColor: colorPallet.neutral_6,
+    borderLeftWidth: 3,
+    borderLeftColor: colorPallet.primary,
+    borderRadius: 8,
+    padding: 12,
+    gap: 10,
+  },
+  infoText: {
     ...typography.body,
-    color: colorPallet.neutral_4,
-    fontSize: 14,
-    textAlign: "center",
-    marginTop: 20,
+    color: colorPallet.neutral_2,
+    fontSize: 13,
+    lineHeight: 18,
+    flex: 1,
   },
 });
 
 export default DetailsQuestsScreen;
+
