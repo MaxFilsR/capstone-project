@@ -1,24 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Text,
   ScrollView,
   View,
   StyleSheet,
   TouchableOpacity,
+  LayoutAnimation,
+  Platform,
+  UIManager,
 } from "react-native";
 import { tabStyles } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
 import { Ionicons } from "@expo/vector-icons";
 
+// Enable LayoutAnimation on Android
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
 type InventoryCategory = {
   name: string;
   key: string;
   icon: keyof typeof Ionicons.glyphMap;
-  items: any[]; // This will come from API
+  items: any[];
 };
 
 const InventoryScreen = () => {
+  const [expandedCategories, setExpandedCategories] = useState<{
+    [key: string]: boolean;
+  }>({});
+
   // Mock inventory categories - will be populated from API
   const inventoryCategories: InventoryCategory[] = [
     {
@@ -50,6 +65,14 @@ const InventoryScreen = () => {
     { name: "Pets", key: "pets", icon: "paw", items: Array(3).fill(null) },
   ];
 
+  const toggleCategory = (categoryKey: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setExpandedCategories((prev) => ({
+      ...prev,
+      [categoryKey]: !prev[categoryKey],
+    }));
+  };
+
   return (
     <ScrollView
       style={[
@@ -59,44 +82,56 @@ const InventoryScreen = () => {
       contentContainerStyle={styles.scrollContent}
       showsVerticalScrollIndicator={false}
     >
-      {inventoryCategories.map((category) => (
-        <View key={category.key} style={styles.categorySection}>
-          {/* Category Header */}
-          <View style={styles.categoryHeader}>
-            <View style={styles.categoryTitleRow}>
-              <Ionicons
-                name={category.icon}
-                size={20}
-                color={colorPallet.primary}
-              />
-              <Text style={styles.categoryTitle}>{category.name}</Text>
-            </View>
-            <Text style={styles.itemCount}>
-              {category.items.length}{" "}
-              {category.items.length === 1 ? "Item" : "Items"}
-            </Text>
-          </View>
+      {inventoryCategories.map((category) => {
+        const isExpanded = expandedCategories[category.key];
 
-          {/* Items Grid */}
-          <View style={styles.itemsGrid}>
-            {category.items.map((item, index) => (
-              <TouchableOpacity
-                key={`${category.key}-${index}`}
-                style={styles.itemCard}
-                activeOpacity={0.7}
-              >
-                <View style={styles.itemImageContainer}>
-                  {/* Placeholder - will be replaced with actual item images from API */}
-                  <Text style={styles.itemPlaceholder}>?</Text>
-                </View>
-                <View style={styles.itemInfo}>
-                  <Text style={styles.itemName}>Item {index + 1}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+        return (
+          <View key={category.key} style={styles.categorySection}>
+            {/* Category Header - Clickable */}
+            <TouchableOpacity
+              style={styles.categoryHeader}
+              onPress={() => toggleCategory(category.key)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.categoryTitleRow}>
+                <Ionicons
+                  name={category.icon}
+                  size={20}
+                  color={colorPallet.primary}
+                />
+                <Text style={styles.categoryTitle}>{category.name}</Text>
+                <Text style={styles.itemCount}>({category.items.length})</Text>
+              </View>
+              <Ionicons
+                name={isExpanded ? "chevron-up" : "chevron-down"}
+                size={20}
+                color={colorPallet.neutral_3}
+              />
+            </TouchableOpacity>
+
+            {/* Items Grid - Collapsible */}
+            {isExpanded && (
+              <View style={styles.itemsGrid}>
+                {category.items.map((item, index) => (
+                  <TouchableOpacity
+                    key={`${category.key}-${index}`}
+                    style={styles.itemCard}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.itemImageContainer}>
+                      {/* Placeholder - will be replaced with actual item images from API */}
+                      <Text style={styles.itemPlaceholder}>?</Text>
+                    </View>
+                    <View style={styles.itemInfo}>
+                      <Text style={styles.itemName}>Item {index + 1}</Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
-        </View>
-      ))}
+        );
+      })}
 
       {/* Empty State (show when no items) */}
       {inventoryCategories.every((cat) => cat.items.length === 0) && (
@@ -121,16 +156,18 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
   },
   categorySection: {
-    marginBottom: 24,
+    marginBottom: 12,
   },
   categoryHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 12,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: colorPallet.neutral_5,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: colorPallet.neutral_6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colorPallet.neutral_5,
   },
   categoryTitleRow: {
     flexDirection: "row",
@@ -153,6 +190,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 12,
+    marginTop: 12,
+    paddingHorizontal: 4,
   },
   itemCard: {
     width: "30%",
