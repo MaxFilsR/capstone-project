@@ -1,0 +1,388 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://gainz.com/object1.json",
+  "title": "Root",
+  "type": "object",
+  "properties": {
+    "auth": {
+      "$id": "#root/auth",
+      "title": "Auth",
+      "type": "object",
+      "properties": {
+        "sign-up": {
+          "$id": "#root/auth/sign-up",
+          "title": "Sign-up",
+          "type": "object",
+          "properties": {
+            "request": {
+              "$id": "#root/auth/sign-up/request",
+              "title": "Request",
+              "type": "object",
+              "required": [
+                "email",
+                "password"
+              ],
+              "properties": {
+                "email": {
+                  "$id": "#root/auth/sign-up/request/email",
+                  "title": "Email",
+                  "type": "string"
+                },
+                "password": {
+                  "$id": "#root/auth/sign-up/request/password",
+                  "title": "Password",
+                  "type": "string"
+                }
+              }
+            },
+            "response": {
+              "$id": "#root/auth/sign-up/response",
+              "title": "Response",
+              "type": "object",
+              "required": [
+                "access_token",
+                "refresh_token"
+              ],
+              "properties": {
+                "access_token": {
+                  "$id": "#root/auth/sign-up/response/access_token",
+                  "title": "Access_token",
+                  "type": "string"
+                },
+                "refresh_token": {
+                  "$id": "#root/auth/sign-in/response/refresh_token",
+                  "title": "Refresh_token",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "login": {
+          "$id": "#root/auth/login",
+          "title": "Login",
+          "type": "object",
+          "properties": {
+            "request": {
+              "$id": "#root/auth/login/request",
+              "title": "Request",
+              "type": "object",
+              "required": [
+                "email",
+                "password"
+              ],
+              "properties": {
+                "email": {
+                  "$id": "#root/auth/login/request/email",
+                  "title": "Email",
+                  "type": "string"
+                },
+                "password": {
+                  "$id": "#root/auth/login/request/password",
+                  "title": "Password",
+                  "type": "string"
+                }
+              }
+            },
+            "response": {
+              "$id": "#root/auth/login/response",
+              "title": "Response",
+              "type": "object",
+              "required": [
+                "access_token",
+                "refresh_token"
+              ],
+              "properties": {
+                "access_token": {
+                  "$id": "#root/auth/login/response/access_token",
+                  "title": "Access_token",
+                  "type": "string"
+                },
+                "refresh_token": {
+                  "$id": "#root/auth/login/response/refresh_token",
+                  "title": "Refresh_token",
+                  "type": "string"
+                },
+                "onboarding_complete": {
+                  "$id": "#root/auth/login/response/onboarding_complete",
+                  "title": "Onboarding_complete",
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "refresh": {
+          "$id": "root/auth/refresh",
+          "title": "Refresh",
+          "properties": {
+            "request": {
+              "$id": "#root/auth/refresh/request",
+              "title": "Request",
+              "type": "object",
+              "required": [
+                "refresh_token"
+              ],
+              "properties": {
+                "refresh_token": {
+                  "$id": "#root/auth/refresh/request/refresh_token",
+                  "title": "Refresh_token",
+                  "type": "string"
+                }
+              }
+            },
+            "response": {
+              "$id": "#root/auth/refresh/response",
+              "title": "Response",
+              "type": "object",
+              "required": [
+                "access_token"
+              ],
+              "properties": {
+                "access_token": {
+                  "$id": "#root/auth/refresh/response/access_token",
+                  "title": "Access_token",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "constants": {
+      "$id": "#root/constants",
+      "title": "Constants",
+      "type": "object",
+      "properties": {
+        "classes": {
+          "$id": "#root/constants/classes",
+          "title": "Classes",
+          "type": "object",
+          "properties": {
+            "response": {
+              "$id": "#root/constants/classes/response",
+              "title": "Response",
+              "properties": {
+                "id": {
+                  "$id": "#root/constants/classes/response/id",
+                  "title": "Id",
+                  "type": "integer"
+                },
+                "name": {
+                  "$id": "#root/constants/classes/response/name",
+                  "title": "Name",
+                  "type": "string"
+                },
+                "description": {
+                  "$id": "#root/constants/classes/response/description",
+                  "title": "Description",
+                  "type": "string"
+                },
+                "stats": {
+                  "$id": "#root/constants/classes/response/stats",
+                  "title": "Stats",
+                  "type": "object",
+                  "properties": {
+                    "vitality": {
+                      "$id": "#root/constants/classes/response/stats/vitality",
+                      "title": "Vitality",
+                      "type": "integer"
+                    },
+                    "strength": {
+                      "$id": "#root/constants/classes/response/stats/strength",
+                      "title": "Strength",
+                      "type": "integer"
+                    },
+                    "endurance": {
+                      "$id": "#root/constants/classes/response/stats/endurance",
+                      "title": "Endurance",
+                      "type": "integer"
+                    },
+                    "agility": {
+                      "$id": "#root/constants/classes/response/stats/agility",
+                      "title": "Agility",
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "nav": {
+      "$id": "#root/nav",
+      "title": "Nav",
+      "type": "object",
+      "properties": {
+        "workouts": {
+          "$id": "#root/nav/workouts",
+          "title": "Workouts",
+          "type": "object",
+          "properties": {
+            "library": {
+              "$id": "#root/nav/workouts/library",
+              "title": "Library",
+              "type": "object",
+              "required": [
+                "id",
+                "name",
+                "level",
+                "primaryMuscles",
+                "secondaryMuscles",
+                "instructions",
+                "category",
+                "images"
+              ],
+              "properties": {
+                "id": {
+                  "$id": "#root/nav/workouts/library/id",
+                  "title": "Id",
+                  "type": "string"
+                },
+                "name": {
+                  "$id": "#root/nav/workouts/library/name",
+                  "title": "Name",
+                  "type": "string"
+                },
+                "force": {
+                  "$id": "#root/nav/workouts/library/force",
+                  "title": "Force",
+                  "type": "string"
+                },
+                "level": {
+                  "$id": "#root/nav/workouts/library/level",
+                  "title": "Level",
+                  "type": "string"
+                },
+                "mechanic": {
+                  "$id": "#root/nav/workouts/library/mechanic",
+                  "title": "Mechanic",
+                  "type": "string"
+                },
+                "equipment": {
+                  "$id": "#root/nav/workouts/library/equipment",
+                  "title": "Equipment",
+                  "type": "string"
+                },
+                "primaryMuscles": {
+                  "$id": "#root/nav/workouts/library/primaryMuscles",
+                  "title": "PrimaryMuscles",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "secondaryMuscles": {
+                  "$id": "#root/nav/workouts/library/secondaryMuscles",
+                  "title": "SecondaryMuscles",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "instructions": {
+                  "$id": "#root/nav/workouts/library/instructions",
+                  "title": "Instructions",
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "category": {
+                  "$id": "#root/nav/workouts/library/category",
+                  "title": "Category",
+                  "type": "string"
+                },
+                "images": {
+                  "$id": "#root/nav/workouts/library/images",
+                  "title": "images",
+                  "type": "string"
+                }
+              }
+            },
+            "routines": {
+              "$id": "#root/nav/workouts/routines",
+              "title": "Routines",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "$id": "#root/nav/workouts/routines/name",
+                  "title": "Name",
+                  "type": "string"
+                },
+                "exercises": {
+                  "$id": "#root/nav/workouts/routines/exercises",
+                  "title": "Exercises",
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "$id": "#root/nav/workouts/routines/exercises/id",
+                        "title": "Id",
+                        "type": "integer"
+                      },
+                      "sets":{
+                        "$id": "#root/nav/workouts/routines/exercises/sets",
+                        "title": "Sets",
+                        "type": "integer"
+                      },
+                      "reps": {
+                        "$id": "#root/nav/workouts/routines/exercises/reps",
+                        "title": "Reps",
+                        "type": "integer"
+                      },
+                      "weight": {
+                        "$id": "#root/nav/workouts/routines/exercises/weight",
+                        "title": "Weight",
+                        "type": "number"
+                      },
+                      "distance": {
+                        "$id": "#root/nav/workouts/routines/exercises/distance",
+                        "title": "Distance",
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "history": {
+              "$id": "#root/nav/workouts/history",
+              "title": "History",
+              "type": "object",
+              "properties": {}
+            }
+          }
+        },
+        "social": {
+          "$id": "#root/nav/social",
+          "title": "Social",
+          "type": "object",
+          "properties": {}
+        },
+        "character": {
+          "$id": "#root/nav/character",
+          "title": "Character",
+          "type": "object",
+          "properties": {}
+        },
+        "quests": {
+          "$id": "#root/nav/quests",
+          "title": "Quests",
+          "type": "object",
+          "properties": {}
+        },
+        "stats": {
+          "$id": "#root/nav/stats",
+          "title": "Stats",
+          "type": "object",
+          "properties": {}
+        }
+      }
+    }
+  }
+}
