@@ -20,6 +20,13 @@ struct UpdateUsernameRequest {
     username: String,
 }
 
+#[derive(Deserialize)]
+struct UpdateNameRequest {
+    first_name: String,
+    last_name: String,
+}
+
+
 // Update username 
 #[post("/settings/username")]
 async fn update_username(
@@ -61,5 +68,31 @@ async fn update_username(
     
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Username updated successfully"
+    })))
+}
+
+// Update first and last name 
+#[post("/settings/name")]
+async fn update_name(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+    request: web::Json<UpdateNameRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
+    sqlx::query!(
+        r#"
+            UPDATE settings
+            SET first_name = $1, last_name = $2
+            WHERE user_id = $3
+        "#,
+        request.first_name,
+        request.last_name,
+        user.id
+    )
+    .execute(pool.get_ref())
+    .await
+    .map_err(|e| ErrorBadRequest(format!("Failed to update name: {}", e)))?;
+    
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "message": "Name updated successfully"
     })))
 }
