@@ -31,6 +31,11 @@ struct UpdateWorkoutScheduleRequest {
     workout_schedule: [bool; 7],
 }
 
+#[derive(Deserialize)]
+struct UpdateEmailRequest {
+    email: String,
+}
+
 // Update username 
 #[post("/settings/username")]
 async fn update_username(
@@ -123,5 +128,49 @@ async fn update_workout_schedule(
     
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Workout schedule updated successfully"
+    })))
+}
+
+// Update email 
+#[post("/settings/email")]
+async fn update_email(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+    request: web::Json<UpdateEmailRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
+    // Check if email is already taken
+    let existing_user = sqlx::query!(
+        r#"
+            SELECT id 
+            FROM users 
+            WHERE email = $1 AND id != $2
+        "#,
+        request.email,
+        user.id
+    )
+    .fetch_optional(pool.get_ref())
+    .await
+    .map_err(|e| ErrorBadRequest(format!("Database error: {}", e)))?;
+
+    if existing_user.is_some() {
+        return Err(ErrorBadRequest("This email is already in use"));
+    }
+
+    // Update email in users table
+    sqlx::query!(
+        r#"
+            UPDATE users
+            SET email = $1
+            WHERE id = $2
+        "#,
+        request.email,
+        user.id
+    )
+    .execute(pool.get_ref())
+    .await
+    .map_err(|e| ErrorBadRequest(format!("Failed to update email: {}", e)))?;
+    
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "message": "Email updated successfully"
     })))
 }
