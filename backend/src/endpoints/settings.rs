@@ -26,6 +26,10 @@ struct UpdateNameRequest {
     last_name: String,
 }
 
+#[derive(Deserialize)]
+struct UpdateWorkoutScheduleRequest {
+    workout_schedule: [bool; 7],
+}
 
 // Update username 
 #[post("/settings/username")]
@@ -94,5 +98,30 @@ async fn update_name(
     
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Name updated successfully"
+    })))
+}
+
+// Update workout schedule 
+#[post("/settings/workout-schedule")]
+async fn update_workout_schedule(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+    request: web::Json<UpdateWorkoutScheduleRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
+    sqlx::query!(
+        r#"
+            UPDATE settings
+            SET workout_schedule = $1
+            WHERE user_id = $2
+        "#,
+        &request.workout_schedule,
+        user.id
+    )
+    .execute(pool.get_ref())
+    .await
+    .map_err(|e| ErrorBadRequest(format!("Failed to update workout schedule: {}", e)))?;
+    
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "message": "Workout schedule updated successfully"
     })))
 }
