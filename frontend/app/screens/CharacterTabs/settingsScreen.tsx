@@ -21,15 +21,6 @@ type SettingsItem = {
 };
 
 const SettingScreen = () => {
-  // settings section
-  const generalSettings: SettingsItem[] = [
-    {
-      title: "Notifications & Reminders",
-      route: "/screens/CharacterTabs/notificationsScreen",
-      icon: "notifications-outline",
-    },
-  ];
-
   // user account settings
   const accountSettings: SettingsItem[] = [
     {
@@ -95,7 +86,7 @@ const SettingScreen = () => {
   const handleDeleteAccount = () => {
     Alert.alert(
       "Delete Account",
-      "Are you sure you want to delete your account? This action is cannot be undone and all your data will be permanently deleted.",
+      "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.",
       [
         {
           text: "Cancel",
@@ -173,14 +164,6 @@ const SettingScreen = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* general section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>GENERAL</Text>
-          <View style={styles.sectionCard}>
-            {generalSettings.map(renderSettingsItem)}
-          </View>
-        </View>
-
         {/* account section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>ACCOUNT</Text>
