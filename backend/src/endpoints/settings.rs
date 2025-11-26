@@ -12,8 +12,20 @@ use {
     },
     serde::Deserialize,
     sqlx::PgPool,
+    std::collections::HashMap,
+    once_cell::sync::Lazy,
 };
 
+// Define base stats for each class
+static BASE_CLASS_STATS: Lazy<HashMap<i32, (&'static str, Stats)>> = Lazy::new(|| {
+    let mut m = HashMap::new();
+    m.insert(1, ("Warrior", Stats { strength: 10, endurance: 7, flexibility: 5 }));
+    m.insert(2, ("Monk", Stats { strength: 4, endurance: 7, flexibility: 10 }));
+    m.insert(3, ("Assassin", Stats { strength: 5, endurance: 10, flexibility: 6 }));
+    m.insert(4, ("Wizard", Stats { strength: 7, endurance: 7, flexibility: 7 }));
+    m.insert(5, ("Gladiator", Stats { strength: 6, endurance: 5, flexibility: 5 }));
+    m
+});
 
 #[derive(Deserialize)]
 struct UpdateUsernameRequest {
@@ -34,6 +46,11 @@ struct UpdateWorkoutScheduleRequest {
 #[derive(Deserialize)]
 struct UpdateEmailRequest {
     email: String,
+}
+
+#[derive(Deserialize)]
+struct UpdateClassRequest {
+    class_id: i32,
 }
 
 // Update username 
@@ -172,5 +189,74 @@ async fn update_email(
     
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Email updated successfully"
+    })))
+}
+
+// Update character class 
+#[post("/settings/class")]
+async fn update_class(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+    request: web::Json<UpdateClassRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
+    // Validate class_id exists and get new class base stats
+    let (new_class_name, new_base) = BASE_CLASS_STATS
+        .get(&request.class_id)
+        .ok_or_else(|| ErrorBadRequest("Invalid class_id"))?;
+
+    // Get current character class 
+    let character = sqlx::query!(
+        r#"
+            SELECT class as "class: Class"
+            FROM characters
+            WHERE user_id = $1
+        "#,
+        user.id
+    )
+    .fetch_one(pool.get_ref())
+    .await
+    .map_err(|e| ErrorBadRequest(format!("Failed to fetch character: {}", e)))?;
+
+    // Get old class base stats
+    let old_base = BASE_CLASS_STATS
+        .values()
+        .find(|(name, _)| *name == character.class.name.as_str())
+        .map(|(_, stats)| stats)
+        .ok_or_else(|| ErrorBadRequest("Current class not found"))?;
+
+    // Calculate earned stats
+    let earned_strength = character.class.stats.strength - old_base.strength;
+    let earned_endurance = character.class.stats.endurance - old_base.endurance;
+    let earned_flexibility = character.class.stats.flexibility - old_base.flexibility;
+
+    // Apply earned stats to new class base stats
+    let updated_class = Class {
+        name: new_class_name.to_string(),
+        stats: Stats {
+            strength: new_base.strength + earned_strength,
+            endurance: new_base.endurance + earned_endurance,
+            flexibility: new_base.flexibility + earned_flexibility,
+        },
+    };
+
+    // Update character with new class
+    sqlx::query!(
+        r#"
+            UPDATE characters
+            SET class = ROW($1, ROW($2, $3, $4))::class
+            WHERE user_id = $5
+        "#,
+        updated_class.name,
+        updated_class.stats.strength,
+        updated_class.stats.endurance,
+        updated_class.stats.flexibility,
+        user.id
+    )
+    .execute(pool.get_ref())
+    .await
+    .map_err(|e| ErrorBadRequest(format!("Failed to update class: {}", e)))?;
+    
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "message": "Class updated successfully"
     })))
 }

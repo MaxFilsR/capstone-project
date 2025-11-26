@@ -76,6 +76,13 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::nav::social::update_friends)
             .service(endpoints::nav::social::read_leaderboard)
             .service(endpoints::nav::social::read_leaderboard_detail)
+            // Settings
+            .service(endpoints::settings::update_username)
+            .service(endpoints::settings::update_name)
+            .service(endpoints::settings::update_workout_schedule)
+            .service(endpoints::settings::update_email)
+            .service(endpoints::settings::update_class) 
+            
     })
     .bind(format!("{actix_web_address}:{actix_web_port}"))?
     .run()
