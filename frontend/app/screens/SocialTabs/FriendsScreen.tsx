@@ -14,19 +14,33 @@ import { FriendSummary } from "@/api/endpoints";
 import { useFriends } from "@/lib/friends-context";
 
 const FriendsScreen = () => {
-  const { friends } = useFriends();
-  const [error, setError] = useState<string | null>(null);
+  const { friends, loading, error, refreshFriends } = useFriends();
+
+  // Refresh friends once on mount
+  useEffect(() => {
+    refreshFriends();
+  }, []);
 
   const handleFriendClick = (friend: FriendSummary) => {
     console.log("Friend card clicked:", friend);
     // Navigate to friend profile or show details
   };
 
+  // Show loading state
+  if (loading) {
+    return (
+      <View style={[tabStyles.tabContent, styles.centerContainer]}>
+        <ActivityIndicator size="large" color={colorPallet.primary} />
+        <Text style={styles.loadingText}>Loading friends...</Text>
+      </View>
+    );
+  }
+
   if (error) {
     return (
       <View style={[tabStyles.tabContent, styles.centerContainer]}>
         <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity style={styles.retryButton}>
+        <TouchableOpacity style={styles.retryButton} onPress={refreshFriends}>
           <Text style={styles.retryButtonText}>Retry</Text>
         </TouchableOpacity>
       </View>

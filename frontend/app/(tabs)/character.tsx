@@ -91,8 +91,6 @@ export default function Index() {
     );
   }
 
-  console.log(profile?.inventory);
-
   return (
     <>
       {/* Quick Action Button */}
