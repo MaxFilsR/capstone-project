@@ -17,34 +17,41 @@ import { BackButton } from "@/components";
 type SettingsItem = {
   title: string;
   route: string;
+  icon: string;
 };
 
 const SettingScreen = () => {
-  // settings section
-  const generalSettings: SettingsItem[] = [
-    {
-      title: "Notifications & Reminders",
-      route: "/screens/CharacterTabs/notificationsScreen",
-    },
-  ];
-
   // user account settings
   const accountSettings: SettingsItem[] = [
     {
-      title: "Profile Settings",
-      route: "/screens/CharacterTabs/profileSettingsScreen",
+      title: "Change Username",
+      route: "/screens/CharacterTabs/changeUsernameScreen",
+      icon: "at-outline",
+    },
+    {
+      title: "Change Email",
+      route: "/screens/CharacterTabs/changeEmailScreen",
+      icon: "mail-outline",
     },
     {
       title: "Change Password",
       route: "/screens/CharacterTabs/changePasswordScreen",
+      icon: "lock-closed-outline",
     },
-  ];
-
-  // app info settings
-  const appInfoSettings: SettingsItem[] = [
     {
-      title: "About",
-      route: "/screens/CharacterTabs/aboutScreen",
+      title: "Edit Name",
+      route: "/screens/CharacterTabs/editNameScreen",
+      icon: "person-outline",
+    },
+    {
+      title: "Workout Schedule",
+      route: "/screens/CharacterTabs/workoutScheduleScreen",
+      icon: "calendar-outline",
+    },
+    {
+      title: "Change Class",
+      route: "/screens/CharacterTabs/changeClassScreen",
+      icon: "shield-outline",
     },
   ];
 
@@ -79,7 +86,7 @@ const SettingScreen = () => {
   const handleDeleteAccount = () => {
     Alert.alert(
       "Delete Account",
-      "Are you sure you want to delete your account? This action is cannot be undone and all your data will be permanently deleted.",
+      "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.",
       [
         {
           text: "Cancel",
@@ -87,7 +94,7 @@ const SettingScreen = () => {
         },
         {
           text: "Delete",
-          style: "destructive", // tarkista
+          style: "destructive",
           onPress: () => {
             Alert.alert(
               "Final Confirmation",
@@ -121,11 +128,19 @@ const SettingScreen = () => {
       onPress={() => handleNavigation(item.route)}
       activeOpacity={0.7}
     >
+      {/* icon */}
+      <View style={styles.settingsItemLeft}>
+        <Ionicons
+          name={item.icon}
+          size={22}
+          color={colorPallet.primary}
+          style={styles.settingsIcon}
+        />
+        {/* setting title */}
+        <Text style={styles.settingsItemText}>{item.title}</Text>
+      </View>
 
-      { /* setting title */}
-      <Text style={styles.settingsItemText}>{item.title}</Text>
-
-      { /* chwevron arrow */}
+      {/* chevron arrow */}
       <MaterialIcons
         name="chevron-right"
         size={24}
@@ -149,27 +164,11 @@ const SettingScreen = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* general section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>GENERAL</Text>
-          <View style={styles.sectionCard}>
-            {generalSettings.map(renderSettingsItem)}
-          </View>
-        </View>
-
         {/* account section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>ACCOUNT</Text>
           <View style={styles.sectionCard}>
             {accountSettings.map(renderSettingsItem)}
-          </View>
-        </View>
-
-        {/* app info */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>APP INFO</Text>
-          <View style={styles.sectionCard}>
-            {appInfoSettings.map(renderSettingsItem)}
           </View>
         </View>
 
@@ -179,6 +178,12 @@ const SettingScreen = () => {
           onPress={handleLogout}
           activeOpacity={0.8}
         >
+          <Ionicons
+            name="log-out-outline"
+            size={20}
+            color={colorPallet.neutral_darkest}
+            style={styles.buttonIcon}
+          />
           <Text style={styles.logoutButtonText}>LOG OUT</Text>
         </TouchableOpacity>
 
@@ -188,6 +193,12 @@ const SettingScreen = () => {
           onPress={handleDeleteAccount}
           activeOpacity={0.8}
         >
+          <Ionicons
+            name="trash-outline"
+            size={20}
+            color={colorPallet.critical}
+            style={styles.buttonIcon}
+          />
           <Text style={styles.deleteButtonText}>DELETE ACCOUNT</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -252,6 +263,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colorPallet.neutral_5,
   },
+  settingsItemLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  settingsIcon: {
+    marginRight: 12,
+  },
   settingsItemText: {
     ...typography.body,
     color: colorPallet.neutral_lightest,
@@ -265,6 +284,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
     marginBottom: 16,
   },
   logoutButtonText: {
@@ -283,6 +304,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: "center",
+    justifyContent: "center",
+    flexDirection: "row",
     marginBottom: 20,
   },
   deleteButtonText: {
@@ -290,7 +313,10 @@ const styles = StyleSheet.create({
     color: colorPallet.critical,
     fontSize: 16,
     fontWeight: "800",
-    //letterSpacing: 0.5,
+    letterSpacing: 0.5,
+  },
+  buttonIcon: {
+    marginRight: 8,
   },
 });
 
