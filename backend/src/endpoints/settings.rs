@@ -16,7 +16,7 @@ use {
     once_cell::sync::Lazy,
 };
 
-// Define base stats for each class
+// Define base stats for each class so it can be referenced during class updates
 static BASE_CLASS_STATS: Lazy<HashMap<i32, (&'static str, Stats)>> = Lazy::new(|| {
     let mut m = HashMap::new();
     m.insert(1, ("Warrior", Stats { strength: 10, endurance: 7, flexibility: 5 }));
@@ -155,7 +155,7 @@ async fn update_email(
     pool: web::Data<PgPool>,
     request: web::Json<UpdateEmailRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    // Check if email is already taken
+    // Check if email is already taken since it needs to be unique
     let existing_user = sqlx::query!(
         r#"
             SELECT id 
@@ -199,12 +199,12 @@ async fn update_class(
     pool: web::Data<PgPool>,
     request: web::Json<UpdateClassRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
-    // Validate class_id exists and get new class base stats
+    // Validate class_id exists and get new class base stats from static
     let (new_class_name, new_base) = BASE_CLASS_STATS
         .get(&request.class_id)
         .ok_or_else(|| ErrorBadRequest("Invalid class_id"))?;
 
-    // Get current character class 
+    // Get current character class from table
     let character = sqlx::query!(
         r#"
             SELECT class as "class: Class"
@@ -217,14 +217,14 @@ async fn update_class(
     .await
     .map_err(|e| ErrorBadRequest(format!("Failed to fetch character: {}", e)))?;
 
-    // Get old class base stats
+    // Get old class base stats from static
     let old_base = BASE_CLASS_STATS
         .values()
         .find(|(name, _)| *name == character.class.name.as_str())
         .map(|(_, stats)| stats)
         .ok_or_else(|| ErrorBadRequest("Current class not found"))?;
 
-    // Calculate earned stats
+    // Calculate earned stats (current stats - old base stats)
     let earned_strength = character.class.stats.strength - old_base.strength;
     let earned_endurance = character.class.stats.endurance - old_base.endurance;
     let earned_flexibility = character.class.stats.flexibility - old_base.flexibility;
