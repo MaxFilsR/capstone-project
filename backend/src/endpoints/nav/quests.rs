@@ -4,7 +4,13 @@ use {
         coins::add_coins,
         jwt::AuthenticatedUser,
         level::add_exp,
-        schemas::*,
+        schemas::{
+            ExerciseCategory,
+            ExerciseMuscle,
+            QuestDifficulty,
+            QuestRow,
+            QuestStatus,
+        },
     },
     actix_web::{
         self,
@@ -14,6 +20,7 @@ use {
         post,
         web,
     },
+    log::info,
     rand::{
         distr::{
             Alphanumeric,
@@ -159,6 +166,7 @@ pub async fn apply_workout_to_quests(
         .filter(|quest| quest.status != QuestStatus::Complete)
     {
         if workout_applies_to_quest(&pool, quest, workout).await {
+            info!("Workout applies to quest {} for user {}", quest.id, user.id);
             let number_of_workouts_completed = quest.number_of_workouts_completed + 1;
 
             if number_of_workouts_completed == quest.number_of_workouts_needed {
@@ -181,6 +189,20 @@ pub async fn apply_workout_to_quests(
                 add_coins(&user, &pool, quest.difficulty.coins())
                     .await
                     .unwrap();
+            } else {
+                // Quest is still incomplete
+                let _query = sqlx::query!(
+                    r#"
+                        UPDATE quests
+                        SET number_of_workouts_completed = $2
+                        WHERE id = $1
+                    "#,
+                    quest.id,
+                    number_of_workouts_completed,
+                )
+                .execute(pool.get_ref())
+                .await
+                .unwrap();
             }
         }
     }

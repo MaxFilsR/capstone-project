@@ -18,13 +18,13 @@ use {
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(
         Env::default()
-            .default_filter_or("info")
+            .default_filter_or(log::Level::Info.as_str())
             .default_write_style_or("auto"),
     );
 
-    let actix_web_address = env::get_env_var_with_key(env::ACTIX_WEB_ADDRESS);
-    let actix_web_port = env::get_env_var_with_key(env::ACTIX_WEB_PORT);
-    let database_url = env::get_env_var_with_key(env::DATABASE_URL);
+    let actix_web_address = env::get_env_var_from_key(env::ACTIX_WEB_ADDRESS);
+    let actix_web_port = env::get_env_var_from_key(env::ACTIX_WEB_PORT);
+    let database_url = env::get_env_var_from_key(env::DATABASE_URL);
 
     let pool = PgPool::connect(&database_url).await.unwrap();
 
@@ -81,8 +81,7 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::settings::update_name)
             .service(endpoints::settings::update_workout_schedule)
             .service(endpoints::settings::update_email)
-            .service(endpoints::settings::update_class) 
-            
+            .service(endpoints::settings::update_class)
     })
     .bind(format!("{actix_web_address}:{actix_web_port}"))?
     .run()

@@ -29,7 +29,7 @@ use {
 };
 
 static JWT_SECRET_KEY: std::sync::LazyLock<String> =
-    std::sync::LazyLock::new(|| env::get_env_var_with_key(env::JWT_SECRET_KEY));
+    std::sync::LazyLock::new(|| env::get_env_var_from_key(env::JWT_SECRET_KEY));
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "lowercase")]

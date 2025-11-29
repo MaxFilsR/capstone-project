@@ -1,4 +1,5 @@
 use {
+    crate::endpoints::constants::constants::EXERCISES_PATH,
     actix_web::{
         HttpResponse,
         Result,
@@ -30,9 +31,7 @@ pub struct Exercise {
 
 #[get("/workouts/library")]
 async fn library() -> Result<HttpResponse, actix_web::Error> {
-    let file_path = "/app/exercises.json";
-
-    let file_content = web::block(move || fs::read_to_string(file_path))
+    let file_content = web::block(move || fs::read_to_string(EXERCISES_PATH))
         .await?
         .map_err(actix_web::error::ErrorInternalServerError)?;
 

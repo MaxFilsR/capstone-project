@@ -10,20 +10,70 @@ use {
         post,
         web,
     },
+    once_cell::sync::Lazy,
     serde::Deserialize,
     sqlx::PgPool,
     std::collections::HashMap,
-    once_cell::sync::Lazy,
 };
 
 // Define base stats for each class so it can be referenced during class updates
 static BASE_CLASS_STATS: Lazy<HashMap<i32, (&'static str, Stats)>> = Lazy::new(|| {
     let mut m = HashMap::new();
-    m.insert(1, ("Warrior", Stats { strength: 10, endurance: 7, flexibility: 5 }));
-    m.insert(2, ("Monk", Stats { strength: 4, endurance: 7, flexibility: 10 }));
-    m.insert(3, ("Assassin", Stats { strength: 5, endurance: 10, flexibility: 6 }));
-    m.insert(4, ("Wizard", Stats { strength: 7, endurance: 7, flexibility: 7 }));
-    m.insert(5, ("Gladiator", Stats { strength: 6, endurance: 5, flexibility: 5 }));
+    m.insert(
+        1,
+        (
+            "Warrior",
+            Stats {
+                strength: 10,
+                endurance: 7,
+                flexibility: 5,
+            },
+        ),
+    );
+    m.insert(
+        2,
+        (
+            "Monk",
+            Stats {
+                strength: 4,
+                endurance: 7,
+                flexibility: 10,
+            },
+        ),
+    );
+    m.insert(
+        3,
+        (
+            "Assassin",
+            Stats {
+                strength: 5,
+                endurance: 10,
+                flexibility: 6,
+            },
+        ),
+    );
+    m.insert(
+        4,
+        (
+            "Wizard",
+            Stats {
+                strength: 7,
+                endurance: 7,
+                flexibility: 7,
+            },
+        ),
+    );
+    m.insert(
+        5,
+        (
+            "Gladiator",
+            Stats {
+                strength: 6,
+                endurance: 5,
+                flexibility: 5,
+            },
+        ),
+    );
     m
 });
 
@@ -53,7 +103,7 @@ struct UpdateClassRequest {
     class_id: i32,
 }
 
-// Update username 
+// Update username
 #[post("/settings/username")]
 async fn update_username(
     user: AuthenticatedUser,
@@ -91,13 +141,13 @@ async fn update_username(
     .execute(pool.get_ref())
     .await
     .map_err(|e| ErrorBadRequest(format!("Failed to update username: {}", e)))?;
-    
+
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Username updated successfully"
     })))
 }
 
-// Update first and last name 
+// Update first and last name
 #[post("/settings/name")]
 async fn update_name(
     user: AuthenticatedUser,
@@ -117,13 +167,13 @@ async fn update_name(
     .execute(pool.get_ref())
     .await
     .map_err(|e| ErrorBadRequest(format!("Failed to update name: {}", e)))?;
-    
+
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Name updated successfully"
     })))
 }
 
-// Update workout schedule 
+// Update workout schedule
 #[post("/settings/workout-schedule")]
 async fn update_workout_schedule(
     user: AuthenticatedUser,
@@ -142,13 +192,13 @@ async fn update_workout_schedule(
     .execute(pool.get_ref())
     .await
     .map_err(|e| ErrorBadRequest(format!("Failed to update workout schedule: {}", e)))?;
-    
+
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Workout schedule updated successfully"
     })))
 }
 
-// Update email 
+// Update email
 #[post("/settings/email")]
 async fn update_email(
     user: AuthenticatedUser,
@@ -186,13 +236,13 @@ async fn update_email(
     .execute(pool.get_ref())
     .await
     .map_err(|e| ErrorBadRequest(format!("Failed to update email: {}", e)))?;
-    
+
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Email updated successfully"
     })))
 }
 
-// Update character class 
+// Update character class
 #[post("/settings/class")]
 async fn update_class(
     user: AuthenticatedUser,
@@ -255,7 +305,7 @@ async fn update_class(
     .execute(pool.get_ref())
     .await
     .map_err(|e| ErrorBadRequest(format!("Failed to update class: {}", e)))?;
-    
+
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Class updated successfully"
     })))

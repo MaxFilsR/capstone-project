@@ -1,5 +1,6 @@
 {
     "postman.settings.dotenv-detection-notification-visibility": false,
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
     "editor.formatOnSave": true,
     "rust-analyzer.rustfmt.extraArgs": ["+nightly"]
 }
