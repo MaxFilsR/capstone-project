@@ -38,7 +38,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_origin()
-            .allowed_methods(vec!["DELETE", "GET", "POST", "PUT"])
+            .allow_any_method()
             .allow_any_header();
 
         App::new()
@@ -57,6 +57,10 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::onboarding::onboarding)
             // Character
             .service(endpoints::nav::character::read_character)
+            .service(endpoints::nav::character::read_inventory)
+            .service(endpoints::nav::character::update_inventory)
+            .service(endpoints::nav::character::read_equipped)
+            .service(endpoints::nav::character::update_equipped)
             // Quests
             .service(endpoints::nav::quests::read_quests)
             .service(endpoints::nav::quests::create_quest)

@@ -2,7 +2,6 @@ use {
     serde::{
         Deserialize,
         Serialize,
-        ser,
     },
     sqlx::types::{
         Json,
@@ -104,7 +103,7 @@ pub struct History {
     pub coins: i32,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize, sqlx::Type)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Serialize, sqlx::Type)]
 #[sqlx(type_name = "equipped")]
 pub struct Equipped {
     pub arms: i32,
