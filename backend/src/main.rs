@@ -80,6 +80,11 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::nav::social::update_friends)
             .service(endpoints::nav::social::read_leaderboard)
             .service(endpoints::nav::social::read_leaderboard_detail)
+            .service(endpoints::nav::social::send_friend_request)
+            .service(endpoints::nav::social::get_incoming_requests)
+            .service(endpoints::nav::social::get_outgoing_requests)
+            .service(endpoints::nav::social::respond_to_request)
+            .service(endpoints::nav::social::remove_friend)
             // Settings
             .service(endpoints::settings::update_username)
             .service(endpoints::settings::update_name)
