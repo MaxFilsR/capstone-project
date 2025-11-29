@@ -20,7 +20,6 @@ use {
         post,
         web,
     },
-    log::info,
     rand::{
         distr::{
             Alphanumeric,
@@ -166,7 +165,6 @@ pub async fn apply_workout_to_quests(
         .filter(|quest| quest.status != QuestStatus::Complete)
     {
         if workout_applies_to_quest(&pool, quest, workout).await {
-            info!("Workout applies to quest {} for user {}", quest.id, user.id);
             let number_of_workouts_completed = quest.number_of_workouts_completed + 1;
 
             if number_of_workouts_completed == quest.number_of_workouts_needed {
