@@ -5,35 +5,40 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colorPallet } from "@/styles/variables";
 import { typography, popupModalStyles } from "@/styles";
 import { FormButton } from "@/components";
 import Alert from "./Alert";
+import { increaseStat, StatType } from "@/api/endpoints";
+import { useAuth } from "@/lib/auth-context";
 
 type AllocateStatsModalProps = {
   onClose: () => void;
-  currentStats: {
-    strength: number;
-    endurance: number;
-    flexibility: number;
-  };
-  availablePoints: number;
 };
-
-type StatType = "strength" | "endurance" | "flexibility";
 
 const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
   onClose,
-  currentStats,
-  availablePoints,
 }) => {
+  const { user, fetchUserProfile } = useAuth();
+  
+  // Get current stats and available points from auth context
+  const currentStats = user?.profile?.class?.stats || {
+    strength: 0,
+    endurance: 0,
+    flexibility: 0,
+  };
+  const availablePoints = user?.profile?.pending_stat_points || 0;
+  
   const [pointsToAllocate, setPointsToAllocate] = useState({
     strength: 0,
     endurance: 0,
     flexibility: 0,
   });
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const [alert, setAlert] = useState<{
     visible: boolean;
@@ -79,7 +84,7 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
     });
   };
 
-  const handleAllocate = () => {
+  const handleAllocate = async () => {
     // Check if any points were allocated
     const totalAllocated =
       pointsToAllocate.strength +
@@ -96,20 +101,67 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
       return;
     }
 
-    // TODO: Call backend API here
-    // Example: await allocateStats(pointsToAllocate);
+    setIsLoading(true);
 
-    // Show success message
-    setAlert({
-      visible: true,
-      mode: "success",
-      title: "Success!",
-      message:
-        `Stats allocated successfully!\n\n` +
-        `Strength: +${pointsToAllocate.strength}\n` +
-        `Endurance: +${pointsToAllocate.endurance}\n` +
-        `Flexibility: +${pointsToAllocate.flexibility}`,
-    });
+    try {
+      // Call the API for each stat that has points allocated
+      const promises: Promise<any>[] = [];
+
+      if (pointsToAllocate.strength > 0) {
+        promises.push(
+          increaseStat({
+            stat: "strength",
+            amount: pointsToAllocate.strength,
+          })
+        );
+      }
+
+      if (pointsToAllocate.endurance > 0) {
+        promises.push(
+          increaseStat({
+            stat: "endurance",
+            amount: pointsToAllocate.endurance,
+          })
+        );
+      }
+
+      if (pointsToAllocate.flexibility > 0) {
+        promises.push(
+          increaseStat({
+            stat: "flexibility",
+            amount: pointsToAllocate.flexibility,
+          })
+        );
+      }
+
+      // Execute all API calls in parallel
+      await Promise.all(promises);
+
+      // Refresh user profile to get updated stats and pending points
+      await fetchUserProfile();
+
+      // Show success message
+      setAlert({
+        visible: true,
+        mode: "success",
+        title: "Success!",
+        message:
+          `Stats allocated successfully!\n\n` +
+          `Strength: +${pointsToAllocate.strength}\n` +
+          `Endurance: +${pointsToAllocate.endurance}\n` +
+          `Flexibility: +${pointsToAllocate.flexibility}`,
+      });
+    } catch (error) {
+      console.error("Failed to allocate stats:", error);
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Error",
+        message: "Failed to allocate stats. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAlertConfirm = () => {
@@ -199,7 +251,7 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
                     allocatedPoints === 0 && styles.controlButtonDisabled,
                   ]}
                   onPress={() => handleDecrement(stat.key)}
-                  disabled={allocatedPoints === 0}
+                  disabled={allocatedPoints === 0 || isLoading}
                 >
                   <Ionicons
                     name="remove-circle"
@@ -224,7 +276,7 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
                     remainingPoints === 0 && styles.controlButtonDisabled,
                   ]}
                   onPress={() => handleIncrement(stat.key)}
-                  disabled={remainingPoints === 0}
+                  disabled={remainingPoints === 0 || isLoading}
                 >
                   <Ionicons
                     name="add-circle"
@@ -248,9 +300,10 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
           style={styles.resetButton}
           onPress={handleReset}
           disabled={
-            pointsToAllocate.strength === 0 &&
-            pointsToAllocate.endurance === 0 &&
-            pointsToAllocate.flexibility === 0
+            isLoading ||
+            (pointsToAllocate.strength === 0 &&
+              pointsToAllocate.endurance === 0 &&
+              pointsToAllocate.flexibility === 0)
           }
         >
           <Ionicons
@@ -279,7 +332,17 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
         </TouchableOpacity>
 
         <View style={styles.allocateButtonWrapper}>
-          <FormButton title="Allocate Points" onPress={handleAllocate} />
+          <FormButton
+            title={
+              isLoading ? (
+                <ActivityIndicator color={colorPallet.neutral_darkest} />
+              ) : (
+                "Allocate Points"
+              )
+            }
+            onPress={handleAllocate}
+            disabled={isLoading}
+          />
         </View>
       </View>
 

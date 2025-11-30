@@ -4,20 +4,14 @@ import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { Ionicons } from "@expo/vector-icons";
 import { useInventory } from "@/lib/inventory-context";
+import { useAuth } from "@/lib/auth-context";
 
 type CharacterCardInventoryProps = {
   username?: string;
   level?: number;
-  stats: {
-    strength: number;
-    endurance: number;
-    flexibility: number;
-  };
-  availableStatPoints?: number;
   borderColor?: string;
   accentColor?: string;
   onSettingsPress?: () => void;
-  onAllocateStatsPress?: () => void;
 };
 
 type EquipmentSlotItemProps = {
@@ -74,13 +68,20 @@ function EquipmentSlotItem({
 export default function CharacterCardInventory({
   username,
   level,
-  stats,
-  availableStatPoints = 0,
   borderColor = colorPallet.primary,
   accentColor = colorPallet.secondary,
   onSettingsPress,
 }: CharacterCardInventoryProps) {
   const { equipped } = useInventory();
+  const { user } = useAuth();
+
+  // Get stats and available points from user profile
+  const stats = user?.profile?.class?.stats || {
+    strength: 0,
+    endurance: 0,
+    flexibility: 0,
+  };
+  const availableStatPoints = user?.profile?.pending_stat_points || 0;
 
   return (
     <View style={[styles.container, { borderColor }]}>

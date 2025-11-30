@@ -503,3 +503,33 @@ export async function createQuest(
   );
   return response.data;
 }
+
+
+// Stats Types and Endpoints
+export type StatType = "strength" | "endurance" | "flexibility";
+
+export type IncreaseStatRequest = {
+  stat: StatType;
+  amount: number;
+};
+
+export type IncreaseStatResponse = {
+  stat: StatType;
+  amount: number;
+};
+
+/**
+ * Increase a specific stat by allocating points
+ * POST /stats/increase
+ * Request: { stat: "strength" | "endurance" | "flexibility", amount: number }
+ * Response: { stat: string, amount: number }
+ */
+export async function increaseStat(
+  payload: IncreaseStatRequest
+): Promise<IncreaseStatResponse> {
+  const response = await apiClient.post<IncreaseStatResponse>(
+    "/stats/increase",
+    payload
+  );
+  return response.data;
+}

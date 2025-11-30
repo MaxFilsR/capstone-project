@@ -16,9 +16,9 @@ import {
   recordWorkout,
   WorkoutExercise,
   Exercise,
-  getCharacter,
   getWorkoutLibrary,
 } from "@/api/endpoints";
+import { useAuth } from "@/lib/auth-context";
 
 type Params = {
   routineName?: string;
@@ -31,16 +31,11 @@ export default function DurationRoutineScreen() {
   const navigation = useNavigation();
   const router = useRouter();
   const params = useLocalSearchParams<Params>();
+  const { user, fetchUserProfile } = useAuth();
 
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(30);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [userStats, setUserStats] = useState({
-    strength: 0,
-    endurance: 0,
-    flexibility: 0,
-  });
-  const [currentLevel, setCurrentLevel] = useState(1);
   const [exerciseLibrary, setExerciseLibrary] = useState<Exercise[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [alert, setAlert] = useState<{
@@ -60,6 +55,14 @@ export default function DurationRoutineScreen() {
   const hoursScrollRef = useRef<ScrollView>(null);
   const minutesScrollRef = useRef<ScrollView>(null);
 
+  // Get current user stats and level from auth context
+  const userStats = user?.profile?.class?.stats || {
+    strength: 0,
+    endurance: 0,
+    flexibility: 0,
+  };
+  const currentLevel = user?.profile?.level || 1;
+
   useEffect(() => {
     navigation.setOptions({
       presentation: "card",
@@ -70,12 +73,8 @@ export default function DurationRoutineScreen() {
 
     async function loadData() {
       try {
-        const [profile, library] = await Promise.all([
-          getCharacter(),
-          getWorkoutLibrary(),
-        ]);
-        setUserStats(profile.class.stats);
-        setCurrentLevel(profile.level); // Store the current level
+        // Only need to load exercise library, user profile comes from context
+        const library = await getWorkoutLibrary();
         setExerciseLibrary(library);
       } catch (error) {
         console.error("Failed to load data:", error);
@@ -293,8 +292,8 @@ export default function DurationRoutineScreen() {
       // Record the workout
       await recordWorkout(workoutData);
 
-      // Fetch updated character profile to check for level up
-      const updatedProfile = await getCharacter();
+      // Fetch updated character profile to update auth context and check for level up
+      const updatedProfile = await fetchUserProfile();
       const newLevel = updatedProfile.level;
       const oldLevel = currentLevel;
 
