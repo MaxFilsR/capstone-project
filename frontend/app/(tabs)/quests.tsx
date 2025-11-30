@@ -1,21 +1,14 @@
 import React, { useState } from "react";
 import { router } from "expo-router";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  Pressable,
-  ActivityIndicator,
-  Button,
-} from "react-native";
+import { View,
+  Text, ScrollView, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator, Button } from "react-native";
 import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Quest } from "@/api/endpoints";
 import { useQuests } from "@/lib/quest-context";
 import QuickActionButton from "@/components/QuickActionButton";
+import CreateQuestModal from "@/components/popupModals/CreateQuestModal";
 
 type FilterType = "inprogress" | "completed";
 
@@ -35,15 +28,17 @@ const QuestScreen = () => {
   const [selectedFilter, setSelectedFilter] =
     useState<FilterType>("inprogress");
 
+  const [createModalVisible, setCreateModalVisible] = useState(false);
+
   const handleCreateQuest = async (difficulty: "Easy" | "Medium" | "Hard") => {
     try {
       await createNewQuest(difficulty);
     } catch (err) {
-      // Error is already handled in context
+      throw err;
     }
   };
 
-  // Get filtered quests based on selected filter
+  // get filtered quests based on selected filter
   const filteredQuests =
     selectedFilter === "inprogress"
       ? getInProgressQuests()
@@ -82,6 +77,7 @@ const QuestScreen = () => {
         <Text style={styles.header}>Quests</Text>
       </View>
 
+    {/*
       <View style={styles.createButtonsContainer}>
         <TouchableOpacity
           style={[styles.createButton, styles.easyButton]}
@@ -129,6 +125,23 @@ const QuestScreen = () => {
           ) : (
             <Text style={styles.createButtonText}>Hard Quest</Text>
           )}
+        </TouchableOpacity>
+      </View>
+      */}
+
+      <View style={styles.createButtonContainer}>
+        <TouchableOpacity
+          style={styles.newQuestButton}
+          onPress={() => setCreateModalVisible(true)}
+          disabled={creating}
+          activeOpacity={0.7}
+        >
+          <MaterialIcons
+            name="add-circle"
+            size={24}
+            color={colorPallet.neutral_darkest}
+          />
+          <Text style={styles.newQuestButtonText}>New Quest</Text>
         </TouchableOpacity>
       </View>
 
@@ -180,6 +193,14 @@ const QuestScreen = () => {
           </View>
         )}
       </ScrollView>
+
+      <CreateQuestModal
+        visible={createModalVisible}
+        onClose={() => setCreateModalVisible(false)}
+        onCreateQuest={handleCreateQuest}
+        creating={creating}
+      />
+
       <QuickActionButton />
     </View>
   );
@@ -224,6 +245,20 @@ function QuestCard({
   description: string;
   onPress: () => void;
 }) {
+
+  //get color based on difficulty
+  const getDifficultyColor = (): string => {
+    switch (quest.difficulty.toLocaleLowerCase()) {
+      case "easy":
+        return colorPallet.primary;
+      case "medium":
+        return colorPallet.secondary;
+      case "hard":
+        return colorPallet.critical;
+      default:
+        return colorPallet.secondary
+    }
+  };
   //calculate reward based on difficulty
   const getReward = (): number => {
     switch (quest.difficulty.toLowerCase()) {
@@ -246,10 +281,21 @@ function QuestCard({
   };
 
   return (
-    <Pressable style={styles.questCard} onPress={onPress}>
+    <Pressable
+      style={[
+        styles.questCard,
+        { borderColor: getDifficultyColor() }
+      ]}
+      onPress={onPress}
+    >
       <View style={styles.questCardContent}>
         {/* difficulty */}
-        <View style={styles.difficultyBadge}>
+        <View
+          style={[
+            styles.difficultyBadge,
+            { backgroundColor: getDifficultyColor() }
+          ]}
+        >
           <Text style={styles.difficultyText}>
             {quest.difficulty.toUpperCase()}
           </Text>
@@ -327,33 +373,23 @@ const styles = StyleSheet.create({
   },
 
   // create quest button
-  createButtonsContainer: {
-    flexDirection: "row",
+  createButtonContainer: {
     paddingHorizontal: 20,
-    gap: 8,
     marginBottom: 16,
   },
-  createButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
+  newQuestButton:{
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    minHeight: 44,
-  },
-  easyButton: {
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: 8,
     backgroundColor: colorPallet.primary,
   },
-  mediumButton: {
-    backgroundColor: colorPallet.secondary,
-  },
-  hardButton: {
-    backgroundColor: colorPallet.critical,
-  },
-  createButtonText: {
+  newQuestButtonText: {
     color: colorPallet.neutral_darkest,
-    fontSize: 14,
-    fontWeight: "500",
+    fontSize: 16,
+    fontWeight: "700"
   },
 
   // filter button
@@ -402,7 +438,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: colorPallet.neutral_5,
   },
   questCardContent: {
@@ -411,7 +447,6 @@ const styles = StyleSheet.create({
   },
   difficultyBadge: {
     alignSelf: "flex-start",
-    backgroundColor: colorPallet.secondary,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 4,
