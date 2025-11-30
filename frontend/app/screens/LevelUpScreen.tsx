@@ -11,6 +11,8 @@ import { useRouter, useLocalSearchParams } from "expo-router";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
 import { FormButton } from "@/components";
+import { useQuests } from "@/lib/quest-context";
+import { Quest } from "@/api/endpoints";
 
 // Confetti piece animation
 const ConfettiPiece = ({ delay = 0, color = "#FFD700", id = 0 }) => {
@@ -85,25 +87,40 @@ type Params = {
   workoutTime: string;
   points: string;
   exercises: string;
+  oldQuests?: string; // Added for quest checking
 };
 
 export default function LevelUpScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<Params>();
+  const { quests } = useQuests();
 
   const [showButton, setShowButton] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [oldQuests, setOldQuests] = useState<Quest[]>([]);
 
   // Animation values
   const fadeIn = useRef(new Animated.Value(0)).current;
   const scaleLevel = useRef(new Animated.Value(0)).current;
   const glowPulse = useRef(new Animated.Value(0)).current;
-  const levelNumberScale = useRef(new Animated.Value(0.3)).current; // start visible but small
+  const levelNumberScale = useRef(new Animated.Value(0.3)).current;
   const levelNumberRotate = useRef(new Animated.Value(0)).current;
 
   const oldLevel = parseInt(params.oldLevel || "1");
   const newLevel = parseInt(params.newLevel || "2");
   const levelsGained = parseInt(params.levelsGained || "1");
+
+  // Parse old quests for comparison
+  useEffect(() => {
+    if (params.oldQuests) {
+      try {
+        const parsedQuests = JSON.parse(params.oldQuests);
+        setOldQuests(parsedQuests);
+      } catch (error) {
+        console.error("Failed to parse old quests:", error);
+      }
+    }
+  }, [params.oldQuests]);
 
   useEffect(() => {
     // === 1. Start confetti & circle badge animation together ===
@@ -164,15 +181,39 @@ export default function LevelUpScreen() {
   }, []);
 
   const handleContinue = () => {
-    router.replace({
-      pathname: "/screens/FitnessTabs/workoutComplete",
-      params: {
-        name: params.workoutName,
-        workoutTime: params.workoutTime,
-        points: params.points,
-        exercises: params.exercises,
-      },
+    // Check for completed quests
+    const completedQuests = oldQuests.filter((oldQuest) => {
+      const newQuest = quests.find((q) => q.id === oldQuest.id);
+      return (
+        oldQuest.status !== "Complete" &&
+        newQuest?.status === "Complete"
+      );
     });
+
+    if (completedQuests.length > 0) {
+      // Navigate to quest complete screen
+      router.replace({
+        pathname: "/screens/QuestCompleteScreen",
+        params: {
+          completedQuests: JSON.stringify(completedQuests),
+          workoutName: params.workoutName,
+          workoutTime: params.workoutTime,
+          points: params.points,
+          exercises: params.exercises,
+        },
+      });
+    } else {
+      // No quest completion, go to workout complete
+      router.replace({
+        pathname: "/screens/FitnessTabs/workoutComplete",
+        params: {
+          name: params.workoutName,
+          workoutTime: params.workoutTime,
+          points: params.points,
+          exercises: params.exercises,
+        },
+      });
+    }
   };
 
   const glowOpacity = glowPulse.interpolate({

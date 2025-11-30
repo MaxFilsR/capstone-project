@@ -13,12 +13,12 @@ type QuestContextType = {
   loading: boolean;
   error: string | null;
   creating: boolean;
-  fetchQuests: () => Promise<void>;
+  fetchQuests: () => Promise<Quest[]>; // Returns Quest[]
   createNewQuest: (difficulty: "Easy" | "Medium" | "Hard") => Promise<void>;
   getInProgressQuests: () => Quest[];
   getCompletedQuests: () => Quest[];
   getQuestById: (id: number) => Quest | undefined;
-  refreshQuests: () => Promise<void>;
+  refreshQuests: () => Promise<Quest[]>; // Returns Quest[]
   calculateProgress: (quest: Quest) => number;
   getQuestDescription: (quest: Quest) => string;
 };
@@ -32,19 +32,24 @@ export const QuestProvider = ({ children }: { children: ReactNode }) => {
   const [creating, setCreating] = useState(false);
 
   // Fetch quests from API
-  const fetchQuests = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getQuests();
-      setQuests(data);
-    } catch (err) {
-      console.error("❌ Failed to load quests:", err);
-      setError("Failed to load quests");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Fetch quests from API - now returns the data
+const fetchQuests = useCallback(async () => {
+  try {
+    setLoading(true);
+    setError(null);
+    const data = await getQuests();
+    setQuests(data);
+    return data; // Return the fresh data
+  } catch (err) {
+    console.error("Failed to load quests:", err);
+    setError("Failed to load quests");
+    throw err; // Throw so caller knows it failed
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
+
 
   // Create a new quest
   const createNewQuest = useCallback(
@@ -69,7 +74,7 @@ export const QuestProvider = ({ children }: { children: ReactNode }) => {
   // Helper: Get in-progress quests (Incomplete status)
   const getInProgressQuests = useCallback(() => {
     const inProgress = quests.filter((quest) => quest.status === "Incomplete");
-    console.log("🎯 In Progress quests:", inProgress.length, inProgress);
+    console.log("In Progress quests:", inProgress.length, inProgress);
     return inProgress;
   }, [quests]);
 
@@ -118,10 +123,10 @@ export const QuestProvider = ({ children }: { children: ReactNode }) => {
     return description;
   }, []);
 
-  // Refresh quests (alias for fetchQuests for clarity)
-  const refreshQuests = useCallback(async () => {
-    await fetchQuests();
-  }, [fetchQuests]);
+  // Refresh quests - now returns the fresh data
+const refreshQuests = useCallback(async () => {
+  return await fetchQuests();
+}, [fetchQuests]);
 
   // Load quests on mount
   useEffect(() => {

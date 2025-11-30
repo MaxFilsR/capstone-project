@@ -19,6 +19,7 @@ import {
   getWorkoutLibrary,
 } from "@/api/endpoints";
 import { useAuth } from "@/lib/auth-context";
+import { useQuests } from "@/lib/quest-context";
 
 type Params = {
   routineName?: string;
@@ -32,6 +33,7 @@ export default function DurationRoutineScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<Params>();
   const { user, fetchUserProfile } = useAuth();
+  const { quests, refreshQuests } = useQuests();
 
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(30);
@@ -289,22 +291,34 @@ export default function DurationRoutineScreen() {
     setIsSubmitting(true);
 
     try {
+      // Capture OLD state before recording workout
+      const oldLevel = currentLevel;
+      const oldQuests = [...quests];
+      
+      console.log("Before workout - Level:", oldLevel, "Quests:", oldQuests.length);
+      console.log("Old quests statuses:", oldQuests.map(q => ({ id: q.id, name: q.name, status: q.status })));
+      
       // Record the workout
       await recordWorkout(workoutData);
-
-      // Fetch updated character profile to update auth context and check for level up
-      const updatedProfile = await fetchUserProfile();
+      
+      // Fetch updated data - get the RETURNED values, not from context
+      const [updatedProfile, updatedQuests] = await Promise.all([
+        fetchUserProfile(),
+        refreshQuests()
+      ]);
+      
       const newLevel = updatedProfile.level;
-      const oldLevel = currentLevel;
+      
+      console.log("After workout - Level:", newLevel, "Quests:", updatedQuests.length);
+      console.log("New quests statuses:", updatedQuests.map(q => ({ id: q.id, name: q.name, status: q.status })));
 
       // Check if user leveled up
       if (newLevel > oldLevel) {
         const levelsGained = newLevel - oldLevel;
         console.log(
-          `🎉 LEVEL UP! ${oldLevel} -> ${newLevel} (+${levelsGained} levels)`
+          `LEVEL UP! ${oldLevel} -> ${newLevel} (+${levelsGained} levels)`
         );
 
-        // Navigate to level up screen first
         router.replace({
           pathname: "/screens/LevelUpScreen",
           params: {
@@ -315,22 +329,55 @@ export default function DurationRoutineScreen() {
             workoutTime: String(durationMinutes),
             points: String(points),
             exercises: JSON.stringify(exercises),
+            oldQuests: JSON.stringify(oldQuests),
           },
         });
-      } else {
-        // No level up, go straight to workout complete
+        return;
+      }
+
+      // Check for completed quests using the RETURNED fresh data
+      const completedQuests = oldQuests.filter((oldQuest) => {
+        const newQuest = updatedQuests.find((q) => q.id === oldQuest.id);
+        const wasIncomplete = oldQuest.status !== "Complete";
+        const isNowComplete = newQuest?.status === "Complete";
+        
+        if (wasIncomplete && isNowComplete) {
+          console.log(`Quest completed: ${oldQuest.name} (ID: ${oldQuest.id})`);
+        }
+        
+        return wasIncomplete && isNowComplete;
+      });
+
+      console.log(`Total completed quests detected: ${completedQuests.length}`);
+
+      if (completedQuests.length > 0) {
         router.replace({
-          pathname: "/screens/FitnessTabs/workoutComplete",
+          pathname: "/screens/QuestCompleteScreen",
           params: {
-            name: workoutData.name,
+            completedQuests: JSON.stringify(completedQuests),
+            workoutName: workoutData.name,
             workoutTime: String(durationMinutes),
             points: String(points),
             exercises: JSON.stringify(exercises),
           },
         });
+        return;
       }
+
+      // No level up or quest completion
+      console.log("No level up or quest completion, going to workout complete");
+      router.replace({
+        pathname: "/screens/FitnessTabs/workoutComplete",
+        params: {
+          name: workoutData.name,
+          workoutTime: String(durationMinutes),
+          points: String(points),
+          exercises: JSON.stringify(exercises),
+        },
+      });
+      
     } catch (error) {
-      console.error("❌ Failed to record workout:", error);
+      console.error("Failed to record workout:", error);
       console.error("Error details:", JSON.stringify(error, null, 2));
       setAlert({
         visible: true,
