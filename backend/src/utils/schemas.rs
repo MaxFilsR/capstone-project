@@ -103,7 +103,7 @@ pub struct History {
     pub coins: i32,
 }
 
-#[derive(Clone, Debug, Default, Deserialize, Serialize, sqlx::Type)]
+#[derive(Clone, Copy, Debug, Default, Deserialize, Serialize, sqlx::Type)]
 #[sqlx(type_name = "equipped")]
 pub struct Equipped {
     pub arms: i32,
@@ -181,6 +181,7 @@ pub enum ExerciseCategory {
     strength,
     stretching,
     cardio,
+    #[serde(rename = "olympic weightlifting")]
     olympic_weightlifting,
     strongman,
     plyometrics,
@@ -202,13 +203,15 @@ pub enum ExerciseMuscle {
     glutes,
     hamstrings,
     lats,
+    #[serde(rename = "lower back")]
     lower_back,
+    #[serde(rename = "middle back")]
     middle_back,
     neck,
     quadriceps,
     shoulders,
     traps,
-    tricep,
+    triceps,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, sqlx::Type, PartialEq)]

@@ -1,8 +1,11 @@
 use {
-    crate::utils::schemas::{
-        ItemCategory,
-        ItemRarity,
-        ItemRow,
+    crate::{
+        endpoints::constants::constants::ITEMS_PATH,
+        utils::schemas::{
+            ItemCategory,
+            ItemRarity,
+            ItemRow,
+        },
     },
     actix_web::{
         HttpResponse,
@@ -62,7 +65,7 @@ pub async fn items(
             category: row.category,
             rarity: row.rarity,
             bytes: {
-                let path = Path::new("/srv/items").join(&row.path);
+                let path = Path::new(ITEMS_PATH).join(&row.path);
                 std::fs::read(&path).unwrap_or_else(|_| {
                     panic!(
                         "Failed to read asset with id = {} and path = {}",

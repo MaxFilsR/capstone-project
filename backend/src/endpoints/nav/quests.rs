@@ -4,7 +4,13 @@ use {
         coins::add_coins,
         jwt::AuthenticatedUser,
         level::add_exp,
-        schemas::*,
+        schemas::{
+            ExerciseCategory,
+            ExerciseMuscle,
+            QuestDifficulty,
+            QuestRow,
+            QuestStatus,
+        },
     },
     actix_web::{
         self,
@@ -181,6 +187,20 @@ pub async fn apply_workout_to_quests(
                 add_coins(&user, &pool, quest.difficulty.coins())
                     .await
                     .unwrap();
+            } else {
+                // Quest is still incomplete
+                let _query = sqlx::query!(
+                    r#"
+                        UPDATE quests
+                        SET number_of_workouts_completed = $2
+                        WHERE id = $1
+                    "#,
+                    quest.id,
+                    number_of_workouts_completed,
+                )
+                .execute(pool.get_ref())
+                .await
+                .unwrap();
             }
         }
     }

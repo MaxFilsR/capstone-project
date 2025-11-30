@@ -13,6 +13,7 @@ use {
     actix_web::{
         HttpResponse,
         get,
+        put,
         web,
     },
     serde::{
@@ -125,4 +126,106 @@ pub async fn read_settings(
         last_name: query.last_name,
         workout_schedule: query.workout_schedule,
     }));
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct ReadInventoryResponse {
+    inventory: Inventory,
+}
+
+#[get("/character/inventory")]
+pub async fn read_inventory(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let query: Inventory = sqlx::query_scalar!(
+        r#"
+            SELECT inventory as "inventory: Inventory"
+            FROM characters
+            where user_id = $1
+        "#,
+        user.id
+    )
+    .fetch_one(pool.get_ref())
+    .await
+    .unwrap();
+
+    return Ok(HttpResponse::Ok().json(ReadInventoryResponse { inventory: query }));
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct UpdateInventoryResponse {
+    inventory: Inventory,
+}
+#[put("/character/inventory")]
+pub async fn update_inventory(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+    request: web::Json<UpdateInventoryResponse>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let _query = sqlx::query!(
+        r#"
+            UPDATE characters
+            SET inventory = $2 
+            where user_id = $1
+        "#,
+        user.id,
+        request.inventory.to_owned() as Inventory,
+    )
+    .execute(pool.get_ref())
+    .await
+    .unwrap();
+
+    return Ok(HttpResponse::Ok().finish());
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct ReadEquippedResponse {
+    equipped: Equipped,
+}
+
+#[get("/character/equipped")]
+pub async fn read_equipped(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let query: Equipped = sqlx::query_scalar!(
+        r#"
+            SELECT equipped as "equipped: Equipped"
+            FROM characters
+            where user_id = $1
+        "#,
+        user.id
+    )
+    .fetch_one(pool.get_ref())
+    .await
+    .unwrap();
+
+    return Ok(HttpResponse::Ok().json(ReadEquippedResponse { equipped: query }));
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct UpdateEquippedResponse {
+    equipped: Equipped,
+}
+#[put("/character/equipped")]
+pub async fn update_equipped(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+    request: web::Json<UpdateEquippedResponse>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let _query = sqlx::query!(
+        r#"
+            UPDATE characters
+            SET equipped = $2 
+            where user_id = $1
+        "#,
+        user.id,
+        request.equipped as Equipped,
+    )
+    .execute(pool.get_ref())
+    .await
+    .unwrap();
+
+    return Ok(HttpResponse::Ok().finish());
 }

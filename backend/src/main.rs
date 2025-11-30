@@ -18,13 +18,13 @@ use {
 async fn main() -> std::io::Result<()> {
     env_logger::init_from_env(
         Env::default()
-            .default_filter_or("info")
+            .default_filter_or(log::Level::Info.as_str())
             .default_write_style_or("auto"),
     );
 
-    let actix_web_address = env::get_env_var_with_key(env::ACTIX_WEB_ADDRESS);
-    let actix_web_port = env::get_env_var_with_key(env::ACTIX_WEB_PORT);
-    let database_url = env::get_env_var_with_key(env::DATABASE_URL);
+    let actix_web_address = env::get_env_var_from_key(env::ACTIX_WEB_ADDRESS);
+    let actix_web_port = env::get_env_var_from_key(env::ACTIX_WEB_PORT);
+    let database_url = env::get_env_var_from_key(env::DATABASE_URL);
 
     let pool = PgPool::connect(&database_url).await.unwrap();
 
@@ -38,7 +38,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_origin()
-            .allowed_methods(vec!["DELETE", "GET", "POST", "PUT"])
+            .allow_any_method()
             .allow_any_header();
 
         App::new()
@@ -57,6 +57,10 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::onboarding::onboarding)
             // Character
             .service(endpoints::nav::character::read_character)
+            .service(endpoints::nav::character::read_inventory)
+            .service(endpoints::nav::character::update_inventory)
+            .service(endpoints::nav::character::read_equipped)
+            .service(endpoints::nav::character::update_equipped)
             // Quests
             .service(endpoints::nav::quests::read_quests)
             .service(endpoints::nav::quests::create_quest)
@@ -76,6 +80,17 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::nav::social::update_friends)
             .service(endpoints::nav::social::read_leaderboard)
             .service(endpoints::nav::social::read_leaderboard_detail)
+            .service(endpoints::nav::social::send_friend_request)
+            .service(endpoints::nav::social::get_incoming_requests)
+            .service(endpoints::nav::social::get_outgoing_requests)
+            .service(endpoints::nav::social::respond_to_request)
+            .service(endpoints::nav::social::remove_friend)
+            // Settings
+            .service(endpoints::settings::update_username)
+            .service(endpoints::settings::update_name)
+            .service(endpoints::settings::update_workout_schedule)
+            .service(endpoints::settings::update_email)
+            .service(endpoints::settings::update_class)
     })
     .bind(format!("{actix_web_address}:{actix_web_port}"))?
     .run()

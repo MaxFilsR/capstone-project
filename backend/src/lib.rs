@@ -12,10 +12,12 @@ pub mod endpoints {
     }
     pub mod constants {
         pub mod classes;
+        pub mod constants;
         pub mod items;
     }
     pub mod auth;
     pub mod onboarding;
+    pub mod settings;
     pub mod stats;
 }
 pub mod utils {
