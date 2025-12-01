@@ -1,5 +1,5 @@
 /**
- * API Endpoints Barrel Export
+ * API Endpoints index file
  * 
  * Central export point for all API modules. Import any endpoint function
  * or type from this file to maintain clean and consistent imports throughout
