@@ -26,7 +26,7 @@ CREATE TYPE class AS (name TEXT, stats STATS);
 CREATE TYPE equipped AS (
 	arms INTEGER,
 	background INTEGER,
-	bodies INTEGER,
+	body INTEGER,
 	head INTEGER,
 	head_accessory INTEGER,
 	pet INTEGER,
@@ -56,6 +56,7 @@ CREATE TYPE item_category AS ENUM(
 );
 
 CREATE TYPE item_rarity AS ENUM(
+	'default',
 	'common',
 	'uncommon',
 	'rare',
@@ -333,51 +334,3 @@ DO $$
 		FROM
 			jsonb_array_elements(assets_json) AS data;
 END $$;
-
-INSERT INTO
-	users (email, password, onboarding_complete)
-VALUES
-	(
-		'you@example.com',
-		crypt ('12345678', gen_salt ('md5')),
-		TRUE
-	);
-
-INSERT INTO
-	settings (user_id, first_name, last_name, workout_schedule)
-VALUES
-	(
-		1,
-		'John',
-		'Doe',
-		'{TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE}'
-	);
-
-INSERT INTO
-	characters (
-		user_id,
-		username,
-		class,
-		level,
-		exp_leftover,
-		pending_stat_points,
-		streak,
-		coins,
-		equipped,
-		inventory,
-		friends
-	)
-VALUES
-	(
-		1,
-		'JDoe',
-		ROW ('Warrior', ROW (10, 7, 5)),
-		1,
-		0,
-		0,
-		0,
-		1000,
-		ROW (0, 0, 0, 0, 0, 0, 0),
-		ROW ('{0}', '{0}', '{0}', '{0}', '{0}', '{0}', '{0}'),
-		'{}'
-	);

@@ -33,7 +33,7 @@ async fn main() -> std::io::Result<()> {
         Err(e) => log::error!("Error executing migrations: {}", e),
     };
 
-    log::info!("Server is running on https://localhost:{actix_web_port}");
+    add_default_user(&pool).await;
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -91,7 +91,70 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await?;
 
+    log::info!("Server is running on https://localhost:{actix_web_port}");
+
     Ok(())
+}
+
+async fn add_default_user(pool: &PgPool) {
+    let _query = sqlx::query!(
+        r#"
+            INSERT INTO users (email, password, onboarding_complete)
+            VALUES ('you@example.com', crypt ('12345678', gen_salt ('md5')), TRUE);
+        "#
+    )
+    .execute(pool)
+    .await
+    .unwrap();
+
+    let _query = sqlx::query!(
+        r#"
+            INSERT INTO settings (user_id, first_name, last_name, workout_schedule)
+            VALUES (1, 'John', 'Doe', '{TRUE, FALSE, TRUE, FALSE, TRUE, FALSE, TRUE}');
+        "#
+    )
+    .execute(pool)
+    .await
+    .unwrap();
+
+    let inventory = endpoints::onboarding::populate_inventory(pool).await;
+    let equipped = endpoints::onboarding::populate_equipped(&inventory);
+
+    let _query = sqlx::query!(
+        r#"
+            INSERT INTO characters (
+                user_id,
+                username,
+                class,
+                level,
+                exp_leftover,
+                pending_stat_points,
+                streak,
+                coins,
+                equipped,
+                inventory,
+                friends
+            )
+            VALUES (
+                1,
+                'JDoe',
+                ROW ('Warrior', ROW (10, 7, 5)),
+                1,
+                0,
+                0,
+                0,
+                1000,
+                $1,
+    		    $2,
+                '{}'
+            )
+        "#,
+        equipped as capstone_project::utils::schemas::Equipped,
+        inventory as capstone_project::utils::schemas::Inventory,
+    )
+    .execute(pool)
+    .await
+    .unwrap();
 }
 
 #[cfg(test)]
