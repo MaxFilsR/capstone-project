@@ -1,9 +1,22 @@
+/**
+ * Popup Modal Styles
+ * 
+ * Stylesheet for popup modal components including overlays, content containers,
+ * exercise cards, tab bars, and form inputs. Handles responsive sizing and
+ * maintains consistent styling across all modal variations.
+ */
+
 import { Dimensions, StyleSheet } from "react-native";
 import { colorPallet } from "./variables";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
+// ============================================================================
+// Styles
+// ============================================================================
+
 export const popupModalStyles = StyleSheet.create({
+  // Modal container and overlay
   overlay: {
     flex: 1,
     justifyContent: "center",
@@ -11,10 +24,6 @@ export const popupModalStyles = StyleSheet.create({
   },
   backdrop: {
     position: "absolute",
-    // top: 0,
-    // left: 0,
-    // right: 0,
-    // bottom: 0,
   },
   modalContainer: {
     width: "90%",
@@ -32,6 +41,8 @@ export const popupModalStyles = StyleSheet.create({
     borderColor: colorPallet.neutral_6,
     overflow: "hidden",
   },
+
+  // Close button
   closeButton: {
     position: "absolute",
     top: 12,
@@ -49,6 +60,8 @@ export const popupModalStyles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
+
+  // Content and empty states
   text: {
     color: colorPallet.neutral_3,
     fontSize: 16,
@@ -60,7 +73,8 @@ export const popupModalStyles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
-  // TabBar style overrides
+
+  // Tab bar overrides
   tabOuterContainer: {
     paddingTop: 0,
     margin: 0,
@@ -87,6 +101,7 @@ export const popupModalStyles = StyleSheet.create({
     alignSelf: "center",
     paddingTop: 16,
   },
+
   // Exercise cards
   exerciseCard: {
     flexDirection: "row",
@@ -126,6 +141,8 @@ export const popupModalStyles = StyleSheet.create({
     backgroundColor: colorPallet.neutral_5,
     borderTopStartRadius: 8,
   },
+
+  // Exercise metrics
   metricsContainer: {
     padding: 8,
     borderWidth: 1,
@@ -146,7 +163,8 @@ export const popupModalStyles = StyleSheet.create({
     borderColor: colorPallet.neutral_5,
     fontSize: 14,
   },
-  // Header styles
+
+  // Header
   headerBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -168,7 +186,8 @@ export const popupModalStyles = StyleSheet.create({
   saveTextDisabled: {
     color: colorPallet.neutral_3,
   },
-  // Content styles
+
+  // Scrollable content
   scrollContent: {
     flex: 1,
     padding: 16,

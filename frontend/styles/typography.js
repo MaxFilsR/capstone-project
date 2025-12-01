@@ -1,7 +1,20 @@
+/**
+ * Typography Styles
+ * 
+ * Defines text styles and font hierarchies used throughout the application.
+ * Includes heading levels (h1-h5), body text, error messages, and specialized
+ * text styles with consistent font families and color palette.
+ */
+
 import { StyleSheet } from "react-native";
 import { colorPallet } from "./variables";
 
+// ============================================================================
+// Styles
+// ============================================================================
+
 export const typography = StyleSheet.create({
+  // Heading levels
   h1: {
     fontSize: 24,
     fontFamily: "Anton",
@@ -27,6 +40,8 @@ export const typography = StyleSheet.create({
     fontFamily: "Anton",
     color: colorPallet.primary,
   },
+
+  // Body and specialized text
   body: {
     fontFamily: "Inter_400Regular",
     fontSize: 16,
