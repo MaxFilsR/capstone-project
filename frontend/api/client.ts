@@ -1,12 +1,23 @@
+/**
+ * API Client Configuration
+ * 
+ * Configures the Axios HTTP client with authentication interceptors.
+ * Automatically attaches JWT tokens to requests and handles token expiration.
+ * Uses environment variables for API base URL configuration.
+ */
+
 import axios from "axios";
 import { storage } from "@/utils/storageHelper";
 import { Platform } from "react-native";
 
 const API_BASE_URL =
   Platform.OS === "android"
-    ? "http://localhost:8080" // Android emulator → host machine
-    : "http://localhost:8080"; // iOS simulator or web
+    ? process.env.EXPO_PUBLIC_API_URL_ANDROID || "http://10.0.2.2:8080"
+    : process.env.EXPO_PUBLIC_API_URL_IOS || "http://localhost:8080";
 
+/**
+ * Configured Axios instance for API requests
+ */
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
@@ -15,15 +26,26 @@ export const apiClient = axios.create({
   },
 });
 
+/**
+ * Endpoints that don't require authentication
+ */
 const PUBLIC_ENDPOINTS = ["/auth/login", "/auth/sign-up"];
 
-// Store logout callback that will be set by AuthProvider
+/**
+ * Callback function to handle logout when token expires
+ */
 let logoutCallback: (() => Promise<void>) | null = null;
 
+/**
+ * Set the logout callback to be invoked on 401 responses
+ */
 export function setLogoutCallback(callback: () => Promise<void>) {
   logoutCallback = callback;
 }
 
+/**
+ * Request interceptor to attach JWT token to protected endpoints
+ */
 apiClient.interceptors.request.use(
   async (config) => {
     const isPublic = PUBLIC_ENDPOINTS.some((endpoint) =>
@@ -31,7 +53,6 @@ apiClient.interceptors.request.use(
     );
 
     if (isPublic) {
-      // Allow login/signup requests through
       return config;
     }
 
@@ -48,18 +69,19 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+/**
+ * Response interceptor to handle authentication errors
+ */
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (axios.isCancel(error)) {
-      // Request was intentionally skipped — not a real error
       return Promise.reject(error);
     }
 
     if (error.response?.status === 401) {
       console.warn("Unauthorized — token expired or invalid");
 
-      // Call the logout callback if it's set
       if (logoutCallback) {
         await logoutCallback();
       }
