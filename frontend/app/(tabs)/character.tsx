@@ -94,6 +94,7 @@ export default function Index() {
   return (
     <>
       {/* Quick Action Button */}
+      {console.log(profile.inventory)}
       <QuickActionButton />
 
       <SafeAreaView
@@ -133,7 +134,7 @@ export default function Index() {
               onSettingsPress={handleSettingsPress}
             />
           </TouchableOpacity>
-
+              
           <Popup
             visible={popupVisible}
             mode={popupMode}
