@@ -9,11 +9,11 @@ use {
     },
     actix_web::{
         HttpResponse,
+        delete,
         get,
+        post,
         put,
         web,
-        post,
-        delete,
     },
     serde::{
         Deserialize,
@@ -60,8 +60,8 @@ pub struct LeaderboardEntry {
 
 #[derive(Serialize)]
 pub struct FriendRequest {
-    pub request_id: i32,        // ID of the friend request
-    pub sender_id: i32,         // User ID of the sender
+    pub request_id: i32, // ID of the friend request
+    pub sender_id: i32,  // User ID of the sender
     pub sender_username: String,
     pub sender_class: Class,
     pub sender_level: i32,
@@ -408,7 +408,9 @@ pub async fn send_friend_request(
                 return HttpResponse::BadRequest().body("Already friends");
             }
         }
-        Err(_) => return HttpResponse::InternalServerError().body("Failed to check friendship status"),
+        Err(_) => {
+            return HttpResponse::InternalServerError().body("Failed to check friendship status");
+        }
     }
 
     // Check if request already exists (either direction)
@@ -432,7 +434,9 @@ pub async fn send_friend_request(
                 return HttpResponse::BadRequest().body("Friend request already pending");
             }
         }
-        Err(_) => return HttpResponse::InternalServerError().body("Failed to check existing requests"),
+        Err(_) => {
+            return HttpResponse::InternalServerError().body("Failed to check existing requests");
+        }
     }
 
     // Create friend request
@@ -588,7 +592,9 @@ pub async fn respond_to_request(
     if accept {
         let mut tx = match pool.begin().await {
             Ok(tx) => tx,
-            Err(_) => return HttpResponse::InternalServerError().body("Failed to start transaction"),
+            Err(_) => {
+                return HttpResponse::InternalServerError().body("Failed to start transaction");
+            }
         };
 
         // Add Recipient to Sender's friends list
@@ -599,7 +605,7 @@ pub async fn respond_to_request(
             WHERE user_id = $1 AND NOT ($2 = ANY(friends))
             "#,
             sender_id,
-            recipient_id    // person being added
+            recipient_id // person being added
         )
         .execute(&mut *tx)
         .await;
@@ -617,14 +623,15 @@ pub async fn respond_to_request(
             WHERE user_id = $1 AND NOT ($2 = ANY(friends))
             "#,
             recipient_id,
-            sender_id       // person being added
+            sender_id // person being added
         )
         .execute(&mut *tx)
         .await;
 
         if update2.is_err() {
             let _ = tx.rollback().await;
-            return HttpResponse::InternalServerError().body("Failed to add to Recipient's friends list");
+            return HttpResponse::InternalServerError()
+                .body("Failed to add to Recipient's friends list");
         }
 
         if tx.commit().await.is_err() {
@@ -650,7 +657,7 @@ pub async fn remove_friend(
 ) -> HttpResponse {
     let friend_id = friend_id.into_inner();
 
-    // Verify they are friends 
+    // Verify they are friends
     let is_friend = sqlx::query!(
         r#"
         SELECT EXISTS(
@@ -687,14 +694,15 @@ pub async fn remove_friend(
         WHERE user_id = $1
         "#,
         user.id,
-        friend_id   // person being removed
+        friend_id // person being removed
     )
     .execute(&mut *tx)
     .await;
 
     if update1.is_err() {
         let _ = tx.rollback().await;
-        return HttpResponse::InternalServerError().body("Failed to remove friend from user's friend list");
+        return HttpResponse::InternalServerError()
+            .body("Failed to remove friend from user's friend list");
     }
 
     // Remove the user from the friend's friends list
@@ -705,14 +713,15 @@ pub async fn remove_friend(
         WHERE user_id = $1
         "#,
         friend_id,
-        user.id     // person being removed
+        user.id // person being removed
     )
     .execute(&mut *tx)
     .await;
 
     if update2.is_err() {
         let _ = tx.rollback().await;
-        return HttpResponse::InternalServerError().body("Failed to remove user from friend's friend list");
+        return HttpResponse::InternalServerError()
+            .body("Failed to remove user from friend's friend list");
     }
 
     if tx.commit().await.is_err() {
