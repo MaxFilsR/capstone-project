@@ -33,18 +33,26 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <WorkoutLibraryProvider>
-        <RoutinesProvider>
-          <FriendsProvider>
-            <InventoryProvider>
-              <QuestProvider>
-                <InnerStack />
-              </QuestProvider>
-            </InventoryProvider>
-          </FriendsProvider>
-        </RoutinesProvider>
-      </WorkoutLibraryProvider>
+      <InnerProviders />
     </AuthProvider>
+  );
+}
+
+function InnerProviders() {
+  const { user } = useAuth();
+
+  return (
+    <WorkoutLibraryProvider>
+      <RoutinesProvider>
+        <FriendsProvider>
+          <InventoryProvider>
+            <QuestProvider>
+              <InnerStack />
+            </QuestProvider>
+          </InventoryProvider>
+        </FriendsProvider>
+      </RoutinesProvider>
+    </WorkoutLibraryProvider>
   );
 }
 
@@ -57,14 +65,12 @@ function InnerStack() {
     async function verifyUser() {
       const token = await storage.getItem("accessToken");
 
-      // If no token, don't even try fetching the profile
       if (!token || !user) {
         hasFetchedProfile.current = false;
         setLoadingUser(false);
         return;
       }
 
-      //If user hasn’t completed onboarding, skip
       if (user.onboarded !== true) {
         setLoadingUser(false);
         return;
