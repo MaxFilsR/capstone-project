@@ -1,9 +1,17 @@
-import React from "react";
-import { View, StyleSheet, StatusBar, Pressable, Text } from "react-native";
+import React, { useState } from "react";
+import {
+  View,
+  StyleSheet,
+  StatusBar,
+  Pressable,
+  Text,
+  Modal,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TabBar, { Tab } from "@/components/TabBar";
 import FriendsScreen from "../screens/SocialTabs/FriendsScreen";
 import LeaderboardScreen from "../screens/SocialTabs/LeaderboardScreen";
+import NewFriendSearchScreen from "../screens/SocialTabs/NewFriendSearchScreen";
 import QuickActionButton from "@/components/QuickActionButton";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
@@ -11,14 +19,19 @@ import { containers } from "@/styles";
 import { Ionicons } from "@expo/vector-icons";
 
 const SocialScreen = () => {
+  const [showSearchModal, setShowSearchModal] = useState(false);
+
   const tabs: Tab[] = [
     { name: "Friends", component: FriendsScreen },
     { name: "Leaderboard", component: LeaderboardScreen },
   ];
 
   const handleSearchPress = () => {
-    // TODO: Navigate to search screen
-    console.log("Search pressed - will open search screen");
+    setShowSearchModal(true);
+  };
+
+  const handleCloseSearch = () => {
+    setShowSearchModal(false);
   };
 
   return (
@@ -45,6 +58,34 @@ const SocialScreen = () => {
 
         {/* Quick Action Button */}
         <QuickActionButton />
+
+        {/* Search Modal */}
+        <Modal
+          visible={showSearchModal}
+          animationType="slide"
+          presentationStyle="pageSheet"
+          onRequestClose={handleCloseSearch}
+        >
+          <SafeAreaView
+            style={styles.modalContainer}
+            edges={["top", "left", "right"]}
+          >
+            <View style={styles.modalHeader}>
+              <Pressable
+                onPress={handleCloseSearch}
+                style={styles.closeButton}
+                hitSlop={8}
+              >
+                <Ionicons
+                  name="close"
+                  size={28}
+                  color={colorPallet.neutral_lightest}
+                />
+              </Pressable>
+            </View>
+            <NewFriendSearchScreen />
+          </SafeAreaView>
+        </Modal>
       </View>
     </SafeAreaView>
   );
@@ -63,6 +104,19 @@ const styles = StyleSheet.create({
   searchButton: {
     padding: 8,
     borderRadius: 8,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: colorPallet.neutral_darkest,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingHorizontal: 22,
+    paddingVertical: 12,
+  },
+  closeButton: {
+    padding: 8,
   },
 });
 

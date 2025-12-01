@@ -1,17 +1,13 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { View, Text, ScrollView } from "react-native";
-import {
-  Exercise,
-  updateRoutine,
-  deleteRoutine,
-  RoutineExercise,
-} from "@/api/endpoints";
+import { Exercise, RoutineExercise } from "@/api/endpoints";
 import { typography } from "@/styles";
 import { popupModalStyles } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { FormTextInput } from "../FormTextInput";
 import { FormButton } from "../FormButton";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
+import { useRoutines } from "@/lib/routines-context";
 import { useRouter } from "expo-router";
 import ExerciseSearchList from "../ExerciseSearchList";
 import SelectedExercisesList from "../SelectedExercisesList";
@@ -41,6 +37,7 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
   routine,
 }) => {
   const { exercises } = useWorkoutLibrary();
+  const { updateRoutine, removeRoutine } = useRoutines();
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -198,7 +195,7 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
         exercises: formattedExercises,
       };
 
-      await updateRoutine(payload);
+      await updateRoutine(routine.id, payload);
 
       setAlert({
         visible: true,
@@ -232,7 +229,7 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
       onConfirmAction: async () => {
         setIsDeleting(true);
         try {
-          await deleteRoutine({ id: routine.id });
+          await removeRoutine(routine.id);
           setAlert({
             visible: true,
             mode: "success",

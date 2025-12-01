@@ -1,12 +1,12 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { Exercise, createRoutine, RoutineExercise } from "@/api/endpoints";
+import { Exercise, RoutineExercise } from "@/api/endpoints";
 import { typography } from "@/styles";
 import { popupModalStyles } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { FormTextInput } from "../FormTextInput";
-import { FormButton } from "../FormButton";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
+import { useRoutines } from "@/lib/routines-context";
 import ExerciseSearchList from "../ExerciseSearchList";
 import SelectedExercisesList from "../SelectedExercisesList";
 import Alert from "./Alert";
@@ -17,6 +17,7 @@ type CreateRoutineModalProps = {
 
 const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
   const { exercises } = useWorkoutLibrary();
+  const { addRoutine } = useRoutines();
   const [isSaving, setIsSaving] = useState(false);
   const [routineName, setRoutineName] = useState("");
   const [selectedExercises, setSelectedExercises] = useState<
@@ -94,7 +95,7 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
         exercises: formattedExercises,
       };
 
-      await createRoutine(payload);
+      await addRoutine(payload);
 
       setAlert({
         visible: true,

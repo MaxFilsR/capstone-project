@@ -1,5 +1,5 @@
-start: start_backend wait_for_backend 
-# start_frontend
+start: start_backend 
+# start_frontend wait_for_backend 
 
 start_backend:
 	make --directory=./backend start &

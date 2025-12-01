@@ -336,10 +336,6 @@ export type UpdateFriendsRequest = {
   friend_ids: number[];
 };
 
-export type FriendActionResponse = {
-  id: number;
-};
-
 /**
  * Fetch list of friends
  * GET /social/friends
@@ -368,23 +364,7 @@ export async function updateFriends(
   await apiClient.put("/social/friends", payload);
 }
 
-/**
- * Add a friend
- * POST /social/friends
- */
-export async function addFriend(id: number): Promise<FriendActionResponse> {
-  const response = await apiClient.post("/social/friends", { id });
-  return response.data;
-}
 
-/**
- * Remove a friend
- * DELETE /social/friends
- */
-export async function removeFriend(id: number): Promise<FriendActionResponse> {
-  const response = await apiClient.delete("/social/friends", { data: { id } });
-  return response.data;
-}
 
 // Leaderboard Types and Endpoints
 export type LeaderboardEntry = {
@@ -438,4 +418,186 @@ export async function getLeaderboardUserById(
 ): Promise<LeaderboardProfile> {
   const response = await apiClient.get(`/social/leaderboard/${id}`);
   return response.data;
+}
+
+// Quests
+export type Quest = {
+  id: number;
+  user_id: number;
+  name: string;
+  difficulty: string;
+  status: string;
+  number_of_workouts_needed: number;
+  number_of_workouts_completed: number;
+  workout_duration?: number;
+  exercise_category?: string;
+  exercise_muscle?: string;
+};
+
+export type GetQuestsRepsonse = {
+  quests: Quest[];
+};
+
+/**
+ * Fetch all quests the authenticated user
+ * GET /quests
+ * Returns: { quests: Quest[] }
+ */
+
+export async function getQuests(): Promise<Quest[]> {
+  const response = await apiClient.get<GetQuestsRepsonse>("/quests");
+
+  return response.data.quests;
+}
+
+export type CreateQuestRequest = {
+  difficulty: string;
+};
+
+export type CreateQuestResponse = {
+  name: string;
+  difficulty: string;
+  status: string;
+  number_of_workouts_needed: number;
+  number_of_workouts_completed: number;
+  workout_duration?: number;
+  exercise_category?: string;
+  exercise_muscle?: string;
+};
+
+/**
+ * Create a new quest
+ * POST /quests
+ * Request: { difficulty: string }
+ * Returns: CreateQuestResponse with quest details
+ */
+export async function createQuest(
+  payload: CreateQuestRequest
+): Promise<CreateQuestResponse> {
+  const response = await apiClient.post<CreateQuestResponse>(
+    "/quests",
+    payload
+  );
+  return response.data;
+}
+
+
+// Stats Types and Endpoints
+export type StatType = "strength" | "endurance" | "flexibility";
+
+export type IncreaseStatRequest = {
+  stat: StatType;
+  amount: number;
+};
+
+export type IncreaseStatResponse = {
+  stat: StatType;
+  amount: number;
+};
+
+/**
+ * Increase a specific stat by allocating points
+ * POST /stats/increase
+ * Request: { stat: "strength" | "endurance" | "flexibility", amount: number }
+ * Response: { stat: string, amount: number }
+ */
+export async function increaseStat(
+  payload: IncreaseStatRequest
+): Promise<IncreaseStatResponse> {
+  const response = await apiClient.post<IncreaseStatResponse>(
+    "/stats/increase",
+    payload
+  );
+  return response.data;
+}
+
+// Friend Request Types
+export type FriendRequest = {
+  request_id: number;
+  sender_id: number;
+  sender_username: string;
+  sender_class: {
+    name: string;
+    stats: {
+      strength: number;
+      endurance: number;
+      flexibility: number;
+    };
+  };
+  sender_level: number;
+  created: string;
+};
+
+export type SendFriendRequestRequest = {
+  recipient_id: number;
+};
+
+export type RespondToFriendRequestRequest = {
+  request_id: number;
+  accept: boolean;
+};
+
+export type DeleteFriendRequest = {
+  friend_id: number;
+};
+
+/**
+ * Send a friend request to another user
+ * POST /social/friends/request
+ */
+export async function sendFriendRequest(
+  payload: SendFriendRequestRequest
+): Promise<void> {
+  await apiClient.post("/social/friends/request", payload);
+}
+
+/**
+ * Get incoming friend requests
+ * GET /social/friends/requests/incoming
+ */
+export async function getIncomingFriendRequests(): Promise<FriendRequest[]> {
+  const response = await apiClient.get("/social/friends/requests/incoming");
+  return response.data;
+}
+
+/**
+ * Get outgoing friend requests
+ * GET /social/friends/requests/outgoing
+ */
+export async function getOutgoingFriendRequests(): Promise<FriendRequest[]> {
+  const response = await apiClient.get("/social/friends/requests/outgoing");
+  return response.data;
+}
+
+/**
+ * Respond to a friend request (accept or decline)
+ * POST /social/friends/request/respond
+ */
+export async function respondToFriendRequest(
+  payload: RespondToFriendRequestRequest
+): Promise<void> {
+  await apiClient.post("/social/friends/request/respond", payload);
+}
+
+/**
+ * Delete a friend (unfriend)
+ * DELETE /social/friends/{id}
+ */
+export async function deleteFriend(friendId: number): Promise<void> {
+  await apiClient.delete(`/social/friends/${friendId}`);
+}
+
+// Update the old helpers to use new endpoints
+/**
+ * Helper: Add a friend by sending a friend request
+ */
+export async function addFriend(recipientId: number): Promise<void> {
+  await sendFriendRequest({ recipient_id: recipientId });
+}
+
+/**
+ * Helper: Remove a friend
+ */
+export async function removeFriend(friendId: number): Promise<void> {
+  await deleteFriend(friendId);
 }

@@ -13,7 +13,7 @@ import { containers } from "@/styles";
 const FitnessScreen = () => {
   const tabs: Tab[] = [
     { name: "History", component: HistoryScreen },
-    { name: "Records", component: RecordsScreen },
+    // { name: "Records", component: RecordsScreen },
     { name: "Routines", component: RoutinesScreen },
     { name: "Library", component: LibraryScreen },
   ];
