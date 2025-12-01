@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { containers, typography } from "@/styles/index";
 import { useAuth } from "@/lib/auth-context";
 import { getCharacter, CharacterProfile } from "@/api/endpoints";
@@ -24,17 +25,21 @@ import Popup from "@/components/popupModals/Popup";
 
 export default function Index() {
   const { logout } = useAuth();
+  const router = useRouter();
   const [profile, setProfile] = useState<CharacterProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [popupVisible, setPopupVisible] = useState(false);
   const [popupMode, setPopupMode] = useState<"allocateStats" | "settings">(
-    "settings"
+    "allocateStats"
   );
 
   const tabs: Tab[] = [
     { name: "Inventory", component: InventoryScreen },
-    { name: "Shop", component: ShopScreen },
+    {
+      name: "Shop",
+      component: () => <ShopScreen coins={profile?.coins ?? 0} />,
+    },
   ];
 
   const handleTabChange = (index: number) => {};
@@ -60,9 +65,9 @@ export default function Index() {
   const handleLogout = async () => {
     await logout();
   };
+
   const handleSettingsPress = () => {
-    setPopupMode("settings");
-    setPopupVisible(true);
+    router.push("/screens/CharacterTabs/settingsScreen");
   };
 
   if (loading) {
@@ -89,6 +94,7 @@ export default function Index() {
   return (
     <>
       {/* Quick Action Button */}
+      {console.log(profile.inventory)}
       <QuickActionButton />
 
       <SafeAreaView
@@ -128,7 +134,7 @@ export default function Index() {
               onSettingsPress={handleSettingsPress}
             />
           </TouchableOpacity>
-
+              
           <Popup
             visible={popupVisible}
             mode={popupMode}

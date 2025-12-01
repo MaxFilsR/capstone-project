@@ -1,5 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { getRoutines, RoutineResponse } from "@/api/endpoints";
+import {
+  getRoutines,
+  createRoutine,
+  updateRoutine as apiUpdateRoutine,
+  deleteRoutine as apiDeleteRoutine,
+  RoutineResponse,
+  CreateRoutineRequest,
+  UpdateRoutineRequest,
+  DeleteRoutineRequest,
+} from "@/api/endpoints";
 import { useAuth } from "@/lib/auth-context";
 
 type RoutinesContextType = {
@@ -7,9 +16,9 @@ type RoutinesContextType = {
   loading: boolean;
   error: string | null;
   refreshRoutines: () => Promise<void>;
-  addRoutine: (routine: RoutineResponse) => void;
-  updateRoutine: (id: number, routine: RoutineResponse) => void;
-  removeRoutine: (id: number) => void;
+  addRoutine: (routine: CreateRoutineRequest) => Promise<void>;
+  updateRoutine: (id: number, routine: UpdateRoutineRequest) => Promise<void>;
+  removeRoutine: (id: number) => Promise<void>;
 };
 
 const RoutinesContext = createContext<RoutinesContextType | undefined>(
@@ -44,21 +53,46 @@ export const RoutinesProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // Optimistically add a routine without waiting for API
-  const addRoutine = (routine: RoutineResponse) => {
-    setRoutines((prev) => [...prev, routine]);
+  // Add a routine and refresh the list
+  const addRoutine = async (routine: CreateRoutineRequest) => {
+    try {
+      setError(null);
+      await createRoutine(routine);
+      // Refresh to get the updated list with the new routine
+      await fetchRoutines();
+    } catch (err: any) {
+      console.error("Error creating routine:", err);
+      setError(err?.response?.data?.message || "Failed to create routine");
+      throw err;
+    }
   };
 
-  // Optimistically update a routine
-  const updateRoutine = (id: number, updatedRoutine: RoutineResponse) => {
-    setRoutines((prev) =>
-      prev.map((routine) => (routine.id === id ? updatedRoutine : routine))
-    );
+  // Update a routine and refresh the list
+  const updateRoutine = async (id: number, routine: UpdateRoutineRequest) => {
+    try {
+      setError(null);
+      await apiUpdateRoutine(routine);
+      // Refresh to get the updated list
+      await fetchRoutines();
+    } catch (err: any) {
+      console.error("Error updating routine:", err);
+      setError(err?.response?.data?.message || "Failed to update routine");
+      throw err;
+    }
   };
 
-  // Optimistically remove a routine
-  const removeRoutine = (id: number) => {
-    setRoutines((prev) => prev.filter((routine) => routine.id !== id));
+  // Remove a routine and refresh the list
+  const removeRoutine = async (id: number) => {
+    try {
+      setError(null);
+      await apiDeleteRoutine({ id });
+      // Refresh to get the updated list
+      await fetchRoutines();
+    } catch (err: any) {
+      console.error("Error deleting routine:", err);
+      setError(err?.response?.data?.message || "Failed to delete routine");
+      throw err;
+    }
   };
 
   useEffect(() => {

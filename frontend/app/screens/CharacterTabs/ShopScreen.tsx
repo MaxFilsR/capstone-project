@@ -11,6 +11,10 @@ import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
+type ShopScreenProps = {
+  coins: number;
+}
+
 type ShopItem = {
   id: string;
   name: string;
@@ -19,7 +23,7 @@ type ShopItem = {
   imageUrl?: string;
 };
 
-const ShopScreen = () => {
+const ShopScreen: React.FC<ShopScreenProps> = ({ coins }) => {
   // Mock shop items - will come from API
   const [shopItems] = useState<ShopItem[]>([
     { id: "1", name: "Ninja Headband", category: "Accessory", price: 5000 },
@@ -109,11 +113,11 @@ const ShopScreen = () => {
           {/* Currency Display */}
           <View style={styles.currencyContainer}>
             <MaterialCommunityIcons
-              name="arm-flex"
+              name="cash-multiple"
               size={16}
               color={colorPallet.secondary}
             />
-            <Text style={styles.currencyAmount}>999,999,999</Text>
+            <Text style={styles.currencyAmount}>{coins.toLocaleString()}</Text> {/* vaihdettu */}
           </View>
         </View>
 
@@ -163,7 +167,7 @@ const ShopScreen = () => {
               <View style={styles.itemFooter}>
                 <View style={styles.priceContainer}>
                   <MaterialCommunityIcons
-                    name="arm-flex"
+                    name="cash-multiple"
                     size={14}
                     color={colorPallet.secondary}
                   />
