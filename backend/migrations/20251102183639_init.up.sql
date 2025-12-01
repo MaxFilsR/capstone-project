@@ -264,6 +264,15 @@ CREATE TABLE IF NOT EXISTS
 		exercise_muscle EXERCISE_MUSCLE
 	);
 
+CREATE TABLE IF NOT EXISTS
+	friend_requests (
+		id SERIAL PRIMARY KEY,
+		sender_id INTEGER NOT NULL REFERENCES characters(user_id) ON DELETE CASCADE,
+		recipient_id INTEGER NOT NULL REFERENCES characters(user_id) ON DELETE CASCADE,
+		created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+		UNIQUE(sender_id, recipient_id)
+	);	
+
 -- Preseed data 
 INSERT INTO
 	classes (id, name, stats)
