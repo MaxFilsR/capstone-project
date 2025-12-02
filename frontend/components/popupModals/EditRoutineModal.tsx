@@ -1,3 +1,12 @@
+/**
+ * Edit Routine Modal Component
+ * 
+ * Modal for editing an existing workout routine. Allows modifying routine name,
+ * adding/removing exercises, updating metrics, and reordering exercises. Supports
+ * starting the workout directly from the editor and deleting the routine with
+ * confirmation. Handles validation, success/error states, and navigation.
+ */
+
 import React, { useEffect, useState, useMemo } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { Exercise, RoutineExercise } from "@/api/endpoints";
@@ -12,6 +21,10 @@ import { useRouter } from "expo-router";
 import ExerciseSearchList from "../ExerciseSearchList";
 import SelectedExercisesList from "../SelectedExercisesList";
 import Alert from "./Alert";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type Routine = {
   id: number;
@@ -31,6 +44,10 @@ type EditRoutineModalProps = {
   onClose: () => void;
   routine: Routine;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
   onClose,
@@ -63,6 +80,9 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
     onConfirmAction: undefined,
   });
 
+  /**
+   * Initialize exercises and metrics from routine prop
+   */
   useEffect(() => {
     const exercisesWithIds = routine.exercises.map((ex, index) => {
       const exerciseWithId = {
@@ -87,6 +107,9 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
     setExerciseMetrics(initialMetrics);
   }, [routine]);
 
+  /**
+   * Filter exercises based on search query
+   */
   const filteredExercises = useMemo(() => {
     if (!searchQuery.trim()) return [];
     return exercises
@@ -100,6 +123,9 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
       .slice(0, 20);
   }, [searchQuery, exercises]);
 
+  /**
+   * Navigate to active routine screen to start workout
+   */
   const handleStartRoutine = () => {
     if (selectedExercises.length === 0) {
       setAlert({
@@ -113,7 +139,6 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
     }
 
     try {
-      // Prepare exercises data for ActiveRoutineScreen
       const exercisesData = selectedExercises.map((ex) => {
         const metrics = exerciseMetrics[ex.uniqueId] || {};
         return {
@@ -129,7 +154,6 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
         };
       });
 
-      // Navigate to ActiveRoutineScreen
       router.push({
         pathname: "/screens/FitnessTabs/routineScreens/activeRoutine",
         params: {
@@ -152,6 +176,9 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
     }
   };
 
+  /**
+   * Validate and save routine updates
+   */
   const handleSave = async () => {
     if (!routineName.trim()) {
       setAlert({
@@ -220,6 +247,9 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
     }
   };
 
+  /**
+   * Delete routine with confirmation
+   */
   const handleDelete = () => {
     setAlert({
       visible: true,
@@ -321,7 +351,7 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Header Bar */}
+      {/* Header bar with save button */}
       <View style={popupModalStyles.headerBar}>
         <FormButton
           title="✕"
@@ -344,11 +374,11 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
         />
       </View>
 
+      {/* Routine content */}
       <ScrollView
         style={popupModalStyles.scrollContent}
         contentContainerStyle={{ paddingBottom: 32 }}
       >
-        {/* Routine Name Input */}
         <View style={popupModalStyles.section}>
           <FormTextInput
             label="Routine Name"
@@ -359,7 +389,6 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
           />
         </View>
 
-        {/* Search Section */}
         <ExerciseSearchList
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -367,7 +396,6 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
           onAddExercise={addExercise}
         />
 
-        {/* Start Routine Button */}
         <View style={popupModalStyles.section}>
           <FormButton
             title="Start Workout"
@@ -378,7 +406,6 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
           />
         </View>
 
-        {/* Selected Exercises */}
         <SelectedExercisesList
           selectedExercises={selectedExercises}
           exerciseMetrics={exerciseMetrics}
@@ -387,7 +414,6 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
           onUpdateMetric={updateExerciseMetric}
         />
 
-        {/* Delete Button */}
         <View style={popupModalStyles.section}>
           <FormButton
             title={isDeleting ? "Deleting..." : "Delete Routine"}
@@ -400,6 +426,7 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
         </View>
       </ScrollView>
 
+      {/* Alert dialog */}
       <Alert
         visible={alert.visible}
         mode={alert.mode}

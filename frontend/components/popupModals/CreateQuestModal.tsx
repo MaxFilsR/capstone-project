@@ -1,3 +1,12 @@
+/**
+ * Create Quest Modal Component
+ * 
+ * Modal for creating a new quest with selectable difficulty levels (Easy, Medium, Hard).
+ * Displays difficulty options with icons, descriptions, and XP rewards. Validates
+ * selection before creation and shows alerts for errors. Uses blur overlay and
+ * disabled state during quest creation.
+ */
+
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -6,6 +15,10 @@ import { typography, popupModalStyles } from "@/styles";
 import { FormButton } from "@/components";
 import Alert from "./Alert";
 import { BlurView } from "expo-blur";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type CreateQuestModalProps = {
   visible: boolean;
@@ -23,6 +36,10 @@ type DifficultyOption = {
   icon: string;
   description: string;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const CreateQuestModal: React.FC<CreateQuestModalProps> = ({
   visible,
@@ -75,6 +92,9 @@ const CreateQuestModal: React.FC<CreateQuestModalProps> = ({
     },
   ];
 
+  /**
+   * Validate selection and create quest
+   */
   const handleCreateQuest = async () => {
     if (!selectedDifficulty) {
       setAlert({
@@ -117,10 +137,9 @@ const CreateQuestModal: React.FC<CreateQuestModalProps> = ({
           flex: 1,
           justifyContent: "center",
           alignItems: "center",
-          backgroundColor: "rgba(0,0,0,0.5)" //poitsa ehka
+          backgroundColor: "rgba(0,0,0,0.5)",
         }}
       >
-
         <TouchableOpacity
           style={{
             position: "absolute",
@@ -131,58 +150,58 @@ const CreateQuestModal: React.FC<CreateQuestModalProps> = ({
           }}
           activeOpacity={1}
           onPress={onClose}
-          />
+        />
 
-          <View style={styles.modalSize}>
-            {/* header */}
-            <View style={styles.headerRow}>
-              <Text style={[typography.h2, styles.headerTitle]}>New Quest</Text>
-              <TouchableOpacity
-                onPress={onClose}
-                style={styles.closeButton}
-                disabled={creating}
-              >
-                <Text style={[popupModalStyles.closeText, styles.closeText]}>✕</Text>
-              </TouchableOpacity>
-            </View>
+        <View style={styles.modalSize}>
+          {/* Header */}
+          <View style={styles.headerRow}>
+            <Text style={[typography.h2, styles.headerTitle]}>New Quest</Text>
+            <TouchableOpacity
+              onPress={onClose}
+              style={styles.closeButton}
+              disabled={creating}
+            >
+              <Text style={[popupModalStyles.closeText, styles.closeText]}>
+                ✕
+              </Text>
+            </TouchableOpacity>
+          </View>
 
-            {/* subtitles */}
-            <View style={styles.subtitleContainer}>
-              <Text style={styles.subtitle}>Select a difficulty level</Text>
-            </View>
+          {/* Subtitle */}
+          <View style={styles.subtitleContainer}>
+            <Text style={styles.subtitle}>Select a difficulty level</Text>
+          </View>
 
-            {/* difficulty options */}
-            <View style={styles.optionsContainer}>
-              {difficultyOptions.map((option) => {
-                const isSelected = selectedDifficulty === option.value;
+          {/* Difficulty options */}
+          <View style={styles.optionsContainer}>
+            {difficultyOptions.map((option) => {
+              const isSelected = selectedDifficulty === option.value;
 
-                return (
-                  <TouchableOpacity
-                    key={option.value}
+              return (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.difficultyCard,
+                    isSelected && styles.difficultyCardSelected,
+                    isSelected && { borderColor: option.color },
+                  ]}
+                  onPress={() => setSelectedDifficulty(option.value)}
+                  activeOpacity={0.7}
+                  disabled={creating}
+                >
+                  <View
                     style={[
-                      styles.difficultyCard,
-                      isSelected && styles.difficultyCardSelected,
-                      isSelected && { borderColor: option.color },
+                      styles.iconContainer,
+                      { backgroundColor: option.color + "20" },
                     ]}
-                    onPress={() => setSelectedDifficulty(option.value)}
-                    activeOpacity={0.7}
-                    disabled={creating}
                   >
-                    {/* icon */}
-                    <View
-                      style={[
-                        styles.iconContainer,
-                        { backgroundColor: option.color + "20" },
-                      ]}
-                    >
-                      <Ionicons
-                        name={option.icon as any}
-                        size={32}
-                        color={option.color}
-                      />
+                    <Ionicons
+                      name={option.icon as any}
+                      size={32}
+                      color={option.color}
+                    />
                   </View>
 
-                  {/* content */}
                   <View style={styles.cardContent}>
                     <Text
                       style={[
@@ -194,18 +213,18 @@ const CreateQuestModal: React.FC<CreateQuestModalProps> = ({
                     </Text>
                     <Text style={styles.description}>{option.description}</Text>
 
-                    {/* reward */}
                     <View style={styles.rewardContainer}>
                       <Ionicons
                         name="star"
                         size={16}
                         color={colorPallet.secondary}
                       />
-                      <Text style={styles.rewardText}>+{option.reward} XP</Text>
+                      <Text style={styles.rewardText}>
+                        +{option.reward} XP
+                      </Text>
                     </View>
                   </View>
 
-                  {/* checkmark */}
                   {isSelected && (
                     <View style={styles.checkmarkContainer}>
                       <Ionicons
@@ -220,7 +239,7 @@ const CreateQuestModal: React.FC<CreateQuestModalProps> = ({
             })}
           </View>
 
-          {/* info box */}
+          {/* Info box */}
           <View style={styles.infoBox}>
             <Ionicons
               name="information-circle-outline"
@@ -232,7 +251,7 @@ const CreateQuestModal: React.FC<CreateQuestModalProps> = ({
             </Text>
           </View>
 
-          {/* create button */}
+          {/* Create button */}
           <View style={styles.buttonContainer}>
             <FormButton
               title={creating ? "Creating Quest..." : "Create Quest"}
@@ -253,6 +272,10 @@ const CreateQuestModal: React.FC<CreateQuestModalProps> = ({
     </Modal>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   modalSize: {
