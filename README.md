@@ -52,7 +52,7 @@ The goal is simple: make working out fun, rewarding, and addictive through smart
 ### **Practical Fitness Tools**
 
 <p align="center">
-  <img src="https://github.com/MaxFilsR/capstone-project/blob/main/frontend/assets/githubImages/library.gif?raw=true" width="50%" alt="Zero to hero banner"/>
+  <img src="https://github.com/MaxFilsR/capstone-project/blob/main/frontend/assets/githubImages/library.gif?raw=true" width="35%" alt="Zero to hero banner"/>
 </p>
 Core fitness features stay useful and grounded:
 
