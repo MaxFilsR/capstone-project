@@ -8,7 +8,7 @@ Gainz is more than a fitness tracker — it’s a fitness _game_.
 The goal is simple: make working out fun, rewarding, and addictive through smart gamification and consistent feedback loops.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/MaxFilsR/capstone-project/refs/heads/main/frontend/assets/githubImages/charcter-examples.gif" width="50%" alt="Banner"/>
+  <img src="https://raw.githubusercontent.com/MaxFilsR/capstone-project/refs/heads/main/frontend/assets/githubImages/charcter-examples.gif" width="50%" alt="Alternating characters"/>
 </p>
 
 ### Team Members
@@ -27,21 +27,23 @@ The goal is simple: make working out fun, rewarding, and addictive through smart
 
 ### **RPG-Style Progression**
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/MaxFilsR/capstone-project/refs/heads/main/frontend/assets/githubImages/Zero%20to%20hero%20banner.gif" width="100%" alt="Zero to hero banner"/>
+</p>
+
 - Pick a class (Monk, Gladiator, etc.), each with unique stat growth paths.
 - Log workouts to earn XP and level up.
 - Achievements, milestones, and dynamic upgrades form the main “game loop.”
 
-### **Daily Missions & Rewards**
+### **Dynamic Quests**
 
-- Daily quests turn workouts into structured missions.
+<p align="center">
+  <img src="https://github.com/MaxFilsR/capstone-project/blob/main/frontend/assets/githubImages/quests-banner.jpg?raw=true" width="100%" alt="Zero to hero banner"/>
+</p>
+- Quests turn workouts into structured missions.
 - Completing them grants XP, boosts, or in-game rewards.
 
-### **Consistency System**
-
-- Streaks and multipliers reward users for showing up.
-- Slacking reduces XP proportionally — tying real-life habits to virtual progression.
-
-### **Social Features**
+### **Challenge Your Friends**
 
 - Add friends to unlock leaderboards, guilds, group quests, PvE challenges, and PvP duels.
 - Cosmetics, gifts, and events keep the world feeling alive and competitive.
