@@ -1,6 +1,22 @@
+/**
+ * Inventory Context
+ * 
+ * Manages character inventory and equipped items state. Provides methods for
+ * equipping and unequipping items from various categories (backgrounds, bodies,
+ * arms, heads, accessories, weapons, pets). Includes mock inventory data for
+ * development and testing.
+ */
+
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { ImageSourcePropType } from "react-native";
 
+// ============================================================================
+// Types
+// ============================================================================
+
+/**
+ * Individual inventory item definition
+ */
 export type InventoryItem = {
   id: string;
   name: string;
@@ -16,6 +32,9 @@ export type InventoryItem = {
     | "pets";
 };
 
+/**
+ * Currently equipped items for character customization
+ */
 export type EquippedItems = {
   background: InventoryItem | null;
   body: InventoryItem | null;
@@ -26,6 +45,9 @@ export type EquippedItems = {
   pet: InventoryItem | null;
 };
 
+/**
+ * Context value providing inventory state and management methods
+ */
 type InventoryContextType = {
   inventory: {
     backgrounds: InventoryItem[];
@@ -42,11 +64,21 @@ type InventoryContextType = {
   isEquipped: (itemId: string) => boolean;
 };
 
+// ============================================================================
+// Context
+// ============================================================================
+
 const InventoryContext = createContext<InventoryContextType | undefined>(
   undefined
 );
 
-// Mock inventory
+// ============================================================================
+// Mock Data
+// ============================================================================
+
+/**
+ * Initial mock inventory for development and testing
+ */
 const INITIAL_INVENTORY = {
   backgrounds: [
     {
@@ -70,7 +102,6 @@ const INITIAL_INVENTORY = {
       rarity: "epic" as const,
       category: "backgrounds" as const,
     },
-    ,
     {
       id: "bg4",
       name: "Pink Background",
@@ -78,7 +109,6 @@ const INITIAL_INVENTORY = {
       rarity: "epic" as const,
       category: "backgrounds" as const,
     },
-    ,
     {
       id: "bg5",
       name: "Red Background",
@@ -137,6 +167,20 @@ const INITIAL_INVENTORY = {
       rarity: "rare" as const,
       category: "bodies" as const,
     },
+    {
+      id: "body8",
+      name: "Warrior Body",
+      image: require("@/assets/images/equippedItems/bodies/black-warrior-body.png"),
+      rarity: "rare" as const,
+      category: "bodies" as const,
+    },
+    {
+      id: "body9",
+      name: "Yellow Bikini",
+      image: require("@/assets/images/equippedItems/brown-female-yellow-bikini.png"),
+      rarity: "rare" as const,
+      category: "bodies" as const,
+    },
   ],
   arms: [
     {
@@ -164,6 +208,13 @@ const INITIAL_INVENTORY = {
       id: "arm4",
       name: "Ninja Arms",
       image: require("@/assets/images/equippedItems/black1-male-ninja-arm-green.png"),
+      rarity: "rare" as const,
+      category: "arms" as const,
+    },
+    {
+      id: "arm5",
+      name: "Sweat bands",
+      image: require("@/assets/images/equippedItems/arms/black1-male-arm2.png"),
       rarity: "rare" as const,
       category: "arms" as const,
     },
@@ -220,6 +271,20 @@ const INITIAL_INVENTORY = {
       rarity: "epic" as const,
       category: "accessories" as const,
     },
+    {
+      id: "acc4",
+      name: "Helm",
+      image: require("@/assets/images/equippedItems/brown-head-no-hair18.png"),
+      rarity: "epic" as const,
+      category: "accessories" as const,
+    },
+    {
+      id: "acc5",
+      name: "Orange Hair",
+      image: require("@/assets/images/equippedItems/orange-hair-tied.png"),
+      rarity: "epic" as const,
+      category: "accessories" as const,
+    },
   ],
   weapons: [
     {
@@ -229,10 +294,24 @@ const INITIAL_INVENTORY = {
       rarity: "rare" as const,
       category: "weapons" as const,
     },
+    {
+      id: "weapon2",
+      name: "Bloody Staff",
+      image: require("@/assets/images/equippedItems/staff1.png"),
+      rarity: "rare" as const,
+      category: "weapons" as const,
+    },
   ],
   pets: [],
 };
 
+// ============================================================================
+// Provider Component
+// ============================================================================
+
+/**
+ * Inventory Provider component that wraps the app
+ */
 export function InventoryProvider({ children }: { children: ReactNode }) {
   const [inventory] = useState(INITIAL_INVENTORY);
   const [equipped, setEquipped] = useState<EquippedItems>({
@@ -245,6 +324,9 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     pet: null,
   });
 
+  /**
+   * Equip an item to the appropriate slot
+   */
   const equipItem = (item: InventoryItem) => {
     const slotMap: Record<string, keyof EquippedItems> = {
       backgrounds: "background",
@@ -265,8 +347,10 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  /**
+   * Unequip an item from the specified slot (only pets, accessories, and weapons)
+   */
   const unequipItem = (slotName: keyof EquippedItems) => {
-    // Only allow unequipping pet, headAccessory, and weapons
     if (
       slotName === "pet" ||
       slotName === "headAccessory" ||
@@ -279,6 +363,9 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  /**
+   * Check if an item is currently equipped
+   */
   const isEquipped = (itemId: string) => {
     return Object.values(equipped).some((item) => item?.id === itemId);
   };
@@ -292,6 +379,13 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// ============================================================================
+// Hook
+// ============================================================================
+
+/**
+ * Hook to access inventory context
+ */
 export function useInventory() {
   const context = useContext(InventoryContext);
   if (!context) {

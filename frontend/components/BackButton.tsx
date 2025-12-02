@@ -1,14 +1,30 @@
+/**
+ * Back Button Component
+ * 
+ * Navigation button that returns to the previous screen. Can use default
+ * router.back() behavior or accept a custom onPress handler. Supports
+ * both absolute and relative positioning for flexible layout integration.
+ */
+
 import React from "react";
 import { TouchableOpacity, StyleSheet, ViewStyle, Text } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useRouter } from "expo-router";
 import { colorPallet } from "@/styles/variables";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type BackButtonProps = {
   onPress?: () => void;
   style?: ViewStyle;
   position?: "absolute" | "relative";
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export const BackButton = ({
   onPress,
@@ -31,6 +47,10 @@ export const BackButton = ({
     </TouchableOpacity>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   button: {

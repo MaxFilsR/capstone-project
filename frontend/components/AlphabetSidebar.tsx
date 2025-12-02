@@ -1,12 +1,28 @@
+/**
+ * Alphabet Sidebar Component
+ * 
+ * Displays a vertical list of alphabetical letters for quick navigation.
+ * Highlights the active letter and triggers callback when a letter is pressed.
+ * Commonly used in scrollable lists to enable fast alphabetical jumping.
+ */
+
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { colorPallet } from "@/styles/variables";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type AlphabetSidebarProps = {
   letters: string[];
   activeLetter: string | null;
   onLetterPress: (letter: string) => void;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export const AlphabetSidebar: React.FC<AlphabetSidebarProps> = ({
   letters,
@@ -30,6 +46,10 @@ export const AlphabetSidebar: React.FC<AlphabetSidebarProps> = ({
     </View>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   sidebar: {

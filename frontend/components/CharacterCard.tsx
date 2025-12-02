@@ -1,3 +1,11 @@
+/**
+ * Character Card Component
+ * 
+ * Displays a character's profile including image, stats, class information,
+ * and experience progress. Shows username, level, progress bar, and core stats
+ * (strength, endurance, flexibility) in a styled card layout.
+ */
+
 import React from "react";
 import {
   View,
@@ -8,6 +16,10 @@ import {
 } from "react-native";
 import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type CharacterCardProps = {
   className?: string;
@@ -25,6 +37,10 @@ type CharacterCardProps = {
   currentExp?: number;
   expNeeded?: number;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export default function CharacterCard({
   className,
@@ -45,15 +61,15 @@ export default function CharacterCard({
 
   return (
     <View style={[styles.container, { borderColor }]}>
-      {/* Character Image */}
+      {/* Character image */}
       <View style={styles.imageContainer}>
         <Image source={image} style={styles.image} />
       </View>
 
-      {/* Character Info */}
+      {/* Character info section */}
       {(username || className || description) && (
         <View style={styles.infoContainer}>
-          {/* Username and Level */}
+          {/* Username, level, and progress bar */}
           {username && level !== undefined && (
             <View
               style={[
@@ -66,7 +82,6 @@ export default function CharacterCard({
                 <Text style={styles.level}>Level {level}</Text>
               </View>
 
-              {/* Progress Bar */}
               {currentExp !== undefined && expNeeded !== undefined && (
                 <View style={styles.progressSection}>
                   <View style={styles.progressBar}>
@@ -88,19 +103,17 @@ export default function CharacterCard({
             </View>
           )}
 
-          {/* Class Name */}
           {className && (
             <Text style={[styles.className, { color: accentColor }]}>
               {className}
             </Text>
           )}
 
-          {/* Description */}
           {description && <Text style={styles.description}>{description}</Text>}
         </View>
       )}
 
-      {/* Stats */}
+      {/* Character stats */}
       <View style={[styles.statsContainer, { borderTopColor: accentColor }]}>
         {[
           { label: "Strength", value: stats.strength, color: "#D64545" },
@@ -118,6 +131,10 @@ export default function CharacterCard({
     </View>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {

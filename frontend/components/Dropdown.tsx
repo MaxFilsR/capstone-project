@@ -1,3 +1,11 @@
+/**
+ * Dropdown Component
+ * 
+ * Modal-based dropdown selector with label, value display, and scrollable options.
+ * Positions the dropdown menu below the trigger button and highlights the selected
+ * value. Supports custom styling and z-index control for layering.
+ */
+
 import React, { useState, useRef } from "react";
 import {
   View,
@@ -11,6 +19,10 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { colorPallet } from "@/styles/variables";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type DropdownProps = {
   label: string;
   value: string;
@@ -19,6 +31,10 @@ type DropdownProps = {
   style?: any;
   zIndex?: number;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export const Dropdown: React.FC<DropdownProps> = ({
   label,
@@ -37,6 +53,9 @@ export const Dropdown: React.FC<DropdownProps> = ({
   });
   const buttonRef = useRef<View>(null);
 
+  /**
+   * Measure button position and open dropdown menu
+   */
   const handleOpen = () => {
     buttonRef.current?.measureInWindow((x, y, width, height) => {
       setButtonLayout({ x, y, width, height });
@@ -46,6 +65,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
 
   return (
     <>
+      {/* Dropdown trigger button */}
       <View
         style={[styles.dropdownContainer, style, { zIndex }]}
         ref={buttonRef}
@@ -65,6 +85,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
         </TouchableOpacity>
       </View>
 
+      {/* Dropdown menu modal */}
       <Modal
         visible={isOpen}
         transparent
@@ -122,6 +143,10 @@ export const Dropdown: React.FC<DropdownProps> = ({
     </>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   dropdownContainer: {

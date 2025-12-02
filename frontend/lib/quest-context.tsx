@@ -1,3 +1,12 @@
+/**
+ * Quest Context
+ * 
+ * Manages quest system state and provides quest-related operations throughout
+ * the application. Handles fetching quests, creating new quests, and provides
+ * helper methods for filtering, calculating progress, and formatting quest
+ * descriptions. Automatically loads quests on mount.
+ */
+
 import React, {
   createContext,
   useContext,
@@ -8,62 +17,80 @@ import React, {
 } from "react";
 import { getQuests, createQuest, Quest } from "@/api/endpoints";
 
+// ============================================================================
+// Types
+// ============================================================================
+
+/**
+ * Context value providing quest state and management methods
+ */
 type QuestContextType = {
   quests: Quest[];
   loading: boolean;
   error: string | null;
   creating: boolean;
-  fetchQuests: () => Promise<Quest[]>; // Returns Quest[]
+  fetchQuests: () => Promise<Quest[]>;
   createNewQuest: (difficulty: "Easy" | "Medium" | "Hard") => Promise<void>;
   getInProgressQuests: () => Quest[];
   getCompletedQuests: () => Quest[];
   getQuestById: (id: number) => Quest | undefined;
-  refreshQuests: () => Promise<Quest[]>; // Returns Quest[]
+  refreshQuests: () => Promise<Quest[]>;
   calculateProgress: (quest: Quest) => number;
   getQuestDescription: (quest: Quest) => string;
 };
 
+// ============================================================================
+// Context
+// ============================================================================
+
 const QuestContext = createContext<QuestContextType | undefined>(undefined);
 
+// ============================================================================
+// Provider Component
+// ============================================================================
+
+/**
+ * Quest Provider component that wraps the app
+ */
 export const QuestProvider = ({ children }: { children: ReactNode }) => {
   const [quests, setQuests] = useState<Quest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
-  // Fetch quests from API
-  // Fetch quests from API - now returns the data
-const fetchQuests = useCallback(async () => {
-  try {
-    setLoading(true);
-    setError(null);
-    const data = await getQuests();
-    setQuests(data);
-    return data; // Return the fresh data
-  } catch (err) {
-    console.error("Failed to load quests:", err);
-    setError("Failed to load quests");
-    throw err; // Throw so caller knows it failed
-  } finally {
-    setLoading(false);
-  }
-}, []);
+  /**
+   * Fetch all quests from API and update state
+   */
+  const fetchQuests = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getQuests();
+      setQuests(data);
+      return data;
+    } catch (err) {
+      console.error("Failed to load quests:", err);
+      setError("Failed to load quests");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-
-
-  // Create a new quest
+  /**
+   * Create a new quest with specified difficulty
+   */
   const createNewQuest = useCallback(
     async (difficulty: "Easy" | "Medium" | "Hard") => {
       try {
         setCreating(true);
         setError(null);
         await createQuest({ difficulty });
-        // Refresh quests after creation
         await fetchQuests();
       } catch (err) {
         console.error("Failed to create quest:", err);
         setError("Failed to create quest");
-        throw err; // Re-throw so caller can handle if needed
+        throw err;
       } finally {
         setCreating(false);
       }
@@ -71,21 +98,26 @@ const fetchQuests = useCallback(async () => {
     [fetchQuests]
   );
 
-  // Helper: Get in-progress quests (Incomplete status)
+  /**
+   * Get all in-progress quests (status: Incomplete)
+   */
   const getInProgressQuests = useCallback(() => {
     const inProgress = quests.filter((quest) => quest.status === "Incomplete");
     console.log("In Progress quests:", inProgress.length, inProgress);
     return inProgress;
   }, [quests]);
 
-  // Helper: Get completed quests
+  /**
+   * Get all completed quests (status: Complete)
+   */
   const getCompletedQuests = useCallback(() => {
     const completed = quests.filter((quest) => quest.status === "Complete");
-
     return completed;
   }, [quests]);
 
-  // Helper: Get quest by ID
+  /**
+   * Find a specific quest by ID
+   */
   const getQuestById = useCallback(
     (id: number) => {
       return quests.find((quest) => quest.id === id);
@@ -93,7 +125,9 @@ const fetchQuests = useCallback(async () => {
     [quests]
   );
 
-  // Helper: Calculate quest progress percentage
+  /**
+   * Calculate quest completion progress as percentage
+   */
   const calculateProgress = useCallback((quest: Quest): number => {
     if (quest.number_of_workouts_needed === 0) return 0;
     const progress =
@@ -102,7 +136,9 @@ const fetchQuests = useCallback(async () => {
     return Math.min(progress, 100);
   }, []);
 
-  // Helper: Format quest description
+  /**
+   * Generate formatted quest description with all requirements
+   */
   const getQuestDescription = useCallback((quest: Quest): string => {
     let description = `Complete ${quest.number_of_workouts_needed} workout${
       quest.number_of_workouts_needed > 1 ? "s" : ""
@@ -123,12 +159,16 @@ const fetchQuests = useCallback(async () => {
     return description;
   }, []);
 
-  // Refresh quests - now returns the fresh data
-const refreshQuests = useCallback(async () => {
-  return await fetchQuests();
-}, [fetchQuests]);
+  /**
+   * Refresh quests from API
+   */
+  const refreshQuests = useCallback(async () => {
+    return await fetchQuests();
+  }, [fetchQuests]);
 
-  // Load quests on mount
+  /**
+   * Load quests on mount
+   */
   useEffect(() => {
     fetchQuests();
   }, [fetchQuests]);
@@ -155,7 +195,13 @@ const refreshQuests = useCallback(async () => {
   );
 };
 
-// Custom hook to use the quest context
+// ============================================================================
+// Hook
+// ============================================================================
+
+/**
+ * Hook to access quest context
+ */
 export const useQuests = () => {
   const context = useContext(QuestContext);
   if (!context) {

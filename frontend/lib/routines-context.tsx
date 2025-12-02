@@ -1,3 +1,12 @@
+/**
+ * Routine Context
+ * 
+ * Manages workout routine state and CRUD operations throughout the application.
+ * Provides methods for creating, updating, and deleting workout routines.
+ * Automatically loads routines when user is authenticated and refreshes after
+ * any modification.
+ */
+
 import React, { createContext, useContext, useState, useEffect } from "react";
 import {
   getRoutines,
@@ -11,6 +20,13 @@ import {
 } from "@/api/endpoints";
 import { useAuth } from "@/lib/auth-context";
 
+// ============================================================================
+// Types
+// ============================================================================
+
+/**
+ * Context value providing routine state and management methods
+ */
 type RoutinesContextType = {
   routines: RoutineResponse[];
   loading: boolean;
@@ -21,10 +37,21 @@ type RoutinesContextType = {
   removeRoutine: (id: number) => Promise<void>;
 };
 
+// ============================================================================
+// Context
+// ============================================================================
+
 const RoutinesContext = createContext<RoutinesContextType | undefined>(
   undefined
 );
 
+// ============================================================================
+// Provider Component
+// ============================================================================
+
+/**
+ * Routines Provider component that wraps the app
+ */
 export const RoutinesProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
@@ -33,6 +60,9 @@ export const RoutinesProvider: React.FC<{ children: React.ReactNode }> = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  /**
+   * Fetch all routines from API
+   */
   const fetchRoutines = async () => {
     if (!user) {
       setRoutines([]);
@@ -53,12 +83,13 @@ export const RoutinesProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // Add a routine and refresh the list
+  /**
+   * Create a new routine and refresh the list
+   */
   const addRoutine = async (routine: CreateRoutineRequest) => {
     try {
       setError(null);
       await createRoutine(routine);
-      // Refresh to get the updated list with the new routine
       await fetchRoutines();
     } catch (err: any) {
       console.error("Error creating routine:", err);
@@ -67,12 +98,13 @@ export const RoutinesProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // Update a routine and refresh the list
+  /**
+   * Update an existing routine and refresh the list
+   */
   const updateRoutine = async (id: number, routine: UpdateRoutineRequest) => {
     try {
       setError(null);
       await apiUpdateRoutine(routine);
-      // Refresh to get the updated list
       await fetchRoutines();
     } catch (err: any) {
       console.error("Error updating routine:", err);
@@ -81,12 +113,13 @@ export const RoutinesProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  // Remove a routine and refresh the list
+  /**
+   * Delete a routine and refresh the list
+   */
   const removeRoutine = async (id: number) => {
     try {
       setError(null);
       await apiDeleteRoutine({ id });
-      // Refresh to get the updated list
       await fetchRoutines();
     } catch (err: any) {
       console.error("Error deleting routine:", err);
@@ -95,6 +128,9 @@ export const RoutinesProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  /**
+   * Load routines when user authentication changes
+   */
   useEffect(() => {
     fetchRoutines();
   }, [user]);
@@ -116,6 +152,13 @@ export const RoutinesProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 };
 
+// ============================================================================
+// Hook
+// ============================================================================
+
+/**
+ * Hook to access routines context
+ */
 export const useRoutines = () => {
   const context = useContext(RoutinesContext);
   if (context === undefined) {

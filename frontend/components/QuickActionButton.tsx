@@ -1,3 +1,12 @@
+/**
+ * Quick Action Button Component
+ * 
+ * Floating action button (FAB) that expands to reveal quick action menu items.
+ * Provides animated buttons for creating routines and starting workouts. Uses
+ * blur overlay and spring animations for smooth transitions. Opens modal popup
+ * for selected actions.
+ */
+
 import React, { useState } from "react";
 import {
   View,
@@ -12,6 +21,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { colorPallet } from "@/styles/variables";
 import Popup from "@/components/popupModals/Popup";
 
+// ============================================================================
+// Component
+// ============================================================================
+
 const QuickActionButton: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
@@ -22,6 +35,9 @@ const QuickActionButton: React.FC = () => {
     "startRoutine"
   );
 
+  /**
+   * Toggle expansion of action menu with animations
+   */
   const toggleMenu = () => {
     const toValue = isExpanded ? 0 : 1;
 
@@ -50,6 +66,9 @@ const QuickActionButton: React.FC = () => {
     setIsExpanded(!isExpanded);
   };
 
+  /**
+   * Handle action button press with menu closure delay
+   */
   const handleActionPress = (action: () => void) => {
     toggleMenu();
     setTimeout(action, 150);
@@ -69,6 +88,7 @@ const QuickActionButton: React.FC = () => {
     setShowModal(false);
   };
 
+  // Animation interpolations
   const rotation = animation.interpolate({
     inputRange: [0, 1],
     outputRange: ["0deg", "45deg"],
@@ -91,7 +111,7 @@ const QuickActionButton: React.FC = () => {
 
   return (
     <>
-      {/* Blur Overlay */}
+      {/* Blur overlay when menu is expanded */}
       {showOverlay && (
         <TouchableWithoutFeedback onPress={toggleMenu}>
           <Animated.View
@@ -111,7 +131,9 @@ const QuickActionButton: React.FC = () => {
         </TouchableWithoutFeedback>
       )}
 
+      {/* Action buttons and FAB */}
       <View style={styles.container} pointerEvents="box-none">
+        {/* Create Routine action */}
         <Animated.View
           style={[
             styles.actionButton,
@@ -132,6 +154,7 @@ const QuickActionButton: React.FC = () => {
           </TouchableOpacity>
         </Animated.View>
 
+        {/* Start Workout action */}
         <Animated.View
           style={[
             styles.actionButton,
@@ -152,6 +175,7 @@ const QuickActionButton: React.FC = () => {
           </TouchableOpacity>
         </Animated.View>
 
+        {/* Main FAB */}
         <TouchableOpacity
           style={styles.fab}
           onPress={toggleMenu}
@@ -163,6 +187,7 @@ const QuickActionButton: React.FC = () => {
         </TouchableOpacity>
       </View>
 
+      {/* Modal popup for actions */}
       <Popup
         visible={showModal}
         mode={modalMode}
@@ -172,6 +197,10 @@ const QuickActionButton: React.FC = () => {
     </>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   overlay: {

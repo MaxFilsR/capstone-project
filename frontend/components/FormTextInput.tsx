@@ -1,3 +1,11 @@
+/**
+ * Form Text Input Component
+ * 
+ * Styled text input with label, focus states, and optional password visibility
+ * toggle. Supports various keyboard types, auto-capitalization modes, and
+ * custom styling for container, label, and input elements.
+ */
+
 import React, { useState } from "react";
 import {
   View,
@@ -10,6 +18,10 @@ import {
 } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { colorPallet } from "@/styles/variables";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type FormInputProps = {
   label: string;
@@ -25,6 +37,10 @@ type FormInputProps = {
   inputStyle?: TextStyle;
   iconContainerStyle?: ViewStyle;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export const FormTextInput = ({
   label,
@@ -68,6 +84,7 @@ export const FormTextInput = ({
           onBlur={() => setIsFocused(false)}
         />
 
+        {/* Password visibility toggle */}
         {secureTextEntry && (
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
@@ -84,6 +101,10 @@ export const FormTextInput = ({
     </View>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   label: {

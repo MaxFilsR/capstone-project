@@ -1,3 +1,11 @@
+/**
+ * Tab Bar Component
+ * 
+ * Segmented control navigation component with customizable styling. Manages
+ * tab state, renders active tab content, and provides callbacks for tab changes.
+ * Supports optional page title and extensive style customization for all elements.
+ */
+
 import React, { useState } from "react";
 import {
   View,
@@ -8,6 +16,10 @@ import {
 } from "react-native";
 import { colorPallet } from "@/styles/variables";
 import { tabStyles, typography } from "@/styles";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 export interface Tab {
   name: string;
@@ -33,6 +45,10 @@ interface TabBarProps {
   inactiveTextColor?: string;
 }
 
+// ============================================================================
+// Component
+// ============================================================================
+
 const TabBar: React.FC<TabBarProps> = ({
   pageTitle,
   tabs,
@@ -55,6 +71,9 @@ const TabBar: React.FC<TabBarProps> = ({
 
   const ActiveComponent = tabs[activeTab]?.component;
 
+  /**
+   * Handle tab selection and trigger callback
+   */
   const handleTabPress = (index: number) => {
     if (index !== activeTab) {
       setActiveTab(index);
@@ -70,6 +89,7 @@ const TabBar: React.FC<TabBarProps> = ({
         outerContainerStyle,
       ]}
     >
+      {/* Optional page title */}
       {pageTitle && (
         <Text
           style={[
@@ -82,6 +102,7 @@ const TabBar: React.FC<TabBarProps> = ({
         </Text>
       )}
 
+      {/* Tab navigation bar */}
       <View style={[tabStyles.tabBarContainer, tabBarContainerStyle]}>
         <View style={[tabStyles.tabBar, tabBarStyle]}>
           {tabs.map((tab, index) => {
@@ -116,8 +137,8 @@ const TabBar: React.FC<TabBarProps> = ({
         </View>
       </View>
 
+      {/* Active tab content */}
       <View style={[{ flex: 1 }, contentContainerStyle]}>
-        {/* Only render the active tab component */}
         {ActiveComponent && <ActiveComponent />}
       </View>
     </View>

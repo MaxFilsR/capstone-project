@@ -1,3 +1,15 @@
+/**
+ * Design Variables
+ * 
+ * Central definition of design tokens including the apps color palette.
+ * These values are used consistently across all stylesheets to maintain visual
+ * cohesion throughout the application.
+ */
+
+// ============================================================================
+// Color Palette
+// ============================================================================
+
 export const colorPallet = {
   primary: "#8CE61A",
   secondary: "#F4F12D",

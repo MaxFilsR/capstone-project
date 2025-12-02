@@ -1,3 +1,12 @@
+/**
+ * Allocate Stats Modal Component
+ * 
+ * Modal for distributing available stat points across strength, endurance, and
+ * flexibility. Shows current stats, points to allocate, and preview of new values.
+ * Handles stat allocation API calls and refreshes user profile on success.
+ * Includes validation, loading states, and success/error alerts.
+ */
+
 import React, { useState } from "react";
 import {
   View,
@@ -15,16 +24,23 @@ import Alert from "./Alert";
 import { increaseStat, StatType } from "@/api/endpoints";
 import { useAuth } from "@/lib/auth-context";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type AllocateStatsModalProps = {
   onClose: () => void;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
   onClose,
 }) => {
   const { user, fetchUserProfile } = useAuth();
   
-  // Get current stats and available points from auth context
   const currentStats = user?.profile?.class?.stats || {
     strength: 0,
     endurance: 0,
@@ -58,6 +74,9 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
       pointsToAllocate.endurance +
       pointsToAllocate.flexibility);
 
+  /**
+   * Increment points for a specific stat
+   */
   const handleIncrement = (stat: StatType) => {
     if (remainingPoints > 0) {
       setPointsToAllocate((prev) => ({
@@ -67,6 +86,9 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
     }
   };
 
+  /**
+   * Decrement points for a specific stat
+   */
   const handleDecrement = (stat: StatType) => {
     if (pointsToAllocate[stat] > 0) {
       setPointsToAllocate((prev) => ({
@@ -76,6 +98,9 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
     }
   };
 
+  /**
+   * Reset all allocated points
+   */
   const handleReset = () => {
     setPointsToAllocate({
       strength: 0,
@@ -84,8 +109,10 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
     });
   };
 
+  /**
+   * Submit stat allocation to API
+   */
   const handleAllocate = async () => {
-    // Check if any points were allocated
     const totalAllocated =
       pointsToAllocate.strength +
       pointsToAllocate.endurance +
@@ -104,7 +131,6 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
     setIsLoading(true);
 
     try {
-      // Call the API for each stat that has points allocated
       const promises: Promise<any>[] = [];
 
       if (pointsToAllocate.strength > 0) {
@@ -134,13 +160,9 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
         );
       }
 
-      // Execute all API calls in parallel
       await Promise.all(promises);
-
-      // Refresh user profile to get updated stats and pending points
       await fetchUserProfile();
 
-      // Show success message
       setAlert({
         visible: true,
         mode: "success",
@@ -204,7 +226,7 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* Points Available Banner */}
+      {/* Points available banner */}
       <View style={styles.pointsBanner}>
         <Ionicons name="star" size={20} color={colorPallet.primary} />
         <Text style={styles.pointsText}>
@@ -213,7 +235,7 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
         </Text>
       </View>
 
-      {/* Stats List */}
+      {/* Stats list with allocation controls */}
       <ScrollView style={styles.statsList}>
         {stats.map((stat) => {
           const currentValue = currentStats[stat.key];
@@ -222,7 +244,6 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
 
           return (
             <View key={stat.key} style={styles.statRow}>
-              {/* Stat Icon & Label */}
               <View style={styles.statInfo}>
                 <View style={styles.statIconContainer}>
                   <Ionicons name={stat.icon} size={20} color={stat.color} />
@@ -243,7 +264,6 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
                 </View>
               </View>
 
-              {/* Controls */}
               <View style={styles.controls}>
                 <TouchableOpacity
                   style={[
@@ -294,7 +314,7 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
         })}
       </ScrollView>
 
-      {/* Footer Buttons */}
+      {/* Footer with reset and allocate buttons */}
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.resetButton}
@@ -346,6 +366,7 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
         </View>
       </View>
 
+      {/* Alert dialog */}
       <Alert
         visible={alert.visible}
         mode={alert.mode}
@@ -356,6 +377,10 @@ const AllocateStatsModal: React.FC<AllocateStatsModalProps> = ({
     </View>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   modalSize: {

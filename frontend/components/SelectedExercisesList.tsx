@@ -1,8 +1,21 @@
+/**
+ * Selected Exercises List Component
+ * 
+ * Container component that displays a list of selected exercises for a routine.
+ * Shows exercise count, empty state message, and renders individual exercise
+ * items with their controls and metrics. Manages exercise reordering, removal,
+ * and metric updates through callback props.
+ */
+
 import React from "react";
 import { View, Text } from "react-native";
 import { Exercise } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
 import SelectedExerciseItem from "./SelectedExerciseItem";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type SelectedExercisesListProps = {
   selectedExercises: Array<Exercise & { uniqueId: string }>;
@@ -11,6 +24,10 @@ type SelectedExercisesListProps = {
   onRemoveExercise: (uniqueId: string) => void;
   onUpdateMetric: (uniqueId: string, field: string, value: string) => void;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const SelectedExercisesList: React.FC<SelectedExercisesListProps> = ({
   selectedExercises,
@@ -21,6 +38,7 @@ const SelectedExercisesList: React.FC<SelectedExercisesListProps> = ({
 }) => {
   return (
     <View>
+      {/* List header with count */}
       <Text
         style={{
           color: colorPallet.neutral_1,
@@ -31,6 +49,7 @@ const SelectedExercisesList: React.FC<SelectedExercisesListProps> = ({
         Exercises ({selectedExercises.length})
       </Text>
 
+      {/* Exercise list or empty state */}
       {selectedExercises.length === 0 ? (
         <Text
           style={{
