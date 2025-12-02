@@ -72,24 +72,24 @@ pub struct Routine {
     pub exercises: Json<Vec<Exercise>>,
 }
 
-#[derive(Clone, Deserialize, sqlx::FromRow, Serialize)]
-struct HistoryRow {
-    pub id: i32,
-    pub user_id: i32,
-    pub name: String,
-    pub exercises: Json<Vec<Exercise>>,
-    pub date: NaiveDate,
-    // pub time: NaiveTime,
-    pub duration: i32,
-    pub points: i32,
-    pub coins: i32,
-}
+// #[derive(Clone, Deserialize, sqlx::FromRow, Serialize)]
+// struct HistoryRow {
+//     pub id: i32,
+//     pub user_id: i32,
+//     pub name: String,
+//     pub exercises: Json<Vec<Exercise>>,
+//     pub date: NaiveDate,
+//     // pub time: NaiveTime,
+//     pub duration: i32,
+//     pub points: i32,
+//     pub coins: i32,
+// }
 
-#[derive(Clone, Deserialize, Serialize)]
-struct HistoryRoutine {
-    pub name: String,
-    pub exercises: Json<Vec<Exercise>>,
-}
+// #[derive(Clone, Deserialize, Serialize)]
+// struct HistoryRoutine {
+//     pub name: String,
+//     pub exercises: Json<Vec<Exercise>>,
+// }
 
 #[derive(Clone, Deserialize, Serialize)]
 pub struct History {
@@ -108,11 +108,11 @@ pub struct History {
 pub struct Equipped {
     pub arms: i32,
     pub background: i32,
-    pub bodies: i32,
+    pub body: i32,
     pub head: i32,
-    pub head_accessory: i32,
-    pub pet: i32,
-    pub weapon: i32,
+    pub head_accessory: Option<i32>,
+    pub pet: Option<i32>,
+    pub weapon: Option<i32>,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize, sqlx::Type)]
@@ -304,7 +304,7 @@ pub enum ItemCategory {
     Body,
     Head,
     #[serde(rename = "head_accessory")]
-    HeadAccessory,
+    Head_Accessory,
     Pet,
     Weapon,
 }

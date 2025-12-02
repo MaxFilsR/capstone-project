@@ -33,7 +33,7 @@ async fn main() -> std::io::Result<()> {
         Err(e) => log::error!("Error executing migrations: {}", e),
     };
 
-    log::info!("Server is running on https://localhost:{actix_web_port}");
+    add_default_user(&pool).await;
 
     HttpServer::new(move || {
         let cors = Cors::default()
@@ -96,7 +96,118 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await?;
 
+    log::info!("Server is running on https://localhost:{actix_web_port}");
+
     Ok(())
+}
+
+async fn add_default_user(pool: &PgPool) {
+    use {
+        capstone_project::utils::schemas::{
+            Class,
+            Equipped,
+            Inventory,
+            Stats,
+        },
+        endpoints::onboarding::{
+            populate_equipped,
+            populate_inventory,
+        },
+    };
+
+    // USERS table
+    let email = "you@example.com";
+    let password = "12345678";
+    let onboarding_complete = true;
+
+    let _query = sqlx::query!(
+        r#"
+            INSERT INTO users (email, password, onboarding_complete)
+            VALUES ($1, crypt ($2, gen_salt ('md5')), $3);
+        "#,
+        email,
+        password,
+        onboarding_complete,
+    )
+    .execute(pool)
+    .await
+    .unwrap();
+
+    // SETTINGS table
+    let user_id = 1;
+    let first_name = "John";
+    let last_name = "Doe";
+    let workout_schedule = [true, false, true, false, true, false, true];
+
+    let _query = sqlx::query!(
+        r#"
+            INSERT INTO settings (user_id, first_name, last_name, workout_schedule)
+            VALUES ($1, $2, $3, $4);
+        "#,
+        user_id,
+        first_name,
+        last_name,
+        &workout_schedule,
+    )
+    .execute(pool)
+    .await
+    .unwrap();
+
+    // CHARACTERS table
+    let user_id = 1;
+    let username = "JDoe";
+    let class = sqlx::query_as!(
+        Class,
+        r#"
+            SELECT name, stats as "stats: Stats"
+            FROM classes
+            WHERE id = 1;
+        "#
+    )
+    .fetch_one(pool)
+    .await
+    .unwrap();
+    let level = 1;
+    let exp_leftover = 0;
+    let pending_stat_points = 0;
+    let streak = 0;
+    let coins = 1000;
+    let inventory = populate_inventory(pool).await;
+    let equipped = populate_equipped(&inventory);
+    let friends: Vec<i32> = vec![];
+
+    let _query = sqlx::query!(
+        r#"
+            INSERT INTO characters (
+                user_id,
+                username,
+                class,
+                level,
+                exp_leftover,
+                pending_stat_points,
+                streak,
+                coins,
+                equipped,
+                inventory,
+                friends
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
+        "#,
+        user_id,
+        username,
+        class as Class,
+        level,
+        exp_leftover,
+        pending_stat_points,
+        streak,
+        coins,
+        equipped as Equipped,
+        inventory as Inventory,
+        &friends,
+    )
+    .execute(pool)
+    .await
+    .unwrap();
 }
 
 #[cfg(test)]
