@@ -1,3 +1,12 @@
+/**
+ * View Exercise Modal Component
+ * 
+ * Modal for displaying detailed exercise information with animated collapsing
+ * header, image carousel, and tabbed content (About/Instructions). Features
+ * smooth scroll-based header transitions, automatic image rotation, and sticky
+ * "Add to Routine" button. Supports both direct exercise prop and ID lookup.
+ */
+
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import {
   View,
@@ -19,11 +28,9 @@ import { AddToRoutineModal } from "./AddToRoutineModal";
 import Alert from "./Alert";
 import { colorPallet } from "@/styles/variables";
 
-export type ViewExerciseModalProps = {
-  onClose: () => void;
-  exercise?: Exercise | null;
-  exerciseId?: string | null;
-};
+// ============================================================================
+// Constants
+// ============================================================================
 
 const IMAGE_BASE_URL =
   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
@@ -31,6 +38,20 @@ const IMAGE_BASE_URL =
 const HEADER_EXPANDED_HEIGHT = 310;
 const HEADER_COLLAPSED_HEIGHT = 80;
 const SCROLL_THRESHOLD = 100;
+
+// ============================================================================
+// Types
+// ============================================================================
+
+export type ViewExerciseModalProps = {
+  onClose: () => void;
+  exercise?: Exercise | null;
+  exerciseId?: string | null;
+};
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
   onClose,
@@ -55,7 +76,9 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
 
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  // Determine the exercise to display
+  /**
+   * Determine exercise to display from prop or ID lookup
+   */
   const exercise = useMemo(() => {
     if (exerciseProp) return exerciseProp;
     if (exerciseId) {
@@ -64,12 +87,16 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
     return null;
   }, [exerciseProp, exerciseId, exercises]);
 
-  // Reset image index when exercise changes
+  /**
+   * Reset image carousel when exercise changes
+   */
   useEffect(() => {
     setActiveImageIndex(0);
   }, [exercise?.id]);
 
-  // Auto-rotate images
+  /**
+   * Auto-rotate exercise images every second
+   */
   useEffect(() => {
     if (!exercise?.images || exercise.images.length < 2) return;
 
@@ -80,7 +107,7 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
     return () => clearInterval(interval);
   }, [exercise?.images]);
 
-  // Animated values for header transformation
+  // Animated header transformations based on scroll position
   const headerHeight = scrollY.interpolate({
     inputRange: [0, SCROLL_THRESHOLD * 2.5],
     outputRange: [HEADER_EXPANDED_HEIGHT, HEADER_COLLAPSED_HEIGHT],
@@ -117,7 +144,9 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
     extrapolate: "clamp",
   });
 
-  // Memoized tab components
+  /**
+   * Memoized tab components for performance
+   */
   const AboutTab = useMemo(
     () => () => exercise ? <AboutExerciseScreen exercise={exercise} /> : null,
     [exercise]
@@ -134,7 +163,9 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
     { name: "Instructions", component: InstructionsTab },
   ];
 
-  // Handlers
+  /**
+   * Open add to routine modal with validation
+   */
   const handleAddToRoutine = () => {
     if (!exercise) {
       setAlert({
@@ -156,6 +187,9 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
     setAlert((prev) => ({ ...prev, visible: false }));
   };
 
+  /**
+   * Handle scroll events for header animation
+   */
   const handleScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
     {
@@ -167,7 +201,7 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
     }
   );
 
-  // Empty state
+  // Empty state when no exercise
   if (!exercise) {
     return (
       <View style={popupModalStyles.emptyContainer}>
@@ -178,14 +212,13 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* Sticky Animated Header */}
+      {/* Animated sticky header */}
       <Animated.View style={[styles.stickyHeader, { height: headerHeight }]}>
-        {/* Close Button - Always on top */}
         <TouchableOpacity style={styles.closeButton} onPress={onClose}>
           <Text style={styles.closeText}>✕</Text>
         </TouchableOpacity>
 
-        {/* Expanded Header */}
+        {/* Expanded header state */}
         <Animated.View
           style={[styles.expandedHeader, { opacity: expandedHeaderOpacity }]}
           pointerEvents={isHeaderCollapsed ? "none" : "auto"}
@@ -226,7 +259,7 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
           </Animated.Text>
         </Animated.View>
 
-        {/* Collapsed Header */}
+        {/* Collapsed header state */}
         <Animated.View
           style={[styles.collapsedHeader, { opacity: collapsedHeaderOpacity }]}
           pointerEvents={isHeaderCollapsed ? "auto" : "none"}
@@ -248,7 +281,7 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
         </Animated.View>
       </Animated.View>
 
-      {/* Scrollable Content */}
+      {/* Scrollable tabbed content */}
       <Animated.ScrollView
         style={styles.scrollView}
         contentContainerStyle={{ paddingTop: HEADER_EXPANDED_HEIGHT }}
@@ -257,7 +290,6 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
         scrollEventThrottle={16}
         onScroll={handleScroll}
       >
-        {/* Tabs Content */}
         <View style={styles.tabsContainer}>
           <TabBar
             tabs={tabs}
@@ -270,7 +302,7 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
         </View>
       </Animated.ScrollView>
 
-      {/* Sticky Add to Routine Button */}
+      {/* Sticky add to routine button */}
       <View style={styles.stickyButtonContainer}>
         <FormButton
           title="Add to routine"
@@ -279,14 +311,13 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
         />
       </View>
 
-      {/* Add to Routine Modal */}
+      {/* Modals */}
       <AddToRoutineModal
         visible={showRoutineModal}
         onClose={() => setShowRoutineModal(false)}
         exerciseId={exercise.id}
       />
 
-      {/* Alert Modal */}
       <Alert
         visible={alert.visible}
         mode={alert.mode}
@@ -298,6 +329,10 @@ const ViewExerciseModal: React.FC<ViewExerciseModalProps> = ({
     </View>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {
@@ -336,7 +371,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
-  // Expanded Header Styles
   expandedHeader: {
     position: "absolute",
     top: 0,
@@ -364,7 +398,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontFamily: "Anton",
   },
-  // Collapsed Header Styles
   collapsedHeader: {
     position: "absolute",
     top: 0,
@@ -386,9 +419,8 @@ const styles = StyleSheet.create({
   collapsedContent: {
     flex: 1,
     justifyContent: "center",
-    paddingRight: 40, // Space for close button
+    paddingRight: 40,
   },
-
   imageDots: {
     position: "absolute",
     bottom: 8,

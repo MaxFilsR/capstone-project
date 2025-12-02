@@ -1,3 +1,12 @@
+/**
+ * Start Routine Modal Component
+ * 
+ * Modal for starting a workout from a routine. Supports two modes: single routine
+ * mode (displays summary card) or selection mode (shows list of available routines).
+ * Fetches exercise data, prepares workout parameters, and navigates to active
+ * routine screen. Shows loading and empty states with validation.
+ */
+
 import React, { useState } from "react";
 import {
   View,
@@ -17,13 +26,25 @@ import { useRouter } from "expo-router";
 import { useRoutines } from "@/lib/routines-context";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
 
+// ============================================================================
+// Constants
+// ============================================================================
+
 const IMAGE_BASE_URL =
   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type StartRoutineModalProps = {
   onClose: () => void;
-  routine?: any | null; // Optional - if provided, start that routine directly
+  routine?: any | null;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
   onClose,
@@ -47,10 +68,11 @@ const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
     message: "",
   });
 
-  // If a routine was passed, start it immediately (single routine mode)
-  // Otherwise, show selection list (multiple routine mode)
   const isSingleRoutineMode = passedRoutine != null;
 
+  /**
+   * Validate selection and navigate to active routine screen
+   */
   const handleStartRoutine = () => {
     let selectedRoutine;
 
@@ -82,7 +104,6 @@ const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
     }
 
     try {
-      // Prepare exercises data for ActiveRoutineScreen
       const exercisesData = selectedRoutine.exercises.map((ex: any) => {
         const fullExercise = exercises.find((e) => e.id === ex.id);
         return {
@@ -100,7 +121,6 @@ const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
         };
       });
 
-      // Navigate to ActiveRoutineScreen
       router.push({
         pathname: "/screens/FitnessTabs/routineScreens/activeRoutine",
         params: {
@@ -131,30 +151,29 @@ const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
     setAlert({ ...alert, visible: false });
   };
 
+  /**
+   * Get thumbnail image URL for routine's first exercise
+   */
   const getRoutineThumbnail = (routine: any) => {
     if (!routine.exercises || routine.exercises.length === 0) {
       return null;
     }
 
     const firstExerciseWithImages = routine.exercises.find((ex: any) => {
-      // Check if exercise already has images (from passedRoutine)
       if (ex.images && ex.images.length > 0) {
         return true;
       }
-      // Otherwise look up in exercises library
       const fullExercise = exercises.find((e) => e.id === ex.id);
       return fullExercise?.images && fullExercise.images.length > 0;
     });
 
     if (firstExerciseWithImages) {
-      // If exercise has images directly
       if (
         firstExerciseWithImages.images &&
         firstExerciseWithImages.images.length > 0
       ) {
         return `${IMAGE_BASE_URL}${firstExerciseWithImages.images[0]}`;
       }
-      // Otherwise look up in library
       const fullExercise = exercises.find(
         (e) => e.id === firstExerciseWithImages.id
       );
@@ -171,7 +190,6 @@ const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
 
     return (
       <View style={styles.modalSize}>
-        {/* Header */}
         <View style={styles.headerRow}>
           <Text style={[typography.h2, styles.headerTitle]}>
             {passedRoutine.name}
@@ -183,7 +201,6 @@ const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
           </TouchableOpacity>
         </View>
 
-        {/* Summary Card */}
         <View style={styles.summaryCard}>
           <View style={styles.thumbWrap}>
             {thumbnailUrl ? (
@@ -213,7 +230,6 @@ const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
           </View>
         </View>
 
-        {/* Start Button */}
         <View style={styles.buttonContainer}>
           <FormButton title="Start Workout" onPress={handleStartRoutine} />
         </View>
@@ -233,7 +249,6 @@ const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
   // Multiple routine mode - show selection list
   return (
     <View style={styles.modalSize}>
-      {/* Header */}
       <View style={styles.headerRow}>
         <Text style={[typography.h2, styles.headerTitle]}>Start Workout</Text>
         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -241,10 +256,9 @@ const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* Subtitle */}
       <Text style={styles.subtitle}>Select a routine to begin</Text>
 
-      {/* Routines List */}
+      {/* Routines list with loading and empty states */}
       <ScrollView style={styles.routinesList}>
         {loading ? (
           <View style={styles.loadingContainer}>
@@ -323,7 +337,6 @@ const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
         )}
       </ScrollView>
 
-      {/* Start Button */}
       <View style={styles.buttonContainer}>
         <FormButton
           title="Start Workout"
@@ -343,6 +356,10 @@ const StartRoutineModal: React.FC<StartRoutineModalProps> = ({
     </View>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   modalSize: {

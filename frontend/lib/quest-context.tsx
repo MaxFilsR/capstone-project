@@ -80,23 +80,32 @@ export const QuestProvider = ({ children }: { children: ReactNode }) => {
   /**
    * Create a new quest with specified difficulty
    */
-  const createNewQuest = useCallback(
-    async (difficulty: "Easy" | "Medium" | "Hard") => {
-      try {
-        setCreating(true);
-        setError(null);
-        await createQuest({ difficulty });
-        await fetchQuests();
-      } catch (err) {
-        console.error("Failed to create quest:", err);
-        setError("Failed to create quest");
-        throw err;
-      } finally {
-        setCreating(false);
+const createNewQuest = useCallback(
+  async (difficulty: "Easy" | "Medium" | "Hard") => {
+    try {
+      setCreating(true);
+      setError(null);
+      await createQuest({ difficulty });
+      await fetchQuests();
+    } catch (err: any) {
+      console.error("Failed to create quest:", err);
+      
+      // More specific error messages
+      if (err.code === 'ECONNABORTED') {
+        setError("Request timed out. Please try again.");
+      } else if (err.message === 'Network Error') {
+        setError("Network connection failed. Check your internet.");
+      } else {
+        setError("Failed to create quest. Please try again.");
       }
-    },
-    [fetchQuests]
-  );
+      
+      throw err;
+    } finally {
+      setCreating(false);
+    }
+  },
+  [fetchQuests]
+);
 
   /**
    * Get all in-progress quests (status: Incomplete)

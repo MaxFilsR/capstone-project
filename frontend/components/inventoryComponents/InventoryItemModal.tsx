@@ -1,3 +1,12 @@
+/**
+ * Inventory Item Modal Component
+ * 
+ * Modal dialog for viewing and managing inventory items. Displays item image,
+ * name, and rarity badge with color-coded styling. Provides equip, unequip, and
+ * close actions. Conditionally shows unequip button only for equipped items that
+ * can be removed.
+ */
+
 import React from "react";
 import {
   View,
@@ -11,12 +20,20 @@ import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
 import { InventoryItem } from "@/lib/inventory-context";
 
+// ============================================================================
+// Constants
+// ============================================================================
+
 const RARITY_COLORS = {
   common: colorPallet.neutral_3,
   rare: "#3B82F6",
   epic: "#A855F7",
   legendary: "#F59E0B",
 };
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type InventoryItemModalProps = {
   visible: boolean;
@@ -27,6 +44,10 @@ type InventoryItemModalProps = {
   onUnequip: () => void;
   onClose: () => void;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const InventoryItemModal = ({
   visible,
@@ -48,6 +69,7 @@ const InventoryItemModal = ({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
+          {/* Item image */}
           <View style={styles.modalImageContainer}>
             <Image
               source={item.image}
@@ -56,6 +78,7 @@ const InventoryItemModal = ({
             />
           </View>
 
+          {/* Item details */}
           <Text style={styles.modalTitle}>{item.name}</Text>
 
           <View
@@ -71,6 +94,7 @@ const InventoryItemModal = ({
             </Text>
           </View>
 
+          {/* Action buttons */}
           <View style={styles.modalButtons}>
             <TouchableOpacity
               style={[styles.modalButton, styles.equipButton]}
@@ -105,6 +129,10 @@ const InventoryItemModal = ({
     </Modal>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   modalOverlay: {
