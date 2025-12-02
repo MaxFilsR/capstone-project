@@ -11,6 +11,18 @@ The goal is simple: make working out fun, rewarding, and addictive through smart
   <img src="https://raw.githubusercontent.com/MaxFilsR/capstone-project/refs/heads/main/frontend/assets/githubImages/charcter-examples.gif" width="50%" alt="Banner"/>
 </p>
 
+### Team Members
+
+- [Max Fils Remfort](https://github.com/max-fils-remfort) — Team Leader & Frontend Developer
+
+- [Suvi Nwoko](https://github.com/smarianw) — Frontend Developer
+
+- [Daniel Yetin](https://github.com/Dyredhead) — Backend Developer
+
+- [Maximilian Jaramazovic](https://github.com/maximilianjaramazovic) — Backend Developer
+
+- [Danny Wu](https://github.com/Cod3Danny) — Backend Developer
+
 ## Core Concept
 
 ### **RPG-Style Progression**
@@ -60,5 +72,3 @@ Gainz will be built with a modular, iterative workflow:
 - **Testing:** Continuous feedback loops + usability testing + prototype refinement
 
 Prototyping will start in Figma, move to interactive testing, and finally transition into full feature development.
-
-## Current Progress
