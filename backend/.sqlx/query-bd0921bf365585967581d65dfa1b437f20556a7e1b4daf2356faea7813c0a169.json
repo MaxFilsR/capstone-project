@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT first_name, last_name, workout_schedule\n            FROM settings\n            where user_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "workout_schedule",
+        "type_info": "BoolArray"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "bd0921bf365585967581d65dfa1b437f20556a7e1b4daf2356faea7813c0a169"
+}

@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE routines\n            SET name = $3, exercises = $4\n            WHERE user_id = $1 AND id = $2\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        "Text",
+        "Jsonb"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "02c6b88662a0167cc00d56ad93d7a18c25941a26cf06b3c56d167d1b07e9077a"
+}

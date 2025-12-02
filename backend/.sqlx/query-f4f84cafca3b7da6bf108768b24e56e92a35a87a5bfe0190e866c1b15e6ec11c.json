@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT equipped as \"equipped: Equipped\"\n            FROM characters\n            where user_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "equipped: Equipped",
+        "type_info": {
+          "Custom": {
+            "name": "equipped",
+            "kind": {
+              "Composite": [
+                [
+                  "arms",
+                  "Int4"
+                ],
+                [
+                  "background",
+                  "Int4"
+                ],
+                [
+                  "bodies",
+                  "Int4"
+                ],
+                [
+                  "head",
+                  "Int4"
+                ],
+                [
+                  "head_accessory",
+                  "Int4"
+                ],
+                [
+                  "pet",
+                  "Int4"
+                ],
+                [
+                  "weapon",
+                  "Int4"
+                ]
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "f4f84cafca3b7da6bf108768b24e56e92a35a87a5bfe0190e866c1b15e6ec11c"
+}

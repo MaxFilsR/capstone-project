@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE characters\n        SET friends = array_remove(friends, $2)\n        WHERE user_id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "0b7af4aa3bf315974a4d73f37681a3737e54e94d8a44f66569413e21262cd7f3"
+}

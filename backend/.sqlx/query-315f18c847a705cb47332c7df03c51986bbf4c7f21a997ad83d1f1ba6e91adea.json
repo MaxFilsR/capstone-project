@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT id, password = crypt($2, password) AS is_valid, onboarding_complete\n            FROM users \n            WHERE email = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "is_valid",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 2,
+        "name": "onboarding_complete",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      null,
+      false
+    ]
+  },
+  "hash": "315f18c847a705cb47332c7df03c51986bbf4c7f21a997ad83d1f1ba6e91adea"
+}

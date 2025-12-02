@@ -1,0 +1,64 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT class as \"class: Class\", pending_stat_points\n        FROM characters\n        WHERE user_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "class: Class",
+        "type_info": {
+          "Custom": {
+            "name": "class",
+            "kind": {
+              "Composite": [
+                [
+                  "name",
+                  "Text"
+                ],
+                [
+                  "stats",
+                  {
+                    "Custom": {
+                      "name": "stats",
+                      "kind": {
+                        "Composite": [
+                          [
+                            "strength",
+                            "Int4"
+                          ],
+                          [
+                            "endurance",
+                            "Int4"
+                          ],
+                          [
+                            "flexibility",
+                            "Int4"
+                          ]
+                        ]
+                      }
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "pending_stat_points",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "af3f8bad9da969db7f73f947c4766333800a31bc8ce63c74c7c2872de7d97082"
+}
