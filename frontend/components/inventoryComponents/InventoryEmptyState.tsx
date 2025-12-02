@@ -1,8 +1,20 @@
+/**
+ * Inventory Empty State Component
+ * 
+ * Displays when user has no inventory items. Shows icon, title, and message
+ * encouraging users to complete workouts to earn equipment and cosmetics.
+ * Centered layout with consistent spacing and styling.
+ */
+
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const InventoryEmptyState = () => {
   return (
@@ -15,6 +27,10 @@ const InventoryEmptyState = () => {
     </View>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   emptyState: {

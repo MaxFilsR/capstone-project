@@ -1,9 +1,22 @@
+/**
+ * Inventory Item Card Component
+ * 
+ * Displays an individual inventory item in a square card with image, name, and
+ * rarity-based border color. Shows equipped badge when item is currently equipped.
+ * Supports press interaction for equipping/unequipping items. Rarity colors range
+ * from common (gray) to legendary (gold).
+ */
+
 import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
 import { InventoryItem } from "@/lib/inventory-context";
+
+// ============================================================================
+// Constants
+// ============================================================================
 
 const RARITY_COLORS = {
   common: colorPallet.neutral_3,
@@ -12,11 +25,19 @@ const RARITY_COLORS = {
   legendary: "#F59E0B",
 };
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type InventoryItemCardProps = {
   item: InventoryItem;
   isEquipped: boolean;
   onPress: (item: InventoryItem) => void;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const InventoryItemCard = ({
   item,
@@ -33,6 +54,7 @@ const InventoryItemCard = ({
       activeOpacity={0.7}
       onPress={() => onPress(item)}
     >
+      {/* Item image with equipped badge */}
       <View style={styles.itemImageContainer}>
         <Image
           source={item.image}
@@ -45,6 +67,8 @@ const InventoryItemCard = ({
           </View>
         )}
       </View>
+
+      {/* Item name */}
       <View style={styles.itemInfo}>
         <Text style={styles.itemName} numberOfLines={1}>
           {item.name}
@@ -53,6 +77,10 @@ const InventoryItemCard = ({
     </TouchableOpacity>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   itemCard: {
