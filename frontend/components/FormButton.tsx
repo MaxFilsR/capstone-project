@@ -1,7 +1,19 @@
+/**
+ * Form Button Component
+ * 
+ * Customizable button component with support for multiple modes (text, contained,
+ * outlined) and color schemes (primary, secondary, critical). Handles pressed
+ * states and disabled styling. Built on react-native-paper Button component.
+ */
+
 import React, { useState } from "react";
 import { Button } from "react-native-paper";
 import { StyleSheet, ViewStyle, TextStyle, StyleProp } from "react-native";
 import { colorPallet } from "@/styles/variables";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type FormButtonProps = {
   title: string;
@@ -15,6 +27,10 @@ type FormButtonProps = {
   fontSize?: number;
   disabled?: boolean;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export const FormButton = ({
   title,
@@ -30,6 +46,9 @@ export const FormButton = ({
 }: FormButtonProps) => {
   const [isPressed, setIsPressed] = useState(false);
 
+  /**
+   * Get default button color based on color prop
+   */
   const getDefaultButtonColor = () => {
     switch (color) {
       case "critical":
@@ -45,7 +64,7 @@ export const FormButton = ({
   const defaultButtonColor = getDefaultButtonColor();
   const bgColor = customButtonColor || defaultButtonColor;
 
-  // Disabled styles
+  // Compute styles based on disabled and mode states
   const disabledBackground =
     mode === "contained" ? colorPallet.neutral_5 : "transparent";
   const disabledText =
@@ -90,6 +109,10 @@ export const FormButton = ({
     </Button>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   button: {

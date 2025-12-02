@@ -1,13 +1,28 @@
+/**
+ * Exercise Card Component
+ * 
+ * Displays exercise information in a card format with thumbnail image, name,
+ * primary muscles, and difficulty level. Uses memoization for performance
+ * optimization in scrollable lists. Shows placeholder icon when no image available.
+ */
+
 import React from "react";
 import { View, Text, TouchableOpacity, Image, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Exercise } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
 
+// ============================================================================
+// Constants
+// ============================================================================
+
 const IMAGE_BASE_URL =
   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
-// Memoized image component
+// ============================================================================
+// Cached Image Component
+// ============================================================================
+
 const CachedExerciseImage = React.memo(
   ({ imageUrl }: { imageUrl: string | null }) => {
     if (!imageUrl) {
@@ -28,10 +43,18 @@ const CachedExerciseImage = React.memo(
   }
 );
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type ExerciseCardProps = {
   item: Exercise;
   onPress: (item: Exercise) => void;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export const ExerciseCard = React.memo<ExerciseCardProps>(
   ({ item, onPress }) => {
@@ -54,6 +77,10 @@ export const ExerciseCard = React.memo<ExerciseCardProps>(
     );
   }
 );
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   card: {
@@ -79,10 +106,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colorPallet.neutral_6,
   },
-  info: { flex: 1 },
-  name: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  muscle: { color: "#aaa", fontSize: 13, marginTop: 4 },
-  equipment: { color: "#888", fontSize: 12, marginTop: 2 },
+  info: {
+    flex: 1,
+  },
+  name: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  muscle: {
+    color: "#aaa",
+    fontSize: 13,
+    marginTop: 4,
+  },
+  equipment: {
+    color: "#888",
+    fontSize: 12,
+    marginTop: 2,
+  },
 });
 
 export default ExerciseCard;

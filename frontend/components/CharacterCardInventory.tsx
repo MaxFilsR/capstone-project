@@ -1,3 +1,12 @@
+/**
+ * Character Card Inventory Component
+ * 
+ * Displays character equipment and stats with a layered character preview.
+ * Shows equipped items in slots (head, body, arms, weapon, pet, etc.) with
+ * visual layering for a composite character appearance. Includes stats display
+ * and available stat points indicator.
+ */
+
 import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { typography } from "@/styles";
@@ -5,6 +14,10 @@ import { colorPallet } from "@/styles/variables";
 import { Ionicons } from "@expo/vector-icons";
 import { useInventory } from "@/lib/inventory-context";
 import { useAuth } from "@/lib/auth-context";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type CharacterCardInventoryProps = {
   username?: string;
@@ -28,7 +41,10 @@ type EquipmentSlotItemProps = {
   canUnequip?: boolean;
 };
 
-// Equipment slot component with conditional unequip functionality
+// ============================================================================
+// Equipment Slot Component
+// ============================================================================
+
 function EquipmentSlotItem({
   slotName,
   slotKey,
@@ -65,6 +81,10 @@ function EquipmentSlotItem({
   );
 }
 
+// ============================================================================
+// Main Component
+// ============================================================================
+
 export default function CharacterCardInventory({
   username,
   level,
@@ -75,7 +95,6 @@ export default function CharacterCardInventory({
   const { equipped } = useInventory();
   const { user } = useAuth();
 
-  // Get stats and available points from user profile
   const stats = user?.profile?.class?.stats || {
     strength: 0,
     endurance: 0,
@@ -85,7 +104,7 @@ export default function CharacterCardInventory({
 
   return (
     <View style={[styles.container, { borderColor }]}>
-      {/* Header */}
+      {/* Header with username, level, and settings */}
       {(username || level !== undefined) && (
         <View style={styles.headerContainer}>
           <View style={styles.headerInfo}>
@@ -100,10 +119,10 @@ export default function CharacterCardInventory({
         </View>
       )}
 
-      {/* Layered Character Preview */}
+      {/* Layered character preview with equipment slots */}
       <View style={styles.characterPreview}>
         <View style={styles.characterLayers}>
-          {/* Background Layer - z-index 1 */}
+          {/* Character layers rendered in z-index order */}
           {equipped.background?.image && (
             <Image
               source={equipped.background.image}
@@ -112,7 +131,6 @@ export default function CharacterCardInventory({
             />
           )}
 
-          {/* Body Layer - z-index 2 */}
           {equipped.body?.image && (
             <Image
               source={equipped.body.image}
@@ -121,7 +139,6 @@ export default function CharacterCardInventory({
             />
           )}
 
-          {/* Arms Layer - z-index 3 */}
           {equipped.arms?.image && (
             <Image
               source={equipped.arms.image}
@@ -130,7 +147,6 @@ export default function CharacterCardInventory({
             />
           )}
 
-          {/* Head Layer - z-index 4 */}
           {equipped.head?.image && (
             <Image
               source={equipped.head.image}
@@ -139,7 +155,6 @@ export default function CharacterCardInventory({
             />
           )}
 
-          {/* Head Accessory Layer - z-index 5 */}
           {equipped.headAccessory?.image && (
             <Image
               source={equipped.headAccessory.image}
@@ -148,7 +163,6 @@ export default function CharacterCardInventory({
             />
           )}
 
-          {/* Weapon Layer - z-index 6 */}
           {equipped.weapon?.image && (
             <Image
               source={equipped.weapon.image}
@@ -157,7 +171,6 @@ export default function CharacterCardInventory({
             />
           )}
 
-          {/* Pet Layer - z-index 7 */}
           {equipped.pet?.image && (
             <Image
               source={equipped.pet.image}
@@ -166,7 +179,7 @@ export default function CharacterCardInventory({
             />
           )}
 
-          {/* Empty State */}
+          {/* Empty state when no equipment */}
           {!equipped.background &&
             !equipped.body &&
             !equipped.arms &&
@@ -179,7 +192,7 @@ export default function CharacterCardInventory({
               </View>
             )}
 
-          {/* Left Side Equipment Slots - z-index 100 */}
+          {/* Left side equipment slots */}
           <View style={styles.leftSlots}>
             <EquipmentSlotItem
               slotName="Head"
@@ -207,7 +220,7 @@ export default function CharacterCardInventory({
             />
           </View>
 
-          {/* Right Side Equipment Slots - z-index 100 */}
+          {/* Right side equipment slots */}
           <View style={styles.rightSlots}>
             <EquipmentSlotItem
               slotName="Weapon"
@@ -231,9 +244,8 @@ export default function CharacterCardInventory({
         </View>
       </View>
 
-      {/* Stats Section */}
+      {/* Stats section with available points indicator */}
       <View style={[styles.statsContainer, { borderTopColor: accentColor }]}>
-        {/* Available Stat Points */}
         {availableStatPoints > 0 && (
           <View style={styles.availablePointsContainer}>
             <Ionicons name="add-circle" size={20} color={colorPallet.primary} />
@@ -244,7 +256,6 @@ export default function CharacterCardInventory({
           </View>
         )}
 
-        {/* Stat Items */}
         <View style={styles.statsRow}>
           {[
             { label: "Strength", value: stats.strength, color: "#D64545" },
@@ -267,6 +278,10 @@ export default function CharacterCardInventory({
     </View>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {

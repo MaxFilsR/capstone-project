@@ -1,3 +1,11 @@
+/**
+ * Search Bar Component
+ * 
+ * Toggleable search input for filtering exercises or muscles. Displays as a
+ * search icon when collapsed and expands to a full search input with close
+ * button when active. Auto-focuses on expansion for immediate text entry.
+ */
+
 import React from "react";
 import {
   View,
@@ -9,6 +17,10 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { colorPallet } from "@/styles/variables";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type SearchBarProps = {
   visible: boolean;
   query: string;
@@ -17,6 +29,10 @@ type SearchBarProps = {
   onClose: () => void;
 };
 
+// ============================================================================
+// Component
+// ============================================================================
+
 export const SearchBar: React.FC<SearchBarProps> = ({
   visible,
   query,
@@ -24,6 +40,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   onToggle,
   onClose,
 }) => {
+  // Collapsed state - show search icon only
   if (!visible) {
     return (
       <TouchableOpacity style={styles.searchIcon} onPress={onToggle}>
@@ -32,6 +49,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     );
   }
 
+  // Expanded state - show full search input
   return (
     <View style={styles.searchContainer}>
       <Ionicons
@@ -54,6 +72,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     </View>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   searchIcon: {
