@@ -1,58 +1,63 @@
-# Welcome to your Expo app 👋
+<p align="center">
+  <img src="https://raw.githubusercontent.com/MaxFilsR/capstone-project/refs/heads/main/frontend/assets/githubImages/Banner.png" width="100%" alt="Banner"/>
+</p>
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# **Gainz – Gamified Fitness Tracking App**
 
-## Get started
+Gainz is more than a fitness tracker — it’s a fitness _game_.
+The goal is simple: make working out fun, rewarding, and addictive through smart gamification and consistent feedback loops.
 
-1. Install dependencies
+<p align="center">
+  <img src="https://raw.githubusercontent.com/MaxFilsR/capstone-project/refs/heads/main/frontend/assets/githubImages/Banner.png" width="100%" alt="Banner"/>
+</p>
+## Core Concept
 
-   ```bash
-   npm install
-   ```
+### **RPG-Style Progression**
 
-2. Start the app
+- Pick a class (Monk, Gladiator, etc.), each with unique stat growth paths.
+- Log workouts to earn XP and level up.
+- Achievements, milestones, and dynamic upgrades form the main “game loop.”
 
-   ```bash
-   npx expo start
-   ```
+### **Daily Missions & Rewards**
 
-In the output, you'll find options to open the app in a
+- Daily quests turn workouts into structured missions.
+- Completing them grants XP, boosts, or in-game rewards.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### **Consistency System**
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Streaks and multipliers reward users for showing up.
+- Slacking reduces XP proportionally — tying real-life habits to virtual progression.
 
-## Get a fresh project
+### **Social Features**
 
-When you're ready, run:
+- Add friends to unlock leaderboards, guilds, group quests, PvE challenges, and PvP duels.
+- Cosmetics, gifts, and events keep the world feeling alive and competitive.
 
-```bash
-npm run reset-project
-```
+### **Practical Fitness Tools**
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Core fitness features stay useful and grounded:
 
-## Learn more
+- Workout libraries
+- Record tracking
+- Manual tracking
+  All seamlessly tie back into the game mechanics.
 
-To learn more about developing your project with Expo, look at the following resources:
+## **Why Build This?**
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+<span style="font-weight: bold;">Most fitness apps are passive: </span>they track, record, and store—but rarely _motivate_.
+Gainz bridges that gap by making fitness fun, competitive, and social.
+Instead of just logging workouts, users feel the satisfaction of progression, leveling up, and “playing” their fitness journey.
 
-## Join the community
+## **Tech Stack & Approach**
 
-Join our community of developers creating universal apps.
+Gainz will be built with a modular, iterative workflow:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **Frontend:** React Native
+- **Backend:** Rust
+- **Database:** PostgreSQL
+- **Architecture:** RESTful API with independent frontend/backend development
+- **Testing:** Continuous feedback loops + usability testing + prototype refinement
 
+Prototyping will start in Figma, move to interactive testing, and finally transition into full feature development.
 
-# Bug fixes:
-
-You might need to run the following commands in order to remove any errors in VSCode
-
-- `npm install --save-dev eslint-import-resolver-typescript`
-- `npm install expo-secure-store`
+## Current Progress
