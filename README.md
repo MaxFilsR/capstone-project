@@ -8,7 +8,7 @@ Gainz is more than a fitness tracker — it’s a fitness _game_.
 The goal is simple: make working out fun, rewarding, and addictive through smart gamification and consistent feedback loops.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/MaxFilsR/capstone-project/refs/heads/main/frontend/assets/githubImages/charcter-examples.gif" width="400px" alt="Banner"/>
+  <img src="https://raw.githubusercontent.com/MaxFilsR/capstone-project/refs/heads/main/frontend/assets/githubImages/charcter-examples.gif" width="200px" alt="Banner"/>
 </p>
 
 ## Core Concept
