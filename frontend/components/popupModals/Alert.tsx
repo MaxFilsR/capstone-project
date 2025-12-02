@@ -1,7 +1,20 @@
+/**
+ * Alert Component
+ * 
+ * Customizable alert dialog with support for multiple modes (alert, success,
+ * error, confirmAction). Shows optional title, message, and configurable action
+ * buttons. Provides single-button alerts or two-button confirmation dialogs
+ * with color-coded styling based on mode.
+ */
+
 import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type AlertProps = {
   visible: boolean;
@@ -13,6 +26,10 @@ type AlertProps = {
   confirmText?: string;
   cancelText?: string;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const Alert: React.FC<AlertProps> = ({
   visible,
@@ -26,6 +43,9 @@ const Alert: React.FC<AlertProps> = ({
 }) => {
   if (!visible) return null;
 
+  /**
+   * Get background color based on alert mode
+   */
   const getBackgroundColor = () => {
     switch (mode) {
       case "success":
@@ -50,6 +70,7 @@ const Alert: React.FC<AlertProps> = ({
   return (
     <View style={styles.overlay}>
       <View style={styles.alertBox}>
+        {/* Optional title header */}
         {title && (
           <View
             style={[styles.header, { backgroundColor: getBackgroundColor() }]}
@@ -62,10 +83,12 @@ const Alert: React.FC<AlertProps> = ({
           </View>
         )}
 
+        {/* Message content */}
         <View style={styles.content}>
           <Text style={typography.body}>{message}</Text>
         </View>
 
+        {/* Action buttons */}
         <View style={styles.buttonContainer}>
           {mode === "confirmAction" ? (
             <>
@@ -108,6 +131,10 @@ const Alert: React.FC<AlertProps> = ({
   );
 };
 
+// ============================================================================
+// Styles
+// ============================================================================
+
 const styles = StyleSheet.create({
   overlay: {
     position: "absolute",
@@ -130,11 +157,9 @@ const styles = StyleSheet.create({
   header: {
     padding: 16,
   },
-
   content: {
     padding: 20,
   },
-
   buttonContainer: {
     flexDirection: "row",
     borderTopWidth: 1,

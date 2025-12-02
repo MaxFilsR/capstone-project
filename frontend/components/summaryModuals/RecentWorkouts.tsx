@@ -1,3 +1,12 @@
+/**
+ * Recent Workouts Component
+ * 
+ * Displays a list of recent workout sessions with key metrics including points,
+ * duration, and exercise count. Fetches workout history from API and shows
+ * loading, error, and empty states. Provides navigation to detailed workout
+ * view and full history page.
+ */
+
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -12,40 +21,51 @@ import { getWorkoutHistory, WorkoutSession } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 interface RecentWorkoutsProps {
   limit?: number;
 }
 
-// Helper function to format numbers with commas
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Format numbers with commas
+ */
 function formatNumber(value: number): string {
   return value.toLocaleString("en-US");
 }
 
-// Helper function to format date
+/**
+ * Format date with relative labels for today/yesterday
+ */
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  // Check if today
   if (date.toDateString() === today.toDateString()) {
     return "Today";
   }
 
-  // Check if yesterday
   if (date.toDateString() === yesterday.toDateString()) {
     return "Yesterday";
   }
 
-  // Otherwise return formatted date
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
   });
 }
 
-// Helper function to format duration
+/**
+ * Format duration in seconds to hours/minutes
+ */
 function formatDuration(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
@@ -56,6 +76,10 @@ function formatDuration(seconds: number): string {
   return `${minutes}m`;
 }
 
+// ============================================================================
+// Component
+// ============================================================================
+
 const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
   const [workouts, setWorkouts] = useState<WorkoutSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -65,13 +89,15 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
     loadRecentWorkouts();
   }, []);
 
+  /**
+   * Fetch and sort recent workout history
+   */
   async function loadRecentWorkouts() {
     try {
       setIsLoading(true);
       setError(null);
       const history = await getWorkoutHistory();
 
-      // Sort by date (most recent first) and take only the limit
       const sortedHistory = history
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, limit);
@@ -85,6 +111,9 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
     }
   }
 
+  /**
+   * Navigate to workout details page
+   */
   const handleWorkoutPress = (session: WorkoutSession) => {
     router.push({
       pathname: "/screens/FitnessTabs/workoutComplete",
@@ -102,6 +131,7 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
     router.push("/(tabs)/fitness");
   };
 
+  // Loading state
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -115,6 +145,7 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
     );
   }
 
+  // Error state
   if (error) {
     return (
       <View style={styles.container}>
@@ -131,6 +162,7 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
     );
   }
 
+  // Empty state
   if (workouts.length === 0) {
     return (
       <View style={styles.container}>
@@ -147,6 +179,7 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
     );
   }
 
+  // Workout list
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -205,6 +238,10 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
   );
 };
 
+// ============================================================================
+// Styles
+// ============================================================================
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colorPallet.neutral_darkest,
@@ -213,7 +250,6 @@ const styles = StyleSheet.create({
     borderColor: colorPallet.neutral_2,
     overflow: "hidden",
   },
-
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -232,7 +268,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
   },
-
   workoutCard: {
     padding: 12,
   },

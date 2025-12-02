@@ -1,3 +1,9 @@
+/**
+ * Container Styles
+ * 
+ * Reusable container layouts for consistent screen structure throughout the app.
+ */
+
 import { Platform, StyleSheet } from "react-native";
 import { colorPallet } from "./variables";
 

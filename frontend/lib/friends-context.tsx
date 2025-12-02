@@ -1,3 +1,11 @@
+/**
+ * Friends Context
+ * 
+ * Manages friends list and friend request state throughout the application.
+ * Provides methods for sending, accepting, and declining friend requests,
+ * as well as removing friends. Automatically loads friends and requests on mount.
+ */
+
 import React, {
   createContext,
   useContext,
@@ -17,6 +25,13 @@ import {
   FriendRequest,
 } from "@/api/endpoints";
 
+// ============================================================================
+// Types
+// ============================================================================
+
+/**
+ * Context value providing friends state and management methods
+ */
 type FriendsContextType = {
   friends: FriendSummary[];
   incomingRequests: FriendRequest[];
@@ -31,8 +46,19 @@ type FriendsContextType = {
   removeFriend: (friendId: number) => Promise<void>;
 };
 
+// ============================================================================
+// Context
+// ============================================================================
+
 const FriendsContext = createContext<FriendsContextType | undefined>(undefined);
 
+// ============================================================================
+// Provider Component
+// ============================================================================
+
+/**
+ * Friends Provider component that wraps the app
+ */
 export const FriendsProvider = ({ children }: { children: ReactNode }) => {
   const [friends, setFriends] = useState<FriendSummary[]>([]);
   const [incomingRequests, setIncomingRequests] = useState<FriendRequest[]>([]);
@@ -40,7 +66,9 @@ export const FriendsProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch friends list
+  /**
+   * Fetch and update friends list
+   */
   const refreshFriends = useCallback(async () => {
     try {
       setLoading(true);
@@ -48,14 +76,16 @@ export const FriendsProvider = ({ children }: { children: ReactNode }) => {
       const data = await getFriends();
       setFriends(data);
     } catch (err) {
-      console.error("❌ Failed to load friends:", err);
+      console.error("Failed to load friends:", err);
       setError("Failed to load friends");
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Fetch friend requests (incoming and outgoing)
+  /**
+   * Fetch and update friend requests (incoming and outgoing)
+   */
   const refreshRequests = useCallback(async () => {
     try {
       setError(null);
@@ -66,68 +96,78 @@ export const FriendsProvider = ({ children }: { children: ReactNode }) => {
       setIncomingRequests(incoming);
       setOutgoingRequests(outgoing);
     } catch (err) {
-      console.error("❌ Failed to load friend requests:", err);
+      console.error("Failed to load friend requests:", err);
       setError("Failed to load friend requests");
     }
   }, []);
 
-  // Send a friend request
+  /**
+   * Send a friend request to another user
+   */
   const sendRequest = useCallback(
     async (recipientId: number) => {
       try {
         await sendFriendRequest({ recipient_id: recipientId });
-        await refreshRequests(); // Refresh to show new outgoing request
+        await refreshRequests();
       } catch (err) {
-        console.error("❌ Failed to send friend request:", err);
+        console.error("Failed to send friend request:", err);
         throw err;
       }
     },
     [refreshRequests]
   );
 
-  // Accept a friend request
+  /**
+   * Accept an incoming friend request
+   */
   const acceptRequest = useCallback(
     async (requestId: number) => {
       try {
         await respondToFriendRequest({ request_id: requestId, accept: true });
         await Promise.all([refreshFriends(), refreshRequests()]);
       } catch (err) {
-        console.error("❌ Failed to accept friend request:", err);
+        console.error("Failed to accept friend request:", err);
         throw err;
       }
     },
     [refreshFriends, refreshRequests]
   );
 
-  // Decline a friend request
+  /**
+   * Decline an incoming friend request
+   */
   const declineRequest = useCallback(
     async (requestId: number) => {
       try {
         await respondToFriendRequest({ request_id: requestId, accept: false });
         await refreshRequests();
       } catch (err) {
-        console.error("❌ Failed to decline friend request:", err);
+        console.error("Failed to decline friend request:", err);
         throw err;
       }
     },
     [refreshRequests]
   );
 
-  // Remove a friend
+  /**
+   * Remove a friend from friends list
+   */
   const removeFriend = useCallback(
     async (friendId: number) => {
       try {
         await deleteFriend(friendId);
         await refreshFriends();
       } catch (err) {
-        console.error("❌ Failed to remove friend:", err);
+        console.error("Failed to remove friend:", err);
         throw err;
       }
     },
     [refreshFriends]
   );
 
-  // Load friends and requests on mount
+  /**
+   * Load friends and requests on mount
+   */
   useEffect(() => {
     refreshFriends();
     refreshRequests();
@@ -154,6 +194,13 @@ export const FriendsProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// ============================================================================
+// Hook
+// ============================================================================
+
+/**
+ * Hook to access friends context
+ */
 export const useFriends = () => {
   const context = useContext(FriendsContext);
   if (!context) {

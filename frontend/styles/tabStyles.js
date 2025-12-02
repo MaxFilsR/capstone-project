@@ -1,7 +1,20 @@
+/**
+ * Tab Styles
+ * 
+ * Stylesheet for tab navigation components including tab bars, tab buttons,
+ * and tab content areas. Provides consistent styling for segmented controls
+ * and tabbed interfaces throughout the application.
+ */
+
 import { StyleSheet } from "react-native";
 import { colorPallet } from "./variables";
 
+// ============================================================================
+// Styles
+// ============================================================================
+
 export const tabStyles = StyleSheet.create({
+  // Tab content area
   tabContent: {
     flex: 1,
     backgroundColor: colorPallet.neutral_darkest,
@@ -21,10 +34,14 @@ export const tabStyles = StyleSheet.create({
     marginHorizontal: 16,
     color: "#CCCCCC",
   },
+
+  // Tab container
   container: {
     flex: 1,
     backgroundColor: colorPallet.neutral_darkest,
   },
+
+  // Tab bar
   tabBarContainer: {
     paddingHorizontal: 16,
     paddingVertical: 16,
@@ -43,6 +60,8 @@ export const tabStyles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
+
+  // Individual tab button
   tab: {
     flex: 1,
     paddingVertical: 10,

@@ -1,3 +1,11 @@
+/**
+ * Add to Routine Modal Component
+ * 
+ * Modal for adding an exercise to one or more existing routines. Fetches user's
+ * routines, allows multi-selection, and updates selected routines with the new
+ * exercise. Shows loading, success, and error states with alerts.
+ */
+
 import React, { useEffect, useState } from "react";
 import {
   Modal,
@@ -13,11 +21,19 @@ import { colorPallet } from "@/styles/variables";
 import { FormButton } from "@/components";
 import Alert from "./Alert";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type AddToRoutineModalProps = {
   visible: boolean;
   exerciseId: string;
   onClose: () => void;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export const AddToRoutineModal: React.FC<AddToRoutineModalProps> = ({
   visible,
@@ -44,6 +60,9 @@ export const AddToRoutineModal: React.FC<AddToRoutineModalProps> = ({
     if (visible) fetchRoutines();
   }, [visible]);
 
+  /**
+   * Fetch user's routines from API
+   */
   const fetchRoutines = async () => {
     setLoading(true);
     try {
@@ -62,12 +81,18 @@ export const AddToRoutineModal: React.FC<AddToRoutineModalProps> = ({
     }
   };
 
+  /**
+   * Toggle routine selection
+   */
   const toggleSelect = (id: number) => {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((r) => r !== id) : [...prev, id]
     );
   };
 
+  /**
+   * Add exercise to selected routines
+   */
   const handleAdd = async () => {
     try {
       setSaving(true);
@@ -138,7 +163,7 @@ export const AddToRoutineModal: React.FC<AddToRoutineModalProps> = ({
             </TouchableOpacity>
           </View>
 
-          {/* Content */}
+          {/* Routine list */}
           {loading ? (
             <ActivityIndicator color={colorPallet.primary} />
           ) : (
@@ -169,7 +194,7 @@ export const AddToRoutineModal: React.FC<AddToRoutineModalProps> = ({
             />
           )}
 
-          {/* Add button */}
+          {/* Action button */}
           <View style={styles.actions}>
             <FormButton
               title={saving ? "Saving..." : "Add"}
@@ -179,6 +204,7 @@ export const AddToRoutineModal: React.FC<AddToRoutineModalProps> = ({
           </View>
         </View>
 
+        {/* Alert dialog */}
         <Alert
           visible={alert.visible}
           mode={alert.mode}
@@ -192,6 +218,10 @@ export const AddToRoutineModal: React.FC<AddToRoutineModalProps> = ({
   );
 };
 
+// ============================================================================
+// Styles
+// ============================================================================
+
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
@@ -200,7 +230,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 16,
   },
-
   modal: {
     backgroundColor: colorPallet.neutral_darkest,
     borderRadius: 12,
@@ -216,26 +245,22 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 5,
   },
-
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
   },
-
   title: {
     fontSize: 20,
     fontWeight: "700",
     color: colorPallet.neutral_1,
   },
-
   closeText: {
     fontSize: 22,
     color: colorPallet.neutral_3,
     fontWeight: "600",
   },
-
   routineItem: {
     paddingVertical: 14,
     paddingHorizontal: 16,
@@ -245,23 +270,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colorPallet.neutral_5,
   },
-
   routineItemSelected: {
     borderColor: colorPallet.primary,
     color: colorPallet.primary,
   },
-
   routineText: {
     color: colorPallet.neutral_1,
     fontSize: 16,
     fontWeight: "500",
   },
-
   routineTextSelected: {
     color: colorPallet.primary,
     fontWeight: "600",
   },
-
   actions: {
     marginTop: 16,
   },

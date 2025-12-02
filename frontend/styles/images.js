@@ -1,5 +1,10 @@
+/**
+ * Image Styles
+ * 
+ * Reusable styles for images and image components throughout the app.
+ */
+
 import { StyleSheet } from "react-native";
-import { colorPallet } from "./variables";
 
 export const images = StyleSheet.create({
   logo: {
