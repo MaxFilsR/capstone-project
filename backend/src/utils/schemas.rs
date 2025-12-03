@@ -286,7 +286,7 @@ pub struct QuestRow {
     pub exercise_muscle: Option<ExerciseMuscle>,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type, Debug, PartialEq)]
+#[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type, Debug, PartialEq, Eq, Hash)]
 #[sqlx(type_name = "item_rarity", rename_all = "lowercase")]
 pub enum ItemRarity {
     Common,
