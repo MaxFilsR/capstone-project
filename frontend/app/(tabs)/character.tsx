@@ -94,7 +94,6 @@ export default function Index() {
   return (
     <>
       {/* Quick Action Button */}
-      {console.log(profile.inventory)}
       <QuickActionButton />
 
       <SafeAreaView
