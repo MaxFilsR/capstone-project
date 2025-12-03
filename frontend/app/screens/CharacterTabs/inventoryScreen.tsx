@@ -5,9 +5,12 @@ import {
   StyleSheet,
   Platform,
   UIManager,
+  ActivityIndicator,
+  Text,
 } from "react-native";
 import { tabStyles } from "@/styles";
 import { colorPallet } from "@/styles/variables";
+import { typography } from "@/styles";
 import { useInventory, InventoryItem } from "@/lib/inventory-context";
 import InventoryCategory from "@/components/inventoryComponents/InventoryCategory";
 import InventoryItemModal from "@/components/inventoryComponents/InventoryItemModal";
@@ -46,11 +49,13 @@ const INVENTORY_CATEGORIES: CategoryConfig[] = [
 ];
 
 const InventoryScreen = () => {
-  const { inventory, equipItem, unequipItem, isEquipped } = useInventory();
+  const { inventory, equipItem, unequipItem, isEquipped, isLoading, error } =
+    useInventory();
   const [expandedCategories, setExpandedCategories] = useState<{
     [key: string]: boolean;
   }>({});
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const toggleCategory = (categoryKey: string) => {
     setExpandedCategories((prev) => ({
@@ -63,16 +68,22 @@ const InventoryScreen = () => {
     setSelectedItem(item);
   };
 
-  const handleEquipItem = () => {
-    if (selectedItem) {
-      equipItem(selectedItem);
-      setSelectedItem(null);
+  const handleEquipItem = async () => {
+    if (selectedItem && !actionLoading) {
+      try {
+        setActionLoading(true);
+        await equipItem(selectedItem);
+        setSelectedItem(null);
+      } catch (error) {
+        console.error("[InventoryScreen] Failed to equip item:", error);
+      } finally {
+        setActionLoading(false);
+      }
     }
   };
 
-  const handleUnequipItem = () => {
-    if (selectedItem) {
-      // Map category to slot name
+  const handleUnequipItem = async () => {
+    if (selectedItem && !actionLoading) {
       const slotMap: Record<
         string,
         | "background"
@@ -93,22 +104,55 @@ const InventoryScreen = () => {
       };
 
       const slotName = slotMap[selectedItem.category];
+      
       if (slotName) {
-        unequipItem(slotName);
-        setSelectedItem(null);
+        try {
+          setActionLoading(true);
+          await unequipItem(slotName);
+          setSelectedItem(null);
+        } catch (error) {
+          console.error("[InventoryScreen] Failed to unequip item:", error);
+        } finally {
+          setActionLoading(false);
+        }
       }
     }
   };
 
   const canUnequipItem = (item: InventoryItem | null): boolean => {
     if (!item) return false;
-    // Only pets and accessories can be unequipped
-    return item.category === "pets" || item.category === "accessories";
+    // Only pets, accessories, and weapons can be unequipped
+    return (
+      item.category === "pets" ||
+      item.category === "accessories" ||
+      item.category === "weapons"
+    );
   };
 
   const hasAnyItems = INVENTORY_CATEGORIES.some(
     (cat) => inventory[cat.key].length > 0
   );
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color={colorPallet.primary} />
+        <Text style={styles.loadingText}>Loading inventory...</Text>
+      </View>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <View style={styles.centerContainer}>
+        <Ionicons name="alert-circle" size={64} color={colorPallet.critical} />
+        <Text style={styles.errorText}>Failed to load inventory</Text>
+        <Text style={styles.errorSubtext}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <>
@@ -145,6 +189,13 @@ const InventoryScreen = () => {
         onUnequip={handleUnequipItem}
         onClose={() => setSelectedItem(null)}
       />
+
+      {/* Loading overlay when performing equip/unequip action */}
+      {actionLoading && (
+        <View style={styles.actionLoadingOverlay}>
+          <ActivityIndicator size="large" color={colorPallet.primary} />
+        </View>
+      )}
     </>
   );
 };
@@ -152,6 +203,44 @@ const InventoryScreen = () => {
 const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 32,
+  },
+  centerContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: colorPallet.neutral_darkest,
+    paddingHorizontal: 40,
+    gap: 12,
+  },
+  loadingText: {
+    ...typography.body,
+    fontSize: 16,
+    color: colorPallet.neutral_3,
+    marginTop: 8,
+  },
+  errorText: {
+    ...typography.h2,
+    fontSize: 20,
+    color: colorPallet.critical,
+    fontWeight: "700",
+    marginTop: 8,
+  },
+  errorSubtext: {
+    ...typography.body,
+    fontSize: 14,
+    color: colorPallet.neutral_3,
+    textAlign: "center",
+  },
+  actionLoadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1000,
   },
 });
 

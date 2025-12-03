@@ -36,6 +36,36 @@ type InventoryItemCardProps = {
 };
 
 // ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Get image positioning adjustments based on item category
+ * Different item types are positioned differently on the 64x64 canvas
+ */
+function getImageStyle(category: string) {
+  const adjustments: Record<string, { scale: number; translateX?: number; translateY?: number }> = {
+    backgrounds: { scale: 1.0 },
+    bodies: { scale: 1.5, translateY: -12 },
+    arms: { scale: 1.5, translateY: -12 },
+    heads: { scale: 1.5, translateY: 0 },
+    accessories: { scale: 1.5, translateY: 0 },
+    weapons: { scale: 1.2, translateX: 2, translateY: -2 },
+    pets: { scale: 1.2, translateY: 2 },
+  };
+
+  const adjustment = adjustments[category] || { scale: 1.2 };
+  
+  return {
+    transform: [
+      { scale: adjustment.scale },
+      { translateX: adjustment.translateX || 0 },
+      { translateY: adjustment.translateY || 0 },
+    ],
+  };
+}
+
+// ============================================================================
 // Component
 // ============================================================================
 
@@ -58,12 +88,12 @@ const InventoryItemCard = ({
       <View style={styles.itemImageContainer}>
         <Image
           source={item.image}
-          style={styles.itemImage}
+          style={[styles.itemImage, getImageStyle(item.category)]}
           resizeMode="contain"
         />
         {isEquipped && (
           <View style={styles.equippedBadge}>
-            <Ionicons name="checkmark" size={12} color="white" />
+            <Ionicons name="checkmark" size={12} color={colorPallet.neutral_darkest} />
           </View>
         )}
       </View>
@@ -86,7 +116,7 @@ const styles = StyleSheet.create({
   itemCard: {
     width: "30%",
     aspectRatio: 1,
-    backgroundColor: colorPallet.neutral_6,
+    backgroundColor: colorPallet.neutral_4,
     borderRadius: 12,
     borderWidth: 2,
     overflow: "hidden",
@@ -97,14 +127,14 @@ const styles = StyleSheet.create({
   },
   itemImageContainer: {
     flex: 1,
-    backgroundColor: colorPallet.neutral_darkest,
+    backgroundColor: colorPallet.neutral_4,
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
   },
   itemImage: {
-    width: "80%",
-    height: "80%",
+    width: "100%",
+    height: "100%",
   },
   equippedBadge: {
     position: "absolute",
@@ -125,7 +155,7 @@ const styles = StyleSheet.create({
   itemName: {
     ...typography.body,
     fontSize: 11,
-    color: colorPallet.neutral_2,
+  
     fontWeight: "600",
     textAlign: "center",
   },
