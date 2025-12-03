@@ -42,6 +42,36 @@ type EquipmentSlotItemProps = {
 };
 
 // ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Get image positioning adjustments based on item category
+ * Different item types are positioned differently on the 64x64 canvas
+ */
+function getImageStyle(category: string) {
+  const adjustments: Record<string, { scale: number; translateX?: number; translateY?: number }> = {
+    backgrounds: { scale: 1.0 },
+    bodies: { scale: 1.5, translateY: -12 },
+    arms: { scale: 1.5, translateY: -12 },
+    heads: { scale: 1.5, translateY: 0 },
+    accessories: { scale: 1.5, translateY: 0 },
+    weapons: { scale: 1.5, translateX: 2, translateY: -12 },
+    pets: { scale: 1.5, translateY: 2 },
+  };
+
+  const adjustment = adjustments[category] || { scale: 1.2 };
+  
+  return {
+    transform: [
+      { scale: adjustment.scale },
+      { translateX: adjustment.translateX || 0 },
+      { translateY: adjustment.translateY || 0 },
+    ],
+  };
+}
+
+// ============================================================================
 // Equipment Slot Component
 // ============================================================================
 
@@ -65,7 +95,7 @@ function EquipmentSlotItem({
         {item?.image ? (
           <Image
             source={item.image}
-            style={styles.slotImage}
+            style={[styles.slotImage, getImageStyle(item.category)]}
             resizeMode="contain"
           />
         ) : (
@@ -74,9 +104,9 @@ function EquipmentSlotItem({
           </View>
         )}
       </View>
-      <Text style={styles.slotLabel} numberOfLines={1}>
+      {/* <Text style={styles.slotLabel} numberOfLines={1}>
         {slotName}
-      </Text>
+      </Text> */}
     </TouchableOpacity>
   );
 }
@@ -353,25 +383,25 @@ const styles = StyleSheet.create({
   leftSlots: {
     position: "absolute",
     left: 8,
-    top: "10%",
+    top: "5%",
     zIndex: 100,
     gap: 8,
   },
   rightSlots: {
     position: "absolute",
     right: 8,
-    top: "10%",
+    top: "5%",
     zIndex: 100,
     gap: 8,
   },
   slotContainer: {
-    width: 60,
+    width: 70,
     alignItems: "center",
     marginBottom: 4,
   },
   slotImageContainer: {
-    width: 60,
-    height: 60,
+    width: 70,
+    height: 70,
     borderRadius: 8,
     borderWidth: 2,
     backgroundColor: colorPallet.neutral_6,

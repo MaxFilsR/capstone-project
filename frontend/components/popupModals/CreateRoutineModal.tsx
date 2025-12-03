@@ -1,3 +1,12 @@
+/**
+ * Create Routine Modal Component
+ * 
+ * Modal for creating a new workout routine with exercise selection and configuration.
+ * Allows searching and adding exercises, setting metrics (sets/reps/distance), and
+ * reordering exercises. Validates routine name and exercise list before saving.
+ * Shows confirmation alerts for removals and success/error states.
+ */
+
 import React, { useState, useMemo } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { Exercise, RoutineExercise } from "@/api/endpoints";
@@ -11,9 +20,17 @@ import ExerciseSearchList from "../ExerciseSearchList";
 import SelectedExercisesList from "../SelectedExercisesList";
 import Alert from "./Alert";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type CreateRoutineModalProps = {
   onClose: () => void;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
   const { exercises } = useWorkoutLibrary();
@@ -41,6 +58,9 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
     onConfirmAction: undefined,
   });
 
+  /**
+   * Filter exercises based on search query
+   */
   const filteredExercises = useMemo(() => {
     if (!searchQuery.trim()) return [];
     return exercises
@@ -54,6 +74,9 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
       .slice(0, 20);
   }, [searchQuery, exercises]);
 
+  /**
+   * Validate and save routine
+   */
   const handleSave = async () => {
     if (!routineName.trim()) {
       setAlert({
@@ -115,12 +138,18 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
     }
   };
 
+  /**
+   * Add exercise to routine with unique ID
+   */
   const addExercise = (exercise: Exercise) => {
     const uniqueId = `${exercise.id}-${Date.now()}`;
     setSelectedExercises([...selectedExercises, { ...exercise, uniqueId }]);
     setSearchQuery("");
   };
 
+  /**
+   * Remove exercise with confirmation
+   */
   const removeExercise = (uniqueId: string) => {
     setAlert({
       visible: true,
@@ -140,6 +169,9 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
     });
   };
 
+  /**
+   * Reorder exercises in the list
+   */
   const moveExercise = (fromIndex: number, direction: "up" | "down") => {
     const toIndex = direction === "up" ? fromIndex - 1 : fromIndex + 1;
     if (toIndex < 0 || toIndex >= selectedExercises.length) return;
@@ -152,6 +184,9 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
     setSelectedExercises(newList);
   };
 
+  /**
+   * Update metrics for an exercise
+   */
   const updateExerciseMetric = (
     uniqueId: string,
     field: string,
@@ -181,7 +216,7 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Header Bar */}
+      {/* Header bar with save button */}
       <View
         style={{
           flexDirection: "row",
@@ -221,6 +256,7 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
         </TouchableOpacity>
       </View>
 
+      {/* Routine content */}
       <ScrollView
         style={{
           flex: 1,
@@ -254,6 +290,7 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
         />
       </ScrollView>
 
+      {/* Alert dialog */}
       <Alert
         visible={alert.visible}
         mode={alert.mode}
