@@ -10,6 +10,7 @@ use {
         post,
         web,
     },
+    rand::seq::IndexedRandom,
     serde::Deserialize,
     sqlx::PgPool,
 };
@@ -72,6 +73,9 @@ async fn onboarding(
     .await
     .unwrap();
 
+    let inventory = populate_inventory(pool.get_ref()).await;
+    let equipped = populate_equipped(&inventory);
+
     let _query = sqlx::query!(
         r#"
             INSERT INTO characters (user_id, username, class, level, exp_leftover, pending_stat_points, streak, equipped, inventory)
@@ -84,8 +88,8 @@ async fn onboarding(
         0,
         0,
         0,
-        Equipped::default() as Equipped,
-    	Inventory::default() as Inventory,
+        equipped as Equipped,
+    	inventory as Inventory,
     )
     .execute(pool.get_ref())
     .await
@@ -104,4 +108,49 @@ async fn onboarding(
     .unwrap();
 
     return Ok(HttpResponse::Ok().into());
+}
+
+pub async fn populate_inventory(pool: &PgPool) -> Inventory {
+    let mut inventory = Inventory::default();
+
+    let query = sqlx::query!(
+        r#"
+            SELECT id, category as "category: ItemCategory"
+            FROM items
+            WHERE rarity = 'default'
+        "#
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap();
+
+    for record in query {
+        let vec = match record.category {
+            ItemCategory::Arm => &mut inventory.arms,
+            ItemCategory::Background => &mut inventory.backgrounds,
+            ItemCategory::Body => &mut inventory.bodies,
+            ItemCategory::Head => &mut inventory.heads,
+            // TODO: For some reason there is an error if the enum variant is not called `Head_Accessory` rather than the prefered `HeadAccessory`
+            ItemCategory::Head_Accessory => &mut inventory.head_accessories,
+            ItemCategory::Pet => &mut inventory.pets,
+            ItemCategory::Weapon => &mut inventory.weapons,
+        };
+        vec.push(record.id);
+    }
+
+    return inventory;
+}
+
+pub fn populate_equipped(inventory: &Inventory) -> Equipped {
+    let equipped = Equipped {
+        arms: *inventory.arms.choose(&mut rand::rng()).unwrap(),
+        background: *inventory.backgrounds.choose(&mut rand::rng()).unwrap(),
+        body: *inventory.bodies.choose(&mut rand::rng()).unwrap(),
+        head: *inventory.heads.choose(&mut rand::rng()).unwrap(),
+        head_accessory: inventory.head_accessories.choose(&mut rand::rng()).cloned(),
+        pet: inventory.pets.choose(&mut rand::rng()).cloned(),
+        weapon: inventory.weapons.choose(&mut rand::rng()).cloned(),
+    };
+
+    return equipped;
 }

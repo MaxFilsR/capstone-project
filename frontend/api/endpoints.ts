@@ -17,4 +17,5 @@ export * from "./modules/workouts";
 export * from "./modules/routines";
 export * from "./modules/social";
 export * from "./modules/quests";
+export * from "./modules/inventory";
 export * from "./modules/stats";

@@ -227,7 +227,7 @@ async fn workout_applies_to_quest(
             r#"
                 SELECT category as "category: ExerciseCategory"
                 FROM exercises
-                WHERE id = ANY($1)
+                WHERE id = ANY($1);
             "#,
             &ids
         )
@@ -249,7 +249,7 @@ async fn workout_applies_to_quest(
             r#"
                 SELECT primary_muscles as "primary_muscles: Vec<ExerciseMuscle>", secondary_muscles as "secondary_muscles: Vec<ExerciseMuscle>"
                 FROM exercises
-                WHERE id = ANY($1)
+                WHERE id = ANY($1);
             "#,
             &ids
         )
@@ -257,10 +257,11 @@ async fn workout_applies_to_quest(
         .await
         .unwrap();
 
-        flag &= query
-            .iter()
-            .flat_map(|record| &record.primary_muscles)
-            .chain(query.iter().flat_map(|record| &record.secondary_muscles))
+        let primary_muscles = query.iter().flat_map(|record| &record.primary_muscles);
+        let secondary_muscles = query.iter().flat_map(|record| &record.secondary_muscles);
+
+        flag &= primary_muscles
+            .chain(secondary_muscles)
             .collect::<Vec<&ExerciseMuscle>>()
             .contains(&exercise_muscle);
     }
