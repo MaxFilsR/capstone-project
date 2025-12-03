@@ -4,7 +4,7 @@
 -- DELETE FROM items;
 -- DELETE FROM user_items;
 -- DELETE FROM user_equipment;
--- DELETE FROM shop_rotations;
+-- DELETE FROM shop;
 -- DELETE FROM classes;
 -- DELETE FROM exercies;
 -- DELETE FROM routines;
@@ -22,7 +22,7 @@ DROP TABLE IF EXISTS "user_items";
 
 DROP TABLE IF EXISTS "user_equipment";
 
-DROP TABLE IF EXISTS "shop_rotations";
+DROP TABLE IF EXISTS "shop";
 
 DROP TABLE IF EXISTS "classes";
 

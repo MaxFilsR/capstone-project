@@ -1,3 +1,12 @@
+/**
+ * Inventory Item Modal Component
+ * 
+ * Modal dialog for viewing and managing inventory items. Displays item image,
+ * name, and rarity badge with color-coded styling. Provides equip, unequip, and
+ * close actions. Conditionally shows unequip button only for equipped items that
+ * can be removed.
+ */
+
 import React from "react";
 import {
   View,
@@ -11,12 +20,21 @@ import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
 import { InventoryItem } from "@/lib/inventory-context";
 
-const RARITY_COLORS = {
+// ============================================================================
+// Constants
+// ============================================================================
+
+const RARITY_COLORS: Record<string, string> = {
   common: colorPallet.neutral_3,
   rare: "#3B82F6",
   epic: "#A855F7",
   legendary: "#F59E0B",
+  default: colorPallet.neutral_3, // Fallback for "default" rarity
 };
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type InventoryItemModalProps = {
   visible: boolean;
@@ -27,6 +45,40 @@ type InventoryItemModalProps = {
   onUnequip: () => void;
   onClose: () => void;
 };
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Get image positioning adjustments based on item category
+ * Different item types are positioned differently on the 64x64 canvas
+ */
+function getImageStyle(category: string) {
+  const adjustments: Record<string, { scale: number; translateX?: number; translateY?: number }> = {
+    backgrounds: { scale: 1.0 },
+    bodies: { scale: 1.5, translateY: -24 },
+    arms: { scale: 1.5, translateY: -12 },
+    heads: { scale: 1.5, translateY: 0 },
+    accessories: { scale: 1.5, translateY: 0 },
+    weapons: { scale: 1.2, translateX: 2, translateY: -2 },
+    pets: { scale: 1.2, translateY: 2 },
+  };
+
+  const adjustment = adjustments[category] || { scale: 1.2 };
+  
+  return {
+    transform: [
+      { scale: adjustment.scale },
+      { translateX: adjustment.translateX || 0 },
+      { translateY: adjustment.translateY || 0 },
+    ],
+  };
+}
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const InventoryItemModal = ({
   visible,
@@ -39,6 +91,9 @@ const InventoryItemModal = ({
 }: InventoryItemModalProps) => {
   if (!item) return null;
 
+  // Get rarity color with fallback
+  const rarityColor = RARITY_COLORS[item.rarity] || colorPallet.neutral_3;
+
   return (
     <Modal
       visible={visible}
@@ -48,29 +103,32 @@ const InventoryItemModal = ({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
+          {/* Item image */}
           <View style={styles.modalImageContainer}>
             <Image
               source={item.image}
-              style={styles.modalImage}
+              style={[styles.modalImage, getImageStyle(item.category)]}
               resizeMode="contain"
             />
           </View>
 
+          {/* Item details */}
           <Text style={styles.modalTitle}>{item.name}</Text>
 
           <View
             style={[
               styles.rarityBadge,
-              { backgroundColor: RARITY_COLORS[item.rarity] + "33" },
+              { backgroundColor: rarityColor + "33" },
             ]}
           >
             <Text
-              style={[styles.rarityText, { color: RARITY_COLORS[item.rarity] }]}
+              style={[styles.rarityText, { color: rarityColor }]}
             >
               {item.rarity.toUpperCase()}
             </Text>
           </View>
 
+          {/* Action buttons */}
           <View style={styles.modalButtons}>
             <TouchableOpacity
               style={[styles.modalButton, styles.equipButton]}
@@ -106,6 +164,10 @@ const InventoryItemModal = ({
   );
 };
 
+// ============================================================================
+// Styles
+// ============================================================================
+
 const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
@@ -123,17 +185,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalImageContainer: {
-    width: 120,
-    height: 120,
-    backgroundColor: colorPallet.neutral_darkest,
+    width: 140,
+    height: 140,
+    backgroundColor: colorPallet.neutral_4,
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 16,
   },
   modalImage: {
-    width: "90%",
-    height: "90%",
+    width: "100%",
+    height: "100%",
   },
   modalTitle: {
     ...typography.h2,

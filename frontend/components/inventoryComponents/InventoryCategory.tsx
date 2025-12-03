@@ -1,3 +1,12 @@
+/**
+ * Inventory Category Component
+ * 
+ * Collapsible category section for inventory items with expandable header.
+ * Displays category name, icon, item count, and grid of inventory items when
+ * expanded. Supports equipped state indication and smooth layout animations
+ * on toggle. Shows empty state when no items in category.
+ */
+
 import React from "react";
 import {
   View,
@@ -12,6 +21,10 @@ import { typography } from "@/styles";
 import { InventoryItem } from "@/lib/inventory-context";
 import InventoryItemCard from "./InventoryItemCard";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type InventoryCategoryProps = {
   name: string;
   icon: keyof typeof Ionicons.glyphMap;
@@ -22,6 +35,10 @@ type InventoryCategoryProps = {
   isItemEquipped: (itemId: string) => boolean;
 };
 
+// ============================================================================
+// Component
+// ============================================================================
+
 const InventoryCategory = ({
   name,
   icon,
@@ -31,6 +48,9 @@ const InventoryCategory = ({
   onItemPress,
   isItemEquipped,
 }: InventoryCategoryProps) => {
+  /**
+   * Toggle expansion with smooth layout animation
+   */
   const handleToggle = () => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     onToggle();
@@ -38,7 +58,7 @@ const InventoryCategory = ({
 
   return (
     <View style={styles.categorySection}>
-      {/* Category Header */}
+      {/* Category header with icon and item count */}
       <TouchableOpacity
         style={styles.categoryHeader}
         onPress={handleToggle}
@@ -56,7 +76,7 @@ const InventoryCategory = ({
         />
       </TouchableOpacity>
 
-      {/* Items Grid */}
+      {/* Items grid or empty state */}
       {isExpanded && (
         <View style={styles.itemsGrid}>
           {items.length > 0 ? (
@@ -80,6 +100,10 @@ const InventoryCategory = ({
     </View>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   categorySection: {

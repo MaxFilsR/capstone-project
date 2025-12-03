@@ -9,8 +9,8 @@ use {
     },
     actix_web::{
         HttpResponse,
-        get,
         web,
+        post
     },
     serde::{
         Deserialize,
@@ -39,7 +39,7 @@ pub struct ItemsResponse {
     items: Vec<Item>,
 }
 
-#[get("/constants/items")]
+#[post("/constants/items")]
 pub async fn items(
     pool: web::Data<PgPool>,
     request: web::Json<ItemsRequest>,

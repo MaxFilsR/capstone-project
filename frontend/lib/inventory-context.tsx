@@ -1,40 +1,37 @@
 /**
- * Inventory Context
+ * Inventory Context (Updated for Real API)
  * 
- * Manages character inventory and equipped items state. Provides methods for
- * equipping and unequipping items from various categories (backgrounds, bodies,
- * arms, heads, accessories, weapons, pets). Includes mock inventory data for
- * development and testing.
+ * Manages character inventory and equipped items state with real backend data.
+ * Handles fetching, caching, and synchronizing inventory state with the server.
  */
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { ImageSourcePropType } from "react-native";
+import { useAuth } from "./auth-context";
+import { getCharacter } from "@/api/modules/character";
+import {
+  getItems,
+  equipItem as apiEquipItem,
+  unequipItem as apiUnequipItem,
+  getAllItemIds,
+  reconstructPngImage,
+  ItemData,
+  ItemCategory,
+  ItemRarity,
+} from "@/api/modules/inventory";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-/**
- * Individual inventory item definition
- */
 export type InventoryItem = {
   id: string;
   name: string;
   image: ImageSourcePropType;
   rarity: "common" | "rare" | "epic" | "legendary";
-  category:
-    | "backgrounds"
-    | "bodies"
-    | "arms"
-    | "heads"
-    | "accessories"
-    | "weapons"
-    | "pets";
+  category: "backgrounds" | "bodies" | "arms" | "heads" | "accessories" | "weapons" | "pets";
 };
 
-/**
- * Currently equipped items for character customization
- */
 export type EquippedItems = {
   background: InventoryItem | null;
   body: InventoryItem | null;
@@ -45,9 +42,6 @@ export type EquippedItems = {
   pet: InventoryItem | null;
 };
 
-/**
- * Context value providing inventory state and management methods
- */
 type InventoryContextType = {
   inventory: {
     backgrounds: InventoryItem[];
@@ -59,276 +53,215 @@ type InventoryContextType = {
     pets: InventoryItem[];
   };
   equipped: EquippedItems;
-  equipItem: (item: InventoryItem) => void;
-  unequipItem: (slotName: keyof EquippedItems) => void;
+  isLoading: boolean;
+  error: string | null;
+  equipItem: (item: InventoryItem) => Promise<void>;
+  unequipItem: (slotName: keyof EquippedItems) => Promise<void>;
   isEquipped: (itemId: string) => boolean;
+  refreshInventory: () => Promise<void>;
 };
 
 // ============================================================================
 // Context
 // ============================================================================
 
-const InventoryContext = createContext<InventoryContextType | undefined>(
-  undefined
-);
+const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
 
 // ============================================================================
-// Mock Data
+// Empty Initial State
+// ============================================================================
+
+const EMPTY_INVENTORY = {
+  backgrounds: [],
+  bodies: [],
+  arms: [],
+  heads: [],
+  accessories: [],
+  weapons: [],
+  pets: [],
+};
+
+const EMPTY_EQUIPPED: EquippedItems = {
+  background: null,
+  body: null,
+  arms: null,
+  head: null,
+  headAccessory: null,
+  weapon: null,
+  pet: null,
+};
+
+// ============================================================================
+// Helper Functions
 // ============================================================================
 
 /**
- * Initial mock inventory for development and testing
+ * Map backend category to frontend category name
  */
-const INITIAL_INVENTORY = {
-  backgrounds: [
-    {
-      id: "bg1",
-      name: "Green Background",
-      image: require("@/assets/images/equippedItems/backgrounds/green.png"),
-      rarity: "common" as const,
-      category: "backgrounds" as const,
-    },
-    {
-      id: "bg2",
-      name: "Blue Background",
-      image: require("@/assets/images/equippedItems/backgrounds/blue.png"),
-      rarity: "rare" as const,
-      category: "backgrounds" as const,
-    },
-    {
-      id: "bg3",
-      name: "Purple Background",
-      image: require("@/assets/images/equippedItems/backgrounds/purple.png"),
-      rarity: "epic" as const,
-      category: "backgrounds" as const,
-    },
-    {
-      id: "bg4",
-      name: "Pink Background",
-      image: require("@/assets/images/equippedItems/backgrounds/pink.png"),
-      rarity: "epic" as const,
-      category: "backgrounds" as const,
-    },
-    {
-      id: "bg5",
-      name: "Red Background",
-      image: require("@/assets/images/equippedItems/backgrounds/red.png"),
-      rarity: "epic" as const,
-      category: "backgrounds" as const,
-    },
-  ],
-  bodies: [
-    {
-      id: "body1",
-      name: "Black Male Body",
-      image: require("@/assets/images/equippedItems/bodies/default-black-male-body.png"),
-      rarity: "common" as const,
-      category: "bodies" as const,
-    },
-    {
-      id: "body2",
-      name: "Black Female Body",
-      image: require("@/assets/images/equippedItems/bodies/default-black-female-body.png"),
-      rarity: "common" as const,
-      category: "bodies" as const,
-    },
-    {
-      id: "body3",
-      name: "Brown Male Body",
-      image: require("@/assets/images/equippedItems/bodies/default-brown-male-body.png"),
-      rarity: "common" as const,
-      category: "bodies" as const,
-    },
-    {
-      id: "body4",
-      name: "Brown Female Body",
-      image: require("@/assets/images/equippedItems/bodies/default-brown-female-body.png"),
-      rarity: "common" as const,
-      category: "bodies" as const,
-    },
-    {
-      id: "body5",
-      name: "White Male Body",
-      image: require("@/assets/images/equippedItems/bodies/default-white-male-body.png"),
-      rarity: "common" as const,
-      category: "bodies" as const,
-    },
-    {
-      id: "body6",
-      name: "White Female Body",
-      image: require("@/assets/images/equippedItems/bodies/default-white-female-body.png"),
-      rarity: "common" as const,
-      category: "bodies" as const,
-    },
-    {
-      id: "body7",
-      name: "Ninja Body",
-      image: require("@/assets/images/equippedItems/male-ninja-body-greenblack.png"),
-      rarity: "rare" as const,
-      category: "bodies" as const,
-    },
-    {
-      id: "body8",
-      name: "Warrior Body",
-      image: require("@/assets/images/equippedItems/bodies/black-warrior-body.png"),
-      rarity: "rare" as const,
-      category: "bodies" as const,
-    },
-    {
-      id: "body9",
-      name: "Yellow Bikini",
-      image: require("@/assets/images/equippedItems/brown-female-yellow-bikini.png"),
-      rarity: "rare" as const,
-      category: "bodies" as const,
-    },
-  ],
-  arms: [
-    {
-      id: "arm1",
-      name: "Black Arms",
-      image: require("@/assets/images/equippedItems/arms/default-black-arm.png"),
-      rarity: "common" as const,
-      category: "arms" as const,
-    },
-    {
-      id: "arm2",
-      name: "Brown Arms",
-      image: require("@/assets/images/equippedItems/arms/default-brown-arm.png"),
-      rarity: "common" as const,
-      category: "arms" as const,
-    },
-    {
-      id: "arm3",
-      name: "White Arms",
-      image: require("@/assets/images/equippedItems/arms/default-white-arm.png"),
-      rarity: "common" as const,
-      category: "arms" as const,
-    },
-    {
-      id: "arm4",
-      name: "Ninja Arms",
-      image: require("@/assets/images/equippedItems/black1-male-ninja-arm-green.png"),
-      rarity: "rare" as const,
-      category: "arms" as const,
-    },
-    {
-      id: "arm5",
-      name: "Sweat bands",
-      image: require("@/assets/images/equippedItems/arms/black1-male-arm2.png"),
-      rarity: "rare" as const,
-      category: "arms" as const,
-    },
-  ],
-  heads: [
-    {
-      id: "head1",
-      name: "Black Head",
-      image: require("@/assets/images/equippedItems/heads/black-head.png"),
-      rarity: "common" as const,
-      category: "heads" as const,
-    },
-    {
-      id: "head2",
-      name: "Brown Head",
-      image: require("@/assets/images/equippedItems/heads/brown-head.png"),
-      rarity: "common" as const,
-      category: "heads" as const,
-    },
-    {
-      id: "head3",
-      name: "White Head",
-      image: require("@/assets/images/equippedItems/heads/white-head.png"),
-      rarity: "common" as const,
-      category: "heads" as const,
-    },
-    {
-      id: "head4",
-      name: "Ninja Head",
-      image: require("@/assets/images/equippedItems/black-head-eyepatch.png"),
-      rarity: "rare" as const,
-      category: "heads" as const,
-    },
-  ],
-  accessories: [
-    {
-      id: "acc1",
-      name: "Hair Style 1",
-      image: require("@/assets/images/equippedItems/hair/default-hair1.png"),
-      rarity: "common" as const,
-      category: "accessories" as const,
-    },
-    {
-      id: "acc2",
-      name: "Hair Style 2",
-      image: require("@/assets/images/equippedItems/hair/default-hair2.png"),
-      rarity: "common" as const,
-      category: "accessories" as const,
-    },
-    {
-      id: "acc3",
-      name: "Ninja Mask",
-      image: require("@/assets/images/equippedItems/ninja-mask-6.png"),
-      rarity: "epic" as const,
-      category: "accessories" as const,
-    },
-    {
-      id: "acc4",
-      name: "Helm",
-      image: require("@/assets/images/equippedItems/brown-head-no-hair18.png"),
-      rarity: "epic" as const,
-      category: "accessories" as const,
-    },
-    {
-      id: "acc5",
-      name: "Orange Hair",
-      image: require("@/assets/images/equippedItems/orange-hair-tied.png"),
-      rarity: "epic" as const,
-      category: "accessories" as const,
-    },
-  ],
-  weapons: [
-    {
-      id: "weapon1",
-      name: "Ninja Star",
-      image: require("@/assets/images/equippedItems/ninjastar1.png"),
-      rarity: "rare" as const,
-      category: "weapons" as const,
-    },
-    {
-      id: "weapon2",
-      name: "Bloody Staff",
-      image: require("@/assets/images/equippedItems/staff1.png"),
-      rarity: "rare" as const,
-      category: "weapons" as const,
-    },
-  ],
-  pets: [],
-};
+function mapCategory(backendCategory: string): InventoryItem["category"] {
+  const normalized = backendCategory.toLowerCase();
+  
+  const categoryMap: Record<string, InventoryItem["category"]> = {
+    'head_accessories': 'accessories',
+    'head_accessory': 'accessories',
+    'accessories': 'accessories',
+    'backgrounds': 'backgrounds',
+    'background': 'backgrounds',
+    'bodies': 'bodies',
+    'body': 'bodies',
+    'arms': 'arms',
+    'arm': 'arms',
+    'heads': 'heads',
+    'head': 'heads',
+    'weapons': 'weapons',
+    'weapon': 'weapons',
+    'pets': 'pets',
+    'pet': 'pets',
+  };
+  
+  return categoryMap[normalized] || 'accessories';
+}
+
+/**
+ * Convert item data to InventoryItem
+ */
+function createInventoryItem(itemData: ItemData): InventoryItem {
+  const imageUri = reconstructPngImage(itemData.bytes);
+  
+  // Map rarity, treating "default" as "common"
+  let rarity: ItemRarity = itemData.rarity as ItemRarity;
+  if (itemData.rarity === "default") {
+    rarity = "common";
+  }
+  
+  return {
+    id: itemData.id.toString(),
+    name: itemData.name,
+    image: { uri: imageUri },
+    rarity: rarity,
+    category: mapCategory(itemData.category),
+  };
+}
+
+/**
+ * Map frontend slot name to backend slot name
+ */
+function mapSlotToBackend(slotName: keyof EquippedItems): string {
+  const slotMap: Record<keyof EquippedItems, string> = {
+    background: "background",
+    body: "bodies",
+    arms: "arms",
+    head: "head",
+    headAccessory: "head_accessory",
+    weapon: "weapon",
+    pet: "pet",
+  };
+  return slotMap[slotName];
+}
 
 // ============================================================================
 // Provider Component
 // ============================================================================
 
-/**
- * Inventory Provider component that wraps the app
- */
 export function InventoryProvider({ children }: { children: ReactNode }) {
-  const [inventory] = useState(INITIAL_INVENTORY);
-  const [equipped, setEquipped] = useState<EquippedItems>({
-    background: INITIAL_INVENTORY.backgrounds[0] || null,
-    body: INITIAL_INVENTORY.bodies[0] || null,
-    arms: INITIAL_INVENTORY.arms[0] || null,
-    head: INITIAL_INVENTORY.heads[0] || null,
-    headAccessory: null,
-    weapon: null,
-    pet: null,
-  });
+  const { user } = useAuth();
+  const [inventory, setInventory] = useState(EMPTY_INVENTORY);
+  const [equipped, setEquipped] = useState<EquippedItems>(EMPTY_EQUIPPED);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Fetch and process inventory from backend
+   */
+  const refreshInventory = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const characterData = await getCharacter();
+      const itemIds = getAllItemIds(characterData.inventory, characterData.equipped);
+      const { items } = await getItems({ ids: itemIds });
+
+      // Create a map for quick lookup
+      const itemMap = new Map<number, ItemData>();
+      items.forEach(item => itemMap.set(item.id, item));
+
+      // Helper to create inventory item from ID
+      const createItem = (itemId: number): InventoryItem | null => {
+        const itemData = itemMap.get(itemId);
+        if (!itemData) return null;
+        return createInventoryItem(itemData);
+      };
+
+      // Process inventory by category
+      const processedInventory = {
+        backgrounds: characterData.inventory.backgrounds
+          .map(createItem)
+          .filter((item): item is InventoryItem => item !== null),
+        bodies: characterData.inventory.bodies
+          .map(createItem)
+          .filter((item): item is InventoryItem => item !== null),
+        arms: characterData.inventory.arms
+          .map(createItem)
+          .filter((item): item is InventoryItem => item !== null),
+        heads: characterData.inventory.heads
+          .map(createItem)
+          .filter((item): item is InventoryItem => item !== null),
+        accessories: characterData.inventory.head_accessories
+          .map(createItem)
+          .filter((item): item is InventoryItem => item !== null),
+        weapons: characterData.inventory.weapons
+          .map(createItem)
+          .filter((item): item is InventoryItem => item !== null),
+        pets: characterData.inventory.pets
+          .map(createItem)
+          .filter((item): item is InventoryItem => item !== null),
+      };
+
+      // Process equipped items
+      const processedEquipped: EquippedItems = {
+        background: createItem(characterData.equipped.background) || null,
+        body: createItem(characterData.equipped.bodies) || null,
+        arms: createItem(characterData.equipped.arms) || null,
+        head: createItem(characterData.equipped.head) || null,
+        headAccessory: characterData.equipped.head_accessory
+          ? createItem(characterData.equipped.head_accessory)
+          : null,
+        weapon: characterData.equipped.weapon
+          ? createItem(characterData.equipped.weapon)
+          : null,
+        pet: characterData.equipped.pet
+          ? createItem(characterData.equipped.pet)
+          : null,
+      };
+
+      setInventory(processedInventory);
+      setEquipped(processedEquipped);
+    } catch (err) {
+      console.error("[Inventory Context] Failed to load inventory:", err);
+      setError(err instanceof Error ? err.message : "Failed to load inventory");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  /**
+   * Load inventory on mount and when user changes
+   */
+  useEffect(() => {
+    if (user) {
+      refreshInventory();
+    }
+  }, [user?.profile?.username]);
 
   /**
    * Equip an item to the appropriate slot
+   * 
+   * TODO: Replace local state update with backend API call using apiEquipItem
+   * when /character/equip endpoint is ready. Then call refreshInventory() to sync state.
    */
-  const equipItem = (item: InventoryItem) => {
-    const slotMap: Record<string, keyof EquippedItems> = {
+  const equipItem = async (item: InventoryItem) => {
+    const slotMap: Record<InventoryItem["category"], keyof EquippedItems> = {
       backgrounds: "background",
       bodies: "body",
       arms: "arms",
@@ -339,28 +272,36 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     };
 
     const slotName = slotMap[item.category];
-    if (slotName) {
-      setEquipped((prev) => ({
-        ...prev,
-        [slotName]: item,
-      }));
-    }
+    if (!slotName) return;
+
+    // Update local state only (no backend call)
+    setEquipped((prev) => ({
+      ...prev,
+      [slotName]: item,
+    }));
   };
 
   /**
-   * Unequip an item from the specified slot (only pets, accessories, and weapons)
+   * Unequip an item from the specified slot
+   * 
+   * TODO: Replace local state update with backend API call using apiUnequipItem
+   * when /character/unequip endpoint is ready. Then call refreshInventory() to sync state.
    */
-  const unequipItem = (slotName: keyof EquippedItems) => {
+  const unequipItem = async (slotName: keyof EquippedItems) => {
+    // Only allow unequipping optional slots
     if (
-      slotName === "pet" ||
-      slotName === "headAccessory" ||
-      slotName === "weapon"
+      slotName !== "pet" &&
+      slotName !== "headAccessory" &&
+      slotName !== "weapon"
     ) {
-      setEquipped((prev) => ({
-        ...prev,
-        [slotName]: null,
-      }));
+      return;
     }
+
+    // Update local state only (no backend call)
+    setEquipped((prev) => ({
+      ...prev,
+      [slotName]: null,
+    }));
   };
 
   /**
@@ -372,7 +313,16 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
 
   return (
     <InventoryContext.Provider
-      value={{ inventory, equipped, equipItem, unequipItem, isEquipped }}
+      value={{
+        inventory,
+        equipped,
+        isLoading,
+        error,
+        equipItem,
+        unequipItem,
+        isEquipped,
+        refreshInventory,
+      }}
     >
       {children}
     </InventoryContext.Provider>
@@ -383,9 +333,6 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
 // Hook
 // ============================================================================
 
-/**
- * Hook to access inventory context
- */
 export function useInventory() {
   const context = useContext(InventoryContext);
   if (!context) {
