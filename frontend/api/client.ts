@@ -9,8 +9,8 @@
 import axios from "axios";
 import { storage } from "@/utils/storageHelper";
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
-// const API_BASE_URL = "http://localhost:8080"; 
+// const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+const API_BASE_URL = "http://localhost:8080"; 
 
 /**
  * Configured Axios instance for API requests
