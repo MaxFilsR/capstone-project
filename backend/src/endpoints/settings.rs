@@ -10,6 +10,7 @@ use {
         post,
         web,
     },
+    email_address::EmailAddress,
     once_cell::sync::Lazy,
     serde::Deserialize,
     sqlx::PgPool,
@@ -116,6 +117,11 @@ async fn update_username(
     pool: web::Data<PgPool>,
     request: web::Json<UpdateUsernameRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
+    // Make sure username is not empty
+    if request.username.is_empty() {
+        return Err(ErrorBadRequest("Username cannot be empty"));
+    }
+
     // Check if username is already taken
     let existing_user = sqlx::query!(
         r#"
@@ -160,6 +166,12 @@ async fn update_name(
     pool: web::Data<PgPool>,
     request: web::Json<UpdateNameRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
+    // make sure names are not empty
+    if request.first_name.is_empty() || request.last_name.is_empty() {
+        return Err(ErrorBadRequest("First and last name cannot be empty"));
+    }
+
+    // Update names in settings table
     sqlx::query!(
         r#"
             UPDATE settings
@@ -211,6 +223,11 @@ async fn update_email(
     pool: web::Data<PgPool>,
     request: web::Json<UpdateEmailRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
+    // Validate email format
+    if !EmailAddress::is_valid(&request.email) {
+        return Err(ErrorBadRequest("This email is invalid"));
+    }
+
     // Check if email is already taken since it needs to be unique
     let existing_user = sqlx::query!(
         r#"
