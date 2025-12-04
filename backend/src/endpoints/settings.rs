@@ -103,6 +103,12 @@ struct UpdateClassRequest {
     class_id: i32,
 }
 
+#[derive(Deserialize)]
+struct UpdatePasswordRequest {
+    current_password: String,
+    new_password: String,
+}
+
 // Update username
 #[post("/settings/username")]
 async fn update_username(
@@ -308,5 +314,55 @@ async fn update_class(
 
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Class updated successfully"
+    })))
+}
+
+// Update password 
+#[post("/settings/password")]
+async fn update_password(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+    request: web::Json<UpdatePasswordRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
+    // Validate new password length
+    if request.new_password.len() < 8 {
+        return Err(ErrorBadRequest("New password must be at least 8 characters"));
+    }
+
+    // Verify current password using PostgreSQL's crypt
+    let verification = sqlx::query!(
+        r#"
+            SELECT password = crypt($1, password) AS is_valid
+            FROM users
+            WHERE id = $2
+        "#,
+        request.current_password,
+        user.id
+    )
+    .fetch_one(pool.get_ref())
+    .await
+    .map_err(|e| ErrorBadRequest(format!("Failed to verify password: {}", e)))?;
+
+    let is_valid = verification.is_valid.unwrap_or(false);
+    if !is_valid {
+        return Err(ErrorBadRequest("Current password is incorrect"));
+    }
+
+    // Update password using PostgreSQL's crypt with MD5 salt
+    sqlx::query!(
+        r#"
+            UPDATE users
+            SET password = crypt($1, gen_salt('md5'))
+            WHERE id = $2
+        "#,
+        request.new_password,
+        user.id
+    )
+    .execute(pool.get_ref())
+    .await
+    .map_err(|e| ErrorBadRequest(format!("Failed to update password: {}", e)))?;
+
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "message": "Password updated successfully"
     })))
 }
