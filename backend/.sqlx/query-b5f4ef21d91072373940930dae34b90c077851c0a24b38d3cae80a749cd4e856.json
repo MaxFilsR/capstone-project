@@ -1,0 +1,52 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        UPDATE characters\n        SET class = $2, pending_stat_points = $3\n        WHERE user_id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        {
+          "Custom": {
+            "name": "class",
+            "kind": {
+              "Composite": [
+                [
+                  "name",
+                  "Text"
+                ],
+                [
+                  "stats",
+                  {
+                    "Custom": {
+                      "name": "stats",
+                      "kind": {
+                        "Composite": [
+                          [
+                            "strength",
+                            "Int4"
+                          ],
+                          [
+                            "endurance",
+                            "Int4"
+                          ],
+                          [
+                            "flexibility",
+                            "Int4"
+                          ]
+                        ]
+                      }
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "b5f4ef21d91072373940930dae34b90c077851c0a24b38d3cae80a749cd4e856"
+}

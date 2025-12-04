@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO settings (user_id, first_name, last_name, workout_schedule) \n            VALUES ($1, $2, $3, $4)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Varchar",
+        "Varchar",
+        "BoolArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5a0d802eea266cbe6eff8e22cd0febb4b3ec8097cb8745512824e991dcebbfb0"
+}

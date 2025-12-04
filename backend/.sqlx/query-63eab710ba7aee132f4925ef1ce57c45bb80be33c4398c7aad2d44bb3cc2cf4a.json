@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE characters\n            SET coins = coins + $2\n            WHERE user_id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "63eab710ba7aee132f4925ef1ce57c45bb80be33c4398c7aad2d44bb3cc2cf4a"
+}

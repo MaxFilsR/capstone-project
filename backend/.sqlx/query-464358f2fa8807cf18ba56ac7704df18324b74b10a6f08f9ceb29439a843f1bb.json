@@ -1,0 +1,74 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT id, name, category as \"category: ItemCategory\", rarity as \"rarity: ItemRarity\", path\n            FROM items\n            WHERE id = ANY($1) \n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "category: ItemCategory",
+        "type_info": {
+          "Custom": {
+            "name": "item_category",
+            "kind": {
+              "Enum": [
+                "arm",
+                "background",
+                "body",
+                "head",
+                "head_accessory",
+                "pet",
+                "weapon"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "rarity: ItemRarity",
+        "type_info": {
+          "Custom": {
+            "name": "item_rarity",
+            "kind": {
+              "Enum": [
+                "common",
+                "uncommon",
+                "rare",
+                "epic",
+                "legendary"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "path",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4Array"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "464358f2fa8807cf18ba56ac7704df18324b74b10a6f08f9ceb29439a843f1bb"
+}

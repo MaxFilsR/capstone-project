@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT class as \"class: Class\"\n            FROM characters\n            WHERE user_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "class: Class",
+        "type_info": {
+          "Custom": {
+            "name": "class",
+            "kind": {
+              "Composite": [
+                [
+                  "name",
+                  "Text"
+                ],
+                [
+                  "stats",
+                  {
+                    "Custom": {
+                      "name": "stats",
+                      "kind": {
+                        "Composite": [
+                          [
+                            "strength",
+                            "Int4"
+                          ],
+                          [
+                            "endurance",
+                            "Int4"
+                          ],
+                          [
+                            "flexibility",
+                            "Int4"
+                          ]
+                        ]
+                      }
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "889fa03920f9ddf048390289c78d55f5e353539a702d45947d01ec838d006b03"
+}

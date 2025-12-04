@@ -1,0 +1,26 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                        UPDATE quests\n                        SET number_of_workouts_completed = $2, status = $3\n                        WHERE id = $1\n                    ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        {
+          "Custom": {
+            "name": "quest_status",
+            "kind": {
+              "Enum": [
+                "incomplete",
+                "complete"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "6c72434a5146a60fa66d89f862b2cc2aba967581aedfa32f0c369168d0c1eecd"
+}

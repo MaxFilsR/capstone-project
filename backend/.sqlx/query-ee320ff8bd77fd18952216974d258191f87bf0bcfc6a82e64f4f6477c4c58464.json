@@ -1,0 +1,88 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT fr.id, fr.sender_id, fr.created,\n               c.username, c.class as \"class: Class\", c.level\n        FROM friend_requests fr\n        JOIN characters c ON fr.sender_id = c.user_id\n        WHERE fr.recipient_id = $1\n        ORDER BY fr.created DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "sender_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "created",
+        "type_info": "Timestamp"
+      },
+      {
+        "ordinal": 3,
+        "name": "username",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "class: Class",
+        "type_info": {
+          "Custom": {
+            "name": "class",
+            "kind": {
+              "Composite": [
+                [
+                  "name",
+                  "Text"
+                ],
+                [
+                  "stats",
+                  {
+                    "Custom": {
+                      "name": "stats",
+                      "kind": {
+                        "Composite": [
+                          [
+                            "strength",
+                            "Int4"
+                          ],
+                          [
+                            "endurance",
+                            "Int4"
+                          ],
+                          [
+                            "flexibility",
+                            "Int4"
+                          ]
+                        ]
+                      }
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "level",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "ee320ff8bd77fd18952216974d258191f87bf0bcfc6a82e64f4f6477c4c58464"
+}

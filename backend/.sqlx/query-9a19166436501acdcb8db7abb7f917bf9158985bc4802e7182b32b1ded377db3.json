@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT sender_id, recipient_id\n        FROM friend_requests\n        WHERE id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "sender_id",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "recipient_id",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "9a19166436501acdcb8db7abb7f917bf9158985bc4802e7182b32b1ded377db3"
+}

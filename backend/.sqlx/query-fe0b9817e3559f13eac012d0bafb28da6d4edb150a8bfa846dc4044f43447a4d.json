@@ -1,0 +1,124 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT username,\n               class as \"class: Class\", level, exp_leftover, streak, equipped as \"equipped: Equipped\"\n        FROM characters\n        WHERE user_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "username",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 1,
+        "name": "class: Class",
+        "type_info": {
+          "Custom": {
+            "name": "class",
+            "kind": {
+              "Composite": [
+                [
+                  "name",
+                  "Text"
+                ],
+                [
+                  "stats",
+                  {
+                    "Custom": {
+                      "name": "stats",
+                      "kind": {
+                        "Composite": [
+                          [
+                            "strength",
+                            "Int4"
+                          ],
+                          [
+                            "endurance",
+                            "Int4"
+                          ],
+                          [
+                            "flexibility",
+                            "Int4"
+                          ]
+                        ]
+                      }
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "level",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 3,
+        "name": "exp_leftover",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "streak",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 5,
+        "name": "equipped: Equipped",
+        "type_info": {
+          "Custom": {
+            "name": "equipped",
+            "kind": {
+              "Composite": [
+                [
+                  "arms",
+                  "Int4"
+                ],
+                [
+                  "background",
+                  "Int4"
+                ],
+                [
+                  "bodies",
+                  "Int4"
+                ],
+                [
+                  "head",
+                  "Int4"
+                ],
+                [
+                  "head_accessory",
+                  "Int4"
+                ],
+                [
+                  "pet",
+                  "Int4"
+                ],
+                [
+                  "weapon",
+                  "Int4"
+                ]
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "fe0b9817e3559f13eac012d0bafb28da6d4edb150a8bfa846dc4044f43447a4d"
+}
