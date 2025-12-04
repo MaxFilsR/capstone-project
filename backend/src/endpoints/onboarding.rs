@@ -147,7 +147,7 @@ pub fn populate_equipped(inventory: &Inventory) -> Equipped {
         background: *inventory.backgrounds.choose(&mut rand::rng()).unwrap(),
         body: *inventory.bodies.choose(&mut rand::rng()).unwrap(),
         head: *inventory.heads.choose(&mut rand::rng()).unwrap(),
-        head_accessory: inventory.head_accessories.choose(&mut rand::rng()).cloned(),
+        head_accessory: *inventory.head_accessories.choose(&mut rand::rng()).unwrap(),
         pet: inventory.pets.choose(&mut rand::rng()).cloned(),
         weapon: inventory.weapons.choose(&mut rand::rng()).cloned(),
     };

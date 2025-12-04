@@ -18,6 +18,7 @@ pub mod endpoints {
     pub mod auth;
     pub mod onboarding;
     pub mod settings;
+    pub mod shop;
     pub mod stats;
 }
 pub mod utils {

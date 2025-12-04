@@ -91,6 +91,11 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::settings::update_workout_schedule)
             .service(endpoints::settings::update_email)
             .service(endpoints::settings::update_class)
+            .service(endpoints::settings::update_password)
+            // Shop
+            .service(endpoints::shop::buy_item)
+            .service(endpoints::shop::get_shop)
+            .service(endpoints::shop::refresh_shop)
     })
     .bind(format!("{actix_web_address}:{actix_web_port}"))?
     .run()

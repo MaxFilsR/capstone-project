@@ -195,13 +195,12 @@ CREATE TABLE IF NOT EXISTS
 		background INTEGER REFERENCES items (id)
 	);
 
--- ?
+-- Shop table storing items available for purchase
 CREATE TABLE IF NOT EXISTS
-	shop_rotations (
+	shop (
 		id SERIAL PRIMARY KEY,
 		item_id INTEGER NOT NULL REFERENCES items (id),
-		start_date TIMESTAMP,
-		end_date TIMESTAMP
+		added_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 	);
 
 -- Table storing classes, predefined later in this file

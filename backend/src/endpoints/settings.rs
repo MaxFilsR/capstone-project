@@ -10,6 +10,7 @@ use {
         post,
         web,
     },
+    email_address::EmailAddress,
     once_cell::sync::Lazy,
     serde::Deserialize,
     sqlx::PgPool,
@@ -103,6 +104,12 @@ struct UpdateClassRequest {
     class_id: i32,
 }
 
+#[derive(Deserialize)]
+struct UpdatePasswordRequest {
+    current_password: String,
+    new_password: String,
+}
+
 // Update username
 #[post("/settings/username")]
 async fn update_username(
@@ -110,6 +117,11 @@ async fn update_username(
     pool: web::Data<PgPool>,
     request: web::Json<UpdateUsernameRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
+    // Make sure username is not empty
+    if request.username.is_empty() {
+        return Err(ErrorBadRequest("Username cannot be empty"));
+    }
+
     // Check if username is already taken
     let existing_user = sqlx::query!(
         r#"
@@ -154,6 +166,12 @@ async fn update_name(
     pool: web::Data<PgPool>,
     request: web::Json<UpdateNameRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
+    // make sure names are not empty
+    if request.first_name.is_empty() || request.last_name.is_empty() {
+        return Err(ErrorBadRequest("First and last name cannot be empty"));
+    }
+
+    // Update names in settings table
     sqlx::query!(
         r#"
             UPDATE settings
@@ -205,6 +223,11 @@ async fn update_email(
     pool: web::Data<PgPool>,
     request: web::Json<UpdateEmailRequest>,
 ) -> Result<HttpResponse, actix_web::Error> {
+    // Validate email format
+    if !EmailAddress::is_valid(&request.email) {
+        return Err(ErrorBadRequest("This email is invalid"));
+    }
+
     // Check if email is already taken since it needs to be unique
     let existing_user = sqlx::query!(
         r#"
@@ -308,5 +331,55 @@ async fn update_class(
 
     Ok(HttpResponse::Ok().json(serde_json::json!({
         "message": "Class updated successfully"
+    })))
+}
+
+// Update password 
+#[post("/settings/password")]
+async fn update_password(
+    user: AuthenticatedUser,
+    pool: web::Data<PgPool>,
+    request: web::Json<UpdatePasswordRequest>,
+) -> Result<HttpResponse, actix_web::Error> {
+    // Validate new password length
+    if request.new_password.len() < 8 {
+        return Err(ErrorBadRequest("New password must be at least 8 characters"));
+    }
+
+    // Verify current password using PostgreSQL's crypt
+    let verification = sqlx::query!(
+        r#"
+            SELECT password = crypt($1, password) AS is_valid
+            FROM users
+            WHERE id = $2
+        "#,
+        request.current_password,
+        user.id
+    )
+    .fetch_one(pool.get_ref())
+    .await
+    .map_err(|e| ErrorBadRequest(format!("Failed to verify password: {}", e)))?;
+
+    let is_valid = verification.is_valid.unwrap_or(false);
+    if !is_valid {
+        return Err(ErrorBadRequest("Current password is incorrect"));
+    }
+
+    // Update password using PostgreSQL's crypt with MD5 salt
+    sqlx::query!(
+        r#"
+            UPDATE users
+            SET password = crypt($1, gen_salt('md5'))
+            WHERE id = $2
+        "#,
+        request.new_password,
+        user.id
+    )
+    .execute(pool.get_ref())
+    .await
+    .map_err(|e| ErrorBadRequest(format!("Failed to update password: {}", e)))?;
+
+    Ok(HttpResponse::Ok().json(serde_json::json!({
+        "message": "Password updated successfully"
     })))
 }
