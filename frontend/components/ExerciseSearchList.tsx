@@ -18,8 +18,7 @@ import { FormTextInput } from "./FormTextInput";
 // Constants
 // ============================================================================
 
-const IMAGE_BASE_URL =
-  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
+const IMAGE_BASE_URL = process.env.EXPO_PUBLIC_LIBRARY_IMAGES_BASE_URL;
 
 // ============================================================================
 // Types

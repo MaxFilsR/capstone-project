@@ -8,12 +8,9 @@
 
 import axios from "axios";
 import { storage } from "@/utils/storageHelper";
-import { Platform } from "react-native";
 
-const API_BASE_URL =
-  Platform.OS === "android"
-    ? process.env.EXPO_PUBLIC_API_URL_ANDROID || "http://10.0.2.2:8080"
-    : process.env.EXPO_PUBLIC_API_URL_IOS || "http://localhost:8080";
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+// const API_BASE_URL = "http://localhost:8080"; 
 
 /**
  * Configured Axios instance for API requests
