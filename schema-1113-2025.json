@@ -184,11 +184,6 @@
                   "title": "Stats",
                   "type": "object",
                   "properties": {
-                    "vitality": {
-                      "$id": "#root/constants/classes/response/stats/vitality",
-                      "title": "Vitality",
-                      "type": "integer"
-                    },
                     "strength": {
                       "$id": "#root/constants/classes/response/stats/strength",
                       "title": "Strength",
@@ -199,9 +194,9 @@
                       "title": "Endurance",
                       "type": "integer"
                     },
-                    "agility": {
-                      "$id": "#root/constants/classes/response/stats/agility",
-                      "title": "Agility",
+                    "flexibility": {
+                      "$id": "#root/constants/classes/response/stats/flexibility",
+                      "title": "Flexibility",
                       "type": "integer"
                     }
                   }
@@ -308,45 +303,187 @@
               "title": "Routines",
               "type": "object",
               "properties": {
-                "name": {
-                  "$id": "#root/nav/workouts/routines/name",
-                  "title": "Name",
-                  "type": "string"
-                },
-                "exercises": {
-                  "$id": "#root/nav/workouts/routines/exercises",
-                  "title": "Exercises",
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "$id": "#root/nav/workouts/routines/exercises/id",
-                        "title": "Id",
-                        "type": "integer"
-                      },
-                      "sets":{
-                        "$id": "#root/nav/workouts/routines/exercises/sets",
-                        "title": "Sets",
-                        "type": "integer"
-                      },
-                      "reps": {
-                        "$id": "#root/nav/workouts/routines/exercises/reps",
-                        "title": "Reps",
-                        "type": "integer"
-                      },
-                      "weight": {
-                        "$id": "#root/nav/workouts/routines/exercises/weight",
-                        "title": "Weight",
-                        "type": "number"
-                      },
-                      "distance": {
-                        "$id": "#root/nav/workouts/routines/exercises/distance",
-                        "title": "Distance",
-                        "type": "number"
+                "request": {
+                  "$id": "#root/nav/workouts/routines/request",
+                  "title": "Request",
+                  "type": "object",
+                  "properties": {
+                    "post":{
+                      "$id": "#root/nav/workouts/routines/request/post",
+                      "title": "Post",
+                      "type": "object",
+                      "properties": {
+                        "name": {
+                          "$id": "#root/nav/workouts/routines/request/post/name",
+                            "title": "Name",
+                            "type": "string"
+                          },
+                          "exercises": {
+                            "$id": "#root/nav/workouts/routines/request/post/exercises",
+                            "title": "Exercises",
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "$id": "#root/nav/workouts/routines/request/post/id",
+                                  "title": "Id",
+                                  "type": "integer"
+                                },
+                                "sets":{
+                                  "$id": "#root/nav/workouts/routines/request/post/sets",
+                                  "title": "Sets",
+                                  "type": "integer"
+                                },
+                                "reps": {
+                                  "$id": "#root/nav/workouts/routines/request/post/reps",
+                                  "title": "Reps",
+                                  "type": "integer"
+                                },
+                                "weight": {
+                                  "$id": "#root/nav/workouts/routines/request/post/weight",
+                                  "title": "Weight",
+                                  "type": "number"
+                                },
+                                "distance": {
+                                  "$id": "#root/nav/workouts/routines/request/post/distance",
+                                  "title": "Distance",
+                                  "type": "number"
+                                }
+                              }
+                            }
+                        }
+                      }
+                    },
+                    "put":{
+                      "$id": "#root/nav/workouts/routines/request/put",
+                      "title": "Put",
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "$id": "#root/nav/workouts/routines/request/put/id",
+                          "title": "Id",
+                          "type": "integer"
+                        },
+                        "name": {
+                          "$id": "#root/nav/workouts/routines/request/put/name",
+                          "title": "Name",
+                          "type": "string"
+                        },
+                        "exercises": {
+                          "$id": "#root/nav/workouts/routines/request/put/exercises",
+                          "title": "Exercises",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "$id": "#root/nav/workouts/routines/request/put/id",
+                                "title": "Id",
+                                "type": "integer"
+                              },
+                              "sets":{
+                                "$id": "#root/nav/workouts/routines/request/put/sets",
+                                "title": "Sets",
+                                "type": "integer"
+                              },
+                              "reps": {
+                                "$id": "#root/nav/workouts/routines/request/put/reps",
+                                "title": "Reps",
+                                "type": "integer"
+                              },
+                              "weight": {
+                                "$id": "#root/nav/workouts/routines/request/put/weight",
+                                "title": "Weight",
+                                "type": "number"
+                              },
+                              "distance": {
+                                "$id": "#root/nav/workouts/routines/request/put/distance",
+                                "title": "Distance",
+                                "type": "number"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "delete":{
+                      "$id": "#root/nav/workouts/routines/request/delete",
+                      "title": "Delete",
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "$id": "#root/nav/workouts/routines/request/delete/id",
+                          "title": "Id",
+                          "type": "integer"
+                        }
                       }
                     }
                   }
+                },
+                "response": {
+                  "$id": "#root/nav/workouts/routines/response",
+                  "title": "Response",
+                  "type": "object",
+                  "properties": {
+                    "get":{
+                      "$id": "#root/nav/workouts/routines/response/get",
+                      "title": "Get",
+                      "type": "object",
+                      "properties": {
+                        "routines": {
+                          "$id": "#root/nav/workouts/routines/response/get/routines",
+                          "title": "Routines",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "$id": "#root/nav/workouts/routines/response/get/name",
+                                "title": "Name",
+                                "type": "string"
+                              },
+                              "exercises": {
+                                "$id": "#root/nav/workouts/routines/response/get/exercises",
+                                "title": "Exercises",
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "id": {
+                                      "$id": "#root/nav/workouts/routines/response/get/id",
+                                      "title": "Id",
+                                      "type": "integer"
+                                    },
+                                    "sets":{
+                                      "$id": "#root/nav/workouts/routines/response/get/sets",
+                                      "title": "Sets",
+                                      "type": "integer"
+                                    },
+                                    "reps": {
+                                      "$id": "#root/nav/workouts/routines/response/get/reps",
+                                      "title": "Reps",
+                                      "type": "integer"
+                                    },
+                                    "weight": {
+                                      "$id": "#root/nav/workouts/routines/response/get/weight",
+                                      "title": "Weight",
+                                      "type": "number"
+                                    },
+                                    "distance": {
+                                      "$id": "#root/nav/workouts/routines/response/get/distance",
+                                      "title": "Distance",
+                                      "type": "number"
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  } 
                 }
               }
             },
@@ -354,7 +491,149 @@
               "$id": "#root/nav/workouts/history",
               "title": "History",
               "type": "object",
-              "properties": {}
+              "properties": {
+                "get": {
+                  "$id": "#root/nav/workouts/history/get",
+                  "title": "Get",
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "$id": "#root/nav/workouts/history/get/id",
+                      "title": "Id",
+                      "type": "integer"
+                    },
+                    "name": {
+                      "$id": "#root/nav/workouts/history/get/name",
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "exercises": {
+                      "$id": "#root/nav/workouts/history/get/exercises",
+                      "title": "Exercises",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "$id": "#root/nav/workouts/history/get/id",
+                            "title": "Id",
+                            "type": "integer"
+                          },
+                          "sets":{
+                            "$id": "#root/nav/workouts/history/get/sets",
+                            "title": "Sets",
+                            "type": "integer"
+                          },
+                          "reps": {
+                            "$id": "#root/nav/workouts/history/get/reps",
+                            "title": "Reps",
+                            "type": "integer"
+                          },
+                          "weight": {
+                            "$id": "#root/nav/workouts/history/get/weight",
+                            "title": "Weight",
+                            "type": "number"
+                          },
+                          "distance": {
+                            "$id": "#root/nav/workouts/history/get/distance",
+                            "title": "Distance",
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "date": {
+                      "$id": "#root/nav/workouts/history/get/date",
+                      "title": "Date",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "duration": {
+                      "$id": "#root/nav/workouts/history/get/duration",
+                      "title": "Duration",
+                      "type": "integer"
+                    },
+                    "points": {
+                      "$id": "#root/nav/workouts/history/get/points",
+                      "title": "Points",
+                      "type": "integer"
+                    },
+                    "coins": {
+                      "$id": "#root/nav/workouts/history/get/coins",
+                      "title": "Coins",
+                      "type": "integer"
+                    }
+                  }
+                },
+                "post": {
+                  "$id": "#root/nav/workouts/history/post",
+                  "title": "Post",
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "$id": "#root/nav/workouts/history/post/name",
+                      "title": "Name",
+                      "type": "string"
+                    },
+                    "exercises": {
+                      "$id": "#root/nav/workouts/history/post/exercises",
+                      "title": "Exercises",
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "$id": "#root/nav/workouts/history/post/id",
+                            "title": "Id",
+                            "type": "integer"
+                          },
+                          "sets":{
+                            "$id": "#root/nav/workouts/history/post/sets",
+                            "title": "Sets",
+                            "type": "integer"
+                          },
+                          "reps": {
+                            "$id": "#root/nav/workouts/history/post/reps",
+                            "title": "Reps",
+                            "type": "integer"
+                          },
+                          "weight": {
+                            "$id": "#root/nav/workouts/history/post/weight",
+                            "title": "Weight",
+                            "type": "number"
+                          },
+                          "distance": {
+                            "$id": "#root/nav/workouts/history/post/distance",
+                            "title": "Distance",
+                            "type": "number"
+                          }
+                        }
+                      }
+                    },
+                    "date": {
+                      "$id": "#root/nav/workouts/history/post/date",
+                      "title": "Date",
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "duration": {
+                      "$id": "#root/nav/workouts/history/post/duration",
+                      "title": "Duration",
+                      "type": "integer"
+                    },
+                    "points": {
+                      "$id": "#root/nav/workouts/history/post/points",
+                      "title": "Points",
+                      "type": "integer"
+                    },
+                    "coins": {
+                      "$id": "#root/nav/workouts/history/post/coins",
+                      "title": "Coins",
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
             }
           }
         },
@@ -362,7 +641,26 @@
           "$id": "#root/nav/social",
           "title": "Social",
           "type": "object",
-          "properties": {}
+          "properties": {
+            "friends": {
+              "$id": "#root/nav/social/friends",
+              "title": "Friends",
+              "type": "object",
+              "properties": {}
+            },
+            "leaderboards": {
+              "$id": "#root/nav/social/leaderboards",
+              "title": "Leaderboards",
+              "type": "object",
+              "properties": {}
+            },
+            "friend-requests": {
+              "$id": "#root/nav/social/friend-requests",
+              "title": "Friend-requests",
+              "type": "object",
+              "properties": {}
+            }
+          }
         },
         "character": {
           "$id": "#root/nav/character",
@@ -379,6 +677,12 @@
         "stats": {
           "$id": "#root/nav/stats",
           "title": "Stats",
+          "type": "object",
+          "properties": {}
+        },
+        "settings": {
+          "$id": "#root/nav/settings",
+          "title": "Settings",
           "type": "object",
           "properties": {}
         }
