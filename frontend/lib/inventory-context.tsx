@@ -1,5 +1,5 @@
 /**
- * Inventory Context (Updated for Real API)
+ * Inventory Context 
  * 
  * Manages character inventory and equipped items state with real backend data.
  * Handles fetching, caching, and synchronizing inventory state with the server.
@@ -143,21 +143,7 @@ function createInventoryItem(itemData: ItemData): InventoryItem {
   };
 }
 
-/**
- * Map frontend slot name to backend slot name
- */
-function mapSlotToBackend(slotName: keyof EquippedItems): string {
-  const slotMap: Record<keyof EquippedItems, string> = {
-    background: "background",
-    body: "bodies",
-    arms: "arms",
-    head: "head",
-    headAccessory: "head_accessory",
-    weapon: "weapon",
-    pet: "pet",
-  };
-  return slotMap[slotName];
-}
+
 
 // ============================================================================
 // Provider Component
@@ -221,7 +207,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
       // Process equipped items
       const processedEquipped: EquippedItems = {
         background: createItem(characterData.equipped.background) || null,
-        body: createItem(characterData.equipped.bodies) || null,
+        body: createItem(characterData.equipped.body) || null,
         arms: createItem(characterData.equipped.arms) || null,
         head: createItem(characterData.equipped.head) || null,
         headAccessory: characterData.equipped.head_accessory

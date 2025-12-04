@@ -1274,5 +1274,205 @@
         "category": "arm",
         "rarity": "common",
         "path": "./arms/Wizard-arm5.png"
+    },
+    {
+        "name": "Blue Cat",
+        "category": "pet",
+        "rarity": "rare",
+        "path": "./pets/pet-cat-blue.png"
+    },
+    {
+        "name": "Grey Cat",
+        "category": "pet",
+        "rarity": "rare",
+        "path": "./pets/pet-cat-grey.png"
+    },
+    {
+        "name": "Orange Cat",
+        "category": "pet",
+        "rarity": "rare",
+        "path": "./pets/pet-cat-orange.png"
+    },
+    {
+        "name": "Pink Cat",
+        "category": "pet",
+        "rarity": "rare",
+        "path": "./pets/pet-cat-pink.png"
+    },
+    {
+        "name": "White Cat",
+        "category": "pet",
+        "rarity": "rare",
+        "path": "./pets/pet-cat-white.png"
+    },
+    {
+        "name": "Blue Dog",
+        "category": "pet",
+        "rarity": "rare",
+        "path": "./pets/pet-dog-blue.png"
+    },
+    {
+        "name": "Grey Dog",
+        "category": "pet",
+        "rarity": "rare",
+        "path": "./pets/pet-dog-grey.png"
+    },
+    {
+        "name": "Beige Dog",
+        "category": "pet",
+        "rarity": "rare",
+        "path": "./pets/pet-dog-beige.png"
+    },
+    {
+        "name": "Pink Dog",
+        "category": "pet",
+        "rarity": "rare",
+        "path": "./pets/pet-dog-pink.png"
+    },
+    {
+        "name": "Purple Dog",
+        "category": "pet",
+        "rarity": "rare",
+        "path": "./pets/pet-cat-purple.png"
+    },
+    {
+        "name": "Blue Mouse",
+        "category": "pet",
+        "rarity": "epic",
+        "path": "./pets/pet-mouse-blue.png"
+    },
+    {
+        "name": "Brown Mouse",
+        "category": "pet",
+        "rarity": "epic",
+        "path": "./pets/pet-mouse-brown.png"
+    },
+    {
+        "name": "Grey Mouse",
+        "category": "pet",
+        "rarity": "epic",
+        "path": "./pets/pet-mouse-grey.png"
+    },
+    {
+        "name": "Pink Mouse",
+        "category": "pet",
+        "rarity": "epic",
+        "path": "./pets/pet-mouse-pink.png"
+    },
+    {
+        "name": "White Mouse",
+        "category": "pet",
+        "rarity": "epic",
+        "path": "./pets/pet-mouse-white.png"
+    },
+    {
+        "name": "Blue Bunny",
+        "category": "pet",
+        "rarity": "epic",
+        "path": "./pets/pet-bunny-blue.png"
+    },
+    {
+        "name": "Beige Bunny",
+        "category": "pet",
+        "rarity": "epic",
+        "path": "./pets/pet-bunny-beige.png"
+    },
+    {
+        "name": "Brown Bunny",
+        "category": "pet",
+        "rarity": "epic",
+        "path": "./pets/pet-bunny-brown.png"
+    },
+    {
+        "name": "Grey Bunny",
+        "category": "pet",
+        "rarity": "epic",
+        "path": "./pets/pet-bunny-grey.png"
+    },
+    {
+        "name": "White Bunny",
+        "category": "pet",
+        "rarity": "epic",
+        "path": "./pets/pet-bunny-white.png"
+    },
+    {
+        "name": "Red Fox",
+        "category": "pet",
+        "rarity": "legendary",
+        "path": "./pets/pet-fox-red.png"
+    },
+    {
+        "name": "Grey Fox",
+        "category": "pet",
+        "rarity": "legendary",
+        "path": "./pets/pet-fox-grey.png"
+    },
+    {
+        "name": "Orange Fox",
+        "category": "pet",
+        "rarity": "legendary",
+        "path": "./pets/pet-fox-orange.png"
+    },
+    {
+        "name": "Purple Fox",
+        "category": "pet",
+        "rarity": "legendary",
+        "path": "./pets/pet-fox-purple.png"
+    },
+    {
+        "name": "Blue Fox",
+        "category": "pet",
+        "rarity": "legendary",
+        "path": "./pets/pet-fox-blue.png"
+    },
+    {
+        "name": "Blue Bear",
+        "category": "pet",
+        "rarity": "legendary",
+        "path": "./pets/pet-bear-blue.png"
+    },
+    {
+        "name": "Brown Bear",
+        "category": "pet",
+        "rarity": "legendary",
+        "path": "./pets/pet-bear-blue.png"
+    },
+    {
+        "name": "Pink Bear",
+        "category": "pet",
+        "rarity": "legendary",
+        "path": "./pets/pet-bear-pink.png"
+    },
+    {
+        "name": "Purple Bear",
+        "category": "pet",
+        "rarity": "legendary",
+        "path": "./pets/pet-bear-purple.png"
+    },
+    {
+        "name": "White Bear",
+        "category": "pet",
+        "rarity": "legendary",
+        "path": "./pets/pet-bear-white.png"
+    },
+    {
+        "name": "Green Frog",
+        "category": "pet",
+        "rarity": "legendary",
+        "path": "./pets/pet-frog-green.png"
+    },
+    {
+        "name": "Yellow Duck",
+        "category": "pet",
+        "rarity": "legendary",
+        "path": "./pets/pet-duck-yellow.png"
+    },
+    {
+        "name": "Brown Beaver",
+        "category": "pet",
+        "rarity": "legendary",
+        "path": "./pets/pet-beaver-brown.png"
     }
 ]
+
+

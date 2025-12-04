@@ -120,14 +120,6 @@ export default function Index() {
             <CharacterCardInventory
               username={profile.username}
               level={profile.level}
-              equipment={{
-                headAccessory: require("@/assets/images/equippedItems/ninja-mask-6.png"),
-                background: require("@/assets/images/equippedItems/green.png"),
-                body: require("@/assets/images/equippedItems/male-ninja-body-greenblack.png"),
-                arms: require("@/assets/images/equippedItems/black1-male-ninja-arm-green.png"),
-                head: require("@/assets/images/equippedItems/black-head-eyepatch.png"),
-                weapon: require("@/assets/images/equippedItems/ninjastar1.png"),
-              }}
               stats={profile.class.stats}
               availableStatPoints={profile.pending_stat_points}
               onSettingsPress={handleSettingsPress}
