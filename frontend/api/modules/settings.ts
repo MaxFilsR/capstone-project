@@ -34,6 +34,11 @@ export type UpdateClassRequest = {
   class_id: number;
 };
 
+export type UpdatePasswordRequest = {
+  current_password: string;
+  new_password: string;
+};
+
 // ============================================================================
 // API Functions
 // ============================================================================
@@ -75,4 +80,11 @@ export async function updateEmail(payload: UpdateEmailRequest): Promise<void> {
  */
 export async function updateClass(payload: UpdateClassRequest): Promise<void> {
   await apiClient.post("/settings/class", payload);
+}
+
+/**
+ * Update user's password
+ */
+export async function updatePassword(payload: UpdatePasswordRequest): Promise<void> {
+  await apiClient.post("/settings/password", payload);
 }
