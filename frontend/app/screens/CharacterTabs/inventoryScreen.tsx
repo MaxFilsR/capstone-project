@@ -164,6 +164,7 @@ const InventoryScreen = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        
         {INVENTORY_CATEGORIES.map((category) => (
           <InventoryCategory
             key={category.key}
