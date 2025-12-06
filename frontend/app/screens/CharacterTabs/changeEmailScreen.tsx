@@ -1,3 +1,10 @@
+/**
+ * Change Email Screen
+ *
+ * Settings screen for updating user's email address.
+ * Displays current email and validates email format and confirmation match.
+ */
+
 import { useState, useEffect } from "react";
 import { KeyboardAvoidingView, Platform, View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import { router } from "expo-router";
@@ -8,6 +15,11 @@ import { FormTextInput, FormButton, BackButton } from "@/components";
 import { getCharacter, updateEmail } from "@/api/endpoints";
 import axios from "axios";
 
+// ============================================================================
+// Component
+// ============================================================================
+
+
 export default function ChangeEmailScreen() {
   const [currentEmail, setCurrentEmail] = useState<string>("");
   const [newEmail, setNewEmail] = useState("");
@@ -16,12 +28,10 @@ export default function ChangeEmailScreen() {
   const [loading, setLoading] = useState(false);
   const [fetchingProfile, setFetchingProfile] = useState(true);
 
+  // Load current email from profile
   useEffect(() => {
     async function loadProfile() {
       try {
-        // const profile = await getCharacter();
-        // setCurrentEmail(profile.email);
-
         setCurrentEmail("user@example.com");
       } catch (err) {
         console.error("Failed to load profile:", err);
@@ -34,11 +44,13 @@ export default function ChangeEmailScreen() {
     loadProfile();
   }, []);
 
+  // Validate email format
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
+  // Validate and submit email change
   const handleSubmit = async () => {
     if (!newEmail || !confirmEmail) {
       setError("Please fill in all fields");
@@ -168,6 +180,10 @@ export default function ChangeEmailScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {
