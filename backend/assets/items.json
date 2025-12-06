@@ -2,13 +2,13 @@
     {
         "name": "Blue",
         "category": "background",
-        "rarity": "common",
+        "rarity": "default",
         "path": "./backgrounds/blue.png"
     },
     {
         "name": "Green",
         "category": "background",
-        "rarity": "common",
+        "rarity": "default",
         "path": "./backgrounds/green.png"
     },
     {
@@ -20,71 +20,71 @@
     {
         "name": "Pink",
         "category": "background",
-        "rarity": "common",
+        "rarity": "default",
         "path": "./backgrounds/pink.png"
     },
     {
         "name": "Purple",
         "category": "background",
-        "rarity": "common",
+        "rarity": "default",
         "path": "./backgrounds/purple.png"
     },
     {
         "name": "Red",
         "category": "background",
-        "rarity": "common",
+        "rarity": "default",
         "path": "./backgrounds/red.png"
     },
     {
-        "name": "Arm V1",
+        "name": "Black",
         "category": "arm",
         "rarity": "default",
         "path": "./arms/default-black-arm.png"
     },
     {
-        "name": "Arm V2",
+        "name": "Brown",
         "category": "arm",
         "rarity": "default",
         "path": "./arms/default-brown-arm.png"
     },
     {
-        "name": "Arm V3",
+        "name": "White",
         "category": "arm",
         "rarity": "default",
         "path": "./arms/default-white-arm.png"
     },
     {
-        "name": "Female V1",
+        "name": "Black Female",
         "category": "body",
         "rarity": "default",
         "path": "./bodies/default-black-female-body.png"
     },
     {
-        "name": "Male V1",
+        "name": "Black Male",
         "category": "body",
         "rarity": "default",
         "path": "./bodies/default-black-male-body.png"
     },
     {
-        "name": "Female V2",
+        "name": "Brown Female",
         "category": "body",
         "rarity": "default",
         "path": "./bodies/default-brown-female-body.png"
     },
     {
-        "name": "Male V2",
+        "name": "Brown Male",
         "category": "body",
         "rarity": "default",
         "path": "./bodies/default-brown-male-body.png"
     },
     {
-        "name": "Female V3",
+        "name": "White Female",
         "category": "body",
         "rarity": "default",
         "path": "./bodies/default-white-female-body.png"
     },
     {
-        "name": "Male V3",
+        "name": "White Male",
         "category": "body",
         "rarity": "default",
         "path": "./bodies/default-white-male-body.png"
@@ -102,19 +102,19 @@
         "path": "./head_accessories/default-hair2.png"
     },
     {
-        "name": "Head V1",
+        "name": "Black",
         "category": "head",
         "rarity": "default",
         "path": "./heads/black-head.png"
     },
     {
-        "name": "Head V2",
+        "name": "Brown",
         "category": "head",
         "rarity": "default",
         "path": "./heads/brown-head.png"
     },
     {
-        "name": "Head V3",
+        "name": "White",
         "category": "head",
         "rarity": "default",
         "path": "./heads/white-head.png"

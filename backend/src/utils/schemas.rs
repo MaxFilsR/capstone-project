@@ -294,7 +294,7 @@ pub enum ItemRarity {
     Rare,
     Epic,
     Legendary,
-    Default
+    Default,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, sqlx::Type, Debug, PartialEq)]
