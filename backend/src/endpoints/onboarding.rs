@@ -113,12 +113,17 @@ async fn onboarding(
 pub async fn populate_inventory(pool: &PgPool) -> Inventory {
     let mut inventory = Inventory::default();
 
+    let color = ["Black", "Brown", "White"]
+        .choose(&mut rand::rng())
+        .unwrap();
+
     let query = sqlx::query!(
         r#"
             SELECT id, category as "category: ItemCategory"
             FROM items
-            WHERE rarity = 'default'
-        "#
+            WHERE rarity = 'default' AND (category NOT IN ('head', 'body', 'arm') OR name ILIKE '%' || $1 || '%')
+        "#,
+        color
     )
     .fetch_all(pool)
     .await
