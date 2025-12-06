@@ -1,3 +1,11 @@
+/**
+ * Change Password Screen
+ *
+ * Settings screen for updating user's password with validation.
+ * Requires current password and enforces password requirements:
+ * 8-255 characters, must match confirmation.
+ */
+
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform, View, Text, StyleSheet } from "react-native";
 import { router } from "expo-router";
@@ -8,6 +16,10 @@ import { FormTextInput, FormButton, BackButton } from "@/components";
 import { updatePassword } from "@/api/endpoints";
 import axios from "axios";
 
+// ============================================================================
+// Component
+// ============================================================================
+
 export default function ChangePasswordScreen() {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -15,6 +27,7 @@ export default function ChangePasswordScreen() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Validate and submit password change
   const handleSubmit = async () => {
     if (!oldPassword || !newPassword || !confirmPassword) {
       setError("Please fill in all fields");
@@ -137,6 +150,10 @@ export default function ChangePasswordScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {
