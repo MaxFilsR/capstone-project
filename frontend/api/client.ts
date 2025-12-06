@@ -58,6 +58,7 @@ apiClient.interceptors.request.use(
     if (!token) {
       console.warn(`Skipping protected request — no token for ${config.url}`);
       throw new axios.Cancel("Request cancelled: user not authenticated");
+      
     }
 
     config.headers.Authorization = `Bearer ${token}`;

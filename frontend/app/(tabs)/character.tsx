@@ -22,6 +22,7 @@ import TabBar, { Tab } from "@/components/TabBar";
 import InventoryScreen from "../screens/CharacterTabs/inventoryScreen";
 import ShopScreen from "../screens/CharacterTabs/ShopScreen";
 import Popup from "@/components/popupModals/Popup";
+import CharacterCardSummary from "@/components/summaryModuals/CharacterCard";
 
 export default function Index() {
   const { logout } = useAuth();
@@ -125,7 +126,9 @@ export default function Index() {
               onSettingsPress={handleSettingsPress}
             />
           </TouchableOpacity>
-              
+
+          
+
           <Popup
             visible={popupVisible}
             mode={popupMode}

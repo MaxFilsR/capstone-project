@@ -1,10 +1,9 @@
 /**
  * Recent Workouts Component
  * 
- * Displays a list of recent workout sessions with key metrics including points,
- * duration, and exercise count. Fetches workout history from API and shows
- * loading, error, and empty states. Provides navigation to detailed workout
- * view and full history page.
+ * Displays a list of recent workout sessions with key metrics.
+ * Shows loading, error, and empty states. Provides navigation to
+ * workout details and full history page.
  */
 
 import React, { useEffect, useState } from "react";
@@ -20,40 +19,34 @@ import { router } from "expo-router";
 import { getWorkoutHistory, WorkoutSession } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
-
-// ============================================================================
-// Types
-// ============================================================================
+import { Ionicons } from "@expo/vector-icons";
 
 interface RecentWorkoutsProps {
   limit?: number;
 }
 
-// ============================================================================
-// Helper Functions
-// ============================================================================
-
-/**
- * Format numbers with commas
- */
 function formatNumber(value: number): string {
   return value.toLocaleString("en-US");
 }
 
-/**
- * Format date with relative labels for today/yesterday
- */
 function formatDate(dateString: string): string {
-  const date = new Date(dateString);
+  // Parse the date string and treat it as local time
+  const parts = dateString.split('T')[0].split('-');
+  const date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+  
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
 
-  if (date.toDateString() === today.toDateString()) {
+  today.setHours(0, 0, 0, 0);
+  yesterday.setHours(0, 0, 0, 0);
+  date.setHours(0, 0, 0, 0);
+
+  if (date.getTime() === today.getTime()) {
     return "Today";
   }
 
-  if (date.toDateString() === yesterday.toDateString()) {
+  if (date.getTime() === yesterday.getTime()) {
     return "Yesterday";
   }
 
@@ -63,22 +56,15 @@ function formatDate(dateString: string): string {
   });
 }
 
-/**
- * Format duration in seconds to hours/minutes
- */
-function formatDuration(seconds: number): string {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
+function formatDuration(minutes: number): string {
+  const hours = Math.floor(minutes / 60);
+  const mins = Math.round(minutes % 60);
 
   if (hours > 0) {
-    return `${hours}h ${minutes}m`;
+    return `${hours}h ${mins}m`;
   }
-  return `${minutes}m`;
+  return `${mins}m`;
 }
-
-// ============================================================================
-// Component
-// ============================================================================
 
 const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
   const [workouts, setWorkouts] = useState<WorkoutSession[]>([]);
@@ -89,9 +75,6 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
     loadRecentWorkouts();
   }, []);
 
-  /**
-   * Fetch and sort recent workout history
-   */
   async function loadRecentWorkouts() {
     try {
       setIsLoading(true);
@@ -111,9 +94,6 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
     }
   }
 
-  /**
-   * Navigate to workout details page
-   */
   const handleWorkoutPress = (session: WorkoutSession) => {
     router.push({
       pathname: "/screens/FitnessTabs/workoutComplete",
@@ -131,7 +111,6 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
     router.push("/(tabs)/fitness");
   };
 
-  // Loading state
   if (isLoading) {
     return (
       <View style={styles.container}>
@@ -145,7 +124,6 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <View style={styles.container}>
@@ -162,7 +140,6 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
     );
   }
 
-  // Empty state
   if (workouts.length === 0) {
     return (
       <View style={styles.container}>
@@ -170,6 +147,11 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
           <Text style={styles.title}>Recent Workouts</Text>
         </View>
         <View style={styles.emptyContainer}>
+          <Ionicons
+            name="barbell-outline"
+            size={48}
+            color={colorPallet.neutral_4}
+          />
           <Text style={styles.emptyText}>No workouts yet</Text>
           <Text style={styles.emptySubtext}>
             Start your first workout to see it here!
@@ -179,7 +161,6 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
     );
   }
 
-  // Workout list
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -197,50 +178,54 @@ const RecentWorkouts: React.FC<RecentWorkoutsProps> = ({ limit = 5 }) => {
             style={[
               styles.workoutCard,
               index % 2 === 0 ? styles.workoutCardEven : styles.workoutCardOdd,
-              index === workouts.length - 1 && styles.lastWorkoutCard,
             ]}
           >
-            <View style={styles.workoutCardHeader}>
-              <Text style={styles.workoutName} numberOfLines={1}>
-                {session.name}
-              </Text>
-              <Text style={styles.workoutDate}>{formatDate(session.date)}</Text>
-            </View>
-
-            <View style={styles.workoutStats}>
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>Gainz</Text>
-                <Text style={styles.statValue}>
-                  {formatNumber(session.points)}
+            <View style={styles.workoutContent}>
+              <View style={styles.workoutHeader}>
+                <Text style={styles.workoutName} numberOfLines={1}>
+                  {session.name}
+                </Text>
+                <Text style={styles.workoutDate}>
+                  {formatDate(session.date)}
                 </Text>
               </View>
 
-              <View style={styles.statDivider} />
+              <View style={styles.metricsRow}>
+                <View style={styles.metric}>
+                  <Ionicons
+                    name="time-outline"
+                    size={16}
+                    color={colorPallet.primary}
+                  />
+                  <Text style={styles.metricValue}>
+                    {formatDuration(session.duration)}
+                  </Text>
+                </View>
 
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>Duration</Text>
-                <Text style={styles.statValue}>
-                  {formatDuration(session.duration)}
-                </Text>
-              </View>
-
-              <View style={styles.statDivider} />
-
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>Exercises</Text>
-                <Text style={styles.statValue}>{session.exercises.length}</Text>
+                <View style={styles.metric}>
+                  <Ionicons
+                    name="trophy-outline"
+                    size={16}
+                    color={colorPallet.secondary}
+                  />
+                  <Text style={styles.metricValue}>
+                    {formatNumber(session.points)}
+                  </Text>
+                </View>
               </View>
             </View>
+
+            <Ionicons
+              name="chevron-forward"
+              size={20}
+              color={colorPallet.neutral_4}
+            />
           </Pressable>
         ))}
       </ScrollView>
     </View>
   );
 };
-
-// ============================================================================
-// Styles
-// ============================================================================
 
 const styles = StyleSheet.create({
   container: {
@@ -269,7 +254,10 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   workoutCard: {
-    padding: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
   },
   workoutCardEven: {
     backgroundColor: colorPallet.neutral_6,
@@ -277,14 +265,14 @@ const styles = StyleSheet.create({
   workoutCardOdd: {
     backgroundColor: colorPallet.neutral_darkest,
   },
-  lastWorkoutCard: {
-    marginBottom: 0,
+  workoutContent: {
+    flex: 1,
   },
-  workoutCardHeader: {
+  workoutHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   workoutName: {
     ...typography.body,
@@ -292,39 +280,27 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 16,
     flex: 1,
-    marginRight: 8,
+    marginRight: 12,
   },
   workoutDate: {
     ...typography.body,
-    color: colorPallet.neutral_2,
+    color: colorPallet.neutral_3,
     fontSize: 12,
   },
-  workoutStats: {
+  metricsRow: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    gap: 20,
+  },
+  metric: {
+    flexDirection: "row",
     alignItems: "center",
+    gap: 6,
   },
-  statItem: {
-    flex: 1,
-    alignItems: "center",
-  },
-  statLabel: {
-    ...typography.body,
-    color: colorPallet.neutral_4,
-    fontSize: 11,
-    marginBottom: 8,
-    textTransform: "uppercase",
-  },
-  statValue: {
+  metricValue: {
     ...typography.body,
     color: colorPallet.neutral_1,
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  statDivider: {
-    width: 1,
-    height: 30,
-    backgroundColor: colorPallet.neutral_4,
+    fontSize: 14,
+    fontWeight: "600",
   },
   loadingContainer: {
     paddingVertical: 40,
@@ -341,6 +317,7 @@ const styles = StyleSheet.create({
     color: colorPallet.neutral_4,
     fontSize: 16,
     fontWeight: "600",
+    marginTop: 12,
     marginBottom: 4,
   },
   emptySubtext: {
