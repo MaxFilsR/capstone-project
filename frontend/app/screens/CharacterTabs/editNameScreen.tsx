@@ -1,3 +1,9 @@
+/**
+ * Edit Name Screen
+ *
+ * Settings screen for updating user's first and last name.
+ */
+
 import { useState, useEffect } from "react";
 import { KeyboardAvoidingView, Platform, View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import { router } from "expo-router";
@@ -8,6 +14,10 @@ import { FormTextInput, FormButton, BackButton } from "@/components";
 import { getCharacter, updateName } from "@/api/endpoints";
 import axios from "axios";
 
+// ============================================================================
+// Component
+// ============================================================================
+
 export default function EditNameScreen() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -15,6 +25,7 @@ export default function EditNameScreen() {
   const [loading, setLoading] = useState(false);
   const [fetchingProfile, setFetchingProfile] = useState(true);
 
+  // Load current name from profile
   useEffect(() => {
     async function loadProfile() {
       try {
@@ -31,6 +42,7 @@ export default function EditNameScreen() {
     loadProfile();
   }, []);
 
+  // Validate and submit name change
   const handleSubmit = async () => {
     if (!firstName || !lastName) {
       setError("Please fill in both fields");
@@ -133,6 +145,10 @@ export default function EditNameScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {
