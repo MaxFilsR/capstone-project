@@ -1,12 +1,11 @@
+/**
+ * Settings Screen
+ *
+ * Main settings menu providing navigation to all account settings.
+ * Includes change username, change email, change password, edit name, change workout schedule, and change class options.
+ */
 import React from "react";
-import {
-  Text,
-  ScrollView,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { Text, ScrollView, View, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { router } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
 import { colorPallet } from "@/styles/variables";
@@ -14,11 +13,19 @@ import { typography } from "@/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { BackButton } from "@/components";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type SettingsItem = {
   title: string;
   route: string;
   icon: string;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const SettingScreen = () => {
   // user account settings
@@ -55,11 +62,12 @@ const SettingScreen = () => {
     },
   ];
 
+  // Navigate to settings screen
   const handleNavigation = (route: string) => {
     router.push(route as any);
   };
 
-  // confirm before log out
+  // Confirm before log out
   const handleLogout = () => {
     Alert.alert(
       "Log Out",
@@ -71,7 +79,7 @@ const SettingScreen = () => {
         },
         {
           text: "Log Out",
-          style: "destructive", // tarkista
+          style: "destructive",
           onPress: () => {
             console.log("Logging out...");
             // clear session
@@ -82,7 +90,7 @@ const SettingScreen = () => {
     );
   };
 
-  // double confirmation before deleting account
+  // Double confirmation before deleting account
   const handleDeleteAccount = () => {
     Alert.alert(
       "Delete Account",
@@ -121,6 +129,7 @@ const SettingScreen = () => {
     );
   };
 
+  // Render individual settings item with icon and chevron
   const renderSettingsItem = (item: SettingsItem) => (
     <TouchableOpacity
       key={item.title}
@@ -205,6 +214,10 @@ const SettingScreen = () => {
     </View>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {
