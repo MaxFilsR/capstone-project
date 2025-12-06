@@ -1,6 +1,17 @@
+/**
+ * Tabs Layout
+ *
+ * Main navigation configuration for the app's bottom tab bar.
+ * Defines 5 primary tabs: Quests, Fitness, Summary, Social, and Character.
+ */
+
 import { Tabs } from "expo-router";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export default function TabsLayout() {
   return (
@@ -19,6 +30,8 @@ export default function TabsLayout() {
         },
       }}
     >
+
+      {/* Quests Tab */}
       <Tabs.Screen
         name="quests"
         options={{
@@ -28,6 +41,8 @@ export default function TabsLayout() {
           ),
         }}
       />
+
+      {/* Fitness Tab */}
       <Tabs.Screen
         name="fitness"
         options={{
@@ -37,6 +52,8 @@ export default function TabsLayout() {
           ),
         }}
       />
+
+      {/* Summary Tab (Home) */}
       <Tabs.Screen
         name="index"
         options={{
@@ -46,6 +63,8 @@ export default function TabsLayout() {
           ),
         }}
       />
+
+      {/* Social Tab */}
       <Tabs.Screen
         name="social"
         options={{
@@ -55,6 +74,8 @@ export default function TabsLayout() {
           ),
         }}
       />
+
+      {/* Character Tab */}
       <Tabs.Screen
         name="character"
         options={{
