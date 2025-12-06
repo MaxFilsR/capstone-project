@@ -1,3 +1,10 @@
+/**
+ * Change Class Screen
+ *
+ * Settings screen for changing character class with swipeable carousel.
+ * Displays all available classes with images, descriptions, and base stats.
+ */
+
 import { useState, useEffect, useRef } from "react";
 import { View, Text, Image, ScrollView, Dimensions, TouchableOpacity, ActivityIndicator, NativeScrollEvent, NativeSyntheticEvent, StyleSheet } from "react-native";
 import { router } from "expo-router";
@@ -14,6 +21,10 @@ import warrior from "@/assets/images/warrior-male-full.png";
 import monk from "@/assets/images/monk-male-full-brown.png";
 import wizard from "@/assets/images/wizard-male-full-blue.png";
 import gladiator from "@/assets/images/gladiator-male-full.png";
+
+// ============================================================================
+// Constants
+// ============================================================================
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH - 40;
@@ -33,6 +44,10 @@ const statColors = {
   Flexibility: "#6DE66D",
 };
 
+// ============================================================================
+// Component
+// ============================================================================
+
 export default function ChangeClassScreen() {
   const [classes, setClasses] = useState<CharacterClass[]>([]);
   const [currentClassId, setCurrentClassId] = useState<number | null>(null);
@@ -42,6 +57,8 @@ export default function ChangeClassScreen() {
   const [error, setError] = useState<string | null>(null);
   const scrollViewRef = useRef<ScrollView>(null);
 
+
+  // Load classes and current character class
   useEffect(() => {
     async function loadData() {
       try {
@@ -78,6 +95,7 @@ export default function ChangeClassScreen() {
     loadData();
   }, []);
 
+  // Update current index based on scroll position
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetX = event.nativeEvent.contentOffset.x;
     const cardTotalWidth = CARD_WIDTH + CARD_GAP;
@@ -95,7 +113,7 @@ export default function ChangeClassScreen() {
     });
   };
 
-
+  // Submit class change
   const handleSubmit = async () => {
     const selectedClass = classes[currentIndex];
 
@@ -259,6 +277,10 @@ export default function ChangeClassScreen() {
   );
 }
 
+// ============================================================================
+// Class Card Component
+// ============================================================================
+
 // class card displaying character image, description and stats
 function ClassCard({
   classItem,
@@ -315,6 +337,10 @@ function ClassCard({
   );
 }
 
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
 // description text for each class
 function getClassDescription(className: string): string {
   const descriptions: Record<string, string> = {
@@ -330,6 +356,10 @@ function getClassDescription(className: string): string {
   };
   return descriptions[className] || "A powerful character class";
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   wrapper: {
