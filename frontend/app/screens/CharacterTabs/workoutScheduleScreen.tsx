@@ -1,3 +1,10 @@
+/**
+ * Workout Schedule Screen
+ *
+ * Settings screen for configuring weekly workout schedule.
+ * Users can toggle days of the week they plan to workout on.
+ */
+
 import { useState, useEffect } from "react";
 import { KeyboardAvoidingView, Platform, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
@@ -8,7 +15,15 @@ import { BackButton, FormButton } from "@/components";
 import { getCharacter, updateWorkoutSchedule } from "@/api/endpoints";
 import axios from "axios";
 
+// ============================================================================
+// Constants
+// ============================================================================
+
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export default function WorkoutScheduleScreen() {
   const [schedule, setSchedule] = useState<boolean[]>([
@@ -24,6 +39,7 @@ export default function WorkoutScheduleScreen() {
   const [loading, setLoading] = useState(false);
   const [fetchingProfile, setFetchingProfile] = useState(true);
 
+  // Load current workout schedule from profile
   useEffect(() => {
     async function loadProfile() {
       try {
@@ -39,18 +55,20 @@ export default function WorkoutScheduleScreen() {
     loadProfile();
   }, []);
 
+  // Toggle workout day on/off
   const toggleDay = (index: number) => {
     const newSchedule = [...schedule];
     newSchedule[index] = !newSchedule[index];
     setSchedule(newSchedule);
   };
 
+  // Submit workout schedule update
   const handleSubmit = async () => {
     setError(null);
     setLoading(true);
 
     try {
-      // update workout schedule
+      // Update workout schedule
       await updateWorkoutSchedule({ workout_schedule: schedule });
 
       router.back();
@@ -153,6 +171,10 @@ export default function WorkoutScheduleScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {
