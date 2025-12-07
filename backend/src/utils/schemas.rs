@@ -110,7 +110,7 @@ pub struct Equipped {
     pub background: i32,
     pub body: i32,
     pub head: i32,
-    pub head_accessory: i32,
+    pub head_accessory: Option<i32>,
     pub pet: Option<i32>,
     pub weapon: Option<i32>,
 }
