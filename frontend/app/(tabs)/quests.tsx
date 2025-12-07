@@ -1,7 +1,14 @@
+/**
+ * Quests Tab Screen
+ *
+ * Main quests screen displaying user's active and completed quests.
+ * Features quest creation, filtering by status, and progress tracking.
+ * Each quest shows difficulty, description, progress bar, and XP rewards.
+ */
+
 import React, { useState } from "react";
 import { router } from "expo-router";
-import { View,
-  Text, ScrollView, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator, Button } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Pressable, ActivityIndicator, Button } from "react-native";
 import { typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -10,7 +17,15 @@ import { useQuests } from "@/lib/quest-context";
 import QuickActionButton from "@/components/QuickActionButton";
 import CreateQuestModal from "@/components/popupModals/CreateQuestModal";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type FilterType = "inprogress" | "completed";
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const QuestScreen = () => {
   const {
@@ -30,6 +45,7 @@ const QuestScreen = () => {
 
   const [createModalVisible, setCreateModalVisible] = useState(false);
 
+  // Create new quest with selected difficulty
   const handleCreateQuest = async (difficulty: "Easy" | "Medium" | "Hard") => {
     try {
       await createNewQuest(difficulty);
@@ -44,6 +60,7 @@ const QuestScreen = () => {
       ? getInProgressQuests()
       : getCompletedQuests();
 
+  // Navigate to quest details screen
   const handleQuestPress = (questId: number) => {
     router.push({
       pathname: "/screens/QuestsTabs/detailsQuestsScreen",
@@ -73,62 +90,12 @@ const QuestScreen = () => {
 
   return (
     <View style={styles.container}>
+      {/* header */}
       <View style={styles.headerContainer}>
         <Text style={styles.header}>Quests</Text>
       </View>
 
-    {/*
-      <View style={styles.createButtonsContainer}>
-        <TouchableOpacity
-          style={[styles.createButton, styles.easyButton]}
-          onPress={() => handleCreateQuest("Easy")}
-          disabled={creating}
-          activeOpacity={0.7}
-        >
-          {creating ? (
-            <ActivityIndicator
-              size="small"
-              color={colorPallet.neutral_darkest}
-            />
-          ) : (
-            <Text style={styles.createButtonText}>Easy Quest</Text>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.createButton, styles.mediumButton]}
-          onPress={() => handleCreateQuest("Medium")}
-          disabled={creating}
-          activeOpacity={0.7}
-        >
-          {creating ? (
-            <ActivityIndicator
-              size="small"
-              color={colorPallet.neutral_darkest}
-            />
-          ) : (
-            <Text style={styles.createButtonText}>Medium Quest</Text>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.createButton, styles.hardButton]}
-          onPress={() => handleCreateQuest("Hard")}
-          disabled={creating}
-          activeOpacity={0.7}
-        >
-          {creating ? (
-            <ActivityIndicator
-              size="small"
-              color={colorPallet.neutral_darkest}
-            />
-          ) : (
-            <Text style={styles.createButtonText}>Hard Quest</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-      */}
-
+      {/* create new quest button */}
       <View style={styles.createButtonContainer}>
         <TouchableOpacity
           style={styles.newQuestButton}
@@ -180,6 +147,7 @@ const QuestScreen = () => {
           />
         ))}
 
+        {/* empty state */}
         {filteredQuests.length === 0 && (
           <View style={styles.emptyContainer}>
             <MaterialIcons
@@ -194,6 +162,7 @@ const QuestScreen = () => {
         )}
       </ScrollView>
 
+      {/* create quest modal */}
       <CreateQuestModal
         visible={createModalVisible}
         onClose={() => setCreateModalVisible(false)}
@@ -205,6 +174,10 @@ const QuestScreen = () => {
     </View>
   );
 };
+
+// ============================================================================
+// Filter Button Component
+// ============================================================================
 
 // filter button component
 function FilterButton({
@@ -234,6 +207,11 @@ function FilterButton({
   );
 }
 
+// ============================================================================
+// Quest Card Component
+// ============================================================================
+
+// individual quest card displaying difficulty, progress, and rewards
 function QuestCard({
   quest,
   progress,
@@ -246,7 +224,7 @@ function QuestCard({
   onPress: () => void;
 }) {
 
-  //get color based on difficulty
+  // get color based on difficulty
   const getDifficultyColor = (): string => {
     switch (quest.difficulty.toLocaleLowerCase()) {
       case "easy":
@@ -301,10 +279,10 @@ function QuestCard({
           </Text>
         </View>
 
-        {/* title */}
+        {/* quest title */}
         <Text style={styles.questTitle}>{quest.name}</Text>
 
-        {/* description */}
+        {/* quest description */}
         <Text style={styles.questDescription}>{description}</Text>
 
         {/* reward */}
@@ -339,6 +317,10 @@ function QuestCard({
     </Pressable>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {

@@ -55,18 +55,29 @@ export type GetItemsResponse = {
 };
 
 /**
- * Request payload for equipping an item
+ * Complete inventory structure
  */
-export type EquipItemRequest = {
-  slot: string;
-  item_id: number;
+export type Inventory = {
+  arms: number[];
+  backgrounds: number[];
+  bodies: number[];
+  heads: number[];
+  head_accessories: number[];
+  pets: number[];
+  weapons: number[];
 };
 
 /**
- * Request payload for unequipping an item
+ * Equipped items structure (backend format)
  */
-export type UnequipItemRequest = {
-  slot: string;
+export type EquippedItems = {
+  arms: number;
+  background: number;
+  bodies: number;
+  head: number;
+  head_accessory: number | null;
+  pet: number | null;
+  weapon: number | null;
 };
 
 // ============================================================================
@@ -101,24 +112,8 @@ export function reconstructPngImage(binaryData: number[]): string {
  * Get all unique item IDs from character inventory and equipped items
  */
 export function getAllItemIds(
-  inventory: {
-    arms: number[];
-    backgrounds: number[];
-    bodies: number[];
-    heads: number[];
-    head_accessories: number[];
-    pets: number[];
-    weapons: number[];
-  },
-  equipped: {
-    arms: number;
-    background: number;
-    bodies: number;
-    head: number;
-    head_accessory: number | null;
-    pet: number | null;
-    weapon: number | null;
-  }
+  inventory: Inventory,
+  equipped: EquippedItems
 ): number[] {
   const ids = new Set<number>();
 
@@ -149,18 +144,4 @@ export async function getItems(
 ): Promise<GetItemsResponse> {
   const { data } = await apiClient.post<GetItemsResponse>('/constants/items', payload);
   return data;
-}
-
-/**
- * Equip an item to a specific slot
- */
-export async function equipItem(payload: EquipItemRequest): Promise<void> {
-  await apiClient.post("/character/equip", payload);
-}
-
-/**
- * Unequip an item from a specific slot
- */
-export async function unequipItem(payload: UnequipItemRequest): Promise<void> {
-  await apiClient.post("/character/unequip", payload);
 }

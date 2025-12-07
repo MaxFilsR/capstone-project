@@ -1,41 +1,52 @@
 /**
- * Change Email Screen
+ * Workout Schedule Screen
  *
- * Settings screen for updating user's email address.
- * Displays current email and validates email format and confirmation match.
+ * Settings screen for configuring weekly workout schedule.
+ * Users can toggle days of the week they plan to workout on.
  */
 
 import { useState, useEffect } from "react";
-import { KeyboardAvoidingView, Platform, View, Text, ActivityIndicator, StyleSheet } from "react-native";
+import { KeyboardAvoidingView, Platform, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
 import { colorPallet } from "@/styles/variables";
 import { typography, containers } from "@/styles";
 import { Ionicons } from "@expo/vector-icons";
-import { FormTextInput, FormButton, BackButton } from "@/components";
-import { getCharacter, updateEmail } from "@/api/endpoints";
+import { BackButton, FormButton } from "@/components";
+import { getCharacter, updateWorkoutSchedule } from "@/api/endpoints";
 import axios from "axios";
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
 // ============================================================================
 // Component
 // ============================================================================
 
-
-export default function ChangeEmailScreen() {
-  const [currentEmail, setCurrentEmail] = useState<string>("");
-  const [newEmail, setNewEmail] = useState("");
-  const [confirmEmail, setConfirmEmail] = useState("");
+export default function WorkoutScheduleScreen() {
+  const [schedule, setSchedule] = useState<boolean[]>([
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+  ]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [fetchingProfile, setFetchingProfile] = useState(true);
 
-  // Load current email from profile
+  // Load current workout schedule from profile
   useEffect(() => {
     async function loadProfile() {
       try {
-        setCurrentEmail("user@example.com");
+        setSchedule([false, true, false, true, false, true, false]);
       } catch (err) {
         console.error("Failed to load profile:", err);
-        setError("Failed to load current email");
+        setError("Failed to load current schedule");
       } finally {
         setFetchingProfile(false);
       }
@@ -44,44 +55,25 @@ export default function ChangeEmailScreen() {
     loadProfile();
   }, []);
 
-  // Validate email format
-  const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+  // Toggle workout day on/off
+  const toggleDay = (index: number) => {
+    const newSchedule = [...schedule];
+    newSchedule[index] = !newSchedule[index];
+    setSchedule(newSchedule);
   };
 
-  // Validate and submit email change
+  // Submit workout schedule update
   const handleSubmit = async () => {
-    if (!newEmail || !confirmEmail) {
-      setError("Please fill in all fields");
-      return;
-    }
-
-    if (!validateEmail(newEmail)) {
-      setError("Please enter a valid email address");
-      return;
-    }
-
-    if (newEmail !== confirmEmail) {
-      setError("Email addresses do not match");
-      return;
-    }
-
-    if (newEmail === currentEmail) {
-      setError("New email must be different from current email");
-      return;
-    }
-
     setError(null);
     setLoading(true);
 
     try {
-      // update email
-      await updateEmail({ email: newEmail });
+      // Update workout schedule
+      await updateWorkoutSchedule({ workout_schedule: schedule });
 
       router.back();
     } catch (err: unknown) {
-      console.error("Email update error:", err);
+      console.error("Schedule update error:", err);
 
       if (axios.isAxiosError(err)) {
         if (err.response) {
@@ -131,42 +123,41 @@ export default function ChangeEmailScreen() {
       {/* title with Icon */}
       <View style={styles.titleContainer}>
         <Ionicons
-          name="mail-outline"
+          name="calendar-outline"
           size={28}
           color={colorPallet.primary}
           style={styles.titleIcon}
         />
-        <Text style={[typography.h1, styles.title]}>Change Email</Text>
+        <Text style={[typography.h1, styles.title]}>Workout Schedule</Text>
       </View>
 
       <View style={containers.formContainer}>
-        {/* current email card */}
-        <View style={styles.currentEmailCard}>
-          <Text style={styles.currentEmailLabel}>CURRENT EMAIL</Text>
-          <Text style={styles.currentEmailValue}>{currentEmail}</Text>
+        <Text style={styles.instructionText}>
+          Select the days you plan to workout:
+        </Text>
+
+        {/* schedule Picker */}
+        <View style={styles.scheduleContainer}>
+          {DAYS.map((day, index) => (
+            <TouchableOpacity
+              key={index}
+              style={[
+                styles.dayButton,
+                schedule[index] && styles.dayButtonActive,
+              ]}
+              onPress={() => toggleDay(index)}
+            >
+              <Text
+                style={[
+                  styles.dayButtonText,
+                  schedule[index] && styles.dayButtonTextActive,
+                ]}
+              >
+                {day}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
-
-        {/* new email input */}
-        <FormTextInput
-          label="New Email"
-          placeholder="you@example.com"
-          keyboardType="email-address"
-          value={newEmail}
-          onChangeText={setNewEmail}
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-
-        {/* confirm email input */}
-        <FormTextInput
-          label="Confirm Email"
-          placeholder="you@example.com"
-          keyboardType="email-address"
-          value={confirmEmail}
-          onChangeText={setConfirmEmail}
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
 
         {error && <Text style={typography.errorText}>{error}</Text>}
 
@@ -201,28 +192,41 @@ const styles = StyleSheet.create({
   title: {
     color: colorPallet.neutral_lightest,
   },
-  currentEmailCard: {
-    backgroundColor: colorPallet.neutral_6,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: colorPallet.neutral_5,
-  },
-  currentEmailLabel: {
-    ...typography.body,
-    color: colorPallet.neutral_3,
-    fontSize: 12,
-    fontWeight: "600",
-    letterSpacing: 0.5,
-    marginBottom: 8,
-  },
-  currentEmailValue: {
+  instructionText: {
     ...typography.body,
     color: colorPallet.neutral_lightest,
-    fontSize: 18,
-    fontWeight: "700",
+    textAlign: "left",
+    marginBottom: 16,
+  },
+  scheduleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 16,
+    width: "100%",
+  },
+  dayButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colorPallet.neutral_darkest,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: colorPallet.neutral_lightest,
+  },
+  dayButtonActive: {
+    backgroundColor: colorPallet.primary,
+    borderColor: colorPallet.primary,
+  },
+  dayButtonText: {
+    fontSize: 14,
+    fontFamily: "Inter-SemiBold",
+    color: colorPallet.neutral_lightest,
+  },
+  dayButtonTextActive: {
+    fontSize: 14,
+    fontFamily: "Inter-SemiBold",
+    color: colorPallet.neutral_darkest,
   },
 });
-
 

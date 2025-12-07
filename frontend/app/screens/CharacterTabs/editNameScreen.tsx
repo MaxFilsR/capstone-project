@@ -1,51 +1,51 @@
 /**
- * Change Password Screen
+ * Edit Name Screen
  *
- * Settings screen for updating user's password with validation.
- * Requires current password and enforces password requirements:
- * 8-255 characters, must match confirmation.
+ * Settings screen for updating user's first and last name.
  */
 
-import { useState } from "react";
-import { KeyboardAvoidingView, Platform, View, Text, StyleSheet } from "react-native";
+import { useState, useEffect } from "react";
+import { KeyboardAvoidingView, Platform, View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { colorPallet } from "@/styles/variables";
 import { typography, containers } from "@/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { FormTextInput, FormButton, BackButton } from "@/components";
-import { updatePassword } from "@/api/endpoints";
+import { getCharacter, updateName } from "@/api/endpoints";
 import axios from "axios";
 
 // ============================================================================
 // Component
 // ============================================================================
 
-export default function ChangePasswordScreen() {
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+export default function EditNameScreen() {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [fetchingProfile, setFetchingProfile] = useState(true);
 
-  // Validate and submit password change
+  // Load current name from profile
+  useEffect(() => {
+    async function loadProfile() {
+      try {
+        setFirstName("John");
+        setLastName("Doe");
+      } catch (err) {
+        console.error("Failed to load profile:", err);
+        setError("Failed to load current name");
+      } finally {
+        setFetchingProfile(false);
+      }
+    }
+
+    loadProfile();
+  }, []);
+
+  // Validate and submit name change
   const handleSubmit = async () => {
-    if (!oldPassword || !newPassword || !confirmPassword) {
-      setError("Please fill in all fields");
-      return;
-    }
-
-    if (newPassword.length < 8 || newPassword.length > 255) {
-      setError("Password must be between 8 and 255 characters");
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setError("New passwords do not match");
-      return;
-    }
-
-    if (oldPassword === newPassword) {
-      setError("New password must be different from old password");
+    if (!firstName || !lastName) {
+      setError("Please fill in both fields");
       return;
     }
 
@@ -53,15 +53,12 @@ export default function ChangePasswordScreen() {
     setLoading(true);
 
     try {
-      // update password
-      await updatePassword({
-        current_password: oldPassword,
-        new_password: newPassword,
-      });
+      // update name
+      await updateName({ first_name: firstName, last_name: lastName });
 
       router.back();
     } catch (err: unknown) {
-      console.error("Password update error:", err);
+      console.error("Name update error:", err);
 
       if (axios.isAxiosError(err)) {
         if (err.response) {
@@ -85,6 +82,22 @@ export default function ChangePasswordScreen() {
     }
   };
 
+  if (fetchingProfile) {
+    return (
+      <View style={[containers.centerContainer, { justifyContent: "center" }]}>
+        <ActivityIndicator size="large" color={colorPallet.primary} />
+        <Text
+          style={[
+            typography.body,
+            { color: colorPallet.neutral_lightest, marginTop: 16 },
+          ]}
+        >
+          Loading...
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -95,48 +108,30 @@ export default function ChangePasswordScreen() {
       {/* title with Icon */}
       <View style={styles.titleContainer}>
         <Ionicons
-          name="lock-closed-outline"
+          name="person-outline"
           size={28}
           color={colorPallet.primary}
           style={styles.titleIcon}
         />
-        <Text style={[typography.h1, styles.title]}>Change Password</Text>
+        <Text style={[typography.h1, styles.title]}>Edit Name</Text>
       </View>
 
       <View style={containers.formContainer}>
-        {/* old password input */}
+        {/* first name input */}
         <FormTextInput
-          label="Current Password"
-          placeholder="••••••••"
-          secureTextEntry
-          value={oldPassword}
-          onChangeText={setOldPassword}
+          label="First Name"
+          placeholder="John"
+          value={firstName}
+          onChangeText={setFirstName}
         />
 
-        {/* new password input */}
+        {/* last name input */}
         <FormTextInput
-          label="New Password"
-          placeholder="••••••••"
-          secureTextEntry
-          value={newPassword}
-          onChangeText={setNewPassword}
+          label="Last Name"
+          placeholder="Doe"
+          value={lastName}
+          onChangeText={setLastName}
         />
-
-        {/* confirm new password input */}
-        <FormTextInput
-          label="Confirm New Password"
-          placeholder="••••••••"
-          secureTextEntry
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
-
-        {/* password requirements */}
-        <View style={styles.requirementsContainer}>
-          <Text style={styles.requirementText}>
-            Password must be 8-255 characters
-          </Text>
-        </View>
 
         {error && <Text style={typography.errorText}>{error}</Text>}
 
@@ -171,13 +166,11 @@ const styles = StyleSheet.create({
   title: {
     color: colorPallet.neutral_lightest,
   },
-  requirementsContainer: {
-    marginTop: 4,
-    marginBottom: 24,
-  },
-  requirementText: {
-    ...typography.body,
-    color: colorPallet.neutral_2,
-    fontSize: 13,
-  },
 });
+
+
+
+
+
+
+

@@ -1,6 +1,6 @@
 /**
  * Authentication Context
- * 
+ *
  * Manages user authentication state and provides authentication methods
  * throughout the application. Handles login, logout, token storage, and
  * user profile management. Automatically restores user session on app start.
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     await storage.deleteItem("accessToken");
     await storage.deleteItem("onboarded");
     setUser(null);
-    router.replace("../auth");
+    router.replace("/auth/logIn");
   };
 
   /**

@@ -1,15 +1,21 @@
+/**
+ * Shop Screen
+ *
+ * Daily shop displaying purchasable items with 24-hour refresh timer.
+ * Features item grid with categories, prices, and buy buttons.
+ * Displays user's current coin balance.
+ */
+
 import React, { useState, useEffect } from "react";
-import {
-  Text,
-  ScrollView,
-  View,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
+import { Text, ScrollView, View, StyleSheet, TouchableOpacity } from "react-native";
 import { tabStyles } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type ShopScreenProps = {
   coins: number;
@@ -22,6 +28,10 @@ type ShopItem = {
   price: number;
   imageUrl?: string;
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 const ShopScreen: React.FC<ShopScreenProps> = ({ coins }) => {
   // Mock shop items - will come from API
@@ -56,6 +66,7 @@ const ShopScreen: React.FC<ShopScreenProps> = ({ coins }) => {
     return () => clearInterval(interval);
   }, []);
 
+  // Format seconds to HH:MM:SS
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -65,10 +76,12 @@ const ShopScreen: React.FC<ShopScreenProps> = ({ coins }) => {
       .padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
+  // Format price with thousands separator
   const formatPrice = (price: number) => {
     return price.toLocaleString();
   };
 
+  // Get icon for item category
   const getCategoryIcon = (
     category: string
   ): keyof typeof Ionicons.glyphMap => {
@@ -84,6 +97,7 @@ const ShopScreen: React.FC<ShopScreenProps> = ({ coins }) => {
     return iconMap[category] || "cube";
   };
 
+  // Handle item purchase
   const handlePurchase = (item: ShopItem) => {
     // TODO: Implement purchase logic with API
     console.log("Purchasing:", item);
@@ -211,6 +225,10 @@ const ShopScreen: React.FC<ShopScreenProps> = ({ coins }) => {
     </ScrollView>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   scrollContent: {

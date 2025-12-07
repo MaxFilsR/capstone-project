@@ -1,3 +1,11 @@
+/**
+ * Social Tab Screen
+ *
+ * Main social screen with Friends and Leaderboard tabs.
+ * Features custom header with search button that opens a modal
+ * for finding and adding new friends.
+ */
+
 import React, { useState } from "react";
 import {
   View,
@@ -18,18 +26,25 @@ import { typography } from "@/styles";
 import { containers } from "@/styles";
 import { Ionicons } from "@expo/vector-icons";
 
+// ============================================================================
+// Component
+// ============================================================================
+
 const SocialScreen = () => {
   const [showSearchModal, setShowSearchModal] = useState(false);
 
+  // Tab configuration for Friends and Leaderboard
   const tabs: Tab[] = [
     { name: "Friends", component: FriendsScreen },
     { name: "Leaderboard", component: LeaderboardScreen },
   ];
 
+  // Open friend search modal
   const handleSearchPress = () => {
     setShowSearchModal(true);
   };
 
+  // Close friend search modal
   const handleCloseSearch = () => {
     setShowSearchModal(false);
   };
@@ -90,6 +105,10 @@ const SocialScreen = () => {
     </SafeAreaView>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   header: {

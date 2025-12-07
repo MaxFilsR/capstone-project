@@ -1,13 +1,13 @@
+/**
+ * Inventory Screen
+ *
+ * Displays user's collected inventory items organized by category.
+ * Features collapsible categories, item selection modal, and equip/unequip functionality.
+ * Categories: Backgrounds, Bodies, Arms, Heads, Accessories, Weapons, Pets.
+ */
+
 import React, { useState } from "react";
-import {
-  ScrollView,
-  View,
-  StyleSheet,
-  Platform,
-  UIManager,
-  ActivityIndicator,
-  Text,
-} from "react-native";
+import { ScrollView, View, StyleSheet, Platform, UIManager, ActivityIndicator, Text } from "react-native";
 import { tabStyles } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
@@ -25,6 +25,10 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type CategoryConfig = {
   name: string;
   key:
@@ -38,6 +42,10 @@ type CategoryConfig = {
   icon: keyof typeof Ionicons.glyphMap;
 };
 
+// ============================================================================
+// Constants
+// ============================================================================
+
 const INVENTORY_CATEGORIES: CategoryConfig[] = [
   { name: "Backgrounds", key: "backgrounds", icon: "image" },
   { name: "Bodies", key: "bodies", icon: "body" },
@@ -48,6 +56,10 @@ const INVENTORY_CATEGORIES: CategoryConfig[] = [
   { name: "Pets", key: "pets", icon: "paw" },
 ];
 
+// ============================================================================
+// Component
+// ============================================================================
+
 const InventoryScreen = () => {
   const { inventory, equipItem, unequipItem, isEquipped, isLoading, error } =
     useInventory();
@@ -57,6 +69,7 @@ const InventoryScreen = () => {
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
+  // Toggle category expanded state
   const toggleCategory = (categoryKey: string) => {
     setExpandedCategories((prev) => ({
       ...prev,
@@ -64,10 +77,12 @@ const InventoryScreen = () => {
     }));
   };
 
+  // Open item details modal
   const handleItemPress = (item: InventoryItem) => {
     setSelectedItem(item);
   };
 
+  // Equip selected item
   const handleEquipItem = async () => {
     if (selectedItem && !actionLoading) {
       try {
@@ -82,6 +97,7 @@ const InventoryScreen = () => {
     }
   };
 
+  // Unequip selected item from its slot
   const handleUnequipItem = async () => {
     if (selectedItem && !actionLoading) {
       const slotMap: Record<
@@ -104,7 +120,7 @@ const InventoryScreen = () => {
       };
 
       const slotName = slotMap[selectedItem.category];
-      
+
       if (slotName) {
         try {
           setActionLoading(true);
@@ -119,6 +135,8 @@ const InventoryScreen = () => {
     }
   };
 
+
+  // Check if item can be unequipped. Only pets, accessories, and weapons are optional
   const canUnequipItem = (item: InventoryItem | null): boolean => {
     if (!item) return false;
     // Only pets, accessories, and weapons can be unequipped
@@ -164,7 +182,7 @@ const InventoryScreen = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        
+
         {INVENTORY_CATEGORIES.map((category) => (
           <InventoryCategory
             key={category.key}
@@ -181,6 +199,7 @@ const InventoryScreen = () => {
         {!hasAnyItems && <InventoryEmptyState />}
       </ScrollView>
 
+      {/* Item details modal */}
       <InventoryItemModal
         visible={selectedItem !== null}
         item={selectedItem}
@@ -201,6 +220,9 @@ const InventoryScreen = () => {
   );
 };
 
+// ============================================================================
+// Styles
+// ============================================================================
 const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 32,

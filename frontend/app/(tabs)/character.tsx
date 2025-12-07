@@ -1,3 +1,11 @@
+/**
+ * Character Tab Screen
+ *
+ * Main character screen displaying character stats, inventory, and shop.
+ * Features character card with stat allocation, settings access, and tabbed navigation
+ * between Inventory and Shop screens.
+ */
+
 import { useState, useEffect } from "react";
 import {
   Text,
@@ -22,6 +30,11 @@ import TabBar, { Tab } from "@/components/TabBar";
 import InventoryScreen from "../screens/CharacterTabs/inventoryScreen";
 import ShopScreen from "../screens/CharacterTabs/ShopScreen";
 import Popup from "@/components/popupModals/Popup";
+import CharacterCardSummary from "@/components/summaryModuals/CharacterCard";
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export default function Index() {
   const { logout } = useAuth();
@@ -34,6 +47,9 @@ export default function Index() {
     "allocateStats"
   );
 
+  /**
+   * Tab configuration for Inventory and Shop
+   */
   const tabs: Tab[] = [
     { name: "Inventory", component: InventoryScreen },
     {
@@ -44,10 +60,16 @@ export default function Index() {
 
   const handleTabChange = (index: number) => {};
 
+  /**
+   * Load character profile on mount
+   */
   useEffect(() => {
     loadProfile();
   }, []);
 
+  /**
+   * Fetch character profile data from API
+   */
   const loadProfile = async () => {
     try {
       setLoading(true);
@@ -62,10 +84,16 @@ export default function Index() {
     }
   };
 
+  /**
+   * Handle user logout
+   */
   const handleLogout = async () => {
     await logout();
   };
 
+  /**
+   * Navigate to settings screen
+   */
   const handleSettingsPress = () => {
     router.push("/screens/CharacterTabs/settingsScreen");
   };
@@ -125,7 +153,8 @@ export default function Index() {
               onSettingsPress={handleSettingsPress}
             />
           </TouchableOpacity>
-              
+
+          {/* Stat allocation and settings popup modal */}
           <Popup
             visible={popupVisible}
             mode={popupMode}
@@ -135,6 +164,7 @@ export default function Index() {
             availablePoints={profile?.pending_stat_points}
           />
 
+          {/* Inventory and Shop tabs */}
           <TabBar
             tabs={tabs}
             initialTab={0}
@@ -158,6 +188,10 @@ export default function Index() {
     </>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   scrollContainer: {

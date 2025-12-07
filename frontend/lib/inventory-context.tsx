@@ -9,15 +9,16 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { ImageSourcePropType } from "react-native";
 import { useAuth } from "./auth-context";
 import { getCharacter } from "@/api/modules/character";
+import { apiClient } from "@/api/client";
 import {
   getItems,
-  equipItem as apiEquipItem,
-  unequipItem as apiUnequipItem,
   getAllItemIds,
   reconstructPngImage,
   ItemData,
   ItemCategory,
   ItemRarity,
+  Inventory,
+  EquippedItems as BackendEquippedItems,
 } from "@/api/modules/inventory";
 
 // ============================================================================
@@ -143,8 +144,6 @@ function createInventoryItem(itemData: ItemData): InventoryItem {
   };
 }
 
-
-
 // ============================================================================
 // Provider Component
 // ============================================================================
@@ -221,7 +220,25 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
           : null,
       };
 
-      setInventory(processedInventory);
+      // Get all equipped item IDs for filtering
+      const equippedIds = new Set(
+        Object.values(processedEquipped)
+          .filter((item): item is InventoryItem => item !== null)
+          .map(item => item.id)
+      );
+
+      // Filter out equipped items from inventory to prevent duplicates
+      const filteredInventory = {
+        backgrounds: processedInventory.backgrounds.filter(item => !equippedIds.has(item.id)),
+        bodies: processedInventory.bodies.filter(item => !equippedIds.has(item.id)),
+        arms: processedInventory.arms.filter(item => !equippedIds.has(item.id)),
+        heads: processedInventory.heads.filter(item => !equippedIds.has(item.id)),
+        accessories: processedInventory.accessories.filter(item => !equippedIds.has(item.id)),
+        weapons: processedInventory.weapons.filter(item => !equippedIds.has(item.id)),
+        pets: processedInventory.pets.filter(item => !equippedIds.has(item.id)),
+      };
+
+      setInventory(filteredInventory);
       setEquipped(processedEquipped);
     } catch (err) {
       console.error("[Inventory Context] Failed to load inventory:", err);
@@ -243,35 +260,54 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
   /**
    * Equip an item to the appropriate slot
    * 
-   * TODO: Replace local state update with backend API call using apiEquipItem
-   * when /character/equip endpoint is ready. Then call refreshInventory() to sync state.
+   * Updates equipped items on backend via PUT /character/equipped
    */
   const equipItem = async (item: InventoryItem) => {
-    const slotMap: Record<InventoryItem["category"], keyof EquippedItems> = {
-      backgrounds: "background",
-      bodies: "body",
-      arms: "arms",
-      heads: "head",
-      accessories: "headAccessory",
-      weapons: "weapon",
-      pets: "pet",
-    };
+    try {
+      setIsLoading(true);
+      
+      // Get fresh character data
+      const characterData = await getCharacter();
+      
+      // Map frontend slot names to backend equipped structure
+      const slotMap: Record<InventoryItem["category"], keyof BackendEquippedItems> = {
+        backgrounds: "background",
+        bodies: "bodies",
+        arms: "arms",
+        heads: "head",
+        accessories: "head_accessory",
+        weapons: "weapon",
+        pets: "pet",
+      };
 
-    const slotName = slotMap[item.category];
-    if (!slotName) return;
+      const slot = slotMap[item.category];
+      if (!slot) return;
 
-    // Update local state only (no backend call)
-    setEquipped((prev) => ({
-      ...prev,
-      [slotName]: item,
-    }));
+      // Create updated equipped object
+      const updatedEquipped: BackendEquippedItems = {
+        ...characterData.equipped,
+        [slot]: parseInt(item.id),
+      };
+
+      // Send updated equipped to backend
+      await apiClient.put("/character/equipped", {
+        equipped: updatedEquipped,
+      });
+
+      // Refresh to get updated state
+      await refreshInventory();
+    } catch (err) {
+      console.error("[Inventory Context] Failed to equip item:", err);
+      setError(err instanceof Error ? err.message : "Failed to equip item");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   /**
    * Unequip an item from the specified slot
    * 
-   * TODO: Replace local state update with backend API call using apiUnequipItem
-   * when /character/unequip endpoint is ready. Then call refreshInventory() to sync state.
+   * Updates equipped items on backend via PUT /character/equipped
    */
   const unequipItem = async (slotName: keyof EquippedItems) => {
     // Only allow unequipping optional slots
@@ -283,11 +319,43 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Update local state only (no backend call)
-    setEquipped((prev) => ({
-      ...prev,
-      [slotName]: null,
-    }));
+    try {
+      setIsLoading(true);
+      
+      // Get fresh character data
+      const characterData = await getCharacter();
+      
+      const backendSlotMap: Record<keyof EquippedItems, keyof BackendEquippedItems> = {
+        background: "background",
+        body: "bodies",
+        arms: "arms",
+        head: "head",
+        headAccessory: "head_accessory",
+        weapon: "weapon",
+        pet: "pet",
+      };
+
+      const slot = backendSlotMap[slotName];
+
+      // Create updated equipped object with null for the unequipped slot
+      const updatedEquipped: BackendEquippedItems = {
+        ...characterData.equipped,
+        [slot]: null,
+      };
+
+      // Send updated equipped to backend
+      await apiClient.put("/character/equipped", {
+        equipped: updatedEquipped,
+      });
+
+      // Refresh to get updated state
+      await refreshInventory();
+    } catch (err) {
+      console.error("[Inventory Context] Failed to unequip item:", err);
+      setError(err instanceof Error ? err.message : "Failed to unequip item");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   /**

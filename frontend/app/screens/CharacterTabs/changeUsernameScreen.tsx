@@ -1,3 +1,11 @@
+/**
+ * Change Username Screen
+ *
+ * Settings screen for updating user's username.
+ * Displays current username and has username requirements:
+ * 3-20 characters, alphanumeric and underscores only.
+ */
+
 import { useState, useEffect } from "react";
 import { KeyboardAvoidingView, Platform, View, Text, ActivityIndicator, StyleSheet } from "react-native";
 import { router } from "expo-router";
@@ -8,6 +16,10 @@ import { FormTextInput, FormButton, BackButton } from "@/components";
 import { getCharacter, updateUsername } from "@/api/endpoints";
 import axios from "axios";
 
+// ============================================================================
+// Component
+// ============================================================================
+
 export default function ChangeUsernameScreen() {
   const [currentUsername, setCurrentUsername] = useState<string>("");
   const [newUsername, setNewUsername] = useState("");
@@ -15,6 +27,7 @@ export default function ChangeUsernameScreen() {
   const [loading, setLoading] = useState(false);
   const [fetchingProfile, setFetchingProfile] = useState(true);
 
+  // load current username from character profile
   useEffect(() => {
     async function loadProfile() {
       try {
@@ -174,6 +187,10 @@ export default function ChangeUsernameScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {
