@@ -11,13 +11,13 @@ import { useAuth } from "./auth-context";
 import { getCharacter } from "@/api/modules/character";
 import {
   getItems,
-  equipItem as apiEquipItem,
-  unequipItem as apiUnequipItem,
+  updateInventory,
   getAllItemIds,
   reconstructPngImage,
   ItemData,
   ItemCategory,
   ItemRarity,
+  Inventory,
 } from "@/api/modules/inventory";
 
 // ============================================================================
@@ -143,7 +143,30 @@ function createInventoryItem(itemData: ItemData): InventoryItem {
   };
 }
 
-
+/**
+ * Convert frontend inventory to backend format
+ */
+function convertToBackendInventory(
+  frontendInventory: {
+    backgrounds: InventoryItem[];
+    bodies: InventoryItem[];
+    arms: InventoryItem[];
+    heads: InventoryItem[];
+    accessories: InventoryItem[];
+    weapons: InventoryItem[];
+    pets: InventoryItem[];
+  }
+): Inventory {
+  return {
+    arms: frontendInventory.arms.map(item => parseInt(item.id)),
+    backgrounds: frontendInventory.backgrounds.map(item => parseInt(item.id)),
+    bodies: frontendInventory.bodies.map(item => parseInt(item.id)),
+    heads: frontendInventory.heads.map(item => parseInt(item.id)),
+    head_accessories: frontendInventory.accessories.map(item => parseInt(item.id)),
+    pets: frontendInventory.pets.map(item => parseInt(item.id)),
+    weapons: frontendInventory.weapons.map(item => parseInt(item.id)),
+  };
+}
 
 // ============================================================================
 // Provider Component
@@ -207,7 +230,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
       // Process equipped items
       const processedEquipped: EquippedItems = {
         background: createItem(characterData.equipped.background) || null,
-        body: createItem(characterData.equipped.body) || null,
+        body: createItem(characterData.equipped.bodies) || null,
         arms: createItem(characterData.equipped.arms) || null,
         head: createItem(characterData.equipped.head) || null,
         headAccessory: characterData.equipped.head_accessory
@@ -243,8 +266,7 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
   /**
    * Equip an item to the appropriate slot
    * 
-   * TODO: Replace local state update with backend API call using apiEquipItem
-   * when /character/equip endpoint is ready. Then call refreshInventory() to sync state.
+   * Moves item from inventory to equipped, updates backend, and refreshes state
    */
   const equipItem = async (item: InventoryItem) => {
     const slotMap: Record<InventoryItem["category"], keyof EquippedItems> = {
@@ -260,18 +282,38 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
     const slotName = slotMap[item.category];
     if (!slotName) return;
 
-    // Update local state only (no backend call)
-    setEquipped((prev) => ({
-      ...prev,
-      [slotName]: item,
-    }));
+    try {
+      // Create updated inventory by removing the item being equipped
+      const updatedInventory = { ...inventory };
+      const categoryKey = item.category;
+      updatedInventory[categoryKey] = updatedInventory[categoryKey].filter(
+        invItem => invItem.id !== item.id
+      );
+
+      // If there's an item currently equipped in this slot, add it back to inventory
+      const currentlyEquipped = equipped[slotName];
+      if (currentlyEquipped) {
+        updatedInventory[currentlyEquipped.category].push(currentlyEquipped);
+      }
+
+      // Convert to backend format and send
+      const backendInventory = convertToBackendInventory(updatedInventory);
+      await updateInventory(backendInventory);
+
+      // Refresh from backend to ensure sync
+      await refreshInventory();
+    } catch (err) {
+      console.error("[Inventory Context] Failed to equip item:", err);
+      setError(err instanceof Error ? err.message : "Failed to equip item");
+      // Revert to previous state by refreshing
+      await refreshInventory();
+    }
   };
 
   /**
    * Unequip an item from the specified slot
    * 
-   * TODO: Replace local state update with backend API call using apiUnequipItem
-   * when /character/unequip endpoint is ready. Then call refreshInventory() to sync state.
+   * Moves item from equipped to inventory, updates backend, and refreshes state
    */
   const unequipItem = async (slotName: keyof EquippedItems) => {
     // Only allow unequipping optional slots
@@ -283,11 +325,27 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Update local state only (no backend call)
-    setEquipped((prev) => ({
-      ...prev,
-      [slotName]: null,
-    }));
+    const equippedItem = equipped[slotName];
+    if (!equippedItem) return;
+
+    try {
+      // Create updated inventory by adding the unequipped item back
+      const updatedInventory = { ...inventory };
+      const categoryKey = equippedItem.category;
+      updatedInventory[categoryKey] = [...updatedInventory[categoryKey], equippedItem];
+
+      // Convert to backend format and send
+      const backendInventory = convertToBackendInventory(updatedInventory);
+      await updateInventory(backendInventory);
+
+      // Refresh from backend to ensure sync
+      await refreshInventory();
+    } catch (err) {
+      console.error("[Inventory Context] Failed to unequip item:", err);
+      setError(err instanceof Error ? err.message : "Failed to unequip item");
+      // Revert to previous state by refreshing
+      await refreshInventory();
+    }
   };
 
   /**
