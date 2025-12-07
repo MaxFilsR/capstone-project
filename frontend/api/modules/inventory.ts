@@ -68,7 +68,7 @@ export type Inventory = {
 };
 
 /**
- * Equipped items structure
+ * Equipped items structure (backend format)
  */
 export type EquippedItems = {
   arms: number;
@@ -78,13 +78,6 @@ export type EquippedItems = {
   head_accessory: number | null;
   pet: number | null;
   weapon: number | null;
-};
-
-/**
- * Request payload for updating inventory (equip/unequip)
- */
-export type UpdateInventoryRequest = {
-  inventory: Inventory;
 };
 
 // ============================================================================
@@ -151,13 +144,4 @@ export async function getItems(
 ): Promise<GetItemsResponse> {
   const { data } = await apiClient.post<GetItemsResponse>('/constants/items', payload);
   return data;
-}
-
-/**
- * Update character inventory (used for equip/unequip operations)
- * 
- * Sends the entire inventory object to the backend via PUT request
- */
-export async function updateInventory(inventory: Inventory): Promise<void> {
-  await apiClient.put("/character/inventory", { inventory });
 }
