@@ -1,3 +1,11 @@
+/**
+ * Fitness Tab Screen
+ *
+ * Main fitness screen with tabbed navigation for workout management.
+ * Features History (past workouts), Routines (saved templates),
+ * and Library (exercise database).
+ */
+
 import React from "react";
 import { View, StyleSheet, StatusBar } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -10,10 +18,16 @@ import QuickActionButton from "@/components/QuickActionButton";
 import { colorPallet } from "@/styles/variables";
 import { containers } from "@/styles";
 
+// ============================================================================
+// Component
+// ============================================================================
+
 const FitnessScreen = () => {
+  /**
+   * Tab configuration for fitness sub-screens
+   */
   const tabs: Tab[] = [
     { name: "History", component: HistoryScreen },
-    // { name: "Records", component: RecordsScreen },
     { name: "Routines", component: RoutinesScreen },
     { name: "Library", component: LibraryScreen },
   ];

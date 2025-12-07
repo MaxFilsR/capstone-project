@@ -1,3 +1,11 @@
+/**
+ * Summary Tab Screen (Home)
+ *
+ * Main home screen displaying user's character card with stats and XP progress,
+ * plus summary modules for recent workouts, active quests, and friends.
+ * Acts as the central dashboard.
+ */
+
 import React, { useState, useEffect } from "react";
 import {
   Text,
@@ -18,14 +26,24 @@ import CharacterCardSummary from "@/components/summaryModuals/CharacterCard";
 import ActiveQuests from "@/components/summaryModuals/ActiveQuests";
 import FriendsSummary from "@/components/summaryModuals/FriendsSummary";
 
+// ============================================================================
+// Component
+// ============================================================================
+
 export default function HomeScreen() {
   const [profile, setProfile] = useState<CharacterProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  /**
+   * Load character profile on mount
+   */
   useEffect(() => {
     loadProfile();
   }, []);
 
+  /**
+   * Fetch character profile data from API
+   */
   const loadProfile = async () => {
     try {
       setLoading(true);
@@ -78,6 +96,7 @@ export default function HomeScreen() {
   {/* Active Quests Module */}
   <ActiveQuests limit={3} />
 
+  {/* Friends summary module */}
   <FriendsSummary limit={5} />
 </ScrollView>
       </SafeAreaView>
