@@ -12,6 +12,7 @@ import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
 import { Ionicons } from "@expo/vector-icons";
 import { BackButton } from "@/components";
+import { useAuth } from "@/lib/auth-context";
 
 // ============================================================================
 // Types
@@ -28,6 +29,8 @@ type SettingsItem = {
 // ============================================================================
 
 const SettingScreen = () => {
+  const { logout } = useAuth();
+
   // user account settings
   const accountSettings: SettingsItem[] = [
     {
@@ -80,9 +83,8 @@ const SettingScreen = () => {
         {
           text: "Log Out",
           style: "destructive",
-          onPress: () => {
-            console.log("Logging out...");
-            // clear session
+          onPress: async () => {
+            await logout();
           },
         },
       ],
