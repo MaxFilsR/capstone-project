@@ -2,6 +2,7 @@
 
 #### Docs:
 - https://doc.rust-lang.org/stable/std/index.html
+  - https://doc.rust-lang.org/std/collections/struct.HashMap.html
 - https://docs.rs/sqlx/latest/sqlx/index.html
   - https://docs.rs/sqlx/latest/sqlx/type.PgPool.html
   - https://docs.rs/sqlx/latest/sqlx/fn.query.html
@@ -15,6 +16,7 @@
 - https://www.youtube.com/watch?v=9oAGDqNlIKw and https://github.com/trasherr/Blogging-API-Actix-Web/
 - https://medium.com/@maison.moa/using-jwt-json-web-tokens-to-authorize-users-and-protect-api-routes-3e04a1453c3e
 - https://table.studio/blog/import-json-into-postgres-using-copy
+- https://www.w3schools.com/postgresql/index.php
 
 #### Tools:
 - Online JWT Decoder: https://www.jwt.io/
