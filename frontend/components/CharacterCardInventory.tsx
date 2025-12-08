@@ -52,10 +52,10 @@ type EquipmentSlotItemProps = {
 function getImageStyle(category: string) {
   const adjustments: Record<string, { scale: number; translateX?: number; translateY?: number }> = {
     backgrounds: { scale: 1.0 },
-    bodies: { scale: 1.5, translateY: -12 },
-    arms: { scale: 1.5, translateY: -12 },
-    heads: { scale: 1.5, translateY: 0 },
-    accessories: { scale: 1.5, translateY: 0 },
+    bodies: { scale: 1.5, translateY: -38 , translateX: -12 },
+    arms: { scale: 1.5, translateY: -32 , translateX: -12 },
+    heads: { scale: 1.5, translateY: -12 , translateX: -12  },
+    accessories: { scale: 1.5, translateY: -5 , translateX: -12  },
     weapons: { scale: 1.5, translateX: 2, translateY: -12 },
     pets: { scale: 1.5, translateY: 2 },
   };
@@ -409,8 +409,8 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   slotImage: {
-    width: "100%",
-    height: "100%",
+    width: "150%",
+    height: "150%",
   },
   emptySlot: {
     width: "100%",
