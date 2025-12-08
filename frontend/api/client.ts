@@ -8,9 +8,18 @@
 
 import axios from "axios";
 import { storage } from "@/utils/storageHelper";
+import { router } from "expo-router";
+import { Platform } from "react-native";
 
+<<<<<<< HEAD
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 // const API_BASE_URL = "http://localhost:8080"; 
+=======
+// const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+const API_BASE_URL = Platform.OS === "android"
+    ? "http://10.0.2.2:8080" // Android emulator → host machine
+    : "http://localhost:8080"; // iOS simulator or web
+>>>>>>> 19e30689f44619e8b434c6e283296315daad48cf
 
 /**
  * Configured Axios instance for API requests
