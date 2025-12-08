@@ -182,6 +182,7 @@ pub enum ExerciseCategory {
     stretching,
     cardio,
     #[serde(rename = "olympic weightlifting")]
+    #[sqlx(rename = "olympic weightlifting")]
     olympic_weightlifting,
     strongman,
     plyometrics,
@@ -204,8 +205,10 @@ pub enum ExerciseMuscle {
     hamstrings,
     lats,
     #[serde(rename = "lower back")]
+    #[sqlx(rename = "lower back")]
     lower_back,
     #[serde(rename = "middle back")]
+    #[sqlx(rename = "middle back")]
     middle_back,
     neck,
     quadriceps,
