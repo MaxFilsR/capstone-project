@@ -1,4 +1,4 @@
-#How to build:
+# How to build:
 
 1. Using TeXstudio
 2. Options -> Configure TeXstudio -> Commands 
