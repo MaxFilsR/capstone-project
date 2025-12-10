@@ -14,6 +14,8 @@ import { storage } from "@/utils/storageHelper";
 import { FriendsProvider } from "@/lib/friends-context";
 import { QuestProvider } from "@/lib/quest-context";
 import { InventoryProvider } from "@/lib/inventory-context";
+import { ShopProvider } from "@/lib/shop-context";
+
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
@@ -46,9 +48,11 @@ function InnerProviders() {
       <RoutinesProvider>
         <FriendsProvider>
           <InventoryProvider>
-            <QuestProvider>
-              <InnerStack />
-            </QuestProvider>
+            <ShopProvider>
+              <QuestProvider>
+                <InnerStack />
+              </QuestProvider>
+            </ShopProvider>
           </InventoryProvider>
         </FriendsProvider>
       </RoutinesProvider>
