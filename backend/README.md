@@ -2,7 +2,6 @@
 
 #### Docs:
 - https://doc.rust-lang.org/stable/std/index.html
-  - https://doc.rust-lang.org/std/collections/struct.HashMap.html
 - https://docs.rs/sqlx/latest/sqlx/index.html
   - https://docs.rs/sqlx/latest/sqlx/type.PgPool.html
   - https://docs.rs/sqlx/latest/sqlx/fn.query.html

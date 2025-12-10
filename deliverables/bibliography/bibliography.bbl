@@ -46,7 +46,7 @@
       \verb{url}
       \verb https://doc.rust-lang.org/stable/std/index.html
       \endverb
-      \keyw{rust}
+      \keyw{{rust}}
     \endentry
     \entry{sqlx}{online}{}{}
       \name{author}{1}{}{%
@@ -75,7 +75,7 @@
       \verb{url}
       \verb https://docs.rs/sqlx/latest/sqlx/index.html
       \endverb
-      \keyw{rust,sqlx}
+      \keyw{{rust,sqlx}}
     \endentry
     \entry{actix-web}{online}{}{}
       \name{author}{1}{}{%
@@ -104,7 +104,7 @@
       \verb{url}
       \verb https://docs.rs/sqlx/latest/sqlx/index.html
       \endverb
-      \keyw{rust,sqlx}
+      \keyw{{rust,sqlx}}
     \endentry
     \entry{mozilla}{online}{}{}
       \name{author}{1}{}{%
@@ -133,30 +133,28 @@
       \verb{url}
       \verb https://developer.mozilla.org/en-US/docs/Web/HTTP
       \endverb
-      \keyw{mozilla,http}
+      \keyw{{mozilla,http}}
     \endentry
     \entry{tutorial-1}{online}{}{}
       \name{author}{1}{}{%
-        {{hash=593d633c9e52a4847ca18c67a6fa2f34}{%
-           family={Chanda},
-           familyi={C\bibinitperiod},
-           given={Abhishek},
-           giveni={A\bibinitperiod}}}%
+        {{hash=e5ecd065bc4f4ef1a38b211ca762cb33}{%
+           family={{Abhishek Chanda}},
+           familyi={A\bibinitperiod}}}%
       }
-      \strng{namehash}{593d633c9e52a4847ca18c67a6fa2f34}
-      \strng{fullhash}{593d633c9e52a4847ca18c67a6fa2f34}
-      \strng{fullhashraw}{593d633c9e52a4847ca18c67a6fa2f34}
-      \strng{bibnamehash}{593d633c9e52a4847ca18c67a6fa2f34}
-      \strng{authorbibnamehash}{593d633c9e52a4847ca18c67a6fa2f34}
-      \strng{authornamehash}{593d633c9e52a4847ca18c67a6fa2f34}
-      \strng{authorfullhash}{593d633c9e52a4847ca18c67a6fa2f34}
-      \strng{authorfullhashraw}{593d633c9e52a4847ca18c67a6fa2f34}
+      \strng{namehash}{e5ecd065bc4f4ef1a38b211ca762cb33}
+      \strng{fullhash}{e5ecd065bc4f4ef1a38b211ca762cb33}
+      \strng{fullhashraw}{e5ecd065bc4f4ef1a38b211ca762cb33}
+      \strng{bibnamehash}{e5ecd065bc4f4ef1a38b211ca762cb33}
+      \strng{authorbibnamehash}{e5ecd065bc4f4ef1a38b211ca762cb33}
+      \strng{authornamehash}{e5ecd065bc4f4ef1a38b211ca762cb33}
+      \strng{authorfullhash}{e5ecd065bc4f4ef1a38b211ca762cb33}
+      \strng{authorfullhashraw}{e5ecd065bc4f4ef1a38b211ca762cb33}
       \field{sortinit}{6}
       \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{subtitle}{Learn how to implement a simple REST API with JWT Authentication in Rust using the actix web framework and Diesel.}
-      \field{title}{Build an API in Rust with JWT Authentication}
+      \field{subtitle}{{Learn how to implement a simple REST API with JWT Authentication in Rust using the actix web framework and Diesel.}}
+      \field{title}{{Build an API in Rust with JWT Authentication}}
       \true{nocite}
       \verb{urlraw}
       \verb https://auth0.com/blog/build-an-api-in-rust-with-jwt-authentication-using-actix-web/
@@ -164,12 +162,12 @@
       \verb{url}
       \verb https://auth0.com/blog/build-an-api-in-rust-with-jwt-authentication-using-actix-web/
       \endverb
-      \keyw{rust,actix-web,jwt}
+      \keyw{{rust,actix-web,jwt}}
     \endentry
     \entry{tutorial-2}{online}{}{}
       \name{author}{1}{}{%
         {{hash=23e0ecaf300172f8c1afafdca4c6b551}{%
-           family={Codevo},
+           family={{Codevo}},
            familyi={C\bibinitperiod}}}%
       }
       \strng{namehash}{23e0ecaf300172f8c1afafdca4c6b551}
@@ -184,15 +182,15 @@
       \field{sortinithash}{108d0be1b1bee9773a1173443802c0a3}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{title}{Rust & Actix Web – Build a CRUD API with SQLX and MySQL}
+      \field{title}{{Rust \& Actix Web – Build a CRUD API with SQLX and MySQL}}
       \true{nocite}
       \verb{urlraw}
-      \verb https://codevoweb.com/rust-actix-web-build-crud-api-with-sqlx-and-mysql/
+      \verb https://codevoweb.com/rust-actix-web-build-crud-api-with-sqlx-and-mysql
       \endverb
       \verb{url}
-      \verb https://codevoweb.com/rust-actix-web-build-crud-api-with-sqlx-and-mysql/
+      \verb https://codevoweb.com/rust-actix-web-build-crud-api-with-sqlx-and-mysql
       \endverb
-      \keyw{rust,actix-web,jwt,crud,sqlx}
+      \keyw{{rust,actix-web,jwt,crud,sqlx}}
     \endentry
     \entry{tutorial-3}{online}{}{}
       \name{author}{1}{}{%
@@ -212,7 +210,7 @@
       \field{sortinithash}{a231b008ebf0ecbe0b4d96dcc159445f}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{title}{Don't Panic! Error Handling Hacks for Actix Web (Part 4)}
+      \field{title}{{Don't Panic! Error Handling Hacks for Actix Web (Part 4)}}
       \true{nocite}
       \verb{urlraw}
       \verb https://www.youtube.com/watch?v=9oAGDqNlIKw
@@ -220,7 +218,487 @@
       \verb{url}
       \verb https://www.youtube.com/watch?v=9oAGDqNlIKw
       \endverb
-      \keyw{rust,actix-web}
+      \keyw{{rust,actix-web}}
+    \endentry
+    \entry{tutorial-4}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=004ff7379c62dafa06bc6a3bc97b6a50}{%
+           family={{Maison Moa}},
+           familyi={M\bibinitperiod}}}%
+      }
+      \strng{namehash}{004ff7379c62dafa06bc6a3bc97b6a50}
+      \strng{fullhash}{004ff7379c62dafa06bc6a3bc97b6a50}
+      \strng{fullhashraw}{004ff7379c62dafa06bc6a3bc97b6a50}
+      \strng{bibnamehash}{004ff7379c62dafa06bc6a3bc97b6a50}
+      \strng{authorbibnamehash}{004ff7379c62dafa06bc6a3bc97b6a50}
+      \strng{authornamehash}{004ff7379c62dafa06bc6a3bc97b6a50}
+      \strng{authorfullhash}{004ff7379c62dafa06bc6a3bc97b6a50}
+      \strng{authorfullhashraw}{004ff7379c62dafa06bc6a3bc97b6a50}
+      \field{sortinit}{9}
+      \field{sortinithash}{0a5ebc79d83c96b6579069544c73c7d4}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Using JWT (JSON Web Tokens) to authorize users and protect API routes}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://medium.com/@maison.moa/using-jwt-json-web-tokens-to-authorize-users-and-protect-api-routes-3e04a1453c3e
+      \endverb
+      \verb{url}
+      \verb https://medium.com/@maison.moa/using-jwt-json-web-tokens-to-authorize-users-and-protect-api-routes-3e04a1453c3e
+      \endverb
+      \keyw{{jwt}}
+    \endentry
+    \entry{tutorial-5}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=920dc874e07f3a6912141d21685de96c}{%
+           family={{table.studio}},
+           familyi={t\bibinitperiod}}}%
+      }
+      \strng{namehash}{920dc874e07f3a6912141d21685de96c}
+      \strng{fullhash}{920dc874e07f3a6912141d21685de96c}
+      \strng{fullhashraw}{920dc874e07f3a6912141d21685de96c}
+      \strng{bibnamehash}{920dc874e07f3a6912141d21685de96c}
+      \strng{authorbibnamehash}{920dc874e07f3a6912141d21685de96c}
+      \strng{authornamehash}{920dc874e07f3a6912141d21685de96c}
+      \strng{authorfullhash}{920dc874e07f3a6912141d21685de96c}
+      \strng{authorfullhashraw}{920dc874e07f3a6912141d21685de96c}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Import JSON into Postgres using COPYs}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://table.studio/blog/import-json-into-postgres-using-copy
+      \endverb
+      \verb{url}
+      \verb https://table.studio/blog/import-json-into-postgres-using-copy
+      \endverb
+      \keyw{{postgresql}}
+    \endentry
+    \entry{tutorial-6}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=bd21525362368ddbd79358cdcf66005d}{%
+           family={{W3Schools}},
+           familyi={W\bibinitperiod}}}%
+      }
+      \strng{namehash}{bd21525362368ddbd79358cdcf66005d}
+      \strng{fullhash}{bd21525362368ddbd79358cdcf66005d}
+      \strng{fullhashraw}{bd21525362368ddbd79358cdcf66005d}
+      \strng{bibnamehash}{bd21525362368ddbd79358cdcf66005d}
+      \strng{authorbibnamehash}{bd21525362368ddbd79358cdcf66005d}
+      \strng{authornamehash}{bd21525362368ddbd79358cdcf66005d}
+      \strng{authorfullhash}{bd21525362368ddbd79358cdcf66005d}
+      \strng{authorfullhashraw}{bd21525362368ddbd79358cdcf66005d}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{PostgreSQL Tutorial}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://www.w3schools.com/postgresql/index.php
+      \endverb
+      \verb{url}
+      \verb https://www.w3schools.com/postgresql/index.php
+      \endverb
+      \keyw{{postgresql}}
+    \endentry
+    \entry{tutorial-7}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=7a6d814dad5bd4a900e16d7184672cbb}{%
+           family={{Brandon James Greer}},
+           familyi={B\bibinitperiod}}}%
+      }
+      \strng{namehash}{7a6d814dad5bd4a900e16d7184672cbb}
+      \strng{fullhash}{7a6d814dad5bd4a900e16d7184672cbb}
+      \strng{fullhashraw}{7a6d814dad5bd4a900e16d7184672cbb}
+      \strng{bibnamehash}{7a6d814dad5bd4a900e16d7184672cbb}
+      \strng{authorbibnamehash}{7a6d814dad5bd4a900e16d7184672cbb}
+      \strng{authornamehash}{7a6d814dad5bd4a900e16d7184672cbb}
+      \strng{authorfullhash}{7a6d814dad5bd4a900e16d7184672cbb}
+      \strng{authorfullhashraw}{7a6d814dad5bd4a900e16d7184672cbb}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{“How do you start Pixel Art?”…Here’s what I did!}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://www.youtube.com/watch?app=desktop&v=WUlgvNe4BLU&t=113s
+      \endverb
+      \verb{url}
+      \verb https://www.youtube.com/watch?app=desktop&v=WUlgvNe4BLU&t=113s
+      \endverb
+      \keyw{{art}}
+    \endentry
+    \entry{tutorial-8}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=428579202c56dd3305dfb51cdd1e9d54}{%
+           family={{PedroTech}},
+           familyi={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{428579202c56dd3305dfb51cdd1e9d54}
+      \strng{fullhash}{428579202c56dd3305dfb51cdd1e9d54}
+      \strng{fullhashraw}{428579202c56dd3305dfb51cdd1e9d54}
+      \strng{bibnamehash}{428579202c56dd3305dfb51cdd1e9d54}
+      \strng{authorbibnamehash}{428579202c56dd3305dfb51cdd1e9d54}
+      \strng{authornamehash}{428579202c56dd3305dfb51cdd1e9d54}
+      \strng{authorfullhash}{428579202c56dd3305dfb51cdd1e9d54}
+      \strng{authorfullhashraw}{428579202c56dd3305dfb51cdd1e9d54}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{React Native Full Course 2025 | Become a React Native Pro in 4 Hours}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://www.youtube.com/watch?app=desktop&v=J50gwzwLvAk
+      \endverb
+      \verb{url}
+      \verb https://www.youtube.com/watch?app=desktop&v=J50gwzwLvAk
+      \endverb
+      \keyw{{react}}
+    \endentry
+    \entry{tool-1}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=7bbb59770ba3cf6e020790ba5b77e75a}{%
+           family={{auth0}},
+           familyi={a\bibinitperiod}}}%
+      }
+      \strng{namehash}{7bbb59770ba3cf6e020790ba5b77e75a}
+      \strng{fullhash}{7bbb59770ba3cf6e020790ba5b77e75a}
+      \strng{fullhashraw}{7bbb59770ba3cf6e020790ba5b77e75a}
+      \strng{bibnamehash}{7bbb59770ba3cf6e020790ba5b77e75a}
+      \strng{authorbibnamehash}{7bbb59770ba3cf6e020790ba5b77e75a}
+      \strng{authornamehash}{7bbb59770ba3cf6e020790ba5b77e75a}
+      \strng{authorfullhash}{7bbb59770ba3cf6e020790ba5b77e75a}
+      \strng{authorfullhashraw}{7bbb59770ba3cf6e020790ba5b77e75a}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{JSON Web Token (JWT) Debugger}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://www.jwt.io/
+      \endverb
+      \verb{url}
+      \verb https://www.jwt.io/
+      \endverb
+      \keyw{{jwt}}
+    \endentry
+    \entry{tool-2}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=ea954a0db5ef9725357b898876823a13}{%
+           family={{Kong}},
+           familyi={K\bibinitperiod}}}%
+      }
+      \strng{namehash}{ea954a0db5ef9725357b898876823a13}
+      \strng{fullhash}{ea954a0db5ef9725357b898876823a13}
+      \strng{fullhashraw}{ea954a0db5ef9725357b898876823a13}
+      \strng{bibnamehash}{ea954a0db5ef9725357b898876823a13}
+      \strng{authorbibnamehash}{ea954a0db5ef9725357b898876823a13}
+      \strng{authornamehash}{ea954a0db5ef9725357b898876823a13}
+      \strng{authorfullhash}{ea954a0db5ef9725357b898876823a13}
+      \strng{authorfullhashraw}{ea954a0db5ef9725357b898876823a13}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Insomnia}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://insomnia.rest/
+      \endverb
+      \verb{url}
+      \verb https://insomnia.rest/
+      \endverb
+      \keyw{{api}}
+    \endentry
+    \entry{tool-3}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=74951d5d21421c923539032bc8301c91}{%
+           family={{Igara Studio}},
+           familyi={I\bibinitperiod}}}%
+      }
+      \strng{namehash}{74951d5d21421c923539032bc8301c91}
+      \strng{fullhash}{74951d5d21421c923539032bc8301c91}
+      \strng{fullhashraw}{74951d5d21421c923539032bc8301c91}
+      \strng{bibnamehash}{74951d5d21421c923539032bc8301c91}
+      \strng{authorbibnamehash}{74951d5d21421c923539032bc8301c91}
+      \strng{authornamehash}{74951d5d21421c923539032bc8301c91}
+      \strng{authorfullhash}{74951d5d21421c923539032bc8301c91}
+      \strng{authorfullhashraw}{74951d5d21421c923539032bc8301c91}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{aseprite}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://www.aseprite.org/
+      \endverb
+      \verb{url}
+      \verb https://www.aseprite.org/
+      \endverb
+      \keyw{{art}}
+    \endentry
+    \entry{asset-1}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=6ff9acf8ea577e3e50dea3730fa79ca0}{%
+           family={{yuhonas}},
+           familyi={y\bibinitperiod}}}%
+      }
+      \strng{namehash}{6ff9acf8ea577e3e50dea3730fa79ca0}
+      \strng{fullhash}{6ff9acf8ea577e3e50dea3730fa79ca0}
+      \strng{fullhashraw}{6ff9acf8ea577e3e50dea3730fa79ca0}
+      \strng{bibnamehash}{6ff9acf8ea577e3e50dea3730fa79ca0}
+      \strng{authorbibnamehash}{6ff9acf8ea577e3e50dea3730fa79ca0}
+      \strng{authornamehash}{6ff9acf8ea577e3e50dea3730fa79ca0}
+      \strng{authorfullhash}{6ff9acf8ea577e3e50dea3730fa79ca0}
+      \strng{authorfullhashraw}{6ff9acf8ea577e3e50dea3730fa79ca0}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{subtitle}{{Open Public Domain Exercise Dataset in JSON format, over 800 exercises with a browsable public searchable frontend}}
+      \field{title}{{Free Exercise DB}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://insomnia.rest/
+      \endverb
+      \verb{url}
+      \verb https://insomnia.rest/
+      \endverb
+      \keyw{{library}}
+    \endentry
+    \entry{asset-2}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=0e86993ade45032b58e03bd2ee5829a1}{%
+           family={{Rory Mitchell}},
+           familyi={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{fullhash}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{fullhashraw}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{bibnamehash}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{authorbibnamehash}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{authornamehash}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{authorfullhash}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{authorfullhashraw}{0e86993ade45032b58e03bd2ee5829a1}
+      \field{extraname}{1}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Male Animated Character Base}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://rory.itch.io/male-animated-character-base
+      \endverb
+      \verb{url}
+      \verb https://rory.itch.io/male-animated-character-base
+      \endverb
+      \keyw{{art}}
+    \endentry
+    \entry{asset-3}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=0e86993ade45032b58e03bd2ee5829a1}{%
+           family={{Rory Mitchell}},
+           familyi={R\bibinitperiod}}}%
+      }
+      \strng{namehash}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{fullhash}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{fullhashraw}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{bibnamehash}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{authorbibnamehash}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{authornamehash}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{authorfullhash}{0e86993ade45032b58e03bd2ee5829a1}
+      \strng{authorfullhashraw}{0e86993ade45032b58e03bd2ee5829a1}
+      \field{extraname}{2}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Female Animated Character Base}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://rory.itch.io/female-animated-character-base
+      \endverb
+      \verb{url}
+      \verb https://rory.itch.io/female-animated-character-base
+      \endverb
+      \keyw{{art}}
+    \endentry
+    \entry{asset-4}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=a7e9e7ef45b2d10fe5be7ce42c9f33ab}{%
+           family={{Takoyaki Shop}},
+           familyi={T\bibinitperiod}}}%
+      }
+      \strng{namehash}{a7e9e7ef45b2d10fe5be7ce42c9f33ab}
+      \strng{fullhash}{a7e9e7ef45b2d10fe5be7ce42c9f33ab}
+      \strng{fullhashraw}{a7e9e7ef45b2d10fe5be7ce42c9f33ab}
+      \strng{bibnamehash}{a7e9e7ef45b2d10fe5be7ce42c9f33ab}
+      \strng{authorbibnamehash}{a7e9e7ef45b2d10fe5be7ce42c9f33ab}
+      \strng{authornamehash}{a7e9e7ef45b2d10fe5be7ce42c9f33ab}
+      \strng{authorfullhash}{a7e9e7ef45b2d10fe5be7ce42c9f33ab}
+      \strng{authorfullhashraw}{a7e9e7ef45b2d10fe5be7ce42c9f33ab}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{subtitle}{{8 bit retro style illustration set of rabbit, bear, frog, mouse, chicken, cat, duck, fox, owl, dog. Best for mobile game design, decoration, stickers.}}
+      \field{title}{{Pixel art animals icons Collection}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://stock.adobe.com/search?k=pixel+animals&asset_id=461536425
+      \endverb
+      \verb{url}
+      \verb https://stock.adobe.com/search?k=pixel+animals&asset_id=461536425
+      \endverb
+      \keyw{{art}}
+    \endentry
+    \entry{asset-5}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=ea4607a72c59c6439bae5f58f62fbeb0}{%
+           family={{ SickleMoon}},
+           familyi={_\bibinitperiod}}}%
+      }
+      \strng{namehash}{ea4607a72c59c6439bae5f58f62fbeb0}
+      \strng{fullhash}{ea4607a72c59c6439bae5f58f62fbeb0}
+      \strng{fullhashraw}{ea4607a72c59c6439bae5f58f62fbeb0}
+      \strng{bibnamehash}{ea4607a72c59c6439bae5f58f62fbeb0}
+      \strng{authorbibnamehash}{ea4607a72c59c6439bae5f58f62fbeb0}
+      \strng{authornamehash}{ea4607a72c59c6439bae5f58f62fbeb0}
+      \strng{authorfullhash}{ea4607a72c59c6439bae5f58f62fbeb0}
+      \strng{authorfullhashraw}{ea4607a72c59c6439bae5f58f62fbeb0}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Different colors cats pixel art icon set.}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://stock.adobe.com/search?k=pixel+animals&asset_id=491617156
+      \endverb
+      \verb{url}
+      \verb https://stock.adobe.com/search?k=pixel+animals&asset_id=491617156
+      \endverb
+      \keyw{{art}}
+    \endentry
+    \entry{asset-6}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=bc1e92942cc36fdf53c30bddde6f9465}{%
+           family={{Terng}},
+           familyi={T\bibinitperiod}}}%
+      }
+      \strng{namehash}{bc1e92942cc36fdf53c30bddde6f9465}
+      \strng{fullhash}{bc1e92942cc36fdf53c30bddde6f9465}
+      \strng{fullhashraw}{bc1e92942cc36fdf53c30bddde6f9465}
+      \strng{bibnamehash}{bc1e92942cc36fdf53c30bddde6f9465}
+      \strng{authorbibnamehash}{bc1e92942cc36fdf53c30bddde6f9465}
+      \strng{authornamehash}{bc1e92942cc36fdf53c30bddde6f9465}
+      \strng{authorfullhash}{bc1e92942cc36fdf53c30bddde6f9465}
+      \strng{authorfullhashraw}{bc1e92942cc36fdf53c30bddde6f9465}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Vector pixel art animal series collection.}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://stock.adobe.com/search?k=pixel+animals&asset_id=556602773
+      \endverb
+      \verb{url}
+      \verb https://stock.adobe.com/search?k=pixel+animals&asset_id=556602773
+      \endverb
+      \keyw{{art}}
+    \endentry
+    \entry{asset-7}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=4bb3095f4bcadf335ec7827945d633df}{%
+           family={{Collaborapix Studio}},
+           familyi={C\bibinitperiod}}}%
+      }
+      \strng{namehash}{4bb3095f4bcadf335ec7827945d633df}
+      \strng{fullhash}{4bb3095f4bcadf335ec7827945d633df}
+      \strng{fullhashraw}{4bb3095f4bcadf335ec7827945d633df}
+      \strng{bibnamehash}{4bb3095f4bcadf335ec7827945d633df}
+      \strng{authorbibnamehash}{4bb3095f4bcadf335ec7827945d633df}
+      \strng{authornamehash}{4bb3095f4bcadf335ec7827945d633df}
+      \strng{authorfullhash}{4bb3095f4bcadf335ec7827945d633df}
+      \strng{authorfullhashraw}{4bb3095f4bcadf335ec7827945d633df}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Pixel art illustration Gladiator Sword. Pixelated Gladiator Shield.}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://www.shutterstock.com/image-vector/pixel-art-illustration-gladiator-sword-pixelated-2611667733
+      \endverb
+      \verb{url}
+      \verb https://www.shutterstock.com/image-vector/pixel-art-illustration-gladiator-sword-pixelated-2611667733
+      \endverb
+      \keyw{{art}}
+    \endentry
+    \entry{asset-8}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=f41f8b66f2e873d65c8abb809022b49e}{%
+           family={{Paulo Lopes}},
+           familyi={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{f41f8b66f2e873d65c8abb809022b49e}
+      \strng{fullhash}{f41f8b66f2e873d65c8abb809022b49e}
+      \strng{fullhashraw}{f41f8b66f2e873d65c8abb809022b49e}
+      \strng{bibnamehash}{f41f8b66f2e873d65c8abb809022b49e}
+      \strng{authorbibnamehash}{f41f8b66f2e873d65c8abb809022b49e}
+      \strng{authornamehash}{f41f8b66f2e873d65c8abb809022b49e}
+      \strng{authorfullhash}{f41f8b66f2e873d65c8abb809022b49e}
+      \strng{authorfullhashraw}{f41f8b66f2e873d65c8abb809022b49e}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Pixel Art Gladiator, Attack and Idle}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://paulopala.artstation.com/projects/mqNn88
+      \endverb
+      \verb{url}
+      \verb https://paulopala.artstation.com/projects/mqNn88
+      \endverb
+      \keyw{{art}}
+    \endentry
+    \entry{asset-9}{online}{}{}
+      \name{author}{1}{}{%
+        {{hash=672896d2773a768108dfb69bb669651a}{%
+           family={{Zappelbrox}},
+           familyi={Z\bibinitperiod}}}%
+      }
+      \strng{namehash}{672896d2773a768108dfb69bb669651a}
+      \strng{fullhash}{672896d2773a768108dfb69bb669651a}
+      \strng{fullhashraw}{672896d2773a768108dfb69bb669651a}
+      \strng{bibnamehash}{672896d2773a768108dfb69bb669651a}
+      \strng{authorbibnamehash}{672896d2773a768108dfb69bb669651a}
+      \strng{authornamehash}{672896d2773a768108dfb69bb669651a}
+      \strng{authorfullhash}{672896d2773a768108dfb69bb669651a}
+      \strng{authorfullhashraw}{672896d2773a768108dfb69bb669651a}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{{Pixel Puzzle - Marvel's Thor}}
+      \true{nocite}
+      \verb{urlraw}
+      \verb https://makerworld.com/en/models/237606-pixel-puzzle-marvel-s-thor
+      \endverb
+      \verb{url}
+      \verb https://makerworld.com/en/models/237606-pixel-puzzle-marvel-s-thor
+      \endverb
+      \keyw{{art}}
     \endentry
   \enddatalist
 \endrefsection
