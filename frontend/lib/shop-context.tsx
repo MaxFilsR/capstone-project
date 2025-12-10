@@ -1,3 +1,10 @@
+/**
+ * Shop Context
+ *
+ * Manages shop state including available items, purchasing, and shop refresh.
+ * Follows similar pattern to inventory-context for consistency.
+ */
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { ImageSourcePropType } from "react-native";
 import { useAuth } from "./auth-context";
@@ -9,6 +16,10 @@ import {
   ItemRarity,
 } from "@/api/modules/shop";
 import { getItems, reconstructPngImage } from "@/api/modules/inventory";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 export type ShopItem = {
   id: string;
@@ -28,8 +39,19 @@ type ShopContextType = {
   loadShop: () => Promise<void>;
 };
 
+// ============================================================================
+// Context
+// ============================================================================
+
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Map backend category to display-friendly name
+ */
 function mapCategoryName(category: string): string {
   const categoryMap: Record<string, string> = {
     'head_accessories': 'Accessory',
@@ -51,7 +73,9 @@ function mapCategoryName(category: string): string {
   return categoryMap[category.toLowerCase()] || category;
 }
 
-
+/**
+ * Convert backend shop item to frontend shop item with image
+ */
 async function convertShopItem(backendItem: BackendShopItem): Promise<ShopItem> {
   try {
     // Fetch item image data
@@ -87,13 +111,19 @@ async function convertShopItem(backendItem: BackendShopItem): Promise<ShopItem> 
   }
 }
 
+// ============================================================================
+// Provider Component
+// ============================================================================
+
 export function ShopProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [shopItems, setShopItems] = useState<ShopItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-
+  /**
+   * Load shop items from backend
+   */
   const loadShop = async () => {
     try {
       setIsLoading(true);
@@ -115,7 +145,9 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     }
   };
 
-
+  /**
+   * Manually refresh shop with new items
+   */
   const refreshShopItems = async () => {
     try {
       setIsLoading(true);
@@ -132,6 +164,9 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  /**
+   * Purchase an item from the shop
+   */
   const purchaseItem = async (itemId: string): Promise<{ success: boolean; remainingCoins?: number; error?: string }> => {
     try {
       setError(null);
@@ -170,6 +205,9 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  /**
+   * Load shop on mount and when user changes
+   */
   useEffect(() => {
     if (user) {
       loadShop();
@@ -191,6 +229,10 @@ export function ShopProvider({ children }: { children: ReactNode }) {
     </ShopContext.Provider>
   );
 }
+
+// ============================================================================
+// Hook
+// ============================================================================
 
 export function useShop() {
   const context = useContext(ShopContext);
