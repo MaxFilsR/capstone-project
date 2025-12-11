@@ -1,0 +1,51 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE characters\n            SET inventory = $2 \n            where user_id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        {
+          "Custom": {
+            "name": "inventory",
+            "kind": {
+              "Composite": [
+                [
+                  "arms",
+                  "Int4Array"
+                ],
+                [
+                  "background",
+                  "Int4Array"
+                ],
+                [
+                  "bodies",
+                  "Int4Array"
+                ],
+                [
+                  "heads",
+                  "Int4Array"
+                ],
+                [
+                  "head_accessories",
+                  "Int4Array"
+                ],
+                [
+                  "pets",
+                  "Int4Array"
+                ],
+                [
+                  "weapons",
+                  "Int4Array"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5142a220aa8555e668e06223840a398a905e2f136722b93b40456dd8e671b769"
+}

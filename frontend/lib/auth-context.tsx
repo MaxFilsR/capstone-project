@@ -62,7 +62,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
    * Log out the user and clear all stored authentication data
    */
   const logout = async () => {
-    console.log("Logging out user...");
     await storage.deleteItem("accessToken");
     await storage.deleteItem("onboarded");
     setUser(null);

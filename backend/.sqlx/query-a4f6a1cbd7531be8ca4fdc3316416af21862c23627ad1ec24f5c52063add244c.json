@@ -1,0 +1,17 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE characters\n            SET level = $2, exp_leftover = $3, pending_stat_points = $4\n            WHERE user_id = $1\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a4f6a1cbd7531be8ca4fdc3316416af21862c23627ad1ec24f5c52063add244c"
+}

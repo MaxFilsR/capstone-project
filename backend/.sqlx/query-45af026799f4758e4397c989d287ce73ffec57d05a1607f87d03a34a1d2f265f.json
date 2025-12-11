@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE settings\n            SET workout_schedule = $1\n            WHERE user_id = $2\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "BoolArray",
+        "Int4"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "45af026799f4758e4397c989d287ce73ffec57d05a1607f87d03a34a1d2f265f"
+}

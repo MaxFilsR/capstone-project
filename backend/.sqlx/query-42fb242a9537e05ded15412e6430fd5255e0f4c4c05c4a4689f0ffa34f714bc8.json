@@ -1,0 +1,34 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT level, exp_leftover, pending_stat_points\n            FROM characters\n            WHERE user_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "level",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 1,
+        "name": "exp_leftover",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 2,
+        "name": "pending_stat_points",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "42fb242a9537e05ded15412e6430fd5255e0f4c4c05c4a4689f0ffa34f714bc8"
+}

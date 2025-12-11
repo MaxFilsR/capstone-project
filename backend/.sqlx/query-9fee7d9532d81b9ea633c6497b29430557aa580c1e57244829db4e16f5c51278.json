@@ -1,0 +1,130 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO characters (user_id, username, class, level, exp_leftover, pending_stat_points, streak, equipped, inventory)\n            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "class",
+            "kind": {
+              "Composite": [
+                [
+                  "name",
+                  "Text"
+                ],
+                [
+                  "stats",
+                  {
+                    "Custom": {
+                      "name": "stats",
+                      "kind": {
+                        "Composite": [
+                          [
+                            "strength",
+                            "Int4"
+                          ],
+                          [
+                            "endurance",
+                            "Int4"
+                          ],
+                          [
+                            "flexibility",
+                            "Int4"
+                          ]
+                        ]
+                      }
+                    }
+                  }
+                ]
+              ]
+            }
+          }
+        },
+        "Int4",
+        "Int4",
+        "Int4",
+        "Int4",
+        {
+          "Custom": {
+            "name": "equipped",
+            "kind": {
+              "Composite": [
+                [
+                  "arms",
+                  "Int4"
+                ],
+                [
+                  "background",
+                  "Int4"
+                ],
+                [
+                  "bodies",
+                  "Int4"
+                ],
+                [
+                  "head",
+                  "Int4"
+                ],
+                [
+                  "head_accessory",
+                  "Int4"
+                ],
+                [
+                  "pet",
+                  "Int4"
+                ],
+                [
+                  "weapon",
+                  "Int4"
+                ]
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "inventory",
+            "kind": {
+              "Composite": [
+                [
+                  "arms",
+                  "Int4Array"
+                ],
+                [
+                  "background",
+                  "Int4Array"
+                ],
+                [
+                  "bodies",
+                  "Int4Array"
+                ],
+                [
+                  "heads",
+                  "Int4Array"
+                ],
+                [
+                  "head_accessories",
+                  "Int4Array"
+                ],
+                [
+                  "pets",
+                  "Int4Array"
+                ],
+                [
+                  "weapons",
+                  "Int4Array"
+                ]
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9fee7d9532d81b9ea633c6497b29430557aa580c1e57244829db4e16f5c51278"
+}
