@@ -1,0 +1,48 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT name, stats as \"stats: Stats\"\n            FROM classes\n            WHERE id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "name",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "stats: Stats",
+        "type_info": {
+          "Custom": {
+            "name": "stats",
+            "kind": {
+              "Composite": [
+                [
+                  "strength",
+                  "Int4"
+                ],
+                [
+                  "endurance",
+                  "Int4"
+                ],
+                [
+                  "flexibility",
+                  "Int4"
+                ]
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "da75954227ff0145282587f466de822638b7705aa14760c33bbdf3c4fa8014e1"
+}

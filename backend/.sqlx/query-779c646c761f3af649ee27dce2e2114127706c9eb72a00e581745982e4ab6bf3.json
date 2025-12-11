@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            INSERT INTO quests (user_id, name, difficulty, status, number_of_workouts_needed, number_of_workouts_completed, workout_duration, exercise_category, exercise_muscle)\n            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Int4",
+        "Text",
+        {
+          "Custom": {
+            "name": "quest_difficulty",
+            "kind": {
+              "Enum": [
+                "easy",
+                "medium",
+                "hard"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "quest_status",
+            "kind": {
+              "Enum": [
+                "incomplete",
+                "complete"
+              ]
+            }
+          }
+        },
+        "Int4",
+        "Int4",
+        "Int4",
+        {
+          "Custom": {
+            "name": "exercise_category",
+            "kind": {
+              "Enum": [
+                "powerlifting",
+                "strength",
+                "stretching",
+                "cardio",
+                "olympic weightlifting",
+                "strongman",
+                "plyometrics"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "exercise_muscle",
+            "kind": {
+              "Enum": [
+                "abdominals",
+                "abductors",
+                "adductors",
+                "biceps",
+                "calves",
+                "chest",
+                "forearms",
+                "glutes",
+                "hamstrings",
+                "lats",
+                "lower back",
+                "middle back",
+                "neck",
+                "quadriceps",
+                "shoulders",
+                "traps",
+                "triceps"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "779c646c761f3af649ee27dce2e2114127706c9eb72a00e581745982e4ab6bf3"
+}

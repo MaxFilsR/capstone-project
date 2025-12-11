@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT inventory as \"inventory: Inventory\"\n            FROM characters\n            where user_id = $1\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "inventory: Inventory",
+        "type_info": {
+          "Custom": {
+            "name": "inventory",
+            "kind": {
+              "Composite": [
+                [
+                  "arms",
+                  "Int4Array"
+                ],
+                [
+                  "background",
+                  "Int4Array"
+                ],
+                [
+                  "bodies",
+                  "Int4Array"
+                ],
+                [
+                  "heads",
+                  "Int4Array"
+                ],
+                [
+                  "head_accessories",
+                  "Int4Array"
+                ],
+                [
+                  "pets",
+                  "Int4Array"
+                ],
+                [
+                  "weapons",
+                  "Int4Array"
+                ]
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "492ad022f37cf77129808e4987ee60a3eeba561e84024729d988c15f1dca7e6d"
+}

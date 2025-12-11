@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        SELECT EXISTS(\n            SELECT 1 FROM (\n                SELECT user_id\n                FROM characters\n                ORDER BY level DESC, exp_leftover DESC\n                LIMIT 100\n            ) AS leaderboard\n            WHERE user_id = $1\n        ) as \"is_on_leaderboard!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "is_on_leaderboard!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Int4"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "d07ef3b5fa936990f8ecc9d1f3840f142234f9a1efad5bf044536dbe327b6a58"
+}
