@@ -258,51 +258,51 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
   }, [user?.profile?.username]);
 
   /**
-   * Equip an item to the appropriate slot
-   * 
-   * Updates equipped items on backend via PUT /character/equipped
-   */
-  const equipItem = async (item: InventoryItem) => {
-    try {
-      setIsLoading(true);
-      
-      // Get fresh character data
-      const characterData = await getCharacter();
-      
-      // Map frontend slot names to backend equipped structure
-      const slotMap: Record<InventoryItem["category"], keyof BackendEquippedItems> = {
-        backgrounds: "background",
-        bodies: "bodies",
-        arms: "arms",
-        heads: "head",
-        accessories: "head_accessory",
-        weapons: "weapon",
-        pets: "pet",
-      };
+ * Equip an item to the appropriate slot
+ * 
+ * Updates equipped items on backend via PUT /character/equipped
+ */
+const equipItem = async (item: InventoryItem) => {
+  try {
+    setIsLoading(true);
+    
+    // Get fresh character data
+    const characterData = await getCharacter();
+    
+    // Map frontend slot names to backend equipped structure
+    const slotMap: Record<InventoryItem["category"], keyof BackendEquippedItems> = {
+      backgrounds: "background",
+      bodies: "body",
+      arms: "arms",
+      heads: "head",
+      accessories: "head_accessory",
+      weapons: "weapon",
+      pets: "pet",
+    };
 
-      const slot = slotMap[item.category];
-      if (!slot) return;
+    const slot = slotMap[item.category];
+    if (!slot) return;
 
-      // Create updated equipped object
-      const updatedEquipped: BackendEquippedItems = {
-        ...characterData.equipped,
-        [slot]: parseInt(item.id),
-      };
+    // Create updated equipped object
+    const updatedEquipped: BackendEquippedItems = {
+      ...characterData.equipped,
+      [slot]: parseInt(item.id),
+    };
 
-      // Send updated equipped to backend
-      await apiClient.put("/character/equipped", {
-        equipped: updatedEquipped,
-      });
+    // Send updated equipped to backend
+    await apiClient.put("/character/equipped", {
+      equipped: updatedEquipped,
+    });
 
-      // Refresh to get updated state
-      await refreshInventory();
-    } catch (err) {
-      console.error("[Inventory Context] Failed to equip item:", err);
-      setError(err instanceof Error ? err.message : "Failed to equip item");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // Refresh to get updated state
+    await refreshInventory();
+  } catch (err) {
+    console.error("[Inventory Context] Failed to equip item:", err);
+    setError(err instanceof Error ? err.message : "Failed to equip item");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   /**
    * Unequip an item from the specified slot
