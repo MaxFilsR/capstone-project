@@ -3,7 +3,6 @@ pub mod endpoints {
         pub mod character;
         pub mod quests;
         pub mod social;
-        pub mod summary;
         pub mod workouts {
             pub mod history;
             pub mod library;
@@ -11,10 +10,21 @@ pub mod endpoints {
             pub mod routines;
         }
     }
+    pub mod constants {
+        pub mod classes;
+        pub mod constants;
+        pub mod items;
+    }
     pub mod auth;
-    pub mod constants;
     pub mod onboarding;
+    pub mod settings;
+    pub mod shop;
+    pub mod stats;
 }
-
-pub mod jwt;
-pub mod schemas;
+pub mod utils {
+    pub mod coins;
+    pub mod env;
+    pub mod jwt;
+    pub mod level;
+    pub mod schemas;
+}

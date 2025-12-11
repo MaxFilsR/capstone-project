@@ -1,3 +1,11 @@
+/**
+ * Authentication Context
+ *
+ * Manages user authentication state and provides authentication methods
+ * throughout the application. Handles login, logout, token storage, and
+ * user profile management. Automatically restores user session on app start.
+ */
+
 import React, {
   createContext,
   useContext,
@@ -6,29 +14,71 @@ import React, {
   ReactNode,
 } from "react";
 import { router } from "expo-router";
-import { getMe, UserProfile } from "@/api/endpoints";
+import { getCharacter, CharacterProfile } from "@/api/endpoints";
 import { storage } from "@/utils/storageHelper";
+import { setLogoutCallback } from "@/api/client";
 
+// ============================================================================
+// Types
+// ============================================================================
+
+/**
+ * User object containing authentication and profile information
+ */
 type User = {
   onboarded?: boolean;
-  profile?: UserProfile;
+  profile?: CharacterProfile;
 };
 
+/**
+ * Context value providing authentication state and methods
+ */
 type AuthContextType = {
   user: User | null;
   setUser: (user: User | null) => void;
   login: (token: string, onboarded: boolean) => Promise<void>;
   logout: () => Promise<void>;
   completeOnboarding: () => Promise<void>;
-  fetchUserProfile: () => Promise<UserProfile>;
+  fetchUserProfile: () => Promise<CharacterProfile>;
 };
+
+// ============================================================================
+// Context
+// ============================================================================
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// ============================================================================
+// Provider Component
+// ============================================================================
+
+/**
+ * Authentication Provider component that wraps the app
+ */
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  // Auto-login on app start
+  /**
+   * Log out the user and clear all stored authentication data
+   */
+  const logout = async () => {
+    console.log("Logging out user...");
+    await storage.deleteItem("accessToken");
+    await storage.deleteItem("onboarded");
+    setUser(null);
+    router.replace("/auth/logIn");
+  };
+
+  /**
+   * Register logout callback with API client on mount
+   */
+  useEffect(() => {
+    setLogoutCallback(logout);
+  }, []);
+
+  /**
+   * Auto-login on app start if valid token exists
+   */
   useEffect(() => {
     async function loadUser() {
       const token = await storage.getItem("accessToken");
@@ -43,6 +93,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     loadUser();
   }, []);
 
+  /**
+   * Log in user and store authentication token
+   */
   const login = async (token: string, onboarded: boolean) => {
     await storage.setItem("accessToken", token);
     await storage.setItem("onboarded", String(onboarded));
@@ -52,20 +105,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+  /**
+   * Mark user onboarding as complete
+   */
   const completeOnboarding = async () => {
     await storage.setItem("onboarded", "true");
     setUser((prev) => (prev ? { ...prev, onboarded: true } : null));
   };
 
-  const logout = async () => {
-    await storage.deleteItem("accessToken");
-    await storage.deleteItem("onboarded");
-    setUser(null);
-    router.replace("../auth");
-  };
-
-  const fetchUserProfile = async (): Promise<UserProfile> => {
-    const profile = await getMe();
+  /**
+   * Fetch and store user's character profile
+   */
+  const fetchUserProfile = async (): Promise<CharacterProfile> => {
+    const profile = await getCharacter();
     setUser((prev) => (prev ? { ...prev, profile } : null));
     return profile;
   };
@@ -86,6 +138,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
+// ============================================================================
+// Hook
+// ============================================================================
+
+/**
+ * Hook to access authentication context
+ */
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within an AuthProvider");

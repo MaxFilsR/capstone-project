@@ -1,8 +1,27 @@
+/**
+ * Selected Exercise Item Component
+ * 
+ * Displays a selected exercise in a routine with controls for reordering and
+ * removal. Shows exercise details, thumbnail, and category-specific metric
+ * inputs (sets/reps for strength, distance for running). Supports moving
+ * exercises up/down in the list.
+ */
+
 import React from "react";
 import { View, Text, TouchableOpacity, Image, TextInput } from "react-native";
 import { Exercise } from "@/api/endpoints";
 import { popupModalStyles } from "@/styles";
 import { colorPallet } from "@/styles/variables";
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const IMAGE_BASE_URL = process.env.EXPO_PUBLIC_LIBRARY_IMAGES_BASE_URL;
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type SelectedExerciseItemProps = {
   exercise: Exercise & { uniqueId: string };
@@ -15,8 +34,9 @@ type SelectedExerciseItemProps = {
   onUpdateMetric: (uniqueId: string, field: string, value: string) => void;
 };
 
-const IMAGE_BASE_URL =
-  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
+// ============================================================================
+// Component
+// ============================================================================
 
 const SelectedExerciseItem: React.FC<SelectedExerciseItemProps> = ({
   exercise,
@@ -32,6 +52,7 @@ const SelectedExerciseItem: React.FC<SelectedExerciseItemProps> = ({
 
   return (
     <View key={exercise.uniqueId}>
+      {/* Exercise card with controls */}
       <View
         style={
           hasMetrics
@@ -73,8 +94,8 @@ const SelectedExerciseItem: React.FC<SelectedExerciseItemProps> = ({
           </Text>
         </View>
 
+        {/* Reorder and remove controls */}
         <View style={{ flexDirection: "row", gap: 8 }}>
-          {/* Move Up */}
           <TouchableOpacity
             onPress={() => onMove(index, "up")}
             disabled={isFirst}
@@ -93,7 +114,6 @@ const SelectedExerciseItem: React.FC<SelectedExerciseItemProps> = ({
             </Text>
           </TouchableOpacity>
 
-          {/* Move Down */}
           <TouchableOpacity
             onPress={() => onMove(index, "down")}
             disabled={isLast}
@@ -112,7 +132,6 @@ const SelectedExerciseItem: React.FC<SelectedExerciseItemProps> = ({
             </Text>
           </TouchableOpacity>
 
-          {/* Remove */}
           <TouchableOpacity
             onPress={() => onRemove(exercise.uniqueId)}
             style={{ padding: 8 }}
@@ -129,6 +148,7 @@ const SelectedExerciseItem: React.FC<SelectedExerciseItemProps> = ({
         </View>
       </View>
 
+      {/* Category-specific metric inputs */}
       {hasMetrics && (
         <View style={popupModalStyles.metricsContainer}>
           {exercise.category === "strength" && (

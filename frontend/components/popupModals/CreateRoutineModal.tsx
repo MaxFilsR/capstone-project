@@ -1,22 +1,40 @@
-import React, { useEffect, useState, useMemo } from "react";
+/**
+ * Create Routine Modal Component
+ * 
+ * Modal for creating a new workout routine with exercise selection and configuration.
+ * Allows searching and adding exercises, setting metrics (sets/reps/distance), and
+ * reordering exercises. Validates routine name and exercise list before saving.
+ * Shows confirmation alerts for removals and success/error states.
+ */
+
+import React, { useState, useMemo } from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
-import { Exercise, createRoutine, RoutineExercise } from "@/api/endpoints";
+import { Exercise, RoutineExercise } from "@/api/endpoints";
 import { typography } from "@/styles";
 import { popupModalStyles } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { FormTextInput } from "../FormTextInput";
-import { FormButton } from "../FormButton";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
+import { useRoutines } from "@/lib/routines-context";
 import ExerciseSearchList from "../ExerciseSearchList";
 import SelectedExercisesList from "../SelectedExercisesList";
-import { AlertBox, AlertMode } from "./AlertBox";
+import Alert from "./Alert";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type CreateRoutineModalProps = {
   onClose: () => void;
 };
 
+// ============================================================================
+// Component
+// ============================================================================
+
 const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
   const { exercises } = useWorkoutLibrary();
+  const { addRoutine } = useRoutines();
   const [isSaving, setIsSaving] = useState(false);
   const [routineName, setRoutineName] = useState("");
   const [selectedExercises, setSelectedExercises] = useState<
@@ -26,17 +44,23 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
   const [exerciseMetrics, setExerciseMetrics] = useState<Record<string, any>>(
     {}
   );
+  const [alert, setAlert] = useState<{
+    visible: boolean;
+    mode: "alert" | "success" | "error" | "confirmAction";
+    title: string;
+    message: string;
+    onConfirmAction?: () => void;
+  }>({
+    visible: false,
+    mode: "alert",
+    title: "",
+    message: "",
+    onConfirmAction: undefined,
+  });
 
-  const [alertVisible, setAlertVisible] = useState(false);
-  const [alertMessage, setAlertMessage] = useState<string | string[]>("");
-  const [alertMode, setAlertMode] = useState<AlertMode>("alert");
-
-  const showAlert = (msg: string | string[], mode: AlertMode = "alert") => {
-    setAlertMessage(msg);
-    setAlertMode(mode);
-    setAlertVisible(true);
-  };
-
+  /**
+   * Filter exercises based on search query
+   */
   const filteredExercises = useMemo(() => {
     if (!searchQuery.trim()) return [];
     return exercises
@@ -50,13 +74,26 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
       .slice(0, 20);
   }, [searchQuery, exercises]);
 
+  /**
+   * Validate and save routine
+   */
   const handleSave = async () => {
     if (!routineName.trim()) {
-      showAlert("Please enter a routine name.", "error");
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Missing Name",
+        message: "Please enter a routine name.",
+      });
       return;
     }
     if (selectedExercises.length === 0) {
-      showAlert("Please add at least one exercise.", "error");
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "No Exercises",
+        message: "Please add at least one exercise to the routine.",
+      });
       return;
     }
 
@@ -81,34 +118,60 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
         exercises: formattedExercises,
       };
 
-      await createRoutine(payload);
+      await addRoutine(payload);
 
-      showAlert("Routine created successfully!", "success");
-      onClose();
+      setAlert({
+        visible: true,
+        mode: "success",
+        title: "Success",
+        message: "Routine created successfully!",
+      });
     } catch (error: any) {
-      showAlert("Failed to create routine. Please try again.", "action"); // uses action mode
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Error",
+        message: "Failed to create routine. Please try again.",
+      });
     } finally {
       setIsSaving(false);
     }
   };
 
+  /**
+   * Add exercise to routine with unique ID
+   */
   const addExercise = (exercise: Exercise) => {
     const uniqueId = `${exercise.id}-${Date.now()}`;
     setSelectedExercises([...selectedExercises, { ...exercise, uniqueId }]);
     setSearchQuery("");
   };
 
+  /**
+   * Remove exercise with confirmation
+   */
   const removeExercise = (uniqueId: string) => {
-    setSelectedExercises(
-      selectedExercises.filter((ex) => ex.uniqueId !== uniqueId)
-    );
-    setExerciseMetrics((prev) => {
-      const newMetrics = { ...prev };
-      delete newMetrics[uniqueId];
-      return newMetrics;
+    setAlert({
+      visible: true,
+      mode: "confirmAction",
+      title: "Remove Exercise",
+      message: "Are you sure you want to remove this exercise?",
+      onConfirmAction: () => {
+        setSelectedExercises(
+          selectedExercises.filter((ex) => ex.uniqueId !== uniqueId)
+        );
+        setExerciseMetrics((prev) => {
+          const newMetrics = { ...prev };
+          delete newMetrics[uniqueId];
+          return newMetrics;
+        });
+      },
     });
   };
 
+  /**
+   * Reorder exercises in the list
+   */
   const moveExercise = (fromIndex: number, direction: "up" | "down") => {
     const toIndex = direction === "up" ? fromIndex - 1 : fromIndex + 1;
     if (toIndex < 0 || toIndex >= selectedExercises.length) return;
@@ -121,6 +184,9 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
     setSelectedExercises(newList);
   };
 
+  /**
+   * Update metrics for an exercise
+   */
   const updateExerciseMetric = (
     uniqueId: string,
     field: string,
@@ -135,16 +201,22 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
     }));
   };
 
+  const handleAlertConfirm = () => {
+    if (alert.mode === "success") {
+      onClose();
+    } else if (alert.mode === "confirmAction" && alert.onConfirmAction) {
+      alert.onConfirmAction();
+    }
+    setAlert({ ...alert, visible: false, onConfirmAction: undefined });
+  };
+
+  const handleAlertCancel = () => {
+    setAlert({ ...alert, visible: false, onConfirmAction: undefined });
+  };
+
   return (
     <View style={{ flex: 1 }}>
-      <AlertBox
-        visible={alertVisible}
-        message={alertMessage}
-        mode={alertMode}
-        onClose={() => setAlertVisible(false)}
-      />
-
-      {/* Header Bar */}
+      {/* Header bar with save button */}
       <View
         style={{
           flexDirection: "row",
@@ -184,6 +256,7 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
         </TouchableOpacity>
       </View>
 
+      {/* Routine content */}
       <ScrollView
         style={{
           flex: 1,
@@ -216,6 +289,17 @@ const CreateRoutineModal: React.FC<CreateRoutineModalProps> = ({ onClose }) => {
           onUpdateMetric={updateExerciseMetric}
         />
       </ScrollView>
+
+      {/* Alert dialog */}
+      <Alert
+        visible={alert.visible}
+        mode={alert.mode}
+        title={alert.title}
+        message={alert.message}
+        onConfirm={handleAlertConfirm}
+        onCancel={handleAlertCancel}
+        confirmText={alert.mode === "confirmAction" ? "Remove" : "OK"}
+      />
     </View>
   );
 };

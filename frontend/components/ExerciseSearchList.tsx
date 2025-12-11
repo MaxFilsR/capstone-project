@@ -1,3 +1,11 @@
+/**
+ * Exercise Search List Component
+ * 
+ * Searchable exercise list with real-time filtering. Displays a text input
+ * for search queries and shows matching exercises in a scrollable list.
+ * Allows users to add exercises by tapping on search results.
+ */
+
 import React from "react";
 import { View, Text, TouchableOpacity, Image, ScrollView } from "react-native";
 import { Exercise } from "@/api/endpoints";
@@ -6,6 +14,16 @@ import { popupModalStyles } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { FormTextInput } from "./FormTextInput";
 
+// ============================================================================
+// Constants
+// ============================================================================
+
+const IMAGE_BASE_URL = process.env.EXPO_PUBLIC_LIBRARY_IMAGES_BASE_URL;
+
+// ============================================================================
+// Types
+// ============================================================================
+
 type ExerciseSearchListProps = {
   searchQuery: string;
   onSearchChange: (query: string) => void;
@@ -13,8 +31,9 @@ type ExerciseSearchListProps = {
   onAddExercise: (exercise: Exercise) => void;
 };
 
-const IMAGE_BASE_URL =
-  "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
+// ============================================================================
+// Component
+// ============================================================================
 
 const ExerciseSearchList: React.FC<ExerciseSearchListProps> = ({
   searchQuery,
@@ -24,6 +43,7 @@ const ExerciseSearchList: React.FC<ExerciseSearchListProps> = ({
 }) => {
   return (
     <View style={{ marginBottom: 16 }}>
+      {/* Search input with clear button */}
       <View style={{ position: "relative" }}>
         <FormTextInput
           value={searchQuery}
@@ -57,6 +77,7 @@ const ExerciseSearchList: React.FC<ExerciseSearchListProps> = ({
         )}
       </View>
 
+      {/* Search results list */}
       {searchQuery.trim() && (
         <>
           <Text

@@ -1,3 +1,9 @@
+/**
+ * Authentication Styles
+ * 
+ * Styles for authentication screens including login, signup, and splash screens.
+ */
+
 import { StyleSheet } from "react-native";
 import { colorPallet } from "./variables";
 

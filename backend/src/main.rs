@@ -1,31 +1,44 @@
-use actix_cors::Cors;
-use actix_web::{App, HttpServer, middleware::Logger, web};
-use capstone_project::endpoints;
-use env_logger::Env;
-use sqlx::PgPool;
+use {
+    actix_cors::Cors,
+    actix_web::{
+        App,
+        HttpServer,
+        middleware::Logger,
+        web,
+    },
+    capstone_project::{
+        endpoints,
+        utils::env,
+    },
+    env_logger::Env,
+    sqlx::PgPool,
+};
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // const ACTIX_WEB_ADDRESS: &'static str = "0.0.0.0";
-    let ACTIX_WEB_ADDRESS: &str =
-        &*std::env::var("ACTIX_WEB_ADDRESS").expect("ACTIX_WEB_ADDRESS must be set");
-    dbg!(ACTIX_WEB_ADDRESS);
-    let ACTIX_WEB_PORT: u16 = std::env::var("ACTIX_WEB_PORT")
-        .expect("ACTIX_WEB_PORT must be set")
-        .parse()
-        .unwrap();
-    dbg!(ACTIX_WEB_PORT);
-    let DATABASE_URL: &str = &*std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    dbg!(DATABASE_URL);
+    env_logger::init_from_env(
+        Env::default()
+            .default_filter_or(log::Level::Info.as_str())
+            .default_write_style_or("auto"),
+    );
 
-    env_logger::init_from_env(Env::default().default_filter_or("info"));
+    let actix_web_address = env::get_env_var_from_key(env::ACTIX_WEB_ADDRESS);
+    let actix_web_port = env::get_env_var_from_key(env::ACTIX_WEB_PORT);
+    let database_url = env::get_env_var_from_key(env::DATABASE_URL);
 
-    let pool = PgPool::connect(DATABASE_URL).await.unwrap();
+    let pool = PgPool::connect(&database_url).await.unwrap();
+
+    match sqlx::migrate!("./migrations").run(&pool).await {
+        Ok(_) => log::info!("Migrations executed successfully."),
+        Err(e) => log::error!("Error executing migrations: {}", e),
+    };
+
+    add_default_user(&pool).await;
 
     HttpServer::new(move || {
         let cors = Cors::default()
             .allow_any_origin()
-            .allowed_methods(vec!["DELETE", "GET", "POST", "PUT"])
+            .allow_any_method()
             .allow_any_header();
 
         App::new()
@@ -33,7 +46,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .app_data(web::Data::new(pool.clone()))
             // Constants
-            .service(endpoints::constants::classes)
+            .service(endpoints::constants::classes::classes)
+            .service(endpoints::constants::items::items)
             // Auth
             .service(endpoints::auth::sign_up)
             .service(endpoints::auth::login)
@@ -41,18 +55,186 @@ async fn main() -> std::io::Result<()> {
             .service(endpoints::auth::healthpoint)
             // Onboarding
             .service(endpoints::onboarding::onboarding)
-            // Summary
-            .service(endpoints::nav::summary::me)
+            // Character
+            .service(endpoints::nav::character::read_character)
+            .service(endpoints::nav::character::read_inventory)
+            .service(endpoints::nav::character::update_inventory)
+            .service(endpoints::nav::character::read_equipped)
+            .service(endpoints::nav::character::update_equipped)
+            // Quests
+            .service(endpoints::nav::quests::read_quests)
+            .service(endpoints::nav::quests::create_quest)
             // Workouts
-            .service(endpoints::nav::workouts::history::by_id)
-            .service(endpoints::nav::workouts::history::history)
+            .service(endpoints::nav::workouts::history::create_history)
+            .service(endpoints::nav::workouts::history::read_history)
             .service(endpoints::nav::workouts::library::library)
             .service(endpoints::nav::workouts::routines::create_rotuines)
             .service(endpoints::nav::workouts::routines::delete_rotuines)
             .service(endpoints::nav::workouts::routines::read_routines)
             .service(endpoints::nav::workouts::routines::update_rotuines)
+            // Stats
+            .service(endpoints::stats::increase_stat)
+            // Social
+            .service(endpoints::nav::social::read_friends)
+            .service(endpoints::nav::social::read_friend_detail)
+            .service(endpoints::nav::social::update_friends)
+            .service(endpoints::nav::social::read_leaderboard)
+            .service(endpoints::nav::social::read_leaderboard_detail)
+            .service(endpoints::nav::social::send_friend_request)
+            .service(endpoints::nav::social::get_incoming_requests)
+            .service(endpoints::nav::social::get_outgoing_requests)
+            .service(endpoints::nav::social::respond_to_request)
+            .service(endpoints::nav::social::remove_friend)
+            // Settings
+            .service(endpoints::settings::update_username)
+            .service(endpoints::settings::update_name)
+            .service(endpoints::settings::update_workout_schedule)
+            .service(endpoints::settings::update_email)
+            .service(endpoints::settings::update_class)
+            .service(endpoints::settings::update_password)
+            // Shop
+            .service(endpoints::shop::buy_item)
+            .service(endpoints::shop::get_shop)
+            .service(endpoints::shop::refresh_shop)
     })
-    .bind((ACTIX_WEB_ADDRESS, ACTIX_WEB_PORT))?
+    .bind(format!("{actix_web_address}:{actix_web_port}"))?
     .run()
+    .await?;
+
+    log::info!("Server is running on https://localhost:{actix_web_port}");
+
+    Ok(())
+}
+
+async fn add_default_user(pool: &PgPool) {
+    use {
+        capstone_project::utils::schemas::{
+            Class,
+            Equipped,
+            Inventory,
+            Stats,
+        },
+        endpoints::onboarding::{
+            populate_equipped,
+            populate_inventory,
+        },
+    };
+
+    // USERS table
+    let email = "you@example.com";
+    let password = "12345678";
+    let onboarding_complete = true;
+
+    let _query = sqlx::query!(
+        r#"
+            INSERT INTO users (email, password, onboarding_complete)
+            VALUES ($1, crypt ($2, gen_salt ('md5')), $3);
+        "#,
+        email,
+        password,
+        onboarding_complete,
+    )
+    .execute(pool)
     .await
+    .unwrap();
+
+    // SETTINGS table
+    let user_id = 1;
+    let first_name = "John";
+    let last_name = "Doe";
+    let workout_schedule = [true, false, true, false, true, false, true];
+
+    let _query = sqlx::query!(
+        r#"
+            INSERT INTO settings (user_id, first_name, last_name, workout_schedule)
+            VALUES ($1, $2, $3, $4);
+        "#,
+        user_id,
+        first_name,
+        last_name,
+        &workout_schedule,
+    )
+    .execute(pool)
+    .await
+    .unwrap();
+
+    // CHARACTERS table
+    let user_id = 1;
+    let username = "JDoe";
+    let class = sqlx::query_as!(
+        Class,
+        r#"
+            SELECT name, stats as "stats: Stats"
+            FROM classes
+            WHERE id = 1;
+        "#
+    )
+    .fetch_one(pool)
+    .await
+    .unwrap();
+    let level = 1;
+    let exp_leftover = 0;
+    let pending_stat_points = 0;
+    let streak = 0;
+    let coins = 1000;
+    let inventory = populate_inventory(pool).await;
+    let equipped = populate_equipped(&inventory);
+    let friends: Vec<i32> = vec![];
+
+    let _query = sqlx::query!(
+        r#"
+            INSERT INTO characters (
+                user_id,
+                username,
+                class,
+                level,
+                exp_leftover,
+                pending_stat_points,
+                streak,
+                coins,
+                equipped,
+                inventory,
+                friends
+            )
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);
+        "#,
+        user_id,
+        username,
+        class as Class,
+        level,
+        exp_leftover,
+        pending_stat_points,
+        streak,
+        coins,
+        equipped as Equipped,
+        inventory as Inventory,
+        &friends,
+    )
+    .execute(pool)
+    .await
+    .unwrap();
+}
+
+#[cfg(test)]
+mod tests {
+    // use {
+    //     super::*,
+    //     actix_web::{
+    //         App,
+    //         http::StatusCode,
+    //         test,
+    //     },
+    //     capstone_project::endpoints::auth::sign_up,
+    // };
+
+    // #[actix_web::test]
+    // async fn test_signup() {
+    //     let app = test::init_service(App::new().service(sign_up)).await;
+
+    //     let request = test::TestRequest::post().uri("/auth/sign-up").to_request();
+
+    //     let response = test::call_service(&app, request).await;
+
+    //     assert_eq!(response.status(), StatusCode::OK);
+    // }
 }

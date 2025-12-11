@@ -1,19 +1,30 @@
+/**
+ * Edit Routine Modal Component
+ * 
+ * Modal for editing an existing workout routine. Allows modifying routine name,
+ * adding/removing exercises, updating metrics, and reordering exercises. Supports
+ * starting the workout directly from the editor and deleting the routine with
+ * confirmation. Handles validation, success/error states, and navigation.
+ */
+
 import React, { useEffect, useState, useMemo } from "react";
-import { View, Text, Alert, ScrollView } from "react-native";
-import {
-  Exercise,
-  updateRoutine,
-  deleteRoutine,
-  RoutineExercise,
-} from "@/api/endpoints";
+import { View, Text, ScrollView } from "react-native";
+import { Exercise, RoutineExercise } from "@/api/endpoints";
 import { typography } from "@/styles";
 import { popupModalStyles } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { FormTextInput } from "../FormTextInput";
 import { FormButton } from "../FormButton";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
+import { useRoutines } from "@/lib/routines-context";
+import { useRouter } from "expo-router";
 import ExerciseSearchList from "../ExerciseSearchList";
 import SelectedExercisesList from "../SelectedExercisesList";
+import Alert from "./Alert";
+
+// ============================================================================
+// Types
+// ============================================================================
 
 type Routine = {
   id: number;
@@ -34,11 +45,17 @@ type EditRoutineModalProps = {
   routine: Routine;
 };
 
+// ============================================================================
+// Component
+// ============================================================================
+
 const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
   onClose,
   routine,
 }) => {
   const { exercises } = useWorkoutLibrary();
+  const { updateRoutine, removeRoutine } = useRoutines();
+  const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [routineName, setRoutineName] = useState(routine.name);
@@ -49,7 +66,23 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
   const [exerciseMetrics, setExerciseMetrics] = useState<Record<string, any>>(
     {}
   );
+  const [alert, setAlert] = useState<{
+    visible: boolean;
+    mode: "alert" | "success" | "error" | "confirmAction";
+    title: string;
+    message: string;
+    onConfirmAction?: () => void;
+  }>({
+    visible: false,
+    mode: "alert",
+    title: "",
+    message: "",
+    onConfirmAction: undefined,
+  });
 
+  /**
+   * Initialize exercises and metrics from routine prop
+   */
   useEffect(() => {
     const exercisesWithIds = routine.exercises.map((ex, index) => {
       const exerciseWithId = {
@@ -74,6 +107,9 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
     setExerciseMetrics(initialMetrics);
   }, [routine]);
 
+  /**
+   * Filter exercises based on search query
+   */
   const filteredExercises = useMemo(() => {
     if (!searchQuery.trim()) return [];
     return exercises
@@ -87,13 +123,79 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
       .slice(0, 20);
   }, [searchQuery, exercises]);
 
+  /**
+   * Navigate to active routine screen to start workout
+   */
+  const handleStartRoutine = () => {
+    if (selectedExercises.length === 0) {
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "No Exercises",
+        message:
+          "Please add at least one exercise before starting the workout.",
+      });
+      return;
+    }
+
+    try {
+      const exercisesData = selectedExercises.map((ex) => {
+        const metrics = exerciseMetrics[ex.uniqueId] || {};
+        return {
+          id: ex.id,
+          name: ex.name,
+          images: ex.images,
+          thumbnailUrl: ex.images?.[0],
+          gifUrl: ex.images?.find((u) => u?.toLowerCase().endsWith(".gif")),
+          sets: parseInt(metrics.sets) || 0,
+          reps: parseInt(metrics.reps) || 0,
+          weight: parseFloat(metrics.weight) || 0,
+          distance: parseFloat(metrics.distance) || 0,
+        };
+      });
+
+      router.push({
+        pathname: "/screens/FitnessTabs/routineScreens/activeRoutine",
+        params: {
+          id: routine.id?.toString() || "0",
+          name: routineName,
+          exercises: JSON.stringify(exercisesData),
+          index: "0",
+        },
+      });
+
+      onClose();
+    } catch (error) {
+      console.error("Error starting routine:", error);
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Error",
+        message: "Failed to start routine. Please try again.",
+      });
+    }
+  };
+
+  /**
+   * Validate and save routine updates
+   */
   const handleSave = async () => {
     if (!routineName.trim()) {
-      Alert.alert("Error", "Please enter a routine name");
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Missing Name",
+        message: "Please enter a routine name.",
+      });
       return;
     }
     if (selectedExercises.length === 0) {
-      Alert.alert("Error", "Please add at least one exercise");
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "No Exercises",
+        message: "Please add at least one exercise to the routine.",
+      });
       return;
     }
 
@@ -120,57 +222,66 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
         exercises: formattedExercises,
       };
 
-      const response = await updateRoutine(payload);
+      await updateRoutine(routine.id, payload);
 
-      Alert.alert("Success", "Routine updated successfully!");
-      onClose();
+      setAlert({
+        visible: true,
+        mode: "success",
+        title: "Success",
+        message: "Routine updated successfully!",
+      });
     } catch (error: any) {
       console.error("Error updating routine:", error);
       console.error("Error response:", error?.response?.data);
-      Alert.alert(
-        "Error",
-        error?.response?.data?.message ||
+      setAlert({
+        visible: true,
+        mode: "error",
+        title: "Error",
+        message:
+          error?.response?.data?.message ||
           error?.response?.data?.error ||
-          "Failed to update routine. Please try again."
-      );
+          "Failed to update routine. Please try again.",
+      });
     } finally {
       setIsSaving(false);
     }
   };
 
+  /**
+   * Delete routine with confirmation
+   */
   const handleDelete = () => {
-    Alert.alert(
-      "Delete Routine",
-      `Are you sure you want to delete "${routine.name}"? This action cannot be undone.`,
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: async () => {
-            setIsDeleting(true);
-            try {
-              await deleteRoutine({ id: routine.id });
-              Alert.alert("Success", "Routine deleted successfully!");
-              onClose();
-            } catch (error: any) {
-              console.error("Error deleting routine:", error);
-              Alert.alert(
-                "Error",
-                error?.response?.data?.message ||
-                  error?.response?.data?.error ||
-                  "Failed to delete routine. Please try again."
-              );
-            } finally {
-              setIsDeleting(false);
-            }
-          },
-        },
-      ]
-    );
+    setAlert({
+      visible: true,
+      mode: "confirmAction",
+      title: "Delete Routine",
+      message: `Are you sure you want to delete "${routine.name}"? This action cannot be undone.`,
+      onConfirmAction: async () => {
+        setIsDeleting(true);
+        try {
+          await removeRoutine(routine.id);
+          setAlert({
+            visible: true,
+            mode: "success",
+            title: "Success",
+            message: "Routine deleted successfully!",
+          });
+        } catch (error: any) {
+          console.error("Error deleting routine:", error);
+          setAlert({
+            visible: true,
+            mode: "error",
+            title: "Error",
+            message:
+              error?.response?.data?.message ||
+              error?.response?.data?.error ||
+              "Failed to delete routine. Please try again.",
+          });
+        } finally {
+          setIsDeleting(false);
+        }
+      },
+    });
   };
 
   const addExercise = (exercise: Exercise) => {
@@ -180,13 +291,21 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
   };
 
   const removeExercise = (uniqueId: string) => {
-    setSelectedExercises(
-      selectedExercises.filter((ex) => ex.uniqueId !== uniqueId)
-    );
-    setExerciseMetrics((prev) => {
-      const newMetrics = { ...prev };
-      delete newMetrics[uniqueId];
-      return newMetrics;
+    setAlert({
+      visible: true,
+      mode: "confirmAction",
+      title: "Remove Exercise",
+      message: "Are you sure you want to remove this exercise?",
+      onConfirmAction: () => {
+        setSelectedExercises(
+          selectedExercises.filter((ex) => ex.uniqueId !== uniqueId)
+        );
+        setExerciseMetrics((prev) => {
+          const newMetrics = { ...prev };
+          delete newMetrics[uniqueId];
+          return newMetrics;
+        });
+      },
     });
   };
 
@@ -216,9 +335,23 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
     }));
   };
 
+  const handleAlertConfirm = () => {
+    setAlert({ ...alert, visible: false, onConfirmAction: undefined });
+
+    if (alert.mode === "success") {
+      setTimeout(() => onClose(), 100);
+    } else if (alert.mode === "confirmAction" && alert.onConfirmAction) {
+      alert.onConfirmAction();
+    }
+  };
+
+  const handleAlertCancel = () => {
+    setAlert({ ...alert, visible: false, onConfirmAction: undefined });
+  };
+
   return (
     <View style={{ flex: 1 }}>
-      {/* Header Bar */}
+      {/* Header bar with save button */}
       <View style={popupModalStyles.headerBar}>
         <FormButton
           title="✕"
@@ -241,11 +374,11 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
         />
       </View>
 
+      {/* Routine content */}
       <ScrollView
         style={popupModalStyles.scrollContent}
         contentContainerStyle={{ paddingBottom: 32 }}
       >
-        {/* Routine Name Input */}
         <View style={popupModalStyles.section}>
           <FormTextInput
             label="Routine Name"
@@ -256,7 +389,6 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
           />
         </View>
 
-        {/* Search Section */}
         <ExerciseSearchList
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -264,7 +396,16 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
           onAddExercise={addExercise}
         />
 
-        {/* Selected Exercises */}
+        <View style={popupModalStyles.section}>
+          <FormButton
+            title="Start Workout"
+            onPress={handleStartRoutine}
+            mode="contained"
+            color="primary"
+            style={{ marginBottom: 0 }}
+          />
+        </View>
+
         <SelectedExercisesList
           selectedExercises={selectedExercises}
           exerciseMetrics={exerciseMetrics}
@@ -273,7 +414,6 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
           onUpdateMetric={updateExerciseMetric}
         />
 
-        {/* Delete Button */}
         <View style={popupModalStyles.section}>
           <FormButton
             title={isDeleting ? "Deleting..." : "Delete Routine"}
@@ -285,6 +425,23 @@ const EditRoutineModal: React.FC<EditRoutineModalProps> = ({
           />
         </View>
       </ScrollView>
+
+      {/* Alert dialog */}
+      <Alert
+        visible={alert.visible}
+        mode={alert.mode}
+        title={alert.title}
+        message={alert.message}
+        onConfirm={handleAlertConfirm}
+        onCancel={handleAlertCancel}
+        confirmText={
+          alert.mode === "confirmAction"
+            ? alert.title === "Delete Routine"
+              ? "Delete"
+              : "Remove"
+            : "OK"
+        }
+      />
     </View>
   );
 };

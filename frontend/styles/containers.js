@@ -1,4 +1,10 @@
-import { StyleSheet } from "react-native";
+/**
+ * Container Styles
+ * 
+ * Reusable container layouts for consistent screen structure throughout the app.
+ */
+
+import { Platform, StyleSheet } from "react-native";
 import { colorPallet } from "./variables";
 
 export const containers = StyleSheet.create({
@@ -27,5 +33,21 @@ export const containers = StyleSheet.create({
   },
   formActionContainer: {
     gap: 4,
+  },
+  safeArea: {
+    flex: 1,
+    backgroundColor: colorPallet.neutral_darkest,
+  },
+  scrollView: {
+    flex: 1,
+    width: "100%",
+  },
+  scrollContent: {
+    padding: 16,
+    paddingTop: 0,
+    paddingBottom: Platform.OS === "ios" ? 120 : 100,
+  },
+  moduleContainer: {
+    marginBottom: 16,
   },
 });

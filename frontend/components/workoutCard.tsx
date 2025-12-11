@@ -1,3 +1,11 @@
+/**
+ * Workout Card Component
+ * 
+ * Displays a completed workout session with date, duration, and points earned.
+ * Shows formatted metrics with icons and provides a pressable card interface
+ * for navigation to workout details. Includes press animation feedback.
+ */
+
 import React from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { router } from "expo-router";
@@ -5,12 +13,15 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
 
-// TypeScript interfaces
+// ============================================================================
+// Types
+// ============================================================================
+
 interface WorkoutSession {
   id: string;
   name: string;
-  date: string; // ISO date string
-  workoutTime: number; // in minutes
+  date: string;
+  workoutTime: number;
   pointsEarned: number;
 }
 
@@ -18,12 +29,45 @@ interface WorkoutCardProps {
   session: WorkoutSession;
 }
 
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Format numbers with commas and optional decimal places
+ */
+function formatNumber(
+  value: number | string | undefined | null,
+  decimals?: number
+): string {
+  if (value === undefined || value === null || value === "") return "0";
+
+  const num = typeof value === "string" ? parseFloat(value) : value;
+
+  if (isNaN(num)) return "0";
+
+  if (decimals !== undefined) {
+    return num.toLocaleString("en-US", {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+  }
+
+  return num.toLocaleString("en-US");
+}
+
+// ============================================================================
+// Component
+// ============================================================================
+
 export const WorkoutCard: React.FC<WorkoutCardProps> = ({ session }) => {
   const handlePress = () => {
     // router.push(`/workout/${session.id}`);
   };
 
-  // Format date to readable format
+  /**
+   * Format ISO date string to readable format
+   */
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -40,7 +84,7 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({ session }) => {
     >
       <View style={styles.cardContent}>
         <View style={styles.leftContent}>
-          {/* Header Section */}
+          {/* Session name and date */}
           <View style={styles.header}>
             <Text
               style={[typography.h4, { color: colorPallet.neutral_lightest }]}
@@ -50,33 +94,35 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({ session }) => {
             <Text style={styles.date}>{formatDate(session.date)}</Text>
           </View>
 
-          {/* Metrics Section */}
+          {/* Workout metrics */}
           <View style={styles.metricsRow}>
-            {/* Workout Time Metric */}
             <View style={styles.metric}>
               <Ionicons
                 name="time-outline"
                 size={20}
                 color={colorPallet.primary}
               />
-              <Text style={styles.metricValue}>{session.workoutTime}</Text>
+              <Text style={styles.metricValue}>
+                {formatNumber(session.workoutTime)}
+              </Text>
               <Text style={styles.metricLabel}>mins</Text>
             </View>
 
-            {/* Points Earned Metric */}
             <View style={styles.metric}>
               <Ionicons
                 name="trophy-outline"
                 size={20}
                 color={colorPallet.secondary}
               />
-              <Text style={styles.metricValue}>{session.pointsEarned}</Text>
+              <Text style={styles.metricValue}>
+                {formatNumber(session.pointsEarned)}
+              </Text>
               <Text style={styles.metricLabel}>Gainz</Text>
             </View>
           </View>
         </View>
 
-        {/* Arrow Icon */}
+        {/* Navigation arrow */}
         <View style={styles.arrowContainer}>
           <MaterialIcons
             name="arrow-forward-ios"
@@ -88,6 +134,10 @@ export const WorkoutCard: React.FC<WorkoutCardProps> = ({ session }) => {
     </Pressable>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   card: {

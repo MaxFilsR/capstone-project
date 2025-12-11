@@ -11,6 +11,11 @@ import { Anton_400Regular } from "@expo-google-fonts/anton";
 import { WorkoutLibraryProvider } from "@/lib/workout-library-context";
 import { RoutinesProvider } from "@/lib/routines-context";
 import { storage } from "@/utils/storageHelper";
+import { FriendsProvider } from "@/lib/friends-context";
+import { QuestProvider } from "@/lib/quest-context";
+import { InventoryProvider } from "@/lib/inventory-context";
+import { ShopProvider } from "@/lib/shop-context";
+
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] = useState(true);
@@ -30,12 +35,28 @@ export default function RootLayout() {
 
   return (
     <AuthProvider>
-      <WorkoutLibraryProvider>
-        <RoutinesProvider>
-          <InnerStack />
-        </RoutinesProvider>
-      </WorkoutLibraryProvider>
+      <InnerProviders />
     </AuthProvider>
+  );
+}
+
+function InnerProviders() {
+  const { user } = useAuth();
+
+  return (
+    <WorkoutLibraryProvider>
+      <RoutinesProvider>
+        <FriendsProvider>
+          <InventoryProvider>
+            <ShopProvider>
+              <QuestProvider>
+                <InnerStack />
+              </QuestProvider>
+            </ShopProvider>
+          </InventoryProvider>
+        </FriendsProvider>
+      </RoutinesProvider>
+    </WorkoutLibraryProvider>
   );
 }
 
@@ -48,14 +69,12 @@ function InnerStack() {
     async function verifyUser() {
       const token = await storage.getItem("accessToken");
 
-      // ✅ If no token, don't even try fetching the profile
       if (!token || !user) {
         hasFetchedProfile.current = false;
         setLoadingUser(false);
         return;
       }
 
-      // ✅ If user hasn’t completed onboarding, skip
       if (user.onboarded !== true) {
         setLoadingUser(false);
         return;

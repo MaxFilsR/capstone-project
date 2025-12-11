@@ -1,14 +1,105 @@
-import { Text, View, Image } from "react-native";
-import { globalStyles } from "@/styles/globalStyles";
-import logo from "@/assets/images/gainz_logo_full.png";
+/**
+ * Summary Tab Screen (Home)
+ *
+ * Main home screen displaying user's character card with stats and XP progress,
+ * plus summary modules for recent workouts, active quests, and friends.
+ * Acts as the central dashboard.
+ */
 
+import React, { useState, useEffect } from "react";
+import {
+  Text,
+  View,
+  ScrollView,
+  StatusBar,
+  ActivityIndicator,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import QuickActionButton from "@/components/QuickActionButton";
+import RecentWorkouts from "@/components/summaryModuals/RecentWorkouts";
+import { colorPallet } from "@/styles/variables";
+import { containers, typography } from "@/styles";
+import CharacterCard from "@/components/CharacterCard";
+import { getCharacter, CharacterProfile } from "@/api/endpoints";
+import warrior from "@/assets/images/warrior-male-full.png";
+import CharacterCardSummary from "@/components/summaryModuals/CharacterCard";
+import ActiveQuests from "@/components/summaryModuals/ActiveQuests";
+import FriendsSummary from "@/components/summaryModuals/FriendsSummary";
 
-export default function Index() {
+// ============================================================================
+// Component
+// ============================================================================
+
+export default function HomeScreen() {
+  const [profile, setProfile] = useState<CharacterProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  /**
+   * Load character profile on mount
+   */
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  /**
+   * Fetch character profile data from API
+   */
+  const loadProfile = async () => {
+    try {
+      setLoading(true);
+      const data = await getCharacter();
+      setProfile(data);
+    } catch (err) {
+      console.error("Failed to load profile:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <View style={globalStyles.container}>
-      <Image style={globalStyles.logo} source={logo} />
+    <>
+      {/* Quick Action Button */}
+      <QuickActionButton />
+      <SafeAreaView
+        style={containers.safeArea}
+        edges={["top", "left", "right"]}
+      >
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor={colorPallet.neutral_darkest}
+        />
+        <ScrollView
+  style={containers.scrollView}
+  contentContainerStyle={[containers.scrollContent, { gap: 24 }]}
+  showsVerticalScrollIndicator={false}
+  bounces={true}
+>
+  <Text style={typography.h1}>Summary</Text>
 
-      <Text style={globalStyles.h1}> Home Screen</Text>
+  {/* Character Card */}
+  {loading ? (
+    <View style={{ paddingVertical: 40, alignItems: "center" }}>
+      <ActivityIndicator size="large" color={colorPallet.primary} />
     </View>
+  ) : profile ? (
+    <CharacterCardSummary
+      username={profile.username}
+      level={profile.level}
+      borderColor={colorPallet.primary}
+      accentColor={colorPallet.secondary}
+    />
+  ) : null}
+
+  {/* Recent Workouts Module */}
+  <RecentWorkouts limit={5} />
+
+  {/* Active Quests Module */}
+  <ActiveQuests limit={3} />
+
+  {/* Friends summary module */}
+  <FriendsSummary limit={5} />
+</ScrollView>
+      </SafeAreaView>
+    </>
   );
 }

@@ -1,3 +1,11 @@
+/**
+ * Character Tab Screen
+ *
+ * Main character screen displaying character stats, inventory, and shop.
+ * Features character card with stat allocation, settings access, and tabbed navigation
+ * between Inventory and Shop screens.
+ */
+
 import { useState, useEffect } from "react";
 import {
   Text,
@@ -6,28 +14,66 @@ import {
   ScrollView,
   ActivityIndicator,
   StyleSheet,
+  StatusBar,
+  TouchableOpacity,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 import { containers, typography } from "@/styles/index";
 import { useAuth } from "@/lib/auth-context";
-import { getMe, UserProfile } from "@/api/endpoints";
+import { getCharacter, CharacterProfile } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
+import QuickActionButton from "@/components/QuickActionButton";
+import warrior from "@/assets/images/warrior-male-full.png";
+import CharacterCardInventory from "@/components/CharacterCardInventory";
+import TabBar, { Tab } from "@/components/TabBar";
+import InventoryScreen from "../screens/CharacterTabs/inventoryScreen";
+import ShopScreen from "../screens/CharacterTabs/ShopScreen";
+import Popup from "@/components/popupModals/Popup";
+import CharacterCardSummary from "@/components/summaryModuals/CharacterCard";
 
-const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+// ============================================================================
+// Component
+// ============================================================================
 
 export default function Index() {
   const { logout } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const router = useRouter();
+  const [profile, setProfile] = useState<CharacterProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [popupMode, setPopupMode] = useState<"allocateStats" | "settings">(
+    "allocateStats"
+  );
 
+  /**
+   * Tab configuration for Inventory and Shop
+   */
+  const tabs: Tab[] = [
+    { name: "Inventory", component: InventoryScreen },
+    {
+      name: "Shop",
+      component: () => <ShopScreen coins={profile?.coins ?? 0} />,
+    },
+  ];
+
+  const handleTabChange = (index: number) => {};
+
+  /**
+   * Load character profile on mount
+   */
   useEffect(() => {
     loadProfile();
   }, []);
 
+  /**
+   * Fetch character profile data from API
+   */
   const loadProfile = async () => {
     try {
       setLoading(true);
-      const data = await getMe();
+      const data = await getCharacter();
       setProfile(data);
       setError(null);
     } catch (err) {
@@ -38,23 +84,35 @@ export default function Index() {
     }
   };
 
+  /**
+   * Handle user logout
+   */
   const handleLogout = async () => {
     await logout();
   };
 
+  /**
+   * Navigate to settings screen
+   */
+  const handleSettingsPress = () => {
+    router.push("/screens/CharacterTabs/settingsScreen");
+  };
+
   if (loading) {
     return (
-      <View style={[containers.container]}>
+      <View style={styles.centered}>
         <ActivityIndicator size="large" color={colorPallet.primary} />
-        <Text style={typography.body}>Loading your character...</Text>
+        <Text style={[typography.body, { marginTop: 12 }]}>
+          Loading your character...
+        </Text>
       </View>
     );
   }
 
   if (error || !profile) {
     return (
-      <View style={[containers.centerContainer]}>
-        <Text style={typography.errorText}>{error || "No profile found"}</Text>
+      <View style={styles.centered}>
+        <Text style={styles.errorText}>{error || "No profile found"}</Text>
         <Button title="Retry" onPress={loadProfile} />
         <Button title="Logout" onPress={handleLogout} />
       </View>
@@ -62,107 +120,95 @@ export default function Index() {
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <Text style={[typography.header, { marginBottom: 24 }]}>
-        Account Profile
-      </Text>
+    <>
+      {/* Quick Action Button */}
+      <QuickActionButton />
 
-      {/* Character Info */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Character Info</Text>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Name:</Text>
-          <Text style={styles.value}>
-            {profile.first_name} {profile.last_name}
-          </Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Username:</Text>
-          <Text style={styles.value}>@{profile.username}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Class:</Text>
-          <Text style={styles.classValue}>{profile.class.name}</Text>
-        </View>
-      </View>
+      <SafeAreaView
+        style={containers.safeArea}
+        edges={["top", "left", "right"]}
+      >
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor={colorPallet.neutral_darkest}
+        />
+        <ScrollView
+          style={containers.scrollView}
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          bounces={true}
+        >
+          {/* Character Card */}
+          <TouchableOpacity
+            onPress={() => {
+              setPopupMode("allocateStats");
+              setPopupVisible(true);
+            }}
+          >
+            <CharacterCardInventory
+              username={profile.username}
+              level={profile.level}
+              stats={profile.class.stats}
+              availableStatPoints={profile.pending_stat_points}
+              onSettingsPress={handleSettingsPress}
+            />
+          </TouchableOpacity>
 
-      {/* Stats */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Stats</Text>
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Strength</Text>
-            <Text style={styles.statValue}>{profile.class.stats.strength}</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Endurance</Text>
-            <Text style={styles.statValue}>
-              {profile.class.stats.endurance}
-            </Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Flexibility</Text>
-            <Text style={styles.statValue}>
-              {profile.class.stats.flexibility}
-            </Text>
-          </View>
-        </View>
-      </View>
+          {/* Stat allocation and settings popup modal */}
+          <Popup
+            visible={popupVisible}
+            mode={popupMode}
+            onClose={() => setPopupVisible(false)}
+            onLogout={handleLogout}
+            currentStats={profile?.class.stats}
+            availablePoints={profile?.pending_stat_points}
+          />
 
-      {/* Workout Schedule */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Workout Schedule</Text>
-        <View style={styles.scheduleGrid}>
-          {profile.workout_schedule.map((isActive, index) => (
-            <View
-              key={index}
-              style={[
-                styles.dayCard,
-                isActive ? styles.dayActive : styles.dayInactive,
-              ]}
-            >
-              <Text
-                style={[
-                  styles.dayText,
-                  isActive ? styles.dayTextActive : styles.dayTextInactive,
-                ]}
-              >
-                {DAYS[index]}
-              </Text>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      {/* Logout Button */}
-      <View style={styles.logoutContainer}>
-        <Button title="Logout" onPress={handleLogout} color="#dc3545" />
-      </View>
-    </ScrollView>
+          {/* Inventory and Shop tabs */}
+          <TabBar
+            tabs={tabs}
+            initialTab={0}
+            onTabChange={handleTabChange}
+            outerContainerStyle={{
+              paddingTop: 0,
+              margin: 0,
+              paddingBottom: 0,
+              justifyContent: "center",
+            }}
+            tabBarContainerStyle={{
+              paddingTop: 0,
+              paddingBottom: 0,
+              paddingHorizontal: 0,
+            }}
+            tabBarStyle={{ margin: 0, padding: 0, borderRadius: 0 }}
+            tabButtonStyle={{ borderRadius: 0 }}
+          />
+        </ScrollView>
+      </SafeAreaView>
+    </>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
-    paddingHorizontal: 22,
-    paddingTop: 64,
-    paddingBottom: 100, // Extra padding for bottom tab navigation
-    backgroundColor: colorPallet.neutral_darkest,
+    paddingBottom: 100,
   },
   centered: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: colorPallet.neutral_darkest,
   },
   errorText: {
-    fontSize: 16,
-    color: "#dc3545",
+    ...typography.body,
+    color: colorPallet.critical,
     marginBottom: 16,
     textAlign: "center",
-  },
-  header: {
-    alignItems: "center",
-    marginBottom: 24,
   },
   section: {
     backgroundColor: colorPallet.neutral_6,
@@ -171,87 +217,54 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginBottom: 12,
+    ...typography.h2,
     color: colorPallet.neutral_lightest,
+    marginBottom: 12,
   },
   infoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: colorPallet.neutral_1,
+    borderBottomColor: colorPallet.neutral_4,
   },
   label: {
-    fontSize: 16,
-    color: colorPallet.neutral_lightest,
+    ...typography.body,
+    color: colorPallet.neutral_2,
     fontWeight: "500",
   },
   value: {
-    fontSize: 16,
+    ...typography.body,
     color: colorPallet.neutral_lightest,
     fontWeight: "600",
   },
   classValue: {
-    fontSize: 16,
+    ...typography.body,
     color: colorPallet.primary,
-    fontWeight: "bold",
+    fontWeight: "700",
   },
-  statsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-  },
-  statCard: {
-    backgroundColor: colorPallet.neutral_darkest,
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 8,
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: colorPallet.primary,
-  },
-  statLabel: {
-    fontSize: 14,
-    color: colorPallet.neutral_lightest,
-    marginBottom: 4,
-  },
-  statValue: {
-    fontSize: 28,
-    fontWeight: "bold",
+  highlightValue: {
+    ...typography.body,
     color: colorPallet.secondary,
+    fontWeight: "700",
   },
-  scheduleGrid: {
+  equippedGrid: {
+    gap: 8,
+  },
+  equipmentItem: {
     flexDirection: "row",
     justifyContent: "space-between",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colorPallet.neutral_4,
   },
-  dayCard: {
-    flex: 1,
-    aspectRatio: 1,
-    borderRadius: 8,
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 2,
-  },
-  dayActive: {
-    backgroundColor: colorPallet.primary,
-  },
-  dayInactive: {
-    backgroundColor: colorPallet.neutral_4,
-  },
-  dayText: {
-    fontSize: 12,
-    fontWeight: "bold",
-  },
-  dayTextActive: {
-    color: colorPallet.neutral_darkest,
-  },
-  dayTextInactive: {
-    color: colorPallet.neutral_1,
+
+  equipmentValue: {
+    ...typography.body,
+    color: colorPallet.secondary,
+    fontWeight: "600",
   },
   logoutContainer: {
-    marginHorizontal: 16,
     marginTop: 8,
     marginBottom: 32,
   },

@@ -1,9 +1,20 @@
-use std::fs;
+use {
+    crate::endpoints::constants::constants::EXERCISES_PATH,
+    actix_web::{
+        HttpResponse,
+        Result,
+        get,
+        web,
+    },
+    serde::{
+        Deserialize,
+        Serialize,
+    },
+    std::fs,
+};
 
-use actix_web::{HttpResponse, Result, get, web};
-use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize, Serialize)]
+#[allow(non_snake_case)]
 pub struct Exercise {
     id: String,
     name: String,
@@ -20,14 +31,12 @@ pub struct Exercise {
 
 #[get("/workouts/library")]
 async fn library() -> Result<HttpResponse, actix_web::Error> {
-    let file_path = "/app/exercises.json";
-
-    let file_content = web::block(move || fs::read_to_string(file_path))
+    let file_content = web::block(move || fs::read_to_string(EXERCISES_PATH))
         .await?
-        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+        .map_err(actix_web::error::ErrorInternalServerError)?;
 
-    let exercises: Vec<Exercise> = serde_json::from_str(&file_content)
-        .map_err(|e| actix_web::error::ErrorInternalServerError(e))?;
+    let exercises: Vec<Exercise> =
+        serde_json::from_str(&file_content).map_err(actix_web::error::ErrorInternalServerError)?;
 
     return Ok(HttpResponse::Ok().json(exercises));
 }
