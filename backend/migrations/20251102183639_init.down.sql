@@ -34,6 +34,10 @@ DROP TABLE IF EXISTS "history";
 
 DROP TABLE IF EXISTS "quests";
 
+DROP TABLE IF EXISTS "words";
+
+DROP TABLE IF EXISTS "friend_requests";
+
 DROP TYPE IF EXISTS exercise;
 
 DROP TYPE IF EXISTS stats;
@@ -63,3 +67,5 @@ DROP TYPE IF EXISTS exercise_category;
 DROP TYPE IF EXISTS quest_difficulty;
 
 DROP TYPE IF EXISTS quest_status;
+
+DROP TYPE IF EXISTS word_category;
