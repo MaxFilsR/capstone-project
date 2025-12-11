@@ -128,6 +128,8 @@ CREATE TYPE quest_difficulty AS ENUM('easy', 'medium', 'hard');
 
 CREATE TYPE quest_status AS ENUM('incomplete', 'complete');
 
+CREATE TYPE word_category AS ENUM('adjective', 'noun');
+
 --
 -- TABLES
 --
@@ -264,6 +266,13 @@ CREATE TABLE IF NOT EXISTS
 	);
 
 CREATE TABLE IF NOT EXISTS
+	words (
+		id SERIAL PRIMARY KEY,
+		word TEXT NOT NULL,
+		category WORD_CATEGORY NOT NULL
+	);
+
+CREATE TABLE IF NOT EXISTS
 	friend_requests (
 		id SERIAL PRIMARY KEY,
 		sender_id INTEGER NOT NULL REFERENCES characters(user_id) ON DELETE CASCADE,
@@ -341,4 +350,34 @@ DO $$
 			data ->> 'path'
 		FROM
 			jsonb_array_elements(assets_json) AS data;
+END $$;
+
+DO $$
+	DECLARE
+  		nouns jsonb;
+	BEGIN
+		SELECT 
+			pg_read_file('/docker-entrypoint-initdb.d/nouns.json')::jsonb INTO nouns;
+		INSERT INTO
+			words (word, category)
+		SELECT
+			data ->> 0 AS word,
+			'noun'
+		FROM
+			jsonb_array_elements(nouns) AS data;
+END $$;
+
+DO $$
+	DECLARE
+  		adjectives jsonb;
+	BEGIN
+		SELECT 
+			pg_read_file('/docker-entrypoint-initdb.d/adjectives.json')::jsonb INTO adjectives;
+		INSERT INTO
+			words (word, category)
+		SELECT
+			data ->> 0 AS word,
+			'adjective'
+		FROM
+			jsonb_array_elements(adjectives) AS data;
 END $$;

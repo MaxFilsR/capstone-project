@@ -121,8 +121,29 @@ pub async fn create_quest(
         }
     }
 
+    let words = sqlx::query_scalar!(
+        r#"
+            SELECT DISTINCT ON (category::text)
+                word
+            FROM words
+            WHERE category IN ('adjective', 'noun')
+            ORDER BY category::text, random();
+        "#
+    )
+    .fetch_all(pool.get_ref())
+    .await
+    .unwrap();
+
+    let adjective = &words[0];
+    let noun = &words[1];
+
+    let mut name = String::new();
+    name.push_str(adjective);
+    name.push(' ');
+    name.push_str(noun);
+
     let response = CreateQuestResponse {
-        name: Alphanumeric.sample_string(&mut rng, 16),
+        name: name,
         difficulty: request.difficulty,
         status: QuestStatus::Incomplete,
         number_of_workouts_needed: request.difficulty.number_of_workouts_needed(),
