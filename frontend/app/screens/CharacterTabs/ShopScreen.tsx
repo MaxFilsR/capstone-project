@@ -13,6 +13,7 @@ import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useShop } from "@/lib/shop-context";
+import { useInventory } from "@/lib/inventory-context";
 import { getCharacter } from "@/api/endpoints";
 
 // ============================================================================
@@ -29,6 +30,7 @@ type ShopScreenProps = {
 
 const ShopScreen: React.FC<ShopScreenProps> = ({ coins: initialCoins }) => {
   const { shopItems, isLoading, error, purchaseItem, refreshShopItems, loadShop } = useShop();
+  const { refreshInventory } = useInventory();
   const [coins, setCoins] = useState(initialCoins);
   const [purchasing, setPurchasing] = useState<string | null>(null);
 
@@ -128,6 +130,10 @@ const ShopScreen: React.FC<ShopScreenProps> = ({ coins: initialCoins }) => {
 
               if (result.success && result.remainingCoins !== undefined) {
                 setCoins(result.remainingCoins);
+                
+                // Refresh inventory to show the newly purchased item
+                await refreshInventory();
+                
                 Alert.alert(
                   "Success!",
                   `${itemName} purchased! Check your inventory.`,
@@ -399,12 +405,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 8,
     marginTop: 16,
-  },
-  retryButtonText: {
-    ...typography.body,
-    color: colorPallet.neutral_darkest,
-    fontWeight: "700",
-    fontSize: 14,
   },
   retryButtonText: {
     ...typography.body,
