@@ -112,7 +112,6 @@ const createNewQuest = useCallback(
    */
   const getInProgressQuests = useCallback(() => {
     const inProgress = quests.filter((quest) => quest.status === "Incomplete");
-    console.log("In Progress quests:", inProgress.length, inProgress);
     return inProgress;
   }, [quests]);
 

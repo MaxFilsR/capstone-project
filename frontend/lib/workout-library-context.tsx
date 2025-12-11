@@ -121,16 +121,13 @@ export const WorkoutLibraryProvider: React.FC<{
       if (cachedStr) {
         const { data, timestamp } = JSON.parse(cachedStr);
         if (Date.now() - timestamp < CACHE_DURATION) {
-          console.log("Using cached workout library");
           setExercises(data);
           setLoading(false);
           return;
         }
       }
 
-      console.log("Fetching workout library from API");
       const data = await getWorkoutLibrary();
-      console.log("Fetched", data?.length, "exercises");
 
       if (Array.isArray(data)) {
         setExercises(data);
