@@ -57,10 +57,36 @@ function getImageStyle(category: string) {
     heads: { scale: 1.5, translateY: -12 , translateX: -12  },
     accessories: { scale: 1.5, translateY: -5 , translateX: -12  },
     weapons: { scale: 1.5, translateX: 2, translateY: -12 },
-    pets: { scale: 1.5, translateY: 2 },
+    pets: { scale: 0.7, translateY: -25 , translateX: -20 },
   };
 
   const adjustment = adjustments[category] || { scale: 1.2 };
+  
+  return {
+    transform: [
+      { scale: adjustment.scale },
+      { translateX: adjustment.translateX || 0 },
+      { translateY: adjustment.translateY || 0 },
+    ],
+  };
+}
+
+/**
+ * Get image positioning adjustments for layered character preview
+ * Different item types are positioned differently in the character preview
+ */
+function getLayeredImageStyle(category: string) {
+  const adjustments: Record<string, { scale: number; translateX?: number; translateY?: number }> = {
+    backgrounds: { scale: 1.0 },
+    bodies: { scale: 1.0 },
+    arms: { scale: 1.0 },
+    heads: { scale: 1.0 },
+    accessories: { scale: 1.0 },
+    weapons: { scale: 1.0 },
+    pets: { scale: 0.4, translateY: 350 , translateX: 200 },
+  };
+
+  const adjustment = adjustments[category] || { scale: 1.0 };
   
   return {
     transform: [
@@ -156,7 +182,11 @@ export default function CharacterCardInventory({
           {equipped.background?.image && (
             <Image
               source={equipped.background.image}
-              style={[styles.backgroundLayerImage, { zIndex: 1 }]}
+              style={[
+                styles.backgroundLayerImage,
+                { zIndex: 1 },
+                getLayeredImageStyle(equipped.background.category),
+              ]}
               resizeMode="cover"
             />
           )}
@@ -164,7 +194,11 @@ export default function CharacterCardInventory({
           {equipped.body?.image && (
             <Image
               source={equipped.body.image}
-              style={[styles.layerImage, { zIndex: 2 }]}
+              style={[
+                styles.layerImage,
+                { zIndex: 2 },
+                getLayeredImageStyle(equipped.body.category),
+              ]}
               resizeMode="contain"
             />
           )}
@@ -172,7 +206,11 @@ export default function CharacterCardInventory({
           {equipped.arms?.image && (
             <Image
               source={equipped.arms.image}
-              style={[styles.layerImage, { zIndex: 3 }]}
+              style={[
+                styles.layerImage,
+                { zIndex: 3 },
+                getLayeredImageStyle(equipped.arms.category),
+              ]}
               resizeMode="contain"
             />
           )}
@@ -180,7 +218,11 @@ export default function CharacterCardInventory({
           {equipped.head?.image && (
             <Image
               source={equipped.head.image}
-              style={[styles.layerImage, { zIndex: 4 }]}
+              style={[
+                styles.layerImage,
+                { zIndex: 4 },
+                getLayeredImageStyle(equipped.head.category),
+              ]}
               resizeMode="contain"
             />
           )}
@@ -188,7 +230,11 @@ export default function CharacterCardInventory({
           {equipped.headAccessory?.image && (
             <Image
               source={equipped.headAccessory.image}
-              style={[styles.layerImage, { zIndex: 5 }]}
+              style={[
+                styles.layerImage,
+                { zIndex: 5 },
+                getLayeredImageStyle(equipped.headAccessory.category),
+              ]}
               resizeMode="contain"
             />
           )}
@@ -196,7 +242,11 @@ export default function CharacterCardInventory({
           {equipped.weapon?.image && (
             <Image
               source={equipped.weapon.image}
-              style={[styles.layerImage, { zIndex: 6 }]}
+              style={[
+                styles.layerImage,
+                { zIndex: 6 },
+                getLayeredImageStyle(equipped.weapon.category),
+              ]}
               resizeMode="contain"
             />
           )}
@@ -204,7 +254,11 @@ export default function CharacterCardInventory({
           {equipped.pet?.image && (
             <Image
               source={equipped.pet.image}
-              style={[styles.layerImage, { zIndex: 7 }]}
+              style={[
+                styles.layerImage,
+                { zIndex: 7 },
+                getLayeredImageStyle(equipped.pet.category),
+              ]}
               resizeMode="contain"
             />
           )}

@@ -14,6 +14,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useInventory } from "@/lib/inventory-context";
 import { useAuth } from "@/lib/auth-context";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type CharacterCardSummaryProps = {
   username?: string;
   level?: number;
@@ -21,7 +25,39 @@ type CharacterCardSummaryProps = {
   accentColor?: string;
 };
 
+// ============================================================================
+// Helper Functions
+// ============================================================================
 
+/**
+ * Get image positioning adjustments for layered character preview
+ * Different item types are positioned differently in the character preview
+ */
+function getLayeredImageStyle(category: string) {
+  const adjustments: Record<string, { scale: number; translateX?: number; translateY?: number }> = {
+    backgrounds: { scale: 1.0 },
+    bodies: { scale: 1.0 },
+    arms: { scale: 1.0 },
+    heads: { scale: 1.0 },
+    accessories: { scale: 1.0 },
+    weapons: { scale: 1.0 },
+    pets: { scale: 0.4, translateY: 350 , translateX: 200 },
+  };
+
+  const adjustment = adjustments[category] || { scale: 1.0 };
+  
+  return {
+    transform: [
+      { scale: adjustment.scale },
+      { translateX: adjustment.translateX || 0 },
+      { translateY: adjustment.translateY || 0 },
+    ],
+  };
+}
+
+// ============================================================================
+// Main Component
+// ============================================================================
 
 export default function CharacterCardSummary({
   username,
@@ -66,7 +102,11 @@ export default function CharacterCardSummary({
           {equipped.background?.image && (
             <Image
               source={equipped.background.image}
-              style={[styles.backgroundLayerImage, { zIndex: 1 }]}
+              style={[
+                styles.backgroundLayerImage,
+                { zIndex: 1 },
+                getLayeredImageStyle(equipped.background.category),
+              ]}
               resizeMode="cover"
             />
           )}
@@ -74,7 +114,11 @@ export default function CharacterCardSummary({
           {equipped.body?.image && (
             <Image
               source={equipped.body.image}
-              style={[styles.layerImage, { zIndex: 2 }]}
+              style={[
+                styles.layerImage,
+                { zIndex: 2 },
+                getLayeredImageStyle(equipped.body.category),
+              ]}
               resizeMode="contain"
             />
           )}
@@ -82,7 +126,11 @@ export default function CharacterCardSummary({
           {equipped.arms?.image && (
             <Image
               source={equipped.arms.image}
-              style={[styles.layerImage, { zIndex: 3 }]}
+              style={[
+                styles.layerImage,
+                { zIndex: 3 },
+                getLayeredImageStyle(equipped.arms.category),
+              ]}
               resizeMode="contain"
             />
           )}
@@ -90,7 +138,11 @@ export default function CharacterCardSummary({
           {equipped.head?.image && (
             <Image
               source={equipped.head.image}
-              style={[styles.layerImage, { zIndex: 4 }]}
+              style={[
+                styles.layerImage,
+                { zIndex: 4 },
+                getLayeredImageStyle(equipped.head.category),
+              ]}
               resizeMode="contain"
             />
           )}
@@ -98,7 +150,11 @@ export default function CharacterCardSummary({
           {equipped.headAccessory?.image && (
             <Image
               source={equipped.headAccessory.image}
-              style={[styles.layerImage, { zIndex: 5 }]}
+              style={[
+                styles.layerImage,
+                { zIndex: 5 },
+                getLayeredImageStyle(equipped.headAccessory.category),
+              ]}
               resizeMode="contain"
             />
           )}
@@ -106,7 +162,11 @@ export default function CharacterCardSummary({
           {equipped.weapon?.image && (
             <Image
               source={equipped.weapon.image}
-              style={[styles.layerImage, { zIndex: 6 }]}
+              style={[
+                styles.layerImage,
+                { zIndex: 6 },
+                getLayeredImageStyle(equipped.weapon.category),
+              ]}
               resizeMode="contain"
             />
           )}
@@ -114,7 +174,11 @@ export default function CharacterCardSummary({
           {equipped.pet?.image && (
             <Image
               source={equipped.pet.image}
-              style={[styles.layerImage, { zIndex: 7 }]}
+              style={[
+                styles.layerImage,
+                { zIndex: 7 },
+                getLayeredImageStyle(equipped.pet.category),
+              ]}
               resizeMode="contain"
             />
           )}
@@ -167,6 +231,10 @@ export default function CharacterCardSummary({
   );
 }
 
+// ============================================================================
+// Styles
+// ============================================================================
+
 const styles = StyleSheet.create({
   container: {
     width: "100%",
@@ -174,7 +242,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: "hidden",
     borderWidth: 2,
-
   },
   headerContainer: {
     flexDirection: "row",
@@ -278,4 +345,4 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 12,
   },
-}); 
+});
