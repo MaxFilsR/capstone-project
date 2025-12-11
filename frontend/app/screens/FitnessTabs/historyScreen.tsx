@@ -1,3 +1,12 @@
+/**
+ * History Screen
+ *
+ * Displays user's workout history organized by month with statistics.
+ * Shows workout sessions in chronological order (most recent first) with
+ * monthly summaries of total gainz earned and session counts. Provides
+ * loading, error, and empty states with appropriate user feedback.
+ */
+
 import React, { useMemo, useEffect, useState } from "react";
 import {
   Text,
@@ -14,15 +23,32 @@ import { typography } from "@/styles";
 import { router } from "expo-router";
 import { getWorkoutHistory, WorkoutSession } from "@/api/endpoints";
 
+// ============================================================================
+// Types
+// ============================================================================
+
+/**
+ * Monthly workout group containing aggregated stats and workout sessions
+ */
 interface MonthGroup {
-  monthYear: string;
-  displayMonth: string;
+  monthYear: string; // Format: "YYYY-MM" for sorting
+  displayMonth: string; // Format: "Month Year" for display
   totalSessions: number;
   totalGainz: number;
   workouts: WorkoutSession[];
 }
 
-// Helper function to format numbers with commas
+// ============================================================================
+// Utilities
+// ============================================================================
+
+/**
+ * Format numbers with locale-appropriate commas and optional decimal places
+ * 
+ * @param value - Number to format (can be string, number, undefined, or null)
+ * @param decimals - Optional fixed decimal places
+ * @returns Formatted number string with commas, or "0" if invalid
+ */
 function formatNumber(
   value: number | string | undefined | null,
   decimals?: number
@@ -45,16 +71,38 @@ function formatNumber(
   return num.toLocaleString("en-US");
 }
 
+// ============================================================================
+// Component
+// ============================================================================
+
 const HistoryScreen = () => {
+  // ============================================================================
+  // State
+  // ============================================================================
+
   const [workouts, setWorkouts] = useState<WorkoutSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch workout history on mount
+  // ============================================================================
+  // Effects
+  // ============================================================================
+
+  /**
+   * Fetch workout history on component mount
+   */
   useEffect(() => {
     loadWorkoutHistory();
   }, []);
 
+  // ============================================================================
+  // Data Fetching
+  // ============================================================================
+
+  /**
+   * Load workout history from API
+   * Sets loading state, handles errors, and updates workout list
+   */
   async function loadWorkoutHistory() {
     try {
       setIsLoading(true);
@@ -70,7 +118,18 @@ const HistoryScreen = () => {
     }
   }
 
-  // Group workouts by month
+  // ============================================================================
+  // Computed Values
+  // ============================================================================
+
+  /**
+   * Group workouts by month with aggregated statistics
+   * 
+   * Creates monthly groups sorted by most recent first. Each group contains:
+   * - Total workout sessions for the month
+   * - Total gainz earned in the month
+   * - Array of all workout sessions in that month
+   */
   const groupedWorkouts = useMemo(() => {
     const groups: { [key: string]: MonthGroup } = {};
 
@@ -105,7 +164,13 @@ const HistoryScreen = () => {
     );
   }, [workouts]);
 
-  // Loading state
+  // ============================================================================
+  // Conditional Rendering
+  // ============================================================================
+
+  /**
+   * Loading state - Show spinner while fetching workout data
+   */
   if (isLoading) {
     return (
       <View style={[tabStyles.tabContent, styles.centerContainer]}>
@@ -115,7 +180,9 @@ const HistoryScreen = () => {
     );
   }
 
-  // Error state
+  /**
+   * Error state - Show error message with retry button
+   */
   if (error) {
     return (
       <View style={[tabStyles.tabContent, styles.centerContainer]}>
@@ -127,7 +194,9 @@ const HistoryScreen = () => {
     );
   }
 
-  // Empty state
+  /**
+   * Empty state - Show message when no workout history exists
+   */
   if (workouts.length === 0) {
     return (
       <View style={[tabStyles.tabContent, styles.centerContainer]}>
@@ -139,6 +208,10 @@ const HistoryScreen = () => {
     );
   }
 
+  // ============================================================================
+  // Main Render
+  // ============================================================================
+
   return (
     <ScrollView
       style={tabStyles.tabContent}
@@ -147,7 +220,7 @@ const HistoryScreen = () => {
       <View>
         {groupedWorkouts.map((group) => (
           <View key={group.monthYear} style={styles.monthSection}>
-            {/* Month Header */}
+            {/* Month Header with Statistics */}
             <View style={styles.monthHeader}>
               <Text style={[typography.h2, styles.monthTitle]}>
                 {group.displayMonth}
@@ -168,7 +241,7 @@ const HistoryScreen = () => {
               </Text>
             </View>
 
-            {/* Workout Cards */}
+            {/* Workout Cards with Navigation Overlay */}
             {group.workouts.map((session) => (
               <View key={session.id} style={{ position: "relative" }}>
                 <WorkoutCard
@@ -180,6 +253,7 @@ const HistoryScreen = () => {
                     pointsEarned: session.points,
                   }}
                 />
+                {/* Invisible pressable overlay for navigation */}
                 <Pressable
                   onPress={() => {
                     router.push({
@@ -210,6 +284,10 @@ const HistoryScreen = () => {
     </ScrollView>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {

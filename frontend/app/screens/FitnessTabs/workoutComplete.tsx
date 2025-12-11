@@ -1,3 +1,13 @@
+/**
+ * Workout Complete Screen
+ *
+ * Displays a celebration summary after completing a workout. Shows workout statistics
+ * (duration, points earned, exercise count, total sets) and a detailed list of completed
+ * exercises with expandable cards showing set/rep/weight data for strength exercises or
+ * set/distance data for cardio exercises. Can load workout data from URL params or fetch
+ * from workout history by ID.
+ */
+
 import React, { useEffect, useState } from "react";
 import { router, useLocalSearchParams } from "expo-router";
 import {
@@ -22,11 +32,28 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
 
+// ============================================================================
+// Constants
+// ============================================================================
+
+/**
+ * Base URL for exercise images from the free exercise database
+ */
 const IMAGE_BASE_URL =
   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
+// ============================================================================
+// Types
+// ============================================================================
+
+/**
+ * Stat pair for displaying label-value combinations
+ */
 type StatPair = { label: string; value: string | number };
 
+/**
+ * Component props (supports both programmatic and route-based usage)
+ */
 type Props = {
   routineName?: string;
   playerName?: string;
@@ -34,7 +61,17 @@ type Props = {
   onDone?: () => void;
 };
 
-// Helper function to format numbers with commas
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Format numbers with locale-appropriate commas and optional decimal places
+ *
+ * @param value - Number to format (can be string, number, undefined, or null)
+ * @param decimals - Optional fixed decimal places
+ * @returns Formatted number string with commas, or "0" if invalid
+ */
 function formatNumber(
   value: number | string | undefined | null,
   decimals?: number
@@ -57,7 +94,13 @@ function formatNumber(
   return num.toLocaleString("en-US");
 }
 
-// Helper function to determine exercise type
+/**
+ * Determine exercise type based on category
+ * Used to decide which metrics to display (strength vs cardio)
+ *
+ * @param category - Exercise category string
+ * @returns "strength", "cardio", or "none"
+ */
 function getExerciseType(
   category: string | null | undefined
 ): "strength" | "cardio" | "none" {
@@ -81,12 +124,24 @@ function getExerciseType(
   return "none";
 }
 
+// ============================================================================
+// Main Component
+// ============================================================================
+
 export default function WorkoutComplete({
   routineName = "Strength Workout",
   playerName = "",
   summary,
   onDone,
 }: Props) {
+  // ============================================================================
+  // Route Parameters
+  // ============================================================================
+
+  /**
+   * Extract workout data from URL search parameters
+   * Used when navigating from other screens with workout data
+   */
   const params = useLocalSearchParams<{
     id?: string;
     name?: string;
@@ -96,20 +151,45 @@ export default function WorkoutComplete({
     exercises?: string;
   }>();
 
+  // ============================================================================
+  // State
+  // ============================================================================
+
   const [workout, setWorkout] = useState<WorkoutSession | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [expandedExercises, setExpandedExercises] = useState<Set<number>>(
     new Set()
   );
+
+  // ============================================================================
+  // Context
+  // ============================================================================
+
   const { user } = useAuth();
   const { exercises: exerciseLibrary } = useWorkoutLibrary();
 
+  // ============================================================================
+  // Effects
+  // ============================================================================
+
+  /**
+   * Load workout details from history if workout ID is provided
+   * Fetches full workout session data including all exercises and metrics
+   */
   useEffect(() => {
     if (params.id) {
       loadWorkoutDetails(params.id);
     }
   }, [params.id]);
 
+  // ============================================================================
+  // Data Fetching
+  // ============================================================================
+
+  /**
+   * Fetch workout details from workout history by ID
+   * Used to display historical workout summaries
+   */
   async function loadWorkoutDetails(id: string) {
     try {
       setIsLoading(true);
@@ -125,6 +205,14 @@ export default function WorkoutComplete({
     }
   }
 
+  // ============================================================================
+  // Computed Values
+  // ============================================================================
+
+  /**
+   * Parse exercises from URL parameters if provided
+   * Exercises are passed as JSON string in route params
+   */
   const exercisesFromParams: WorkoutExercise[] = React.useMemo(() => {
     if (params.exercises) {
       try {
@@ -136,6 +224,10 @@ export default function WorkoutComplete({
     return [];
   }, [params.exercises]);
 
+  /**
+   * Resolve workout data from either fetched workout or URL params
+   * Prioritizes fetched workout data over params for accuracy
+   */
   const workoutName = workout?.name ?? params.name ?? routineName;
   const workoutDuration =
     workout?.duration ?? (params.workoutTime ? Number(params.workoutTime) : 0);
@@ -143,8 +235,19 @@ export default function WorkoutComplete({
     workout?.points ?? (params.points ? Number(params.points) : 0);
   const workoutExercises = workout?.exercises ?? exercisesFromParams;
 
+  /**
+   * Calculate total sets across all exercises
+   */
   const totalSets = workoutExercises.reduce((sum, ex) => sum + ex.sets, 0);
 
+  // ============================================================================
+  // Event Handlers
+  // ============================================================================
+
+  /**
+   * Toggle expand/collapse state for an exercise card
+   * Shows detailed metrics when expanded
+   */
   const toggleExpanded = (index: number) => {
     setExpandedExercises((prev) => {
       const newSet = new Set(prev);
@@ -157,6 +260,10 @@ export default function WorkoutComplete({
     });
   };
 
+  /**
+   * Handle done button press
+   * Uses custom callback if provided, otherwise navigates back to fitness tab
+   */
   const handleDone = () => {
     if (onDone) {
       onDone();
@@ -165,6 +272,13 @@ export default function WorkoutComplete({
     router.replace("/(tabs)/fitness");
   };
 
+  // ============================================================================
+  // Conditional Rendering
+  // ============================================================================
+
+  /**
+   * Loading State - Show spinner while fetching workout history
+   */
   if (isLoading) {
     return (
       <View style={[styles.container, styles.centered]}>
@@ -175,6 +289,10 @@ export default function WorkoutComplete({
       </View>
     );
   }
+
+  // ============================================================================
+  // Main Render
+  // ============================================================================
 
   return (
     <ScrollView
@@ -189,7 +307,7 @@ export default function WorkoutComplete({
         </Pressable>
       </View>
 
-      {/* Hero Section */}
+      {/* Hero Section - Trophy and Celebration Message */}
       <View style={styles.heroSection}>
         <Image source={trophy} style={styles.trophy} resizeMode="contain" />
         <Text style={styles.title}>
@@ -203,7 +321,7 @@ export default function WorkoutComplete({
         </Text>
       </View>
 
-      {/* Stats Cards - Single Row */}
+      {/* Stats Cards - Duration, Points, Exercises, Sets */}
       <View style={styles.statsContainer}>
         <View style={styles.statCard}>
           <View style={styles.statIconWrapper}>
@@ -258,7 +376,7 @@ export default function WorkoutComplete({
         </View>
       </View>
 
-      {/* Exercises Section */}
+      {/* Exercises Section - Expandable Exercise Cards */}
       {workoutExercises.length > 0 && (
         <View style={styles.exercisesSection}>
           <View style={styles.sectionHeaderContainer}>
@@ -297,6 +415,23 @@ export default function WorkoutComplete({
   );
 }
 
+// ============================================================================
+// Sub-Components
+// ============================================================================
+
+/**
+ * Expandable Exercise Card
+ *
+ * Displays exercise name, image, and primary muscles. When expanded, shows
+ * detailed metrics based on exercise type:
+ * - Strength exercises: Sets, Reps, Weight
+ * - Cardio exercises: Sets, Distance
+ *
+ * @param exercise - Workout exercise data with metrics
+ * @param exerciseDetails - Full exercise details from library
+ * @param isExpanded - Whether card is currently expanded
+ * @param onToggle - Callback to toggle expand/collapse state
+ */
 function ExpandableExerciseCard({
   exercise,
   exerciseDetails,
@@ -315,7 +450,7 @@ function ExpandableExerciseCard({
 
   return (
     <View style={styles.exerciseCard}>
-      {/* Exercise Header */}
+      {/* Exercise Header - Always Visible */}
       <Pressable onPress={onToggle} style={styles.exerciseHeader}>
         {imageUrl ? (
           <Image
@@ -348,7 +483,7 @@ function ExpandableExerciseCard({
         />
       </Pressable>
 
-      {/* Expanded Summary Details */}
+      {/* Expanded Summary Details - Shows When Expanded */}
       {isExpanded && exerciseType !== "none" && (
         <View style={styles.detailsContainer}>
           <View style={styles.detailsHeader}>
@@ -356,6 +491,7 @@ function ExpandableExerciseCard({
           </View>
 
           <View style={styles.summaryGrid}>
+            {/* Strength Exercise Metrics */}
             {exerciseType === "strength" && (
               <>
                 {exercise.sets > 0 && (
@@ -408,6 +544,7 @@ function ExpandableExerciseCard({
               </>
             )}
 
+            {/* Cardio Exercise Metrics */}
             {exerciseType === "cardio" && (
               <>
                 {exercise.sets > 0 && (
@@ -449,6 +586,10 @@ function ExpandableExerciseCard({
     </View>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {

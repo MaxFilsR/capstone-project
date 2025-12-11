@@ -1,3 +1,13 @@
+/**
+ * Routines Screen
+ *
+ * Displays user's custom workout routines with exercise summaries and thumbnails.
+ * Allows users to create new routines, edit existing ones, and view routine details.
+ * Features pull-to-refresh functionality and displays loading, error, and empty states
+ * appropriately. Each routine card shows the first 4 exercises and a thumbnail from
+ * the first exercise with available images.
+ */
+
 import React, { useState } from "react";
 import {
   View,
@@ -18,9 +28,23 @@ import Popup from "@/components/popupModals/Popup";
 import { useRoutines } from "@/lib/routines-context";
 import { useWorkoutLibrary } from "@/lib/workout-library-context";
 
+// ============================================================================
+// Constants
+// ============================================================================
+
+/**
+ * Base URL for exercise images from the free exercise database
+ */
 const IMAGE_BASE_URL =
   "https://raw.githubusercontent.com/yuhonas/free-exercise-db/refs/heads/main/exercises/";
 
+// ============================================================================
+// Types
+// ============================================================================
+
+/**
+ * Workout routine containing name, summary, and list of exercises with parameters
+ */
 export type Routine = {
   id?: number;
   name: string;
@@ -34,6 +58,20 @@ export type Routine = {
   }>;
 };
 
+// ============================================================================
+// Components
+// ============================================================================
+
+/**
+ * Routine Card Component
+ *
+ * Displays a single routine with thumbnail, name, summary, and navigation arrow.
+ * Thumbnail shows the first exercise's image or a placeholder barbell icon.
+ *
+ * @param routine - The routine to display
+ * @param onEdit - Callback when card is pressed to edit the routine
+ * @param thumbnailUrl - URL for the routine's thumbnail image
+ */
 function RoutineCard({
   routine,
   onEdit,
@@ -73,7 +111,7 @@ function RoutineCard({
           )}
         </View>
 
-        {/* Arrow icon */}
+        {/* Arrow icon for navigation */}
         <Ionicons
           name="chevron-forward"
           size={18}
@@ -84,9 +122,22 @@ function RoutineCard({
   );
 }
 
+// ============================================================================
+// Main Screen Component
+// ============================================================================
+
 const RoutinesScreen = () => {
+  // ============================================================================
+  // Context
+  // ============================================================================
+
   const { routines, loading, error, refreshRoutines } = useRoutines();
   const { exercises } = useWorkoutLibrary();
+
+  // ============================================================================
+  // State
+  // ============================================================================
+
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<
     "createRoutine" | "editRoutine" | "startRoutine"
@@ -94,6 +145,14 @@ const RoutinesScreen = () => {
   const [selectedRoutine, setSelectedRoutine] = useState<any>(null);
   const [refreshing, setRefreshing] = useState(false);
 
+  // ============================================================================
+  // Event Handlers
+  // ============================================================================
+
+  /**
+   * Handle editing a routine
+   * Transforms routine data to include full exercise details needed for the edit modal
+   */
   const handleEditRoutine = (routine: Routine) => {
     // Transform routine to include full exercise details for editing
     const routineWithDetails = {
@@ -113,12 +172,19 @@ const RoutinesScreen = () => {
     setShowModal(true);
   };
 
+  /**
+   * Open modal to create a new routine
+   */
   const handleCreateRoutine = () => {
     setModalMode("createRoutine");
     setSelectedRoutine(null);
     setShowModal(true);
   };
 
+  /**
+   * Close modal and refresh routines list
+   * Ensures UI reflects any changes made in the modal
+   */
   const handleModalClose = () => {
     setShowModal(false);
     setSelectedRoutine(null);
@@ -126,13 +192,26 @@ const RoutinesScreen = () => {
     refreshRoutines();
   };
 
+  /**
+   * Handle pull-to-refresh gesture
+   * Reloads routines from the server
+   */
   const onRefresh = async () => {
     setRefreshing(true);
     await refreshRoutines();
     setRefreshing(false);
   };
 
-  // Generate summary for each routine
+  // ============================================================================
+  // Computed Values
+  // ============================================================================
+
+  /**
+   * Enhance routines with generated summaries and thumbnails
+   *
+   * Summary: Shows first 4 exercise names joined by bullets, with "+N more" if needed
+   * Thumbnail: Uses first exercise's image that has images available
+   */
   const routinesWithSummary = routines.map((routine, index) => {
     const exerciseNames = routine.exercises
       .map((ex) => {
@@ -174,6 +253,10 @@ const RoutinesScreen = () => {
     };
   });
 
+  // ============================================================================
+  // Main Render
+  // ============================================================================
+
   return (
     <View style={{ flex: 1 }}>
       <ScrollView
@@ -187,6 +270,7 @@ const RoutinesScreen = () => {
           />
         }
       >
+        {/* Header with Create Button */}
         <View
           style={{
             flexDirection: "row",
@@ -195,10 +279,9 @@ const RoutinesScreen = () => {
             marginBottom: 16,
           }}
         >
-          {/* Header */}
           <Text style={[typography.h2]}>My Routines</Text>
 
-          {/* + Button */}
+          {/* Create New Routine Button */}
           <TouchableOpacity
             style={{
               alignItems: "center",
@@ -214,14 +297,15 @@ const RoutinesScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Loading State */}
+        {/* Conditional Content Based on State */}
         {loading && routines.length === 0 ? (
+          /* Loading State - Show spinner on initial load */
           <View style={styles.centerContainer}>
             <ActivityIndicator size="large" color={colorPallet.primary} />
             <Text style={styles.loadingText}>Loading routines...</Text>
           </View>
         ) : error ? (
-          /* Error State */
+          /* Error State - Show error message with retry button */
           <View style={styles.centerContainer}>
             <Text style={styles.errorText}>Error: {error}</Text>
             <TouchableOpacity
@@ -232,7 +316,7 @@ const RoutinesScreen = () => {
             </TouchableOpacity>
           </View>
         ) : routines.length === 0 ? (
-          /* Empty State */
+          /* Empty State - Encourage user to create first routine */
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>No routines yet</Text>
             <Text style={styles.emptySubtext}>
@@ -240,7 +324,7 @@ const RoutinesScreen = () => {
             </Text>
           </View>
         ) : (
-          /* Routines List */
+          /* Routines List - Display all routines with summaries */
           <View style={{ gap: 12, marginBottom: 28 }}>
             {routinesWithSummary.map((r, index) => (
               <RoutineCard
@@ -253,7 +337,7 @@ const RoutinesScreen = () => {
           </View>
         )}
 
-        {/* Modal */}
+        {/* Create/Edit Routine Modal */}
         <Popup
           visible={showModal}
           mode={modalMode}
@@ -270,6 +354,10 @@ const RoutinesScreen = () => {
     </View>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   sectionTitle: {

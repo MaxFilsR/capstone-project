@@ -1,3 +1,13 @@
+/**
+ * Library Screen
+ *
+ * Displays a comprehensive, filterable library of exercises organized by muscle group.
+ * Features include multi-criteria filtering (muscle, level, category, equipment),
+ * search functionality, collapsible sections, alphabetical navigation sidebar,
+ * and optimized list rendering for large datasets. Users can view detailed exercise
+ * information through modal popups.
+ */
+
 import React, { useState, useMemo, useRef, useCallback } from "react";
 import {
   View,
@@ -22,7 +32,14 @@ import { ExerciseCard } from "@/components/ExerciseCard";
 import { SearchBar } from "@/components/SearchBar";
 import { AlphabetSidebar } from "@/components/AlphabetSidebar";
 
-// Enable layout animations for Android
+// ============================================================================
+// Platform Configuration
+// ============================================================================
+
+/**
+ * Enable layout animations for Android
+ * Required for smooth section collapse/expand animations
+ */
 if (
   Platform.OS === "android" &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -30,30 +47,64 @@ if (
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+// ============================================================================
 // Constants
-const SECTION_HEADER_HEIGHT = 10;
-const ITEM_HEIGHT = 85;
-const INITIAL_NUM_TO_RENDER = 15;
-const MAX_TO_RENDER_PER_BATCH = 10;
-const UPDATE_CELLS_BATCHING_PERIOD = 50;
-const WINDOW_SIZE = 10;
-const VIEWABILITY_THRESHOLD = 30;
+// ============================================================================
 
+/**
+ * Performance optimization constants for SectionList
+ */
+const SECTION_HEADER_HEIGHT = 10; // Height of section headers for layout calculation
+const ITEM_HEIGHT = 85; // Height of individual exercise cards
+const INITIAL_NUM_TO_RENDER = 15; // Number of items to render initially
+const MAX_TO_RENDER_PER_BATCH = 10; // Items to render per batch when scrolling
+const UPDATE_CELLS_BATCHING_PERIOD = 50; // Delay (ms) between batch renders
+const WINDOW_SIZE = 10; // Number of screens worth of items to keep mounted
+const VIEWABILITY_THRESHOLD = 30; // Percentage of item visible to be considered "viewable"
+
+// ============================================================================
 // Types
+// ============================================================================
+
+/**
+ * Tracks which sections are collapsed (hidden)
+ * Key: section title, Value: true if collapsed
+ */
 interface CollapsedSections {
   [key: string]: boolean;
 }
 
+/**
+ * Exercise section grouped by a common attribute (e.g., muscle group)
+ */
 interface GroupedExercises {
   title: string;
   data: Exercise[];
 }
 
+// ============================================================================
 // Helper Functions
+// ============================================================================
+
+/**
+ * Capitalize the first letter of a string
+ * 
+ * @param str - String to format
+ * @returns String with first letter capitalized
+ */
 const formatString = (str: string): string => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+/**
+ * Group exercises by their primary muscle groups
+ * 
+ * Since exercises can target multiple primary muscles, an exercise may
+ * appear in multiple sections. Sections are sorted alphabetically.
+ * 
+ * @param exercises - Array of exercises to group
+ * @returns Array of sections with exercises grouped by muscle
+ */
 const groupExercisesByPrimaryMuscle = (
   exercises: Exercise[]
 ): GroupedExercises[] => {
@@ -79,6 +130,16 @@ const groupExercisesByPrimaryMuscle = (
     }));
 };
 
+/**
+ * Extract unique values from exercises for filter options
+ * 
+ * Handles both string and string array values from exercises.
+ * Always includes "All" as the first option.
+ * 
+ * @param exercises - Array of exercises
+ * @param extractFn - Function to extract the desired property from each exercise
+ * @returns Sorted array of unique values with "All" prepended
+ */
 const extractUniqueValues = (
   exercises: Exercise[],
   extractFn: (ex: Exercise) => string | string[] | null | undefined
@@ -97,11 +158,21 @@ const extractUniqueValues = (
   return ["All", ...Array.from(valueSet).sort()];
 };
 
+// ============================================================================
+// Component
+// ============================================================================
+
 const LibraryScreen: React.FC = () => {
+  // ============================================================================
   // Context
+  // ============================================================================
+
   const { exercises, loading, error, refresh } = useWorkoutLibrary();
 
+  // ============================================================================
   // State - UI
+  // ============================================================================
+
   const [searchVisible, setSearchVisible] = useState(false);
   const [filtersVisible, setFiltersVisible] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(
@@ -112,41 +183,75 @@ const LibraryScreen: React.FC = () => {
   );
   const [activeLetter, setActiveLetter] = useState<string | null>(null);
 
+  // ============================================================================
   // State - Filters
+  // ============================================================================
+
   const [query, setQuery] = useState("");
   const [selectedMuscle, setSelectedMuscle] = useState("All");
   const [selectedLevel, setSelectedLevel] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedEquipment, setSelectedEquipment] = useState("All");
 
+  // ============================================================================
   // Refs
+  // ============================================================================
+
   const sectionListRef = useRef<SectionList>(null);
   const viewConfigRef = useRef({
     viewAreaCoveragePercentThreshold: VIEWABILITY_THRESHOLD,
   });
 
-  // Memoized filter options
+  // ============================================================================
+  // Computed Values - Filter Options
+  // ============================================================================
+
+  /**
+   * Extract unique muscle groups from all exercises
+   * Used to populate the muscle group filter dropdown
+   */
   const muscleGroups = useMemo(() => {
     if (!exercises?.length) return ["All"];
     return extractUniqueValues(exercises, (ex) => ex.primaryMuscles);
   }, [exercises]);
 
+  /**
+   * Extract unique difficulty levels from all exercises
+   * Used to populate the level filter dropdown
+   */
   const levels = useMemo(() => {
     if (!exercises?.length) return ["All"];
     return extractUniqueValues(exercises, (ex) => ex.level);
   }, [exercises]);
 
+  /**
+   * Extract unique categories from all exercises
+   * Used to populate the category filter dropdown
+   */
   const categories = useMemo(() => {
     if (!exercises?.length) return ["All"];
     return extractUniqueValues(exercises, (ex) => ex.category);
   }, [exercises]);
 
+  /**
+   * Extract unique equipment types from all exercises
+   * Used to populate the equipment filter dropdown
+   */
   const equipment = useMemo(() => {
     if (!exercises?.length) return ["All"];
     return extractUniqueValues(exercises, (ex) => ex.equipment);
   }, [exercises]);
 
-  // Filtered and grouped sections
+  // ============================================================================
+  // Computed Values - Filtered Data
+  // ============================================================================
+
+  /**
+   * Filter exercises based on search query and all active filters
+   * Then group by primary muscle for display
+   * 
+   * Filters are cumulative - exercises must match ALL active filters
+   */
   const sections = useMemo(() => {
     if (!exercises?.length) return [];
 
@@ -199,7 +304,10 @@ const LibraryScreen: React.FC = () => {
     selectedEquipment,
   ]);
 
-  // Sections with collapsed data
+  /**
+   * Sections with collapsed state applied
+   * Collapsed sections have empty data arrays to hide their items
+   */
   const sectionsWithCollapsedData = useMemo(() => {
     return sections.map((section) => ({
       ...section,
@@ -207,22 +315,38 @@ const LibraryScreen: React.FC = () => {
     }));
   }, [sections, collapsedSections]);
 
-  // Available alphabet letters
+  /**
+   * Available alphabet letters for the sidebar
+   * Based on the first letter of each visible section title
+   */
   const availableLetters = useMemo(() => {
     const letters = new Set(sections.map((s) => s.title[0].toUpperCase()));
     return Array.from(letters).sort();
   }, [sections]);
 
-  // Check if all sections are collapsed
+  /**
+   * Check if all sections are currently collapsed
+   * Used to determine the state of the "Collapse All" toggle
+   */
   const allSectionsCollapsed = useMemo(() => {
     return sections.every((s) => collapsedSections[s.title]);
   }, [sections, collapsedSections]);
 
+  // ============================================================================
   // Callbacks - Section Management
+  // ============================================================================
+
+  /**
+   * Toggle collapse state of a single section
+   */
   const toggleSection = useCallback((title: string) => {
     setCollapsedSections((prev) => ({ ...prev, [title]: !prev[title] }));
   }, []);
 
+  /**
+   * Collapse or expand all sections at once
+   * Toggles based on current state (if all collapsed, expand all; otherwise collapse all)
+   */
   const toggleAllSections = useCallback(() => {
     const shouldCollapse = !allSectionsCollapsed;
     const newState: CollapsedSections = {};
@@ -232,11 +356,20 @@ const LibraryScreen: React.FC = () => {
     setCollapsedSections(newState);
   }, [sections, allSectionsCollapsed]);
 
+  // ============================================================================
   // Callbacks - Filter Management
+  // ============================================================================
+
+  /**
+   * Toggle visibility of filter controls
+   */
   const toggleFilters = useCallback(() => {
     setFiltersVisible((prev) => !prev);
   }, []);
 
+  /**
+   * Reset all filters to default "All" state
+   */
   const resetFilters = useCallback(() => {
     setSelectedMuscle("All");
     setSelectedLevel("All");
@@ -244,22 +377,44 @@ const LibraryScreen: React.FC = () => {
     setSelectedEquipment("All");
   }, []);
 
+  // ============================================================================
   // Callbacks - Search Management
+  // ============================================================================
+
+  /**
+   * Close search bar and clear search query
+   */
   const handleSearchClose = useCallback(() => {
     setSearchVisible(false);
     setQuery("");
   }, []);
 
+  // ============================================================================
   // Callbacks - Exercise Management
+  // ============================================================================
+
+  /**
+   * Open exercise details modal for selected exercise
+   */
   const handleExercisePress = useCallback((exercise: Exercise) => {
     setSelectedExercise(exercise);
   }, []);
 
+  /**
+   * Close exercise details modal
+   */
   const handleExerciseModalClose = useCallback(() => {
     setSelectedExercise(null);
   }, []);
 
+  // ============================================================================
   // Callbacks - Scrolling
+  // ============================================================================
+
+  /**
+   * Scroll to the first section starting with the specified letter
+   * Used by the alphabet sidebar navigation
+   */
   const scrollToSection = useCallback(
     (letter: string) => {
       const sectionIndex = sectionsWithCollapsedData.findIndex(
@@ -277,6 +432,10 @@ const LibraryScreen: React.FC = () => {
     [sectionsWithCollapsedData]
   );
 
+  /**
+   * Track which section is currently visible in viewport
+   * Updates the active letter highlight in the alphabet sidebar
+   */
   const onViewableItemsChanged = useRef(
     ({ viewableItems }: { viewableItems: Array<ViewToken> }) => {
       if (!viewableItems.length) return;
@@ -288,7 +447,13 @@ const LibraryScreen: React.FC = () => {
     }
   );
 
+  // ============================================================================
   // Render Functions
+  // ============================================================================
+
+  /**
+   * Render individual exercise card
+   */
   const renderItem = useCallback(
     ({ item }: { item: Exercise }) => (
       <ExerciseCard item={item} onPress={handleExercisePress} />
@@ -296,6 +461,9 @@ const LibraryScreen: React.FC = () => {
     [handleExercisePress]
   );
 
+  /**
+   * Render section header with collapse toggle
+   */
   const renderSectionHeader = useCallback(
     ({ section }: { section: SectionListData<Exercise> }) => {
       const { title } = section;
@@ -314,6 +482,9 @@ const LibraryScreen: React.FC = () => {
     [collapsedSections, toggleSection]
   );
 
+  /**
+   * Render empty state when no exercises match filters
+   */
   const renderEmptyList = useCallback(
     () => (
       <View style={styles.emptyContainer}>
@@ -323,7 +494,10 @@ const LibraryScreen: React.FC = () => {
     []
   );
 
-  // Layout calculation for performance
+  /**
+   * Calculate layout for list items (performance optimization)
+   * Enables smooth scrolling and accurate scroll-to-index behavior
+   */
   const getItemLayout = useCallback(
     (_: any, index: number) => {
       let offset = 0;
@@ -344,7 +518,13 @@ const LibraryScreen: React.FC = () => {
     [sectionsWithCollapsedData]
   );
 
-  // Loading State
+  // ============================================================================
+  // Conditional Rendering
+  // ============================================================================
+
+  /**
+   * Loading State - Show spinner while fetching exercises
+   */
   if (loading) {
     return (
       <View style={[tabStyles.tabContent, styles.centerContainer]}>
@@ -354,7 +534,9 @@ const LibraryScreen: React.FC = () => {
     );
   }
 
-  // Error State
+  /**
+   * Error State - Show error message with retry button
+   */
   if (error) {
     return (
       <View style={[tabStyles.tabContent, styles.centerContainer]}>
@@ -367,7 +549,10 @@ const LibraryScreen: React.FC = () => {
     );
   }
 
+  // ============================================================================
   // Main Render
+  // ============================================================================
+
   return (
     <View style={[tabStyles.tabContent, styles.container]}>
       {/* Search Bar */}
@@ -379,7 +564,7 @@ const LibraryScreen: React.FC = () => {
         onClose={handleSearchClose}
       />
 
-      {/* Top Controls */}
+      {/* Top Controls - Filter and Collapse Toggles */}
       <View style={styles.topControls}>
         <TouchableOpacity style={styles.controlButton} onPress={toggleFilters}>
           <Ionicons
@@ -409,7 +594,7 @@ const LibraryScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Filters */}
+      {/* Filters - Collapsible Filter Dropdowns */}
       <View
         style={[
           styles.filtersContainer,
@@ -418,6 +603,7 @@ const LibraryScreen: React.FC = () => {
       >
         {filtersVisible && (
           <>
+            {/* First Row - Muscle Group and Level */}
             <View style={styles.filtersRow}>
               <Dropdown
                 label="Muscle Group"
@@ -435,6 +621,7 @@ const LibraryScreen: React.FC = () => {
               />
             </View>
 
+            {/* Second Row - Category and Equipment */}
             <View style={styles.filtersRow}>
               <Dropdown
                 label="Category"
@@ -452,6 +639,7 @@ const LibraryScreen: React.FC = () => {
               />
             </View>
 
+            {/* Reset Filters Button */}
             <TouchableOpacity style={styles.resetButton} onPress={resetFilters}>
               <Ionicons
                 name="refresh"
@@ -486,6 +674,7 @@ const LibraryScreen: React.FC = () => {
           windowSize={WINDOW_SIZE}
         />
 
+        {/* Alphabet Navigation Sidebar */}
         <AlphabetSidebar
           letters={availableLetters}
           activeLetter={activeLetter}
@@ -503,6 +692,10 @@ const LibraryScreen: React.FC = () => {
     </View>
   );
 };
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   container: {

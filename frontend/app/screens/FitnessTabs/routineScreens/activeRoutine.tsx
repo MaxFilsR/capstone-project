@@ -1,4 +1,13 @@
-// activeRoutine.tsx
+/**
+ * Active Routine Screen
+ *
+ * Main workout execution screen that guides users through their exercise routine.
+ * Features an animated collapsing header with exercise images, tabbed content
+ * (Stats, About, Instructions), and workout navigation controls. Tracks exercise
+ * completion data including sets, reps, weight, and distance for both strength
+ * and cardio exercises.
+ */
+
 import React, {
   useEffect,
   useState,
@@ -25,7 +34,7 @@ import { useWorkoutLibrary } from "@/lib/workout-library-context";
 import TabBar, { Tab } from "@/components/TabBar";
 import Alert from "@/components/popupModals/Alert";
 
-// Import new components
+// Import workout components
 import { StatsView } from "@/components/activeRoutineComponents/StatsView";
 import { WorkoutControls } from "@/components/activeRoutineComponents/WorkoutControls";
 import {
@@ -39,17 +48,39 @@ import {
   IMAGE_BASE_URL,
 } from "@/components/activeRoutineComponents/utils";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type Params = {
+  /** Routine identifier */
   id?: string;
+  /** Routine name */
   name?: string;
+  /** Thumbnail URL for the routine */
   thumbnailUrl?: string;
+  /** Serialized JSON array of exercises */
   exercises?: string;
+  /** Starting exercise index */
   index?: string;
 };
 
+// ============================================================================
+// Constants
+// ============================================================================
+
+/** Height of the header when fully expanded */
 const HEADER_EXPANDED_HEIGHT = 340;
+
+/** Height of the header when collapsed */
 const HEADER_COLLAPSED_HEIGHT = 132;
+
+/** Scroll distance before header collapses */
 const SCROLL_THRESHOLD = 150;
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export default function ActiveRoutineScreen() {
   const router = useRouter();
@@ -57,6 +88,11 @@ export default function ActiveRoutineScreen() {
   const navigation = useNavigation();
   const { exercises: library } = useWorkoutLibrary();
 
+  // --------------------------------------------------------------------------
+  // State
+  // --------------------------------------------------------------------------
+
+  /** Alert modal configuration */
   const [alert, setAlert] = useState<{
     visible: boolean;
     mode: "alert" | "success" | "error" | "confirmAction";
@@ -71,24 +107,41 @@ export default function ActiveRoutineScreen() {
     onConfirmAction: undefined,
   });
 
+  /** Current exercise index in the routine */
   const [currentIndex, setCurrentIndex] = useState<number>(
     Math.max(0, Number(params?.index ?? 0))
   );
 
+  /** Map of completed exercise data by index */
   const [completedExercises, setCompletedExercises] = useState<
     Map<number, CompletedExerciseData>
   >(new Map());
 
+  /** Map of set data (reps, weight, distance) by exercise index */
   const [setsData, setSetsData] = useState<
     Map<number, { reps: string; weight: string; distance: string }[]>
   >(new Map());
 
+  /** Currently active tab (0: Stats, 1: About, 2: Instructions) */
   const [activeTabIndex, setActiveTabIndex] = useState(0);
+
+  /** Current image index in the exercise image carousel */
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  /** Whether the header is in collapsed state */
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
 
+  /** Animated scroll position value */
   const scrollY = useRef(new Animated.Value(0)).current;
 
+  // --------------------------------------------------------------------------
+  // Effects
+  // --------------------------------------------------------------------------
+
+  /**
+   * Configure screen navigation options
+   * Sets up card presentation and removes default header
+   */
   useEffect(() => {
     navigation.setOptions({
       presentation: "card",
@@ -98,11 +151,17 @@ export default function ActiveRoutineScreen() {
     } as any);
   }, [navigation]);
 
+  /**
+   * Parse exercises from route params
+   * Supports both object arrays and string arrays
+   * Falls back to workout library for exercise details
+   */
   const exercisesLite: ExerciseLite[] = useMemo(() => {
     if (params?.exercises) {
       try {
         const arr = JSON.parse(String(params.exercises));
         if (Array.isArray(arr) && arr.length) {
+          // Handle array of exercise objects
           if (typeof arr[0] === "object" && arr[0].id) {
             return arr.map((ex) => ({
               id: ex.id,
@@ -120,6 +179,7 @@ export default function ActiveRoutineScreen() {
               distance: ex.distance,
             }));
           }
+          // Handle array of exercise names (lookup from library)
           if (typeof arr[0] === "string") {
             return (arr as string[]).map((name) => {
               const match = Array.isArray(library)
@@ -145,12 +205,17 @@ export default function ActiveRoutineScreen() {
     return [];
   }, [params?.exercises, library]);
 
+  // Safely handle exercise access
   const hasExercises = exercisesLite.length > 0;
   const safeIndex = hasExercises
     ? Math.min(currentIndex, exercisesLite.length - 1)
     : 0;
   const currentLite = hasExercises ? exercisesLite[safeIndex] : undefined;
 
+  /**
+   * Get full exercise details from library
+   * Matches by ID first, then falls back to name matching
+   */
   const fullExercise: Exercise | undefined = useMemo(() => {
     if (!currentLite) return undefined;
     const byId =
@@ -162,17 +227,27 @@ export default function ActiveRoutineScreen() {
     return byId;
   }, [currentLite?.id, currentLite?.name, library]);
 
+  /**
+   * Get exercise images with absolute URLs
+   * Combines images from full exercise data and lite data
+   */
   const topImages = useMemo(() => {
     const imgs = fullExercise?.images ?? currentLite?.images ?? [];
     return imgs.map(abs).filter(Boolean) as string[];
   }, [fullExercise, currentLite]);
 
-  // Reset image index when exercise changes
+  /**
+   * Reset image index when exercise changes
+   * Prevents showing non-existent image indices
+   */
   useEffect(() => {
     setActiveImageIndex(0);
   }, [fullExercise?.id]);
 
-  // Auto-rotate images
+  /**
+   * Auto-rotate exercise images
+   * Cycles through images every second if multiple exist
+   */
   useEffect(() => {
     if (topImages.length < 2) return;
 
@@ -183,6 +258,10 @@ export default function ActiveRoutineScreen() {
     return () => clearInterval(interval);
   }, [topImages.length]);
 
+  /**
+   * Initialize sets data for new exercise
+   * Ensures each exercise has at least one empty set
+   */
   useEffect(() => {
     if (!setsData.has(currentIndex)) {
       setSetsData((prev) => {
@@ -193,43 +272,61 @@ export default function ActiveRoutineScreen() {
     }
   }, [currentIndex]);
 
-  // Animated values for header transformation
+  // --------------------------------------------------------------------------
+  // Animated Header Values
+  // --------------------------------------------------------------------------
+
+  /** Interpolated header height based on scroll position */
   const headerHeight = scrollY.interpolate({
     inputRange: [0, SCROLL_THRESHOLD * 1.5],
     outputRange: [HEADER_EXPANDED_HEIGHT, HEADER_COLLAPSED_HEIGHT],
     extrapolate: "clamp",
   });
 
+  /** Fade out exercise image as user scrolls */
   const imageOpacity = scrollY.interpolate({
     inputRange: [0, SCROLL_THRESHOLD / 2],
     outputRange: [1, 0],
     extrapolate: "clamp",
   });
 
+  /** Scale down exercise image as user scrolls */
   const imageScale = scrollY.interpolate({
     inputRange: [0, SCROLL_THRESHOLD],
     outputRange: [1, 0.3],
     extrapolate: "clamp",
   });
 
+  /** Shrink title font size as user scrolls */
   const titleFontSize = scrollY.interpolate({
     inputRange: [0, SCROLL_THRESHOLD],
     outputRange: [24, 16],
     extrapolate: "clamp",
   });
 
+  /** Fade in collapsed header */
   const collapsedHeaderOpacity = scrollY.interpolate({
     inputRange: [SCROLL_THRESHOLD - 20, SCROLL_THRESHOLD],
     outputRange: [0, 1],
     extrapolate: "clamp",
   });
 
+  /** Fade out expanded header */
   const expandedHeaderOpacity = scrollY.interpolate({
     inputRange: [0, SCROLL_THRESHOLD - 20],
     outputRange: [1, 0],
     extrapolate: "clamp",
   });
 
+  // --------------------------------------------------------------------------
+  // Handlers
+  // --------------------------------------------------------------------------
+
+  /**
+   * Save current exercise data to completed exercises map
+   * Filters out empty sets and calculates totals
+   * Handles both strength (reps/weight) and cardio (distance) exercises
+   */
   function saveCurrentExercise() {
     if (!currentLite?.id) return;
 
@@ -266,7 +363,7 @@ export default function ActiveRoutineScreen() {
       totalSets = currentSets.length;
     }
 
-    // Also update the setsData to remove empty sets
+    // Update setsData to remove empty sets
     if (exerciseType === "strength" || exerciseType === "cardio") {
       setSetsData((prev) => {
         const newMap = new Map(prev);
@@ -295,6 +392,10 @@ export default function ActiveRoutineScreen() {
     );
   }
 
+  /**
+   * Navigate to previous exercise
+   * Saves current exercise data before moving
+   */
   function onPrev() {
     if (currentIndex > 0) {
       saveCurrentExercise();
@@ -302,6 +403,10 @@ export default function ActiveRoutineScreen() {
     }
   }
 
+  /**
+   * Navigate to next exercise or end workout
+   * Saves current exercise data before moving
+   */
   function onNext() {
     saveCurrentExercise();
 
@@ -312,6 +417,10 @@ export default function ActiveRoutineScreen() {
     }
   }
 
+  /**
+   * Complete workout and navigate to duration summary
+   * Saves final exercise data and passes all completed exercises
+   */
   function onEnd() {
     // Save current exercise first
     if (!currentLite?.id) {
@@ -369,7 +478,10 @@ export default function ActiveRoutineScreen() {
     navigateToDuration(Array.from(finalExercises.values()));
   }
 
-  // Helper function to navigate
+  /**
+   * Navigate to workout duration summary screen
+   * @param exercisesArray - Optional array of completed exercises
+   */
   function navigateToDuration(exercisesArray?: CompletedExerciseData[]) {
     const exercises = exercisesArray || Array.from(completedExercises.values());
 
@@ -382,6 +494,10 @@ export default function ActiveRoutineScreen() {
     });
   }
 
+  /**
+   * Show confirmation alert before canceling workout
+   * Warns user that progress will be lost
+   */
   function onCancel() {
     setAlert({
       visible: true,
@@ -395,6 +511,10 @@ export default function ActiveRoutineScreen() {
     });
   }
 
+  /**
+   * Handle alert confirmation
+   * Executes onConfirmAction if in confirmAction mode
+   */
   const handleAlertConfirm = () => {
     setAlert({ ...alert, visible: false, onConfirmAction: undefined });
 
@@ -403,10 +523,18 @@ export default function ActiveRoutineScreen() {
     }
   };
 
+  /**
+   * Handle alert cancellation
+   * Closes alert and clears action callback
+   */
   const handleAlertCancel = () => {
     setAlert({ ...alert, visible: false, onConfirmAction: undefined });
   };
 
+  /**
+   * Handle scroll events for animated header
+   * Updates collapse state and scroll position
+   */
   const handleScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
     {
@@ -418,8 +546,13 @@ export default function ActiveRoutineScreen() {
     }
   );
 
+  // --------------------------------------------------------------------------
+  // Memoized Components
+  // --------------------------------------------------------------------------
+
   const exerciseType = getExerciseType(fullExercise?.category);
 
+  /** Dynamic title for stats tab based on exercise type */
   const statsTitle = `Log ${
     exerciseType === "cardio"
       ? "Distance"
@@ -428,7 +561,10 @@ export default function ActiveRoutineScreen() {
       : "Exercise"
   } — ${fullExercise?.name ?? currentLite?.name ?? ""}`;
 
-  // Include setsData in dependencies so we don't have stale closures
+  /**
+   * Stats tab component with current exercise data
+   * Memoized to prevent unnecessary re-renders
+   */
   const StatsTabComponent = useMemo(
     () => () =>
       (
@@ -443,17 +579,20 @@ export default function ActiveRoutineScreen() {
     [statsTitle, currentIndex, exerciseType, setsData, setSetsData]
   );
 
+  /** About tab component showing exercise details */
   const AboutTab = useMemo(
     () => () => <AboutExerciseScreen exercise={fullExercise as Exercise} />,
     [fullExercise]
   );
 
+  /** Instructions tab component showing how to perform exercise */
   const InstructionsTab = useMemo(
     () => () =>
       <InstructionsExerciseScreen exercise={fullExercise as Exercise} />,
     [fullExercise]
   );
 
+  /** Tab configuration array */
   const tabs: Tab[] = useMemo(
     () => [
       { name: "Stats", component: StatsTabComponent },
@@ -463,20 +602,25 @@ export default function ActiveRoutineScreen() {
     [StatsTabComponent, AboutTab, InstructionsTab]
   );
 
+  // --------------------------------------------------------------------------
+  // Render
+  // --------------------------------------------------------------------------
+
   return (
     <View style={{ flex: 1, backgroundColor: colorPallet.neutral_darkest }}>
       {/* Sticky Animated Header */}
       <Animated.View style={[styles.stickyHeader, { height: headerHeight }]}>
-        {/* Cancel Button - Always on top */}
+        {/* Cancel Button - Always visible on top */}
         <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
           <Ionicons name="close" size={24} color={colorPallet.secondary} />
         </TouchableOpacity>
 
-        {/* Expanded Header */}
+        {/* Expanded Header (shows when scrolled up) */}
         <Animated.View
           style={[styles.expandedHeader, { opacity: expandedHeaderOpacity }]}
           pointerEvents={isHeaderCollapsed ? "none" : "auto"}
         >
+          {/* Exercise Image Carousel */}
           {topImages.length > 0 && (
             <Animated.View
               style={[
@@ -489,6 +633,7 @@ export default function ActiveRoutineScreen() {
                 style={styles.expandedImage}
                 resizeMode="cover"
               />
+              {/* Image Pagination Dots */}
               {topImages.length > 1 && (
                 <View style={styles.imageDots}>
                   {topImages.map((_, index) => (
@@ -504,6 +649,7 @@ export default function ActiveRoutineScreen() {
               )}
             </Animated.View>
           )}
+          {/* Exercise Title */}
           <Animated.Text
             style={[styles.expandedTitle, { fontSize: titleFontSize }]}
           >
@@ -511,11 +657,12 @@ export default function ActiveRoutineScreen() {
           </Animated.Text>
         </Animated.View>
 
-        {/* Collapsed Header */}
+        {/* Collapsed Header (shows when scrolled down) */}
         <Animated.View
           style={[styles.collapsedHeader, { opacity: collapsedHeaderOpacity }]}
           pointerEvents={isHeaderCollapsed ? "auto" : "none"}
         >
+          {/* Small thumbnail image */}
           {topImages.length > 0 && (
             <Image
               source={{ uri: topImages[activeImageIndex] }}
@@ -523,6 +670,7 @@ export default function ActiveRoutineScreen() {
               resizeMode="cover"
             />
           )}
+          {/* Exercise name */}
           <View style={styles.collapsedContent}>
             <Text style={typography.h1} numberOfLines={2}>
               {fullExercise?.name ?? currentLite?.name ?? ""}
@@ -531,7 +679,7 @@ export default function ActiveRoutineScreen() {
         </Animated.View>
       </Animated.View>
 
-      {/* Scrollable Content */}
+      {/* Scrollable Content Area */}
       <Animated.ScrollView
         style={styles.scrollView}
         contentContainerStyle={{ paddingTop: HEADER_EXPANDED_HEIGHT }}
@@ -540,7 +688,7 @@ export default function ActiveRoutineScreen() {
         scrollEventThrottle={16}
         onScroll={handleScroll}
       >
-        {/* Tabs Content */}
+        {/* Tabbed Content (Stats, About, Instructions) */}
         <View style={styles.tabsContainer}>
           <TabBar
             tabs={tabs}
@@ -555,7 +703,7 @@ export default function ActiveRoutineScreen() {
         </View>
       </Animated.ScrollView>
 
-      {/* Workout Controls */}
+      {/* Workout Navigation Controls (only visible on Stats tab) */}
       {activeTabIndex === 0 && (
         <WorkoutControls
           currentIndex={currentIndex}
@@ -566,6 +714,7 @@ export default function ActiveRoutineScreen() {
         />
       )}
 
+      {/* Confirmation Alert Modal */}
       <Alert
         visible={alert.visible}
         mode={alert.mode}
@@ -580,10 +729,16 @@ export default function ActiveRoutineScreen() {
   );
 }
 
+// ============================================================================
+// Styles
+// ============================================================================
+
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
+  
+  /** Fixed header that animates between expanded and collapsed states */
   stickyHeader: {
     position: "absolute",
     top: 0,
@@ -595,6 +750,8 @@ const styles = StyleSheet.create({
     borderBottomColor: colorPallet.primary,
     overflow: "hidden",
   },
+  
+  /** Cancel button in top-right corner */
   cancelButton: {
     position: "absolute",
     top: 50,
@@ -607,7 +764,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  // Expanded Header Styles
+  
+  // Expanded Header Styles (full-size view)
   expandedHeader: {
     position: "absolute",
     top: 0,
@@ -619,6 +777,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  
+  /** Container for large exercise image */
   expandedImageContainer: {
     width: "100%",
     height: 280,
@@ -627,10 +787,13 @@ const styles = StyleSheet.create({
     backgroundColor: colorPallet.neutral_5,
     position: "relative",
   },
+  
   expandedImage: {
     width: "100%",
     height: "100%",
   },
+  
+  /** Exercise title in expanded state */
   expandedTitle: {
     color: colorPallet.primary,
     textAlign: "center",
@@ -638,7 +801,8 @@ const styles = StyleSheet.create({
     fontFamily: "Anton",
     paddingHorizontal: 16,
   },
-  // Collapsed Header Styles
+  
+  // Collapsed Header Styles (compact view)
   collapsedHeader: {
     position: "absolute",
     top: 0,
@@ -651,6 +815,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginTop: 32,
   },
+  
+  /** Small thumbnail in collapsed header */
   collapsedImage: {
     width: 56,
     height: 56,
@@ -658,11 +824,15 @@ const styles = StyleSheet.create({
     backgroundColor: colorPallet.neutral_5,
     marginRight: 12,
   },
+  
+  /** Text content in collapsed header */
   collapsedContent: {
     flex: 1,
     justifyContent: "center",
-    paddingRight: 50,
+    paddingRight: 50, // Space for cancel button
   },
+  
+  /** Pagination dots for image carousel */
   imageDots: {
     position: "absolute",
     bottom: 8,
@@ -673,18 +843,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 6,
   },
+  
+  /** Individual pagination dot (inactive) */
   dot: {
     width: 6,
     height: 6,
     borderRadius: 3,
     backgroundColor: colorPallet.neutral_3,
   },
+  
+  /** Active pagination dot */
   dotActive: {
     backgroundColor: colorPallet.primary,
     width: 8,
     height: 8,
     borderRadius: 4,
   },
+  
+  /** Container for tab content */
   tabsContainer: {
     flex: 1,
     minHeight: 400,

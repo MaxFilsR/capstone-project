@@ -1,3 +1,12 @@
+/**
+ * Duration Routine Screen
+ *
+ * Allows users to set the duration of their completed workout using scrollable
+ * time pickers. Calculates points and coins based on workout duration and exercises,
+ * records the workout to the backend, and navigates to appropriate completion screens
+ * (level up, quest completion, or standard workout complete).
+ */
+
 import React, { useEffect, useState, useRef } from "react";
 import {
   View,
@@ -21,12 +30,27 @@ import {
 import { useAuth } from "@/lib/auth-context";
 import { useQuests } from "@/lib/quest-context";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type Params = {
+  /** Name of the workout routine */
   routineName?: string;
+  /** Serialized JSON array of completed exercises */
   exercises?: string;
 };
 
+// ============================================================================
+// Constants
+// ============================================================================
+
+/** Height of each item in the time picker scroll view */
 const ITEM_HEIGHT = 50;
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export default function DurationRoutineScreen() {
   const navigation = useNavigation();
@@ -35,11 +59,26 @@ export default function DurationRoutineScreen() {
   const { user, fetchUserProfile } = useAuth();
   const { quests, refreshQuests } = useQuests();
 
+  // --------------------------------------------------------------------------
+  // State
+  // --------------------------------------------------------------------------
+
+  /** Selected hours (0-23) */
   const [hours, setHours] = useState(0);
+
+  /** Selected minutes (0-59) */
   const [minutes, setMinutes] = useState(30);
+
+  /** Whether workout is being submitted to backend */
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  /** Full exercise library for workout stat determination */
   const [exerciseLibrary, setExerciseLibrary] = useState<Exercise[]>([]);
+
+  /** Whether initial data is still loading */
   const [isLoadingData, setIsLoadingData] = useState(true);
+
+  /** Alert modal configuration */
   const [alert, setAlert] = useState<{
     visible: boolean;
     mode: "alert" | "success" | "error" | "confirmAction";
@@ -54,7 +93,10 @@ export default function DurationRoutineScreen() {
     onConfirmAction: undefined,
   });
 
+  /** Ref for hours scroll view (for programmatic scrolling) */
   const hoursScrollRef = useRef<ScrollView>(null);
+
+  /** Ref for minutes scroll view (for programmatic scrolling) */
   const minutesScrollRef = useRef<ScrollView>(null);
 
   // Get current user stats and level from auth context
@@ -65,6 +107,14 @@ export default function DurationRoutineScreen() {
   };
   const currentLevel = user?.profile?.level || 1;
 
+  // --------------------------------------------------------------------------
+  // Effects
+  // --------------------------------------------------------------------------
+
+  /**
+   * Initialize screen and load exercise library
+   * Configures navigation options and scrolls pickers to initial positions
+   */
   useEffect(() => {
     navigation.setOptions({
       presentation: "card",
@@ -93,6 +143,7 @@ export default function DurationRoutineScreen() {
 
     loadData();
 
+    // Scroll to initial time values after layout
     setTimeout(() => {
       hoursScrollRef.current?.scrollTo({
         y: hours * ITEM_HEIGHT,
@@ -105,22 +156,41 @@ export default function DurationRoutineScreen() {
     }, 100);
   }, [navigation]);
 
+  // --------------------------------------------------------------------------
+  // Handlers
+  // --------------------------------------------------------------------------
+
+  /**
+   * Navigate back to previous screen
+   */
   function onBack() {
     router.back();
   }
 
+  /**
+   * Handle hours scroll event
+   * Updates hours state based on scroll position
+   */
   const handleHoursScroll = (event: any) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
     setHours(Math.max(0, Math.min(23, index)));
   };
 
+  /**
+   * Handle minutes scroll event
+   * Updates minutes state based on scroll position
+   */
   const handleMinutesScroll = (event: any) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
     setMinutes(Math.max(0, Math.min(59, index)));
   };
 
+  /**
+   * Snap hours scroll to nearest value when scrolling ends
+   * Ensures picker always shows a valid hour value
+   */
   const handleHoursScrollEnd = (event: any) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
@@ -132,6 +202,10 @@ export default function DurationRoutineScreen() {
     setHours(clampedIndex);
   };
 
+  /**
+   * Snap minutes scroll to nearest value when scrolling ends
+   * Ensures picker always shows a valid minute value
+   */
   const handleMinutesScrollEnd = (event: any) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     const index = Math.round(offsetY / ITEM_HEIGHT);
@@ -143,10 +217,24 @@ export default function DurationRoutineScreen() {
     setMinutes(clampedIndex);
   };
 
+  /**
+   * Convert hours and minutes to total minutes
+   * @param hours - Number of hours
+   * @param minutes - Number of minutes
+   * @returns Total duration in minutes
+   */
   function parseDurationToMinutes(hours: number, minutes: number): number {
     return hours * 60 + minutes;
   }
 
+  /**
+   * Determine which stat (strength/endurance/flexibility) this workout trains
+   * Analyzes exercise categories and equipment to determine workout focus
+   * 
+   * @param exercises - Array of workout exercises
+   * @param exerciseLibrary - Full exercise library for details lookup
+   * @returns Primary stat trained by this workout
+   */
   function determineWorkoutStat(
     exercises: WorkoutExercise[],
     exerciseLibrary: Exercise[]
@@ -159,12 +247,14 @@ export default function DurationRoutineScreen() {
       other: 0,
     };
 
+    // Count exercises by category
     exercises.forEach((workoutEx) => {
       const exerciseDetails = exerciseMap.get(String(workoutEx.id));
       if (!exerciseDetails) return;
 
       const category = exerciseDetails.category.toLowerCase();
 
+      // Strength exercises: weights, powerlifting, olympic lifts
       if (
         category.includes("strength") ||
         category.includes("powerlifting") ||
@@ -173,17 +263,22 @@ export default function DurationRoutineScreen() {
         exerciseDetails.equipment === "dumbbell"
       ) {
         categoryCounts.strength++;
-      } else if (
+      }
+      // Cardio exercises: bodyweight, plyometrics
+      else if (
         category.includes("cardio") ||
         category.includes("plyometrics") ||
         exerciseDetails.equipment === "body only"
       ) {
         categoryCounts.cardio++;
-      } else {
+      }
+      // Other exercises: stretching, mobility
+      else {
         categoryCounts.other++;
       }
     });
 
+    // Return dominant stat
     if (
       categoryCounts.strength >= categoryCounts.cardio &&
       categoryCounts.strength >= categoryCounts.other
@@ -196,11 +291,20 @@ export default function DurationRoutineScreen() {
     }
   }
 
+  /**
+   * Calculate experience points earned from workout
+   * Formula: (50 + duration) * (1 + (stat/50 + streak/50))
+   * Points scale with workout duration, relevant stat, and streak
+   * 
+   * @param exercises - Completed exercises
+   * @param durationMinutes - Workout duration in minutes
+   * @returns Calculated experience points
+   */
   function calculatePoints(
     exercises: WorkoutExercise[],
     durationMinutes: number
   ): number {
-    const streak = 10;
+    const streak = 10; // TODO: Get actual streak from user data
     const statType = determineWorkoutStat(exercises, exerciseLibrary);
     const stat = userStats[statType];
 
@@ -216,13 +320,31 @@ export default function DurationRoutineScreen() {
     return points;
   }
 
+  /**
+   * Calculate coins earned from workout
+   * Formula: 25 + (duration / 2)
+   * 
+   * @param durationMinutes - Workout duration in minutes
+   * @returns Calculated coins
+   */
   function calculateCoins(durationMinutes: number): number {
     const coins = Math.round(25 + durationMinutes / 2);
-
     return coins;
   }
 
+  /**
+   * Submit workout to backend and handle completion flow
+   * 
+   * Records workout, calculates rewards, checks for level ups and quest
+   * completions, then navigates to appropriate completion screen.
+   * 
+   * Flow priority:
+   * 1. Level up screen (if leveled up)
+   * 2. Quest completion screen (if quests completed)
+   * 3. Standard workout complete screen
+   */
   async function onEndWorkout() {
+    // Wait for initial data load
     if (isLoadingData) {
       setAlert({
         visible: true,
@@ -235,6 +357,7 @@ export default function DurationRoutineScreen() {
 
     const durationMinutes = parseDurationToMinutes(hours, minutes);
 
+    // Validate duration
     if (durationMinutes <= 0) {
       setAlert({
         visible: true,
@@ -245,6 +368,7 @@ export default function DurationRoutineScreen() {
       return;
     }
 
+    // Parse exercises from params
     let exercises: WorkoutExercise[] = [];
     try {
       if (params.exercises) {
@@ -260,6 +384,7 @@ export default function DurationRoutineScreen() {
       return;
     }
 
+    // Validate exercises
     if (exercises.length === 0) {
       setAlert({
         visible: true,
@@ -270,9 +395,11 @@ export default function DurationRoutineScreen() {
       return;
     }
 
+    // Calculate rewards
     const points = calculatePoints(exercises, durationMinutes);
     const coins = calculateCoins(durationMinutes);
 
+    // Prepare workout data for API
     const workoutData = {
       name: params.routineName || "Workout Session",
       exercises: exercises.map((ex) => ({
@@ -291,17 +418,17 @@ export default function DurationRoutineScreen() {
     setIsSubmitting(true);
 
     try {
-      // Capture OLD state before recording workout
+      // Capture state BEFORE workout recording for comparison
       const oldLevel = currentLevel;
       const oldQuests = [...quests];
       
       console.log("Before workout - Level:", oldLevel, "Quests:", oldQuests.length);
       console.log("Old quests statuses:", oldQuests.map(q => ({ id: q.id, name: q.name, status: q.status })));
       
-      // Record the workout
+      // Record the workout to backend
       await recordWorkout(workoutData);
       
-      // Fetch updated data - get the RETURNED values, not from context
+      // Fetch updated data and use RETURNED values (not context)
       const [updatedProfile, updatedQuests] = await Promise.all([
         fetchUserProfile(),
         refreshQuests()
@@ -312,7 +439,9 @@ export default function DurationRoutineScreen() {
       console.log("After workout - Level:", newLevel, "Quests:", updatedQuests.length);
       console.log("New quests statuses:", updatedQuests.map(q => ({ id: q.id, name: q.name, status: q.status })));
 
-      // Check if user leveled up
+      // ------------------------------------------------------------------------
+      // Priority 1: Check for Level Up
+      // ------------------------------------------------------------------------
       if (newLevel > oldLevel) {
         const levelsGained = newLevel - oldLevel;
         console.log(
@@ -335,7 +464,10 @@ export default function DurationRoutineScreen() {
         return;
       }
 
-      // Check for completed quests using the RETURNED fresh data
+      // ------------------------------------------------------------------------
+      // Priority 2: Check for Quest Completion
+      // ------------------------------------------------------------------------
+      // Compare old and new quest states using RETURNED fresh data
       const completedQuests = oldQuests.filter((oldQuest) => {
         const newQuest = updatedQuests.find((q) => q.id === oldQuest.id);
         const wasIncomplete = oldQuest.status !== "Complete";
@@ -364,7 +496,9 @@ export default function DurationRoutineScreen() {
         return;
       }
 
-      // No level up or quest completion
+      // ------------------------------------------------------------------------
+      // Priority 3: Standard Workout Complete
+      // ------------------------------------------------------------------------
       console.log("No level up or quest completion, going to workout complete");
       router.replace({
         pathname: "/screens/FitnessTabs/workoutComplete",
@@ -391,6 +525,10 @@ export default function DurationRoutineScreen() {
     }
   }
 
+  /**
+   * Handle alert confirmation
+   * Executes onConfirmAction if in confirmAction mode
+   */
   const handleAlertConfirm = () => {
     setAlert({ ...alert, visible: false, onConfirmAction: undefined });
 
@@ -399,27 +537,47 @@ export default function DurationRoutineScreen() {
     }
   };
 
+  /**
+   * Handle alert cancellation
+   * Closes alert and clears action callback
+   */
   const handleAlertCancel = () => {
     setAlert({ ...alert, visible: false, onConfirmAction: undefined });
   };
 
+  // --------------------------------------------------------------------------
+  // Render Data
+  // --------------------------------------------------------------------------
+
+  /** Array of hours (0-23) for picker */
   const hoursArray = Array.from({ length: 24 }, (_, i) => i);
+
+  /** Array of minutes (0-59) for picker */
   const minutesArray = Array.from({ length: 60 }, (_, i) => i);
+
+  // --------------------------------------------------------------------------
+  // Render
+  // --------------------------------------------------------------------------
 
   return (
     <View style={styles.screen}>
+      {/* Back Button */}
       <View style={styles.backContainer}>
         <BackButton onPress={onBack} />
       </View>
 
       <View style={styles.contentWrap}>
+        {/* Title */}
         <Text style={styles.title}>Workout Duration</Text>
 
+        {/* Routine Name */}
         {params.routineName && (
           <Text style={styles.routineName}>{params.routineName}</Text>
         )}
 
+        {/* Time Picker */}
         <View style={styles.timerContainer}>
+          {/* Hours Picker */}
           <View style={styles.pickerColumn}>
             <ScrollView
               ref={hoursScrollRef}
@@ -432,6 +590,7 @@ export default function DurationRoutineScreen() {
               onMomentumScrollEnd={handleHoursScrollEnd}
               scrollEventThrottle={16}
             >
+              {/* Top padding for centering */}
               <View style={{ height: ITEM_HEIGHT * 2 }} />
               {hoursArray.map((hour) => (
                 <View key={hour} style={styles.pickerItem}>
@@ -445,13 +604,16 @@ export default function DurationRoutineScreen() {
                   </Text>
                 </View>
               ))}
+              {/* Bottom padding for centering */}
               <View style={{ height: ITEM_HEIGHT * 2 }} />
             </ScrollView>
             <Text style={styles.pickerLabel}>hours</Text>
           </View>
 
+          {/* Separator */}
           <Text style={styles.separator}>:</Text>
 
+          {/* Minutes Picker */}
           <View style={styles.pickerColumn}>
             <ScrollView
               ref={minutesScrollRef}
@@ -464,6 +626,7 @@ export default function DurationRoutineScreen() {
               onMomentumScrollEnd={handleMinutesScrollEnd}
               scrollEventThrottle={16}
             >
+              {/* Top padding for centering */}
               <View style={{ height: ITEM_HEIGHT * 2 }} />
               {minutesArray.map((minute) => (
                 <View key={minute} style={styles.pickerItem}>
@@ -477,14 +640,17 @@ export default function DurationRoutineScreen() {
                   </Text>
                 </View>
               ))}
+              {/* Bottom padding for centering */}
               <View style={{ height: ITEM_HEIGHT * 2 }} />
             </ScrollView>
             <Text style={styles.pickerLabel}>minutes</Text>
           </View>
         </View>
 
+        {/* Selection Highlight Overlay */}
         <View style={styles.selectionHighlight} pointerEvents="none" />
 
+        {/* End Workout Button */}
         <FormButton
           title={isSubmitting ? "Recording..." : "End Workout"}
           onPress={onEndWorkout}
@@ -492,6 +658,7 @@ export default function DurationRoutineScreen() {
           disabled={isSubmitting || isLoadingData}
         />
 
+        {/* Loading Indicator */}
         {(isSubmitting || isLoadingData) && (
           <ActivityIndicator
             size="large"
@@ -501,6 +668,7 @@ export default function DurationRoutineScreen() {
         )}
       </View>
 
+      {/* Alert Modal */}
       <Alert
         visible={alert.visible}
         mode={alert.mode}
@@ -514,6 +682,10 @@ export default function DurationRoutineScreen() {
     </View>
   );
 }
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   screen: {
@@ -548,6 +720,8 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     fontWeight: "600",
   },
+  
+  /** Container for both time pickers */
   timerContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -556,31 +730,44 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 20,
   },
+  
+  /** Individual picker column (hours or minutes) */
   pickerColumn: {
     alignItems: "center",
   },
+  
+  /** Scrollable picker view */
   scrollPicker: {
     height: ITEM_HEIGHT * 5,
     width: 80,
   },
+  
   scrollContent: {
     alignItems: "center",
   },
+  
+  /** Individual time value item */
   pickerItem: {
     height: ITEM_HEIGHT,
     justifyContent: "center",
     alignItems: "center",
   },
+  
+  /** Inactive picker text */
   pickerText: {
     fontSize: 32,
     color: colorPallet.neutral_5,
     fontWeight: "300",
   },
+  
+  /** Active (selected) picker text */
   pickerTextActive: {
     color: colorPallet.secondary,
     fontWeight: "700",
     fontSize: 40,
   },
+  
+  /** Label below picker (hours/minutes) */
   pickerLabel: {
     ...typography.body,
     color: colorPallet.neutral_lightest,
@@ -588,6 +775,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "600",
   },
+  
+  /** Colon separator between hours and minutes */
   separator: {
     fontSize: 40,
     color: colorPallet.neutral_lightest,
@@ -595,6 +784,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 10,
   },
+  
+  /** Highlight box showing selected time value */
   selectionHighlight: {
     position: "absolute",
     top: "50%",
@@ -607,6 +798,7 @@ const styles = StyleSheet.create({
     borderColor: colorPallet.primary,
     opacity: 0.3,
   },
+  
   endButton: {
     alignSelf: "center",
     width: 180,
