@@ -1,3 +1,9 @@
+/**
+ * Swipeable Class Selector Screen
+ *
+ * Alternative class selection with horizontal swipe carousel interface.
+ */
+
 import { useState, useEffect, useRef } from "react";
 import { router } from "expo-router";
 import {
@@ -24,10 +30,15 @@ import monk from "@/assets/images/monk-male-full-brown.png";
 import wizard from "@/assets/images/wizard-male-full-blue.png";
 import gladiator from "@/assets/images/gladiator-male-full.png";
 
+// ============================================================================
+// Constants
+// ============================================================================
+
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH - 64; // Account for padding on both sides
 const CARD_GAP = 16;
 
+// Map class names to their images
 const classImages: Record<string, any> = {
     Assassin: assassin,
     Warrior: warrior,
@@ -36,6 +47,7 @@ const classImages: Record<string, any> = {
     Gladiator: gladiator,
 };
 
+// Stat color mapping
 const statColors = {
     Strength: "#D64545",
     Endurance: "#E9E34A",
@@ -45,6 +57,10 @@ const statColors = {
 export const screenOptions = {
     headerShown: false,
 };
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export default function SwipeableClassSelector() {
     const { updateClassId } = useOnboarding();
@@ -68,6 +84,7 @@ export default function SwipeableClassSelector() {
         loadClasses();
     }, []);
 
+    // Update current index based on scroll position
     const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         const offsetX = event.nativeEvent.contentOffset.x;
         const cardTotalWidth = CARD_WIDTH + CARD_GAP;
@@ -75,6 +92,7 @@ export default function SwipeableClassSelector() {
         setCurrentIndex(index);
     };
 
+    // Save selected class and navigate to next screen
     const handleConfirm = () => {
         if (classes[currentIndex]) {
             updateClassId(classes[currentIndex].id);
@@ -90,6 +108,7 @@ export default function SwipeableClassSelector() {
         });
     };
 
+    // Loading state
     if (loading) {
         return (
             <View
@@ -116,6 +135,7 @@ export default function SwipeableClassSelector() {
             contentContainerStyle={[containers.centerContainer]}
             style={{ backgroundColor: "#0C0C0C" }}
         >
+            {/* Back button */}
             <BackButton />
 
             {/* Container with consistent spacing */}
@@ -210,6 +230,11 @@ export default function SwipeableClassSelector() {
     );
 }
 
+// ============================================================================
+// Helper Components
+// ============================================================================
+
+// Class card component displaying character image, description, and stats
 function ClassCard({ classItem }: { classItem: CharacterClass }) {
     const classImage = classImages[classItem.name] || assassin;
 
@@ -322,6 +347,11 @@ function ClassCard({ classItem }: { classItem: CharacterClass }) {
     );
 }
 
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+// Get description text for each class
 function getClassDescription(className: string): string {
     const descriptions: Record<string, string> = {
         Assassin:
