@@ -1,4 +1,9 @@
-// app/onboarding/selectedClassWarrior.tsx
+/**
+ * Selected Class Warrior Screen
+ *
+ * Confirmation screen showing Warrior class details after workout style selection.
+ */
+
 import { router } from "expo-router";
 import { View, Text, Image, ScrollView } from "react-native";
 import { BackButton, FormButton } from "@/components";
@@ -6,12 +11,17 @@ import warrior from "@/assets/images/warrior-male-full.png";
 import { containers, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 
+// ============================================================================
+// Component
+// ============================================================================
+
 export default function selectedClassWarrior() {
     return (
         <ScrollView
             contentContainerStyle={[containers.centerContainer]}
             style={{ backgroundColor: "#0C0C0C" }}
         >
+            {/* Back button */}
             <BackButton />
 
             {/* Container with consistent spacing */}
@@ -126,6 +136,7 @@ export default function selectedClassWarrior() {
                     </View>
                 </View>
 
+                {/* Action buttons */}
                 <View style={containers.formActionContainer}>
                     <FormButton
                         title="Next"
@@ -134,6 +145,7 @@ export default function selectedClassWarrior() {
                         }}
                     />
 
+                    {/* Manually select own class */}
                     <FormButton
                         title="Select My Own Class"
                         mode="text"
