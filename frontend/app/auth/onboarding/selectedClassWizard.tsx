@@ -1,3 +1,9 @@
+/**
+ * Selected Class Wizard Screen
+ *
+ * Confirmation screen showing Wizard class details after workout style selection.
+ */
+
 import { router } from "expo-router";
 import { View, Text, Image, ScrollView } from "react-native";
 import { BackButton, FormButton } from "@/components";
@@ -5,12 +11,17 @@ import wizard from "@/assets/images/wizard-male-full-blue.png";
 import { containers, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 
+// ============================================================================
+// Component
+// ============================================================================
+
 export default function selectedClassWizard() {
     return (
         <ScrollView
             contentContainerStyle={[containers.centerContainer]}
             style={{ backgroundColor: "#0C0C0C" }}
         >
+            {/* Back button */}
             <BackButton />
 
             {/* Container with consistent spacing */}
@@ -125,6 +136,7 @@ export default function selectedClassWizard() {
                     </View>
                 </View>
 
+                {/* Action buttons */}
                 <View style={containers.formActionContainer}>
                     <FormButton
                         title="Next"
@@ -133,6 +145,7 @@ export default function selectedClassWizard() {
                         }}
                     />
 
+                    {/* Manually select own class */}
                     <FormButton
                         title="Select My Own Class"
                         mode="text"
