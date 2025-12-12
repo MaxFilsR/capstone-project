@@ -1,3 +1,9 @@
+/**
+ * Workout Schedule Screen
+ *
+ * Onboarding step where users select which days of the week they plan to workout.
+ */
+
 import { useState } from "react";
 import { router } from "expo-router";
 import {
@@ -13,13 +19,22 @@ import { typography, containers } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 import { useOnboarding } from "@/lib/onboarding-context";
 
+// ============================================================================
+// Constants
+// ============================================================================
+
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export default function WorkoutScheduleScreen() {
   const { data, updateWorkoutSchedule } = useOnboarding();
   const [schedule, setSchedule] = useState<boolean[]>(data.workoutSchedule);
   const [error, setError] = useState<string | null>(null);
 
+  // Toggle a specific day in the schedule
   const toggleDay = (index: number) => {
     const newSchedule = [...schedule];
     newSchedule[index] = !newSchedule[index];
@@ -32,6 +47,7 @@ export default function WorkoutScheduleScreen() {
     // Save to onboarding context
     updateWorkoutSchedule(schedule);
 
+    // Navigate to username screen
     router.push("/auth/onboarding/username"); // Next step
   };
 
@@ -40,8 +56,10 @@ export default function WorkoutScheduleScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={containers.centerContainer}
     >
+      {/* Back button */}
       <BackButton />
       <View style={containers.formContainer}>
+        {/* Title */}
         <Text
           style={[
             typography.h1,
@@ -74,11 +92,17 @@ export default function WorkoutScheduleScreen() {
           ))}
         </View>
 
+        {/* Submit button */}
         <FormButton mode="contained" title={"Next"} onPress={handleSubmit} />
       </View>
     </KeyboardAvoidingView>
   );
 }
+
+
+// ============================================================================
+// Styles
+// ============================================================================
 
 const styles = StyleSheet.create({
   scheduleContainer: {
