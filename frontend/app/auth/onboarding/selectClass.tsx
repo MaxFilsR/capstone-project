@@ -1,3 +1,8 @@
+/**
+ * Select Class Screen
+ *
+ * Alternative class selection screen with list-based interface showing all classes.
+ */
 import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import {
@@ -16,7 +21,14 @@ import { getClasses, CharacterClass } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
 import { typography } from "@/styles";
 
+
+// ============================================================================
+// Component
+// ============================================================================
+
+
 export default function SelectClassScreen() {
+  // Context and state
   const { updateClassId } = useOnboarding();
   const [classes, setClasses] = useState<CharacterClass[]>([]);
   const [selectedClass, setSelectedClass] = useState<CharacterClass | null>(
@@ -43,6 +55,7 @@ export default function SelectClassScreen() {
     loadClasses();
   }, []);
 
+  // Save selected class to context and navigate to next screen
   const handleSubmit = () => {
     if (!selectedClass) {
       setError("Please select a class");
@@ -74,14 +87,18 @@ export default function SelectClassScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={globalStyles.centerContainer}
     >
+      {/* Back button */}
       <BackButton />
       <ScrollView style={{ width: "100%" }}>
+        {/* Title */}
         <Text style={globalStyles.h1}>Choose Your Class</Text>
 
+        {/* Error message */}
         {error && (
           <Text style={[typography.errorText, { marginTop: 16 }]}>{error}</Text>
         )}
 
+        {/* Class list */}
         <View style={{ marginTop: 24 }}>
           {classes.map((classItem) => (
             <TouchableOpacity
@@ -105,6 +122,7 @@ export default function SelectClassScreen() {
                     : colorPallet.neutral_darkest,
               }}
             >
+              {/* Class name */}
               <Text
                 style={{
                   fontSize: 18,
@@ -126,6 +144,7 @@ export default function SelectClassScreen() {
           ))}
         </View>
 
+        {/* Submit button */}
         <FormButton
           title="Next"
           onPress={handleSubmit}
@@ -135,6 +154,11 @@ export default function SelectClassScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+
+// ============================================================================
+// Helper Components
+// ============================================================================
 
 function StatPill({ label, value }: { label: string; value: number }) {
   return (
@@ -148,6 +172,7 @@ function StatPill({ label, value }: { label: string; value: number }) {
         backgroundColor: colorPallet.neutral_darkest,
       }}
     >
+      {/* Stat label */}
       <Text
         style={{
           fontSize: 12,
@@ -158,6 +183,7 @@ function StatPill({ label, value }: { label: string; value: number }) {
       >
         {label}:
       </Text>
+      {/* Stat value */}
       <Text
         style={{
           fontSize: 12,
