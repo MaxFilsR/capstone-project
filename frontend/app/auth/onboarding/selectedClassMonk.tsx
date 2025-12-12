@@ -1,3 +1,9 @@
+/**
+ * Selected Class Monk Screen
+ *
+ * Confirmation screen showing Monk class details after workout style selection.
+ */
+
 import { router } from "expo-router";
 import { View, Text, Image, ScrollView } from "react-native";
 import { BackButton, FormButton } from "@/components";
@@ -5,12 +11,17 @@ import monk from "@/assets/images/monk-male-full-brown.png";
 import { containers, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 
+// ============================================================================
+// Component
+// ============================================================================
+
 export default function selectedClassMonk() {
     return (
         <ScrollView
             contentContainerStyle={[containers.centerContainer]}
             style={{ backgroundColor: "#0C0C0C" }}
         >
+            {/* Back button */}
             <BackButton />
 
             {/* Container with consistent spacing */}
@@ -124,6 +135,8 @@ export default function selectedClassMonk() {
                         ))}
                     </View>
                 </View>
+
+                {/* Action buttons */}
                 <View style={containers.formActionContainer}>
                     <FormButton
                         title="Next"
@@ -132,6 +145,7 @@ export default function selectedClassMonk() {
                         }}
                     />
 
+                    {/* Manually select own class */}
                     <FormButton
                         title="Select My Own Class"
                         mode="text"
