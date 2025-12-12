@@ -1,3 +1,9 @@
+/**
+ * Selected Class Assassin Screen
+ *
+ * Confirmation screen showing Assassin class details after workout style selection.
+ */
+
 import { router } from "expo-router";
 import { View, Text, Image, ScrollView } from "react-native";
 import { BackButton, FormButton } from "@/components";
@@ -5,17 +11,22 @@ import assassin from "@/assets/images/assassin-male-green.png";
 import { containers, typography } from "@/styles";
 import { colorPallet } from "@/styles/variables";
 
+// ============================================================================
+// Component
+// ============================================================================
+
 export default function selectedClassAssassin() {
     return (
         <ScrollView
             contentContainerStyle={[containers.centerContainer]}
             style={{ backgroundColor: "#0C0C0C" }}
         >
+            {/* Back button */}
             <BackButton />
 
             {/* Container with consistent spacing */}
             <View style={{ width: "100%", gap: 24 }}>
-                {/* title */}
+                {/* Title */}
                 <Text
                     style={[
                         typography.h1,
@@ -40,6 +51,7 @@ export default function selectedClassAssassin() {
                         backgroundColor: "#121212",
                     }}
                 >
+                    {/* Character image */}
                     <View
                         style={{
                             padding: 10,
@@ -125,6 +137,7 @@ export default function selectedClassAssassin() {
                     </View>
                 </View>
 
+                {/* Action buttons */}
                 <View style={containers.formActionContainer}>
                     <FormButton
                         title="Next"
@@ -133,6 +146,7 @@ export default function selectedClassAssassin() {
                         }}
                     />
 
+                    {/* Manually select own class */}
                     <FormButton
                         title="Select My Own Class"
                         mode="text"
