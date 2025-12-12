@@ -1,3 +1,9 @@
+/**
+ * Username Screen
+ *
+ * Final onboarding step where user creates character username and submits all data.
+ */
+
 import { useState } from "react";
 import { router } from "expo-router";
 import { KeyboardAvoidingView, Platform, View, Text } from "react-native";
@@ -8,6 +14,10 @@ import { useAuth } from "@/lib/auth-context";
 import { useOnboarding } from "@/lib/onboarding-context";
 import { submitOnboarding, OnboardingRequest } from "@/api/endpoints";
 import axios from "axios";
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export default function UsernameScreen() {
   const [username, setUsername] = useState("");
@@ -88,10 +98,12 @@ export default function UsernameScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={globalStyles.centerContainer}
     >
+      {/* Back button */}
       <BackButton />
       <Text style={AUTH.title}>What should we call your new character?</Text>
 
       <View style={globalStyles.formContainer}>
+        {/* Username input */}
         <FormTextInput
           label="Username"
           placeholder="JDoe"
@@ -99,10 +111,12 @@ export default function UsernameScreen() {
           onChangeText={setUsername}
         />
 
+        {/* Error message */}
         {error && (
           <Text style={{ color: "red", marginVertical: 8 }}>{error}</Text>
         )}
 
+        {/* Submit button */}
         <FormButton
           mode="contained"
           title={loading ? "Creating..." : "Start"}
