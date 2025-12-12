@@ -1,3 +1,9 @@
+/**
+ * Workout Style Screen
+ *
+ * Onboarding step where users select workout preference, which maps to character class.
+ */
+
 import { useState, useEffect } from "react";
 import { router } from "expo-router";
 import {
@@ -14,12 +20,21 @@ import { getClasses, CharacterClass } from "@/api/endpoints";
 import { colorPallet } from "@/styles/variables";
 import { useOnboarding } from "@/lib/onboarding-context";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 type Option = {
   id: "warrior" | "monk" | "assassin" | "wizard" | "gladiator";
   label: string;
   value: "strength" | "yoga" | "cardio" | "mixed" | "competitive";
 };
 
+// ============================================================================
+// Constants
+// ============================================================================
+
+// Workout style options that map to character classes
 const OPTIONS: Option[] = [
   {
     id: "warrior",
@@ -35,6 +50,10 @@ const OPTIONS: Option[] = [
   { id: "wizard", label: "Mixed / Cross-Training", value: "mixed" },
   { id: "gladiator", label: "Competitive / Sports", value: "competitive" },
 ];
+
+// ============================================================================
+// Component
+// ============================================================================
 
 export default function WorkoutStyleScreen() {
   const [selected, setSelected] = useState<Option | null>(null);
@@ -125,8 +144,10 @@ export default function WorkoutStyleScreen() {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={containers.centerContainer}
     >
+      {/* Back button */}
       <BackButton />
 
+      {/* Title */}
       <Text
         style={[
           typography.h1,
@@ -146,10 +167,12 @@ export default function WorkoutStyleScreen() {
           />
         ))}
 
+        {/* Error message */}
         {error ? (
           <Text style={[typography.errorText, { marginTop: 16 }]}>{error}</Text>
         ) : null}
 
+        {/* Submit button */}
         <FormButton
           title="Next"
           onPress={handleSubmit}
@@ -159,6 +182,10 @@ export default function WorkoutStyleScreen() {
     </KeyboardAvoidingView>
   );
 }
+
+// ============================================================================
+// Helper Components
+// ============================================================================
 
 function RadioRow({
   label,
@@ -179,6 +206,7 @@ function RadioRow({
         paddingVertical: 14,
       }}
     >
+      {/* Radio button */}
       <View
         style={{
           height: 24,
@@ -191,6 +219,7 @@ function RadioRow({
           marginRight: 12,
         }}
       >
+        {/* Selected indicator */}
         {selected ? (
           <View
             style={{
