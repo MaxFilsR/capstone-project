@@ -1,6 +1,7 @@
 /target
 traget/
 /.sqlx
+layout.kdl
 
 # Added by cargo
 #

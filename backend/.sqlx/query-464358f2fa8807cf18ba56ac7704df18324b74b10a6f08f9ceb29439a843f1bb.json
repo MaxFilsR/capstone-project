@@ -41,6 +41,7 @@
             "name": "item_rarity",
             "kind": {
               "Enum": [
+                "default",
                 "common",
                 "uncommon",
                 "rare",
